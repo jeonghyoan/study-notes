@@ -602,16 +602,18 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#sec-basics">9. 설정 파일·접속·문자셋·기본 조회</a></li>
         <li><a href="#sec-table-practice">10. DB·테이블·데이터 생성·삭제</a></li>
         <li><a href="#sec-user-grant">11. 사용자·권한(GRANT)·DBeaver 원격 접속</a></li>
-        <li><a href="#cheatsheet">12. 통합 명령어 치트시트</a></li>
+        <li><a href="#least-privilege">12. 접속 위치별 최소 권한과 사용자 관리</a></li>
+        <li><a href="#local-dump-restore">13. mysqldump 백업과 복구</a></li>
+        <li><a href="#cheatsheet">14. 통합 명령어 치트시트</a></li>
   </ol></nav></aside>
   <main class="main">
   <header>
     <h1>MySQL 통합 학습노트</h1>
-    <p class="deck">MySQL 통합 학습노트 · 범위: Docker Hardened Image 기반 MySQL 컨테이너로 관리형 DB(RDS형)의 접속·문자셋 설정·장애 대응·백업과 복구 흐름 → MariaDB 11.4 연결 수·timeout·메모리 설정 → DB 분류·DBeaver·CentOS 패키지(dnf) 설치와 3306 포트 개방 → 로컬 서버 직접 설치본(MySQL 8.0.46)의 my.cnf·문자셋·기본 조회 → DB·테이블·데이터 생성·삭제 → root 패스워드·사용자·호스트·GRANT·DBeaver 원격 접속. 화면 값은 실습 관찰값. 컨테이너·Compose 기본: docker.html 4·5장</p>
+    <p class="deck">MySQL 통합 학습노트 · 범위: Docker Hardened Image 기반 MySQL 컨테이너로 관리형 DB(RDS형)의 접속·문자셋 설정·장애 대응·백업과 복구 흐름 → MariaDB 11.4 연결 수·timeout·메모리 설정 → DB 분류·DBeaver·CentOS 패키지(dnf) 설치와 3306 포트 개방 → 로컬 서버 직접 설치본(MySQL 8.0.46)의 my.cnf·문자셋·기본 조회 → DB·테이블·데이터 생성·삭제 → root 패스워드·사용자·호스트·GRANT·DBeaver 원격 접속 → 접속 위치별 최소 권한·권한 테이블·사용자 삭제 사고 대응 → root로 mysqldump 백업과 mysql 복구. 화면 값은 실습 관찰값. 컨테이너·Compose 기본: docker.html 4·5장</p>
     <div class="core-strip">
       <div><div class="core-metric">컨테이너 ≠ RDS</div><p class="core-desc">Docker MySQL 실습 = 관리형 DB의 접속·운영 흐름을 연습하는 모형. 운영 방식·관리 책임은 다름 (1장)</p></div>
       <div><div class="core-metric">로그 → 설정 수정</div><p class="core-desc"><code>docker logs</code>로 원인·오류값 확인 → 호스트에서 설정 수정 → <code>docker cp</code> → <code>docker restart</code> → 접속·상태 검증 (3장)</p></div>
-      <div><div class="core-metric">백업은 컨테이너 밖</div><p class="core-desc"><code>mysqldump</code> 결과를 호스트로 복사해 별도 보관. 오류가 있으면 파일 존재만으로 성공 판정 금지 → 종료 코드·복원으로 확인 (6장) 서버에 직접 설치하는 방식은 <code>dnf search mysql*</code>·<code>dnf info</code>로 <code>mysql-server</code> 유무 확인 → <code>dnf install mysql*</code> → <code>systemctl start mysqld.service</code> → <code>netstat -lnp</code>로 3306 확인 (8장). 설치 후에는 <code>/etc/my.cnf</code>·문자셋 확인 → <code>ALTER USER</code>로 root 패스워드 → <code>CREATE USER</code>(localhost·%·IP)와 <code>GRANT</code> → DBeaver <code>allowPublicKeyRetrieval=true</code> 순서 (9~11장).</p></div>
+      <div><div class="core-metric">백업은 컨테이너 밖</div><p class="core-desc"><code>mysqldump</code> 결과를 호스트로 복사해 별도 보관. 오류가 있으면 파일 존재만으로 성공 판정 금지 → 종료 코드·복원으로 확인 (6장) 서버에 직접 설치하는 방식은 <code>dnf search mysql*</code>·<code>dnf info</code>로 <code>mysql-server</code> 유무 확인 → <code>dnf install mysql*</code> → <code>systemctl start mysqld.service</code> → <code>netstat -lnp</code>로 3306 확인 (8장). 설치 후에는 <code>/etc/my.cnf</code>·문자셋 확인 → <code>ALTER USER</code>로 root 패스워드 → <code>CREATE USER</code>(localhost·%·IP)와 <code>GRANT</code> → DBeaver <code>allowPublicKeyRetrieval=true</code> 순서 (9~11장). 접속 위치별 최소 권한·권한 테이블·사용자 재생성 순서(12장) → root로 <code>mysqldump</code> 백업과 <code>mysql</code> 복구, 복구 전 <code>create database</code> 필수(13장).</p></div>
     </div>
     <nav class="toc" aria-label="목차">
       <a href="#rds-model">1. RDS형 구성·실습 기준</a>
@@ -625,7 +627,9 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#sec-basics">9. 설정 파일·접속·문자셋·기본 조회</a>
       <a href="#sec-table-practice">10. DB·테이블·데이터 생성·삭제</a>
       <a href="#sec-user-grant">11. 사용자·권한(GRANT)·DBeaver 원격 접속</a>
-      <a href="#cheatsheet">12. 통합 명령어 치트시트</a>
+      <a href="#least-privilege">12. 접속 위치별 최소 권한과 사용자 관리</a>
+      <a href="#local-dump-restore">13. mysqldump 백업과 복구</a>
+      <a href="#cheatsheet">14. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -840,7 +844,9 @@ docker logs --tail 50 mysql8</code></pre><button class="copy" type="button" aria
     <tr><td><strong>운영 판단</strong></td><td>DB 중단은 서비스 영향이 큼 → 원인 파악·정상 기동 확인 우선, 고객 데이터·인증정보는 요청하지 않음, 계정·연결 제한은 필요한 범위로</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">장애 로그·Unknown collation — charset 이름을 <code>collation-server</code>에 넣으면 <code>Unknown collation</code> → <code>Aborting</code>으로 서버 종료. <code>docker logs</code>에서 최초 오류 확인 → 수정 → <code>docker cp</code> → 종료 상태면 <code>docker start</code>(<code>docker ps -a</code>로 확인)</div>
-  
+    <ul class="facts">
+    <li><strong>호스트 직접 설치본</strong><div>리눅스 패키지로 설치한 MySQL의 <code>/etc/my.cnf</code> 문자셋 4파트·섹션과 <code>systemctl</code> 재시작: 이 파일 9장</div></li>
+    </ul>
 
   </section>
 
@@ -1392,6 +1398,61 @@ quit
     <li><strong>종료 명령 3종</strong><div><code>exit</code>·<code>quit</code>·<code>\q</code> 모두 mysql 클라이언트만 종료하고 리눅스 쉘로 돌아옴 — <code>exit</code>도 정상 동작</div></li>
     </ul>
 
+    <h3>문자셋 4파트와 my.cnf 섹션</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>화면 항목</th><th>변수</th><th>읽는 쪽·의미</th></tr></thead><tbody>
+    <tr><td class="nowrap">Server characterset</td><td><code>character_set_server</code></td><td>서버 기본 문자셋 — <code>[mysqld]</code> 그룹</td></tr>
+    <tr><td class="nowrap">Db characterset</td><td><code>character_set_database</code></td><td>DB를 만들 때 기본값으로 쓰이는 문자셋</td></tr>
+    <tr><td class="nowrap">Client characterset</td><td><code>character_set_client</code></td><td>클라이언트가 보내는 문자셋 — <code>[mysql]</code>·<code>[client]</code> 그룹</td></tr>
+    <tr><td class="nowrap">Conn. characterset</td><td><code>character_set_connection</code></td><td>접속이 맺어질 때 서버가 맞추는 문자셋</td></tr>
+    <tr><td class="nowrap">Binary data as</td><td><code>Hexadecimal</code></td><td>바이너리 값을 16진수로 표시하는 상태 출력 항목</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>4파트</strong><div>문자셋은 서버·DB·클라이언트·커넥션 4가지로 나뉘고 실습 화면은 모두 <code>utf8mb4</code> — 위 \s 표의 값과 같은 출력</div></li>
+    <li><strong>섹션과의 관계</strong><div>4파트는 <code>character_set_server</code>·<code>database</code>·<code>client</code>·<code>connection</code> 변수 구분이고, <code>[mysqld]</code>·<code>[mysql]</code>·<code>[client]</code> 섹션 3개와 1:1로 대응하지 않음</div></li>
+    <li><strong>나가기</strong><div>상태 확인 후 <code>Ctrl+D</code>로 나가고 <code>exit</code> — 두 방식 모두 클라이언트 종료</div></li>
+    </ul>
+    <div class="table-wrap"><table>
+    <thead><tr><th>섹션</th><th>읽는 프로그램</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>[mysqld]</code></td><td>MySQL 서버</td><td>서버 변수(<code>character_set_server</code> 등)를 여기에 씀</td></tr>
+    <tr><td class="nowrap"><code>[mysql]</code></td><td><code>mysql</code> 클라이언트만</td><td>CLI 클라이언트 전용 설정</td></tr>
+    <tr><td class="nowrap"><code>[client]</code></td><td>모든 MySQL 클라이언트 프로그램</td><td>공통 클라이언트 설정</td></tr>
+    <tr><td class="nowrap"><code>[client-server]</code></td><td>서버와 클라이언트 모두</td><td>화면에 원래 있던 그룹이지만 사실 쓰지 않음</td></tr>
+    <tr><td class="nowrap"><code>!includedir /etc/my.cnf.d</code></td><td>설정 파일 전체</td><td>디렉터리 안 설정 파일을 전부 포함해 읽음 — 기존 파일 맨 위 주석은 그대로 둠</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/my.cnf 파일 안 · root]</span>
+<span class="c"># 서버용 그룹: character_set_server 같은 서버 변수 (섹션 헤더를 먼저 넣고 기동 확인)</span>
+[mysqld]
+<span class="c"># mysql CLI 프로그램만 읽는 그룹</span>
+[mysql]
+<span class="c"># 모든 MySQL 클라이언트 프로그램이 읽는 그룹</span>
+[client]
+<span class="c"># 서버·클라이언트가 함께 읽는 기존 그룹 (이번에 쓰지 않음)</span>
+[client-server]
+<span class="c"># my.cnf.d 디렉터리의 설정 파일을 전부 포함</span>
+!includedir /etc/my.cnf.d</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 설정 파일 편집 (vi에서 :set number로 줄 번호 표시, Esc → :wq 저장 후 종료)</span>
+vi /etc/my.cnf
+<span class="c"># MySQL 중지 → 포트도 죽고 DB 사용 불가</span>
+systemctl stop mysqld.service
+<span class="c"># MySQL 시작 → 설정을 다시 읽음</span>
+systemctl start mysqld.service</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">편집 순서</td><td><code>vi /etc/my.cnf</code> → <code>Esc</code> → <code>:wq</code> → <code>stop</code> → <code>start</code></td><td>줄 번호가 달라도 관계없음 (전부 타이핑해야 하므로)</td></tr>
+    <tr><td class="nowrap">한 단계씩</td><td>먼저 섹션 헤더만 넣고 정상 기동되는지 확인</td><td>한 번에 다 넣으면 오타 위치를 찾기 어려움</td></tr>
+    <tr><td class="nowrap">기동 결과</td><td>시작이 오래 걸리고, 빨간 글씨(에러)가 뜨면 오타 → 설정 파일에서 위치를 찾아 수정. 빨간 글씨가 없으면 정상</td><td>가상머신이 멈추는 경우도 있음 — 콘솔에 커널 <code>rcu stall</code> 메시지</td></tr>
+    <tr><td class="nowrap">오타의 영향</td><td>설정 오타는 서버 기동 실패로 나타나고, 설정 파일을 고쳐 재시작하면 복구됨</td><td>데이터 파일이 지워지거나 살릴 수 없게 되는 것은 아님</td></tr>
+    <tr><td class="nowrap">변경 시점</td><td>문자셋 설정은 데이터가 들어가기 전에 처리</td><td>서버 기본 문자셋을 바꿔도 기존 컬럼 데이터는 바뀌지 않고 새로 만드는 DB·테이블의 기본값만 달라짐</td></tr>
+    <tr><td class="nowrap">기존 데이터</td><td>깨짐은 실제 인코딩과 다른 문자셋으로 변환할 때 생김</td><td>이미 저장된 테이블은 <code>ALTER TABLE … CONVERT TO CHARACTER SET</code>으로 변환</td></tr>
+    </tbody></table></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 13강 102:29~103:05</div>
+      <p>마지막 발언 “마이SQL 서버랑 … 클라이언트랑 세 개 샀어요”가 불명확 — 영상 해당 구간을 다시 듣고 서버·클라이언트 구성에서 무엇을 세는지 확인</p>
+    </div>
+    <div class="dg-bar warn">문자셋 설정 — Server·Db·Client·Conn. 4파트는 <code>character_set_*</code> 변수 구분이고 <code>[mysqld]</code>·<code>[mysql]</code>·<code>[client]</code> 섹션과 1:1이 아님. 설정 오타는 기동 실패(빨간 글씨)로 나타나며 파일 수정 후 재시작으로 복구</div>
+
     <h3>언어셋 종류</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>언어셋</th><th>용도</th><th>메모</th></tr></thead><tbody>
@@ -1447,6 +1508,8 @@ quit
     <li><strong>세미콜론</strong><div>문장 끝에 반드시 <code>;</code> — 띄어쓰기 없이 붙이고, 안 붙이면 줄만 내려가며 계속 입력 대기. 리눅스 명령은 세미콜론 불필요</div></li>
     <li><strong>자동완성</strong><div>mysql 프롬프트 안에서는 <b>Tab 자동완성이 안 됨</b> → 수동으로 다 입력 (리눅스 쉘에서는 됨)</div></li>
     <li><strong>권한 부여 실습</strong><div><code>GRANT</code>·<code>REVOKE</code>의 실제 사용과 호스트별 계정: 이 파일 11장</div></li>
+    <li><strong>권한 최소화</strong><div>접속 위치별 최소 권한·권한 테이블·사용자 사고 순서: 이 파일 12장</div></li>
+    <li><strong>백업·복구</strong><div><code>mysqldump</code> 덤프와 <code>mysql</code> 복구: 이 파일 13장</div></li>
     </ul>
     <div class="dg-bar warn">SQL 분류 — 구조는 DDL(CREATE·ALTER·DROP), 데이터는 DML(SELECT·INSERT·UPDATE·DELETE), 권한은 DCL(GRANT·REVOKE). <code>;</code>가 없으면 명령이 끝나지 않고 입력 대기로 넘어감</div>
 
@@ -1645,6 +1708,7 @@ drop database mall;    <span class="c">-- DB 삭제 (DB면 database, 테이블�
     <ul class="facts">
     <li><strong>계정·권한·원격 접속</strong><div>만든 DB를 사용자에게 열어 주는 절차: 이 파일 11장</div></li>
     <li><strong>문자셋·콜레이션</strong><div>테이블 문자셋이 자동으로 붙는 기준(<code>utf8mb4</code>): 이 파일 9장, 3장</div></li>
+    <li><strong>백업 대상 테이블</strong><div>AI로 만든 <code>pay</code> 테이블 100행을 백업·복구 실습에 쓰는 절차: 이 파일 13장</div></li>
     </ul>
 
   </section>
@@ -1896,11 +1960,478 @@ select host, db, user from db;</code></pre><button class="copy" type="button" ar
     <li><strong>의의</strong><div><code>erp</code> DB가 DBeaver에서 그대로 보임 → 개발자가 외부(DBeaver)로 접속해 데이터를 확인할 수 있는 상태</div></li>
     <li><strong>계정·권한 기초</strong><div><code>CREATE USER</code>·<code>GRANT</code>의 기본 형태와 host별 계정: 이 파일 5장(<code>accounts-client</code>)</div></li>
     <li><strong>서버 설치</strong><div>dnf 설치·기동·3306 포트 개방: 이 파일 8장(<code>sec-install</code>)</div></li>
+    <li><strong>권한 최소화</strong><div>ALL 대신 접속 위치별 SELECT·INSERT만 주는 방식과 사용자 삭제·재생성 순서: 이 파일 12장</div></li>
+    <li><strong>백업·복구</strong><div>사용자를 정리한 뒤 root로 덤프하고 복구: 이 파일 13장</div></li>
     </ul>
 
   </section>
 
   <!-- 12 -->
+  <section class="sec" id="least-privilege">
+    <h2>접속 위치별 최소 권한과 사용자 관리</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 계정·접속 위치별 권한에서 사고 정리까지</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 계정 쌍</h4><p class="sub">localhost·IP·%</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>② GRANT 최소 권한</h4><p class="sub">SELECT·INSERT만</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>③ 권한 테이블 db</h4><p class="sub">Host·Db·User +19</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>④ 매칭 정리·재생성</h4><p class="sub">db 삭제 → flush → create</p></div></div></div>
+
+    <h3>DB 인프라 담당자가 지키는 보안 태도</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">다루는 데이터</td><td>결제 내역, 사용자 정보, 게시물 등이 테이블 안에 모임</td><td>유출되면 뉴스·검찰 조사로 이어짐 → 세팅을 어설프게 하면 안 됨</td></tr>
+    <tr><td class="nowrap">경력별 태도</td><td>신입 때는 보안을 철저히 → 2년차에 귀찮아져 살짝 풀림 → 3년차쯤 뚫려도 어쩔 수 없다며 방치</td><td>방치한 그 순간이 공격 시점 — 설정은 한 번 풀면 되돌리는 데 오래 걸림</td></tr>
+    <tr><td class="nowrap">실제 사례</td><td>인프라 서비스 업체 서버의 보안이 통보 없이 전부 풀려 있었음</td><td>남의 서버를 맡는 일은 설정 하나가 사고로 이어짐</td></tr>
+    <tr><td class="nowrap">원칙</td><td>항상 신입의 마음(초심)으로 보안 세팅</td><td>오타 한 번·귀찮음 한 번이 사고 원인</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">DB 보안 태도 — 결제·개인정보·게시물이 한 테이블에 모이고 유출은 바로 뉴스가 됨. 경력이 쌓여 풀린 권한이 사고의 시작이므로 계정·권한은 초심 기준으로 유지</div>
+
+    <h3>계정은 사용자와 접속 위치의 한 쌍</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">표기</td><td><code>'사용자'@'localhost'</code> · <code>'사용자'@'IP'</code> · <code>'사용자'@'%'</code></td><td>접속 위치를 빼고 사용자 이름만으로는 계정을 특정할 수 없음</td></tr>
+    <tr><td class="nowrap">별개 계정</td><td>같은 사용자라도 <code>localhost</code> 계정과 IP 계정은 별개 → 권한도 각각 부여</td><td>한쪽에 준 권한이 다른 쪽에 자동으로 가지 않음</td></tr>
+    <tr><td class="nowrap">슬라이드 예시</td><td>개발 계정 예시 <code>blue</code>, 개발자 IP 예시 <code>211.60.50.190</code>, 예시 DB <code>korea_cms</code> (메모장 정리본)</td><td>값은 연습용 → 실제 서버에서는 개발자에게 받은 IP·DB명 사용</td></tr>
+    <tr><td class="nowrap">주석 처리</td><td><code>#</code>이나 <code>--</code>을 줄 앞에 붙이면 주석이 되어 실행되지 않음</td><td>슬라이드에서 <code>grant all …</code> 두 줄을 비활성화하고 아래에 최소 권한 줄을 씀</td></tr>
+    <tr><td class="nowrap">철자</td><td><code>privileges</code>가 정확한 철자 (P-R-I-V-I-L-E-G-E-S)</td><td>슬라이드의 <code>previleges</code> 표기는 오타 → 그대로 쓰면 <code>ERROR 1064</code></td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 사용자·DB를 만들고 접속 위치별로 권한을 나눠 부여하는 슬라이드 예시 (암호 a1234는 연습값)</span>
+create user '사용자'@'localhost' identified by 'a1234';
+create database korea_cms;
+<span class="c">-- ALL 권한 두 줄은 #으로 비활성화 → 아래에서 필요한 권한만 따로 부여</span>
+--grant all privileges on korea_cms.* to '사용자'@'localhost';
+--grant all privileges on korea_cms.* to '사용자'@'211.60.50.190';
+<span class="c">-- 푸티로 서버 안쪽에서 접속하는 계정: 조회만</span>
+grant select on korea_cms.* to '사용자'@'localhost';
+<span class="c">-- 개발자 PC(211.60.50.190)에서 원격 접속하는 계정: 조회 + 입력</span>
+grant select,insert on korea_cms.* to '사용자'@'211.60.50.190';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <h3>권한 문법 — ALL일 때만 PRIVILEGES</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>권한을 주는 형태</th><th>의미</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>grant all privileges on DB.* to '사용자'@'호스트';</code></td><td>그 DB의 모든 권한</td><td><code>ALL PRIVILEGES</code>일 때만 <code>PRIVILEGES</code>를 씀</td></tr>
+    <tr><td class="nowrap"><code>grant select on DB.* to …</code></td><td>SELECT(조회)만</td><td>특정 권한만 줄 때는 <code>privileges</code>를 쓰지 않음 (붙이면 문법 오류)</td></tr>
+    <tr><td class="nowrap"><code>grant select,insert on DB.* to …</code></td><td>조회 + 삽입만</td><td>UPDATE·DELETE는 사용 불가 → 수정·삭제가 필요하면 추가로 부여</td></tr>
+    <tr><td class="nowrap"><code>DB명.*</code></td><td>그 DB의 모든 테이블</td><td>형식은 <code>GRANT 권한 ON DB명.테이블 TO '사용자'@'호스트';</code></td></tr>
+    <tr><td class="nowrap">SELECT</td><td>조회를 못 하면 DB를 쓰는 의미가 없어 무조건 부여</td><td>데이터를 넣어야 하면 INSERT, 수정·삭제까지 필요하면 UPDATE·DELETE 추가</td></tr>
+    <tr><td class="nowrap">최소화</td><td>DROP 같은 위험한 명령을 못 쓰게 하려면 필요한 권한만 골라 부여</td><td>ALL 대신 필요한 것만 주는 것이 권한 최소화 원칙</td></tr>
+    <tr><td class="nowrap">확인</td><td>root는 사용자별 DB 권한이 어디까지인지 조회 가능</td><td>부여 현황은 <code>db</code> 테이블·<code>SHOW GRANTS</code>로 확인 (11장)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">GRANT 표기 — <code>ALL PRIVILEGES</code>에만 <code>PRIVILEGES</code>를 쓰고 <code>grant select</code> 같은 특정 권한에는 붙이지 않음. SELECT만 주면 검색만 되고 INSERT는 거부되므로 필요한 권한만 골라 주는 것이 최소 권한</div>
+
+    <h3>접속 경로별 권한 분리</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>접속 방식</th><th>계정 호스트</th><th>권한</th></tr></thead><tbody>
+    <tr><td class="nowrap">푸티로 서버에 직접 접속</td><td><code>localhost</code></td><td>SELECT만 — INSERT를 넣어도 들어가지 않음</td></tr>
+    <tr><td class="nowrap">DBeaver(개발자 PC 원격)</td><td>개발자 IP</td><td>SELECT·INSERT·UPDATE·DELETE 전부 (개발을 해야 하므로)</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>분리 이유</strong><div>공격이 주로 오는 푸티 화면(서버 안쪽)에서는 조회만 되게 하면 데이터 삭제·수정이 불가능 → 서버와 root를 뺏기지 않는 방어</div></li>
+    <li><strong>DDoS와 구분</strong><div>DDoS는 다수 소스가 트래픽을 폭주시켜 서비스를 못 쓰게 하는 공격이라 계정 권한과 무관 → 권한 분리는 계정 탈취·SQL 인젝션 피해 범위를 줄이는 효과</div></li>
+    <li><strong>현실</strong><div>귀찮아서 ALL을 주는 경우가 많음 → 앞의 3년차 문제와 같은 지점</div></li>
+    </ul>
+    <div class="dg-bar warn">접속 경로 분리 — 푸티(<code>localhost</code>)는 조회만, 개발자 IP는 개발에 필요한 권한 전부. 경로별 분리가 계정 탈취·SQL 인젝션의 피해 범위를 줄임. DDoS는 트래픽 공격이라 권한 설정과 별개</div>
+
+    <h3>권한이 허용하는 네 가지 데이터 조작</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>문</th><th>용도</th><th>웹·일상 예시</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>SELECT</code></td><td>검색과 데이터 리스트 출력</td><td>DBeaver 데이터 표 조회, 쇼핑몰 상품 검색, 게시판 공지 목록(한 페이지 10개씩), 게시판 제목·내용 검색, 상담 시 휴대폰 뒷번호로 고객 검색</td></tr>
+    <tr><td class="nowrap"><code>INSERT</code></td><td>데이터 삽입</td><td>AI가 만들어 준 INSERT 문 여러 줄을 붙여넣는 작업</td></tr>
+    <tr><td class="nowrap"><code>UPDATE</code></td><td>데이터 수정</td><td>이메일·주소·개인정보 수정, 글 내용 수정</td></tr>
+    <tr><td class="nowrap"><code>DELETE</code></td><td>데이터 삭제</td><td>테이블 삭제가 아니라 행(데이터) 삭제 — 게시글 한 건 지우기</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>공통 범위</strong><div>이 4문은 MySQL·MariaDB·PostgreSQL·Oracle·MS SQL 모두에 있음 → 하나를 제대로 세팅하면 웬만한 DB 핸들링 가능</div></li>
+    <li><strong>개발자 영역</strong><div>긴 SELECT 문(<code>select * from abc join bbb where …</code>)은 개발자 영역이라 인프라 담당자는 따라 쓰지 않음</div></li>
+    <li><strong>페이징</strong><div>게시판 하단 번호 = 페이징 넘버, 클릭 시 다음 페이지가 뜨는 것도 SELECT</div></li>
+    <li><strong>대상 구분</strong><div>INSERT·UPDATE·DELETE는 데이터가 대상, SELECT는 데이터베이스·테이블도 조회할 수 있어 범위가 넓음 (테이블 단위 확인은 잘 안 함)</div></li>
+    <li><strong>분류</strong><div>DDL·DML·DCL 전체 분류표: 이 파일 9장</div></li>
+    </ul>
+    <div class="dg-bar warn">SQL 4문 — SELECT(검색·목록)·INSERT(삽입)·UPDATE(수정)·DELETE(행 삭제)는 모든 DB 공통이고 권한도 이 네 가지를 기준으로 나뉨. DELETE는 데이터 삭제이고 테이블 삭제는 DROP</div>
+
+    <h3>권한 테이블 db 구조와 확인</h3>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 새 DB를 만들기 전에 이름 중복 확인</span>
+show databases;
+<span class="c">-- 실습 DB 생성 (AI 도구 올라마가 쓸 DB라는 가정)</span>
+create database ollama;
+<span class="c">-- 사용자·권한 테이블이 있는 시스템 DB로 이동</span>
+use mysql;
+<span class="c">-- 서버 안에서만 접속하는 계정 (암호는 연습값)</span>
+create user 'ollama'@'localhost' identified by 'ollama01';
+<span class="c">-- 매칭 대상 테이블 찾기 (mysql DB는 37개)</span>
+show tables;
+<span class="c">-- DB 권한이 매칭된 사용자 행 확인</span>
+select * from db;
+<span class="c">-- 테이블 구조 = 컬럼 22개</span>
+desc db;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>명령·항목</th><th>실행 결과·의미</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>show databases;</code></td><td><code>erp</code>, <code>hello</code>, <code>information_schema</code>, <code>mall</code>, <code>mega_mrp</code>, <code>mysql</code>, <code>performance_schema</code>, <code>sys</code> 등 → 새 DB를 만들기 전에 이름이 있는지 먼저 확인하는 습관</td></tr>
+    <tr><td class="nowrap"><code>create database ollama;</code></td><td><code>Query OK, 1 row affected</code>가 성공 신호. 이 메시지가 없으면 에러 — 서버는 잘 작동하거나 아예 안 하거나 둘 중 하나이고 어설프게 작동하는 경우는 없음(어설프면 롤백)</td></tr>
+    <tr><td class="nowrap"><code>use mysql;</code></td><td><code>Database changed</code></td></tr>
+    <tr><td class="nowrap"><code>create user 'ollama'@'localhost' identified by 'ollama01';</code></td><td><code>Query OK, 0 rows affected</code> — 구버전·신버전 모두 같은 문장</td></tr>
+    <tr><td class="nowrap">비밀번호 정책</td><td>8.4는 비밀번호에 대문자·특수문자가 필요하다는 강의 설명</td><td>비밀번호 정책(<code>validate_password</code>)은 설치·활성화된 서버에서만 적용되고 기본 MEDIUM 정책이 대·소문자·숫자·특수문자 포함 8자 이상 — 미설치면 검사하지 않아 이 8.0.46 서버가 소문자+숫자 <code>ollama01</code>을 받아들임</td></tr>
+    <tr><td class="nowrap">localhost 계정</td><td>AI(올라마)는 서버 안에서 돌아 DB에 외부에서 접속할 일이 없어 <code>localhost</code> 계정만 생성</td><td>DBeaver로 쓸 때만 IP 계정을 따로 만듦</td></tr>
+    <tr><td class="nowrap"><code>show tables;</code></td><td><code>37 rows</code> — <code>db</code>, <code>user</code>, <code>tables_priv</code> 등 권한·계정 테이블</td></tr>
+    <tr><td class="nowrap"><code>desc db;</code></td><td>22 rows = 컬럼 22개</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>db 테이블 컬럼</th><th>설명</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>Host</code></td><td><code>localhost</code> · <code>%</code> · IP</td></tr>
+    <tr><td class="nowrap"><code>Db</code></td><td>데이터베이스 이름</td></tr>
+    <tr><td class="nowrap"><code>User</code></td><td>사용자 이름</td></tr>
+    <tr><td class="nowrap"><code>Select_priv</code>~<code>Trigger_priv</code> (19개)</td><td>각 권한의 <code>enum('N','Y')</code>: Select, Insert, Update, Delete, Create, Drop, Grant, References, Index, Alter, Create_tmp_table, Lock_tables, Create_view, Show_view, Create_routine, Alter_routine, Execute, Event, Trigger</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>db 테이블</strong><div>DB 권한 매칭 테이블 (이 외에 <code>user</code>, <code>tables_priv</code> 등)</div></li>
+    <li><strong>매칭 확인</strong><div><code>select * from db;</code>에서 <code>blue</code> 사용자 행(Host=<code>localhost</code>, Db=<code>erp</code>, User=<code>blue</code>)이 보이면 매칭된 상태</div></li>
+    <li><strong>행이 없을 때</strong><div>접속 허용 여부는 <code>user</code> 테이블의 Host·User 범위가 결정하고, <code>db</code> 테이블은 DB 수준 권한을 저장해 요청 검증 단계에서 쓰임 → <code>db</code> 행이 없으면 접속은 되지만 그 DB에 대한 권한이 없는 상태</div></li>
+    <li><strong>Host 열</strong><div><code>%</code> = 외부 전체 허용, IP = 특정 IP. <code>localhost</code>만 있고 <code>%</code>가 없으면 외부에서 접속 자체가 불가능</div></li>
+    <li><strong>Y와 N</strong><div><code>Y</code> = 그 구문 사용 가능, <code>N</code> = 사용 불가 → 작동 불능</div></li>
+    <li><strong>컬럼</strong><div>테이블의 세로 항목 → 이 컬럼 이름·개수에 맞춰 데이터를 넣음</div></li>
+    <li><strong>버전 차이</strong><div>컬럼 개수는 DB 버전마다 다름(22개·21개·25개 버전이 있다는 강의 발언) → 항상 <code>desc 테이블;</code>로 확인하고 그 수에 맞춰 값 입력 (20개면 20개, 10개면 10개)</div></li>
+    </ul>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 13강 32:06~32:14</div>
+      <p>버전별 <code>db</code> 테이블 컬럼 수로 언급된 21개·25개는 공식 문서에서 확인하지 못함 — 해당 버전 MySQL에서 <code>desc db;</code>로 직접 확인 필요</p>
+    </div>
+
+    <h3>구버전 매칭 — db 테이블에 직접 INSERT</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">상황</td><td>신버전만 배운 상태에서 구버전(예: 5.1) DB를 만나면 문법이 달라 당황</td><td>AI에게 물어도 버전을 되묻고 다른 문법을 줘서 복사해도 안 되는 일이 생김</td></tr>
+    <tr><td class="nowrap">업그레이드 거부</td><td>8.0으로 올리자고 해도 사수가 거부하는 경우가 많음</td><td>사용자별로 준 IP 권한을 전부 옮겨야 하고(누구는 되고 누구는 안 되면 안 됨), 데이터가 많아 이전 작업이 오래 걸림</td></tr>
+    <tr><td class="nowrap">현장 관행</td><td>한 번 구축한 DB는 웬만해선 업데이트하지 않고 보안만 유지</td><td>서버 이전·DB 컨버팅을 할 수 있는 인력이 실무에서 필요</td></tr>
+    <tr><td class="nowrap">적용 범위</td><td>이 방식은 MySQL·MariaDB에만 해당</td><td>Oracle·MS SQL은 완전히 다름 — 인프라 담당자는 DB마다 관리자 측면만 공부</td></tr>
+    </tbody></table></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 13강 17:07</div>
+      <p>서버 이전·DB 컨버팅 인력을 이르는 발음이 불분명(“DB 컴퓨터/컴퍼너”로 전사, 재전사 2회도 동일) — 영상 해당 구간을 다시 듣고 정확한 용어 확인</p>
+    </div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 구버전 방식: 앞 3개(Host·Db·User) + 권한 19개를 전부 'y'로 (22−3)</span>
+<span class="c">-- GRANT ALL PRIVILEGES를 쓴 효과를 권한 테이블에 직접 만든 것</span>
+insert into db values('localhost','ollama','ollama','y','y','y','y','y','y','y','y','y','y','y','y','y','y','y','y','y','y','y');
+<span class="c">-- 입력한 매칭을 서버에 반영</span>
+flush privileges;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">구성</td><td><code>insert into 테이블명 values (값…);</code> — 앞 3개가 Host·Db·User, 나머지 19개가 <code>'y'</code>. 값은 홑따옴표로 감싸고 쉼표로 구분</td></tr>
+    <tr><td class="nowrap">붙여넣기</td><td><code>Shift+Insert</code> 또는 우클릭 → 엔터 → <code>Query OK</code>가 나오면 매칭 완료</td></tr>
+    <tr><td class="nowrap">호스트별 행</td><td>사용자를 <code>localhost</code>와 IP 두 개로 만들었다면 <code>db</code> 테이블 행도 두 개 (이번 실습은 <code>localhost</code> 한 개라 한 행)</td></tr>
+    <tr><td class="nowrap">철자 실수</td><td><code>flush previleges;</code> → <code>ERROR 1064 (42000)</code> 문법 오류 → 올바른 철자로 재입력</td></tr>
+    <tr><td class="nowrap">공식 권고</td><td>grant 테이블 직접 수정은 공식 문서가 권장하지 않는 방식 → 구버전 현장 대응으로만 알고, 신버전은 <code>GRANT ALL PRIVILEGES</code> 후 <code>FLUSH PRIVILEGES</code></td></tr>
+    <tr><td class="nowrap">GRANT 존재</td><td>MySQL 5.1에도 <code>GRANT ALL</code>이 있었음 → 구버전이라 GRANT가 없어서 INSERT로 매칭한 것이 아니라, 매칭이 안 되는 현장 상황을 우회한 방식</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">구버전 db 테이블 — 행 값 3개(Host·Db·User) 뒤에 권한 19개를 <code>'y'</code>로 넣고 호스트별로 행을 따로 만듦. grant 테이블 직접 수정은 공식 문서가 권장하지 않으므로 신버전은 GRANT ALL PRIVILEGES + FLUSH PRIVILEGES</div>
+
+    <h3>사용자·권한 행 조회 (WHERE)</h3>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 등록 사용자가 몇 명 안 될 때만 전체 조회 (많으면 스크롤이 길어 찾기 어려움)</span>
+select * from user;
+<span class="c">-- 특정 사용자 한 행만 조회 (user = 컬럼명, 따옴표 안 = 그 컬럼의 데이터)</span>
+select * from user where user='ollama';
+<span class="c">-- db 테이블도 같은 방식</span>
+select * from db where user='ollama';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">컬럼명</td><td>외우지 말고 <code>select * from user;</code> 결과의 컬럼 이름을 보고 맞춰 씀</td></tr>
+    <tr><td class="nowrap">확인 내용</td><td>그 사용자 한 행에서 Host가 <code>localhost</code>인지 <code>%</code>인지(외부 접속 가능 여부), 패스워드 정책(암호화된 값) 확인</td></tr>
+    <tr><td class="nowrap">호스트 두 행</td><td><code>where user='blue'</code> 결과에 <code>localhost</code>와 <code>%</code> 행이 함께 나오면 둘 다 연결(매칭)된 것</td></tr>
+    <tr><td class="nowrap">없는 사용자</td><td><code>Empty set</code> = 사용자가 만들어지지 않은 상태</td></tr>
+    <tr><td class="nowrap">쓰는 사람</td><td>개발자 영역이 아니라 인프라 담당자도 실무에서 쓰는 조회 문구</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">조회 결과 판정 — <code>Empty set</code>이면 사용자 또는 매칭이 없는 상태. <code>where user='아이디'</code> 결과에 <code>localhost</code>·<code>%</code> 두 행이 나오면 두 계정 모두 등록된 것</div>
+
+    <h3>사용자 삭제와 FLUSH — 사고 순서</h3>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 특정 사용자만 삭제 (WHERE 없이 delete from user; 는 root까지 전부 삭제)</span>
+delete from user where user='ollama';
+<span class="c">-- 삭제 확인 → Empty set</span>
+select * from user where user='ollama';
+<span class="c">-- 삭제·변경한 권한을 반영 → 이때부터 접속 불가</span>
+flush privileges;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">WHERE 없는 삭제</td><td><code>delete from user;</code>를 엔터로 실행하면 <code>user</code> 테이블의 모든 사용자가 root까지 삭제</td><td><code>delete</code>·<code>drop</code> 두 단어는 정말 조심 — 서버를 통째로 잃는 사고</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td><code>delete … where user='ollama'</code> → <code>Query OK, 1 row affected</code>, 확인 조회 → <code>Empty set</code></td><td>지운 사용자는 아이디·패스워드를 알아도 접속 불가 (반영 후)</td></tr>
+    <tr><td class="nowrap">flush 누락</td><td>삭제 후 반영하지 않으면 사용자가 계속 접속됨</td><td><code>flush privileges;</code> → <code>Query OK, 0 rows affected</code> → 그때부터 접속 불가</td></tr>
+    <tr><td class="nowrap">긴급 차단</td><td>DB 인젝션으로 패스워드가 유출된 상황 → 사용자 정지 기능이 없으므로 해당 사용자를 <code>delete</code> 후 <code>flush privileges</code>로 굉장히 빠르게 접속 차단</td><td>차단이 목적이면 삭제 + flush가 가장 빠름</td></tr>
+    <tr><td class="nowrap">공식 방식</td><td>사용자 삭제는 <code>DROP USER</code>가 공식 방식</td><td><code>delete from user</code> 직접 DML은 reload 전까지 반영되지 않고 <code>db</code> 등 관련 테이블이 남아 <code>ERROR 1396</code>을 부름</td></tr>
+    <tr><td class="nowrap">습관</td><td>권한 테이블을 직접 고쳤으면 <code>flush privileges</code>까지 실행</td><td>안 하면 지운 사용자가 계속 접속하는 상태로 남음</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">WHERE 없는 delete — <code>delete from user;</code>는 root까지 전부 삭제. 삭제 후 <code>flush privileges</code>가 없으면 기존 접속이 계속 살아 있고, 공식 삭제 명령은 <code>DROP USER</code></div>
+
+    <h3>사용자 재생성 ERROR 1396 — 매칭부터 끊기</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">상황</td><td>패스워드 유출 → 다른 팀과 협의해 패스워드 변경하기로 하고, 지운 사용자를 새 패스워드로 다시 만들려는 시점</td></tr>
+    <tr><td class="nowrap">에러 문구</td><td><code>ERROR 1396 (HY000): Operation CREATE USER failed for 'ollama'@'localhost'</code></td></tr>
+    <tr><td class="nowrap">원인</td><td><code>db</code> 테이블에 매칭(권한 연결)이 남아 있어 생성이 불가능</td></tr>
+    <tr><td class="nowrap">규칙</td><td>매칭을 먼저 끊고 사용자를 삭제·재생성 — 순서를 뒤섞으면 어디서부터 잘못됐는지 파악이 안 됨</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 지운 사용자를 새 패스워드로 재생성 시도 → ERROR 1396</span>
+create user 'ollama'@'localhost' identified by 'b1234';
+<span class="c">-- db 테이블의 매칭만 삭제 (DB 자체를 지우는 것이 아님)</span>
+delete from db where user='ollama';
+<span class="c">-- 확인 (ollama 행이 없어야 함)</span>
+select * from db;
+<span class="c">-- 반영</span>
+flush privileges;
+<span class="c">-- 재생성</span>
+create user 'ollama'@'localhost' identified by 'b1234';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts">
+    <li><strong>실행 결과</strong><div><code>delete</code> → <code>Query OK, 1 row affected</code>, <code>flush</code>·<code>create user</code> → <code>Query OK, 0 rows affected</code> (재생성 성공)</div></li>
+    <li><strong>flush 누락</strong><div>반영하지 않으면 삭제만으로는 재생성이 안 됨</div></li>
+    <li><strong>매칭과 DB</strong><div><code>db</code> 테이블 행 삭제는 DB 자체 삭제가 아님 — 올라마가 만든 테이블·데이터는 그대로 있고 매칭만 끊고 연결하는 것이 인프라 담당자 역할</div></li>
+    <li><strong>개발자 데이터</strong><div>모르고 DB를 <code>drop</code>하면 난리 — 개발자가 만든 DB 데이터는 절대 건드리지 않음</div></li>
+    <li><strong>다른 DB도 동일</strong><div>매칭을 먼저 끊고 사용자를 삭제. 사용자부터 지우면 재생성이 안 되고 개발자 문의가 계속 오며 리눅스 문제로 오해하게 됨</div></li>
+    </ul>
+    <div class="dg-bar warn">ERROR 1396 — 지운 사용자의 CREATE USER가 실패하면 <code>db</code> 테이블 매칭이 남은 것. <code>delete from db where user=…</code> → <code>flush privileges</code> → <code>create user</code> 순서. <code>drop database</code>와는 전혀 다른 작업</div>
+
+    <h3>레플리카 환경에서의 위험</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">현재</td><td>로컬 단독 서버라 워커와 연결을 안 했으므로 빨리 지우고 다시 만들어도 됨</td><td>실습에서 순서를 익히는 이유</td></tr>
+    <tr><td class="nowrap">다음 구성</td><td>마스터 서버 1대 + 워커(레플리카) 서버 여러 대</td><td>마스터에서 만든 사용자·테이블이 워커에 자동 동기화되어 똑같이 생성됨</td></tr>
+    <tr><td class="nowrap">어긋날 때</td><td>마스터에서 사용자·테이블을 어설프게 지우고 만들면 워커와 어긋나 서버가 에러를 내고, 마스터에 다시 넣어도 에러</td><td>당황해서 워커를 건드리면 안 됨 (동기화 방식이 따로 있음)</td></tr>
+    <tr><td class="nowrap">동기화 기술</td><td>마스터→워커 동기화는 MySQL 복제(replication) 기능</td><td>오토 스케일링과 별개 — 레플리카는 읽기 부하 분산(scale-out)에 쓰이고 서버 자동 증감과 무관</td></tr>
+    <tr><td class="nowrap">사고 대응</td><td>마스터가 해킹당해 박살 나면 셧다운하고 워커(레플리카)를 마스터로 승격해 운영</td><td>개인정보가 있으면 뉴스·검찰 조사로 이어지므로 인프라 담당자의 판단이 필요</td></tr>
+    <tr><td class="nowrap">증상</td><td>워커가 연결된 상태에서 사용자 생성이 안 되거나 워커가 계속 비어 있으면 원인 파악이 어려움</td><td>지금 배우는 절차를 순서대로 정확히 해야 나중에 워커 핸들링이 편해짐</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">레플리카 — 마스터의 계정·권한 변경이 워커로 복제되어 어긋나면 서버 에러. 워커를 임의로 건드리지 말고 마스터에서 순서대로 다시. 동기화는 복제 기능이고 오토 스케일링과 무관</div>
+
+    <h3>패스워드 변경 — 삭제 대신 수정</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>버전</th><th>방법</th><th>구문</th></tr></thead><tbody>
+    <tr><td class="nowrap">구버전</td><td><code>user</code> 테이블 <code>update</code></td><td>슬라이드 표기 <code>update user passwd = password('') where user='아이디';</code> — 구문이 불완전하고, 5.6 이하의 정확한 형태는 <code>UPDATE mysql.user SET Password=PASSWORD('새PW') WHERE User='아이디';</code> 후 <code>FLUSH PRIVILEGES;</code> (5.7.6부터 Password 컬럼이 authentication_string으로 대체)</td></tr>
+    <tr><td class="nowrap">신버전(8.x)</td><td><code>alter user</code></td><td><code>alter user '아이디'@'localhost' identified by '변경패스워드';</code></td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 사용자 정보 유출 상황: 삭제하지 않고 패스워드만 변경 (b1234는 연습값)</span>
+alter user 'ollama'@'localhost' identified by 'b1234';
+<span class="c">-- 슬라이드 절차의 마지막 단계: 권한 테이블을 직접 수정한 경우 반영</span>
+flush privileges;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts">
+    <li><strong>버전 차이</strong><div>구버전은 UPDATE 쿼리로 패스워드 변경, 8번대는 ALTER로 수정 — AI에게 물어도 같은 답이 나오는 지점</div></li>
+    <li><strong>반영</strong><div>계정 관리 문장은 서버가 즉시 반영하고(11장), 테이블을 직접 수정했을 때만 <code>flush privileges</code> 필요</div></li>
+    <li><strong>접속 정리</strong><div>변경 후 기존 접속은 해제하고 처리</div></li>
+    <li><strong>정리</strong><div>패스워드만 바꿀 거면 UPDATE/ALTER USER, 사용자 삭제는 마지막 수단 (앞의 재생성 실패)</div></li>
+    </ul>
+    <div class="dg-bar warn">패스워드 변경 — 사용자 정보 유출 시 삭제가 아니라 ALTER USER(8.x)·UPDATE(구버전)로 변경. 삭제는 db 매칭 때문에 재생성 실패(ERROR 1396)를 부르므로 마지막 수단</div>
+
+    <h3>신버전 매칭 — GRANT ALL PRIVILEGES</h3>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 구버전의 y 19개 입력 대신 GRANT로 매칭 (to 뒤 사용자@호스트는 필수)</span>
+grant all privileges on ollama.* to 'ollama'@'localhost';
+<span class="c">-- 반영</span>
+flush privileges;</code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">순서</td><td>사용자 생성 → 매칭(GRANT) → 마지막에 <code>flush privileges;</code></td></tr>
+    <tr><td class="nowrap">현재 방식</td><td>구버전의 <code>y</code> 19개 입력이 아니라 <code>GRANT</code>로 매칭 — 11장의 GRANT와 같은 문장</td></tr>
+    <tr><td class="nowrap">범위</td><td><code>ollama.*</code> = ollama DB의 모든 테이블</td></tr>
+    </tbody></table></div>
+
+    <h3>접속 옵션 (-u · -p · -h)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>옵션</th><th>의미</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>-u 사용자</code></td><td>사용자 지정</td><td>root·일반 계정 모두 같은 형식</td></tr>
+    <tr><td class="nowrap"><code>-p</code></td><td>패스워드 입력</td><td>엔터 후 패스워드를 물어봄 (실습 <code>b1234</code>)</td></tr>
+    <tr><td class="nowrap"><code>-h 호스트</code></td><td>접속할 호스트(서버)</td><td><code>localhost</code> 접속에는 필요 없음. 서버 IP를 주면 다른 서버로 접속</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · korea · 프롬프트 $]</span>
+<span class="c"># 서버 IP를 지정해 다른 서버(10.2.2.101)로 접속</span>
+mysql -u ollama -p -h 10.2.2.101</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · ollama]</span>
+<span class="c">-- 접속 후 DB 확인·선택</span>
+show databases;
+use ollama;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">윈도우 cmd 실패</td><td><code>mysql -u blue -p -h 10.2.2.101</code>이 안 먹음 — 윈도우에는 MySQL 클라이언트가 없기 때문 (윈도우용 MySQL을 설치하면 되지만 보통 없음)</td></tr>
+    <tr><td class="nowrap">해결</td><td>푸티로 접속하거나 DBeaver 사용</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">접속 옵션 — <code>localhost</code> 접속에는 <code>-h</code>가 필요 없고, <code>-h</code>에 서버 IP를 주면 원격 서버 접속. 윈도우 cmd는 MySQL 클라이언트가 없어 접속 불가 → 푸티·DBeaver</div>
+
+    <h3>리눅스 계정과 DB 계정은 별개</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">DB 계정</td><td>DB에서 사용자를 만들고 GRANT로 권한을 줘도 푸티로 리눅스에 접속할 수는 없음</td></tr>
+    <tr><td class="nowrap">푸티 접속</td><td>DB 사용자(예: <code>ollama</code>)를 푸티로 접속시키려면 DB에서 빠져나와 리눅스에 <code>useradd</code>로 사용자를 따로 만듦</td></tr>
+    <tr><td class="nowrap">구분</td><td>GRANT가 아니라 리눅스 계정 세팅 문제 — DB 사용자를 만들었다고 포트 접속이 되는 것이 아님</td></tr>
+    <tr><td class="nowrap">같은 맥락</td><td>루트 DB 계정 ≠ 루트 리눅스 계정 (9장)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">DB 계정 ≠ 리눅스 계정 — GRANT로 DB 권한을 줘도 푸티 로그인은 불가. 리눅스 사용자는 <code>useradd</code>로 따로 만들고 두 계정 체계를 섞지 않음</div>
+
+    <ul class="facts">
+    <li><strong>계정·GRANT 기본</strong><div>루트 패스워드·사용자 생성·호스트별 계정·DBeaver 원격 접속: 이 파일 11장</div></li>
+    <li><strong>host 계정 문법</strong><div>컨테이너에서 <code>'hong'@'localhost'</code>·<code>'hong'@'%'</code>로 권한을 나누는 예: 이 파일 5장</div></li>
+    <li><strong>백업·복구</strong><div>사용자·권한을 정리한 뒤 데이터를 백업하고 되살리는 절차: 이 파일 13장</div></li>
+    <li><strong>SQL 분류</strong><div>DDL·DML·DCL·TCL 전체표: 이 파일 9장</div></li>
+    </ul>
+
+  </section>
+
+  <!-- 13 -->
+  <section class="sec" id="local-dump-restore">
+    <h2>mysqldump 백업과 복구</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 덤프 → 경로 확인 → 삭제 사고 → 복구</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 백업 대상</h4><p class="sub">pay 100행</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>② mysqldump</h4><p class="sub">-u root · &gt; 파일</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>③ 경로·확인</h4><p class="sub">/home/backup</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>④ 삭제 → 복구</h4><p class="sub">drop → create → mysql</p></div></div></div>
+
+    <h3>백업 대상 테이블 만들기 (pay)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">요청</td><td>Gemini에 MySQL 형태로 결제 내역 테이블 <code>pay</code> 생성 요청, 컬럼 = 상품코드·상품명·아이디·결제금액·카드 회사·결제일, 데이터 100개를 INSERT 형태로 생성</td><td>ChatGPT도 같은 방식 — 어떤 DB용인지 명시해야 MySQL 문법으로 나옴</td></tr>
+    <tr><td class="nowrap">받은 DDL</td><td><code>CREATE TABLE pay (id INT AUTO_INCREMENT PRIMARY KEY, product_code, product_name, user_id, payment_amount, card_company, payment_date)</code>와 그 아래 INSERT 문이 한꺼번에 생성</td><td>컬럼 타입은 화면에 안 보여 표준 예시로 채움</td></tr>
+    <tr><td class="nowrap">실행 순서</td><td>푸티에서 <code>use ollama;</code> → DDL 붙여넣기(테이블 생성) → INSERT 붙여넣기(데이터 입력)</td><td>DBeaver는 쓰지 않음 — 서버 안에서 바로 실행</td></tr>
+    <tr><td class="nowrap">붙여넣기</td><td>PuTTY는 터미널 창을 왼쪽 버튼으로 드래그해 선택하면 자동으로 클립보드에 복사되고, 오른쪽 클릭(기본 설정)이나 <code>Shift+Insert</code>가 붙여넣기</td><td>마우스 오른쪽 클릭을 복사로 쓰는 방식이 아님</td></tr>
+    <tr><td class="nowrap">목적</td><td>백업 → 삭제 → 복구 실습용 데이터 확보</td><td>데이터 확인(SELECT)은 생략</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · ollama]</span>
+<span class="c">-- 백업 실습용 DB 선택</span>
+use ollama;
+<span class="c">-- AI(Gemini)가 만든 DDL: 결제 내역 테이블. 타입은 화면에 없어 표준 예시로 채움</span>
+CREATE TABLE pay (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  product_code VARCHAR(20),
+  product_name VARCHAR(100),
+  user_id VARCHAR(50),
+  payment_amount INT,
+  card_company VARCHAR(30),
+  payment_date DATETIME
+);
+<span class="c">-- 이어서 AI가 만든 INSERT 100행을 붙여넣기</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <h3>백업 기본 구문 (mysqldump)</h3>
+    <ul class="facts">
+    <li><strong>실행 위치</strong><div>푸티에서 <code>exit</code>로 MySQL을 나와 리눅스 쉘에서 실행 — linux.html의 파이프·리다이렉션 기호가 여기서 다시 나옴</div></li>
+    <li><strong>명령의 정체</strong><div><code>mysqldump</code> = 백업 명령어 (DB마다 dump 명령이 다르고 우리는 MySQL 기준)</div></li>
+    </ul>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># DB 전체를 SQL 파일로 백업. -u root = 최고관리자가 직접 백업, -p = 엔터 후 패스워드 입력</span>
+mysqldump -u root -p ollama &gt; /home/backup/ollama.sql</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구성</th><th>의미</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>-u root</code></td><td>root(최고관리자)가 직접 백업</td><td><code>-u ollama</code>로 하면 ollama 사용자가 자기 DB를 백업 → 백업하는 주체가 다름</td></tr>
+    <tr><td class="nowrap"><code>-p</code></td><td>패스워드 입력</td><td>엔터 후 루트 패스워드를 물어봄</td></tr>
+    <tr><td class="nowrap"><code>ollama</code></td><td>백업할 DB명</td><td>DB명을 빼면 덤프 대상이 달라짐</td></tr>
+    <tr><td class="nowrap"><code>&gt;</code></td><td>리다이렉션 (파일로 저장)</td><td>파일을 비우고 새로 씀 — 방향을 거꾸로 쓰면 백업이 안 됨</td></tr>
+    <tr><td class="nowrap">담당 구분</td><td>개발자가 자기 DB를 백업하는 것은 그쪽 일</td><td>인프라 담당자는 root로 백업</td></tr>
+    </tbody></table></div>
+
+    <h3>테이블만·추가·날짜 파일명</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · /home/backup]</span>
+<span class="c"># 특정 테이블(pay)만 백업 — DB 전체 백업이 아님</span>
+mysqldump -u root -p ollama pay &gt; pay.sql
+<span class="c"># 파일 끝에 이어 쓰기 (덮어쓰지 않음)</span>
+mysqldump -u root -p ollama &gt;&gt; ollama.sql
+<span class="c"># 날짜(YYMMDD)를 붙인 파일명 — 2026-10-14 실습</span>
+mysqldump -u root -p ollama &gt; ollama_261014.sql</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">테이블 지정</td><td>DB명 뒤에 테이블 이름을 주면 그 테이블만 백업</td><td>DB 전체가 너무 커서(예: 6GB 이상) 통째로 받기 애매할 때 사용</td></tr>
+    <tr><td class="nowrap">경로</td><td>현재 경로가 백업 디렉토리면 경로 생략 가능, 다른 디렉토리면 전체 경로 지정</td><td>어디에 파일이 생겼는지 모르면 백업 확인이 안 됨</td></tr>
+    <tr><td class="nowrap"><code>&gt;&gt;</code></td><td>파일 끝에 추가</td><td>덧붙인 덤프를 복구해도 데이터가 꼭 중복되지는 않음 — mysqldump는 기본(<code>--opt</code>)으로 테이블마다 <code>DROP TABLE</code> 후 <code>CREATE</code>를 넣어 복구 결과가 마지막 덤프 내용이 됨 (<code>--skip-add-drop-table</code>이면 중복)</td></tr>
+    <tr><td class="nowrap">덮어쓰기</td><td>같은 파일에 계속 쓰면 이전 백업이 사라지므로 한 번만 쓰는 <code>&gt;</code>를 권장</td><td>날짜를 붙인 파일명으로 그 날짜에 맞게 백업</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">덤프 파일명 — <code>&gt;</code>는 덮어쓰기, <code>&gt;&gt;</code>는 파일 끝 추가. 기본 덤프는 복구 시 테이블을 DROP·CREATE하므로 마지막 덤프가 남고, 이전 백업을 살리려면 날짜를 붙인 새 파일명을 씀</div>
+
+    <h3>백업 저장 경로와 권한</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">현재 경로</td><td><code>korea</code> 계정의 홈(<code>/home/korea</code>)</td><td>여기에 백업하면 데이터가 유출됨 (실제 사고 사례) — root로 백업할 때는 저장 경로를 반드시 확인</td></tr>
+    <tr><td class="nowrap">디렉토리 없음</td><td><code>/home/backup</code> 없이 실행하면 디렉토리가 없다는 에러</td><td><code>mkdir /home/backup</code> 후 같은 명령을 방향키 ↑로 다시 실행 → 패스워드를 물어보면 정상</td></tr>
+    <tr><td class="nowrap">디렉토리 권한</td><td>화면의 <code>drwxr-xr-x root root</code>, 파일은 <code>rw-r--r--</code></td><td>other에 <code>r-x</code>가 있어 일반 사용자도 목록·읽기 가능 → root 전용으로 하려면 <code>chmod 700 /home/backup</code></td></tr>
+    <tr><td class="nowrap">확장자</td><td><code>ollama.data</code>로 저장해도 같은 크기(<code>11573</code>바이트)·같은 내용 → 원하는 이름으로 써도 됨</td><td><code>.sql</code>은 SQL 스크립트의 관례 확장자이고 mysqldump 공식 예시도 <code>dump.sql</code></td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 백업 디렉토리 생성</span>
+mkdir /home/backup
+<span class="c"># 생성 확인</span>
+ls -al
+<span class="c"># 백업 디렉토리로 이동</span>
+cd /home/backup
+<span class="c"># 백업 파일(ollama.sql) 존재·크기 확인</span>
+ls -al
+<span class="c"># 내용이 쭉 나오면 백업 성공 (0바이트 확인)</span>
+cat ollama.sql</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">백업 경로 — root로 백업해도 현재 디렉토리가 사용자 홈이면 데이터 유출. <code>/home/backup</code> 같은 별도 경로에 두고, <code>drwxr-xr-x</code>는 일반 사용자도 읽을 수 있어 root 전용은 <code>chmod 700</code></div>
+
+    <h3>흔한 실수 — 0바이트 백업</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>실수</th><th>결과</th></tr></thead><tbody>
+    <tr><td class="nowrap">리다이렉션 방향 거꾸로 (<code>mysqldump … &lt; 파일</code>)</td><td><code>bash: …/ollama2.sql: 그런 파일이나 디렉터리가 없습니다</code> — 백업 파일이 없으니 읽을 수 없음</td></tr>
+    <tr><td class="nowrap"><code>mysqldump</code> 대신 <code>mysql</code>만 입력 (<code>mysql -u root -p ollama &gt; 파일</code>)</td><td>명령이 입력 대기 상태로 멈춤. <code>Ctrl+C</code>가 안 먹고 <code>Ctrl+D</code>로 빠져나와야 함. 이때 파일은 생기지만 크기가 <code>0</code>바이트 (<code>ls -al</code>에서 <code>ollama2.sql</code> 0바이트)</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>확인 습관</strong><div>항상 백업 후 <code>ls -al</code>·<code>cat</code>으로 확인 — 파일이 만들어졌다고 지웠는데 알고 보니 0바이트였던 사고, 백업을 잘못해 큰 사고를 친 사례가 실제로 있음</div></li>
+    </ul>
+    <div class="dg-bar warn">백업 확인 — <code>&gt;</code> 방향과 <code>mysqldump</code>·<code>mysql</code> 구분 확인. 입력 대기로 멈추면 <code>Ctrl+D</code>. 파일 존재만으로 성공 판정 금지, <code>ls -al</code> 크기와 <code>cat</code> 내용까지 확인</div>
+
+    <h3>복구 — DROP 후 mysql &lt; 백업파일</h3>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 사고 시연: 백업 파일이 있는 상태에서 DB 삭제</span>
+drop database ollama;
+<span class="c">-- 목록에서 사라진 것 확인</span>
+show databases;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">실행 결과</td><td><code>drop database ollama;</code> → <code>Query OK</code>, <code>0.42</code>초 → <code>show databases;</code>에서 사라짐</td></tr>
+    <tr><td class="nowrap">백업 없을 때</td><td>MySQL 안에서는 되돌릴 방법이 없어 리눅스로 나와 복구해야 함</td></tr>
+    <tr><td class="nowrap">복구 범위</td><td>전체 백업과 바이너리 로그(binlog)가 있으면 DROP DATABASE 직전 시점까지 복구(point-in-time recovery) 가능 — 이번 실습은 mysqldump 백업으로 복구하는 경우</td></tr>
+    <tr><td class="nowrap">사고 판정</td><td>복구했는데 데이터가 안 보이면 사고가 터진 것</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 백업 파일 내용을 입력으로 넘겨 복구. 복구는 mysqldump가 아니라 mysql</span>
+mysql -u root -p ollama &lt; /home/backup/ollama.data</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">기호 구분</td><td><code>&lt;</code>는 셸의 입력 리다이렉션, <code>&gt;</code>는 출력(파일을 비우고 쓰기), <code>&gt;&gt;</code>는 추가</td></tr>
+    <tr><td class="nowrap">역할</td><td>백업은 <code>mysqldump</code>, 복구는 <code>mysql</code> → 나중에 셸(shell) 스크립트로 자동화할 때 이 구분을 씀</td></tr>
+    <tr><td class="nowrap">에러</td><td>처음 실행하면 <code>Unknown database 'ollama'</code> — DB를 <code>drop</code>해서 날렸으므로 복구 전에 DB를 먼저 생성해야 함 (DB 테두리가 없으면 안의 테이블·데이터만 복구할 수 없음)</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 복구 전에 DB를 먼저 생성</span>
+create database ollama;
+<span class="c">-- 리눅스 쉘로 복귀한 뒤 방향키 ↑로 실패한 복구 명령 재실행</span>
+exit</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>순서</th><th>작업</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td><code>mysql -u root -p</code>로 접속</td></tr>
+    <tr><td class="nowrap">2</td><td><code>create database ollama;</code>로 DB 생성 (테이블·데이터는 아직 없음)</td></tr>
+    <tr><td class="nowrap">3</td><td><code>exit</code>로 리눅스 쉘 복귀</td></tr>
+    <tr><td class="nowrap">4</td><td>방향키 ↑로 아까 실패한 <code>mysql -u root -p ollama &lt; /home/backup/ollama.data</code> 재실행 → 성공(OK)</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 복구 후 확인: DB 선택 → 테이블 → 데이터</span>
+use ollama;
+show tables;
+select * from pay;
+exit</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts">
+    <li><strong>확인 결과</strong><div><code>show tables;</code> → <code>pay</code>, <code>select * from pay;</code> → 백업 시점의 결제 데이터</div></li>
+    <li><strong>역할 경계</strong><div>복구해 주면 인프라 담당자가 할 일은 끝 — 이후 데이터 추가는 개발자 몫</div></li>
+    <li><strong>자동화</strong><div>자동 백업(날짜 파일명 넣기 등)은 파이썬 같은 개발 코드가 아니라 셸 스크립트 등으로 작성 (별도 설명 예정)</div></li>
+    <li><strong>자료 공유</strong><div>지금까지 배운 명령어와 의미를 PDF로 정리해 클라우드 서버에 올릴 예정 (수강생에게만 공유)</div></li>
+    </ul>
+    <div class="dg-bar warn">복구 순서 — 백업은 <code>mysqldump</code>, 복구는 <code>mysql</code>. DB를 drop했으면 <code>create database</code>를 먼저 하고 <code>mysql … &lt; 파일</code> 실행. <code>Unknown database</code>는 DB가 없다는 뜻</div>
+
+    <ul class="facts">
+    <li><strong>컨테이너 안 백업</strong><div><code>mysqldump --no-tablespaces</code>와 <code>docker cp</code>로 덤프를 컨테이너 밖에 보관하는 절차: 이 파일 6장</div></li>
+    <li><strong>사용자·권한</strong><div>백업 전 계정·권한 정리와 삭제 사고 순서: 이 파일 12장</div></li>
+    <li><strong>테이블 생성</strong><div>DB·테이블·데이터 생성과 AI 활용 기본: 이 파일 10장</div></li>
+    <li><strong>문자셋</strong><div>백업 파일을 다른 문자셋 서버로 옮길 때 확인할 <code>my.cnf</code> 문자셋 4파트: 이 파일 9장</div></li>
+    </ul>
+
+  </section>
+
+  <!-- 14 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -1960,6 +2491,36 @@ select host, db, user from db;</code></pre><button class="copy" type="button" ar
       <tr><td><code>desc db;</code> / <code>select host, db, user from db;</code></td><td>권한 컬럼(<code>enum('N','Y')</code>) 구조 / DB 권한 부여 현황</td></tr>
       <tr><td>DBeaver <code>allowPublicKeyRetrieval=true</code></td><td><code>RSA public key is not available...</code> 오류 시 Driver properties에서 설정, 보안을 푸는 임시 조치</td></tr>
       <tr><td><code>ERROR 1045 (28000): Access denied ... (using password: NO)</code></td><td>패스워드 설정 후 무패스워드 접속 시 나와야 하는 정상 오류</td></tr>
+      <tr class="group"><th colspan="2" scope="colgroup">권한 최소화·사용자 관리 (로컬 서버)</th></tr>
+      <tr><td><code>create database ollama;</code></td><td>DB 생성 — <code>Query OK, 1 row affected</code>가 성공 신호, 만들기 전 이름 중복 확인</td></tr>
+      <tr><td><code>create user 'ollama'@'localhost' identified by '...';</code></td><td>서버 내부 전용 계정 — 구·신 버전 동일 문장, 리눅스 계정과 별개</td></tr>
+      <tr><td><code>grant select on korea_cms.* to '사용자'@'localhost';</code></td><td>푸티 접속 계정은 조회만 — INSERT 시도는 거부</td></tr>
+      <tr><td><code>grant select,insert on korea_cms.* to '사용자'@'211.60.50.190';</code></td><td>개발자 IP 계정은 조회+입력, UPDATE·DELETE는 불가</td></tr>
+      <tr><td><code>grant all privileges on ollama.* to 'ollama'@'localhost';</code></td><td>신버전 매칭 — <code>ALL PRIVILEGES</code>일 때만 <code>PRIVILEGES</code>를 씀</td></tr>
+      <tr><td><code>insert into db values('localhost','ollama','ollama','y'...);</code></td><td>구버전 매칭 — Host·Db·User 3개 + 권한 19개를 <code>'y'</code>로, 호스트별 행</td></tr>
+      <tr><td><code>select * from user where user='ollama';</code></td><td>사용자 한 행 조회 — <code>Empty set</code>이면 미등록, Host로 외부 접속 여부 판단</td></tr>
+      <tr><td><code>delete from user where user='ollama';</code></td><td>사용자 삭제 — WHERE 없이 쓰면 root까지 전부 삭제</td></tr>
+      <tr><td><code>delete from db where user='ollama';</code></td><td>매칭만 삭제 — ERROR 1396 해결은 매칭 → flush → create user 순서</td></tr>
+      <tr><td><code>alter user 'ollama'@'localhost' identified by '...';</code></td><td>패스워드 변경(8.x) — 사용자 정보 유출 시 삭제 대신 수정</td></tr>
+      <tr><td><code>update mysql.user set Password=PASSWORD('...') where User='...';</code></td><td>패스워드 변경(5.6 이하) 후 <code>FLUSH PRIVILEGES;</code> — 5.7.6부터 authentication_string</td></tr>
+      <tr><td><code>mysql -u ollama -p -h 10.2.2.101</code></td><td>서버 IP로 원격 접속 — <code>localhost</code>면 <code>-h</code> 불필요, 윈도우 cmd는 클라이언트 없어 불가</td></tr>
+      <tr><td><code>ERROR 1396 (HY000): Operation CREATE USER failed ...</code></td><td><code>db</code> 테이블 매칭이 남아 재생성 실패 → 매칭 삭제 → flush → create user</td></tr>
+      <tr><td><code>ERROR 1064 (42000)</code></td><td><code>flush previleges</code> 같은 철자 오류 — <code>privileges</code>가 정확한 철자</td></tr>
+      <tr class="group"><th colspan="2" scope="colgroup">백업·복구 (로컬 서버)</th></tr>
+      <tr><td><code>mkdir /home/backup</code> / <code>ls -al</code></td><td>백업 디렉토리 생성·확인 — 사용자 홈(<code>/home/korea</code>)에 백업하면 유출</td></tr>
+      <tr><td><code>mysqldump -u root -p ollama &gt; /home/backup/ollama.sql</code></td><td>DB 전체 백업 — root가 직접, <code>&gt;</code>는 파일로 저장(덮어쓰기)</td></tr>
+      <tr><td><code>mysqldump -u root -p ollama pay &gt; pay.sql</code></td><td>테이블 하나만 백업 (DB 전체가 6GB 이상일 때)</td></tr>
+      <tr><td><code>mysqldump … &gt;&gt; 파일</code> / <code>&gt; ollama_261014.sql</code></td><td>끝에 추가 / 날짜(YYMMDD) 파일명으로 이전 백업 보존</td></tr>
+      <tr><td><code>cat ollama.sql</code></td><td>백업 내용·크기 확인 — 0바이트 백업 사고 방지</td></tr>
+      <tr><td><code>chmod 700 /home/backup</code></td><td><code>drwxr-xr-x</code>는 일반 사용자도 읽기 가능 → root 전용으로 제한</td></tr>
+      <tr><td><code>drop database ollama;</code></td><td>삭제 사고 재현 — 백업 없으면 MySQL 안에서 되돌릴 수 없음</td></tr>
+      <tr><td><code>mysql -u root -p ollama &lt; /home/backup/ollama.data</code></td><td>복구는 <code>mysql</code>과 입력 리다이렉션 <code>&lt;</code> — DB를 먼저 create</td></tr>
+      <tr><td><code>create database ollama;</code></td><td>복구 전 DB 생성 — 없으면 <code>Unknown database 'ollama'</code></td></tr>
+      <tr><td><code>select * from pay;</code></td><td>복구 후 테이블·데이터 확인</td></tr>
+      <tr class="group"><th colspan="2" scope="colgroup">문자셋 설정·재시작 (로컬 서버)</th></tr>
+      <tr><td><code>vi /etc/my.cnf</code></td><td><code>[mysqld]</code>·<code>[mysql]</code>·<code>[client]</code> 섹션 — 설정 파일 줄 끝 주석 금지</td></tr>
+      <tr><td><code>systemctl stop mysqld.service</code> / <code>systemctl start mysqld.service</code></td><td>설정 반영 — 시작이 오래 걸리고 빨간 글씨(에러)면 오타</td></tr>
+      <tr><td><code>status;</code></td><td>Server·Db·Client·Conn. 문자셋 4파트와 <code>utf8mb4</code> 확인</td></tr>
     </tbody></table></div>
   
 
