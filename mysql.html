@@ -610,7 +610,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
   <main class="main">
   <header>
     <h1>MySQL 통합 학습노트</h1>
-    <p class="deck">MySQL 통합 학습노트 · 범위: Docker Hardened Image 기반 MySQL 컨테이너로 관리형 DB(RDS형)의 접속·문자셋 설정·장애 대응·백업과 복구 흐름 → MariaDB 11.4 연결 수·timeout·메모리 설정 → DB 분류·DBeaver·CentOS 패키지(dnf) 설치와 3306 포트 개방 → 로컬 서버 직접 설치본(MySQL 8.0.46)의 my.cnf·문자셋·기본 조회 → DB·테이블·데이터 생성·삭제 → root 패스워드·사용자·호스트·GRANT·DBeaver 원격 접속 → 접속 위치별 최소 권한·권한 테이블·사용자 삭제 사고 대응 → root로 mysqldump 백업과 mysql 복구 → 데몬 재시작·고스트 프로세스 정리·포트 변경(10000)과 포트포워딩. 화면 값은 실습 관찰값. 컨테이너·Compose 기본: docker.html 4·5장</p>
+    <p class="deck">MySQL 통합 학습노트 · 범위: Docker Hardened Image 기반 MySQL 컨테이너로 관리형 DB(RDS형)의 접속·문자셋 설정·장애 대응·백업과 복구 흐름 → MariaDB 11.4 연결 수·timeout·메모리 설정 → DB 분류·DBeaver·CentOS 패키지(dnf) 설치와 3306 포트 개방 → 로컬 서버 직접 설치본(MySQL 8.0.46)의 my.cnf·문자셋·기본 조회 → DB·테이블·데이터 생성·삭제 → root 패스워드·사용자·호스트·GRANT·DBeaver 원격 접속 → 접속 위치별 최소 권한·권한 테이블·사용자 삭제 사고 대응 → root로 mysqldump 백업과 mysql 복구 → 데몬 재시작·고스트 프로세스 정리·포트 변경(10000)과 포트포워딩 → 마스터·워커 포트 통일(3306). 화면 값은 실습 관찰값. 컨테이너·Compose 기본: docker.html 4·5장</p>
     <div class="core-strip">
       <div><div class="core-metric">컨테이너 ≠ RDS</div><p class="core-desc">Docker MySQL 실습 = 관리형 DB의 접속·운영 흐름을 연습하는 모형. 운영 방식·관리 책임은 다름 (1장)</p></div>
       <div><div class="core-metric">로그 → 설정 수정</div><p class="core-desc"><code>docker logs</code>로 원인·오류값 확인 → 호스트에서 설정 수정 → <code>docker cp</code> → <code>docker restart</code> → 접속·상태 검증 (3장)</p></div>
@@ -2694,6 +2694,82 @@ port = 10000</code></pre><button class="copy" type="button" aria-label="코드 �
     <tr><td class="nowrap">개발자 공지</td><td>인프라 담당자가 포트를 바꾸면 개발자에게 반드시 공지</td><td>공지가 없으면 개발자는 3306으로 계속 시도하며 장애로 오인</td></tr>
     </tbody></table></div>
 
+    <h3>마스터·워커 포트 통일 (10000 → 3306)</h3>
+    <div class="table-wrap">
+<table>
+    <thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+<th>주의·이유</th>
+</tr>
+</thead>
+<tbody>
+    <tr>
+<td class="nowrap">배경</td>
+<td>마스터와 워커 두 서버의 포트를 <b>같게</b> 맞춰 접속할 때 헷갈리지 않게 함</td>
+<td>이중화 실습 준비 단계 — 서버마다 포트가 다르면 어느 서버에 붙었는지 착각</td>
+</tr>
+    <tr>
+<td class="nowrap">수정 대상</td>
+<td><b>마스터의 <code>/etc/my.cnf</code>만</b> 수정</td>
+<td>워커는 건드리지 않음 — 한쪽만 바꿔 두 서버 값을 맞춤</td>
+</tr>
+    <tr>
+<td class="nowrap">작업 계정</td>
+<td>워커 VM이 다 켜진 뒤 <b>root</b>로 작업</td>
+<td><code>blue2</code> 같은 일반 계정으로 작업하지 않고, 윈도우 IP(10.x 대역)도 쓰지 않음</td>
+</tr>
+    <tr>
+<td class="nowrap">넣는 그룹</td>
+<td><code>[mysqld]</code>와 <code>[client]</code> 두 곳 모두 <code>3306</code></td>
+<td>서버 쪽과 클라이언트 쪽을 함께 바꿔야 같은 값으로 접속됨</td>
+</tr>
+    <tr>
+<td class="nowrap">화면 확인 값</td>
+<td><code>character-set-server = utf8mb4</code>, <code>[mysql]</code>의 <code>default-character-set = utf8mb4</code>, <code>innodb_fast_shutdown = 1</code>, <code>innodb_flush_log_at_trx_commit = 2</code>, <code>innodb_max_dirty_pages_pct = 10</code></td>
+<td>포트만 바꾸고 이 값들은 그대로 유지 — 문자셋·InnoDB 설정을 건드리면 기존 동작이 달라짐</td>
+</tr>
+    </tbody>
+</table>
+</div>
+<div class="code">
+<pre>
+<code>
+<span class="c"># [호스트 리눅스 · /etc/my.cnf 파일 안 · root · master 서버]</span>
+[mysqld]
+<span class="c"># 서버 포트 — 10000에서 3306으로 되돌림 (워커와 같은 값)</span>
+port = 3306
+<span class="c"># 서버 문자셋 — 한글·이모지까지 담는 4바이트 utf8mb4 유지</span>
+character-set-server = utf8mb4
+<span class="c"># 종료할 때 버퍼·로그를 정리하는 방식 (1 = 빠른 종료)</span>
+innodb_fast_shutdown = 1
+<span class="c"># 커밋마다 디스크 동기화를 하지 않음 (2 = 속도 우선, 장애 시 1초 내 손실 감수)</span>
+innodb_flush_log_at_trx_commit = 2
+<span class="c"># 더티 페이지 상한(%) — 10으로 낮게 두어 디스크 쓰기 폭주 방지</span>
+innodb_max_dirty_pages_pct = 10
+[client]
+<span class="c"># 클라이언트 포트 — 서버와 같은 3306</span>
+port = 3306
+[mysql]
+<span class="c"># mysql 클라이언트 문자셋 — 서버와 맞춤</span>
+default-character-set = utf8mb4</code>
+</pre>
+<button class="copy" type="button" aria-label="코드 복사">복사</button>
+</div>
+<div class="code">
+<pre>
+<code>
+<span class="c"># [호스트 리눅스 · root · master 서버]</span>
+systemctl status mysqld.service    <span class="c"># active (running) 확인 — 켜져 있는지 먼저 봄</span>
+systemctl stop mysqld.service      <span class="c"># 중지 — 설정을 다시 읽게 하려면 내렸다 올림</span>
+systemctl start mysqld.service     <span class="c"># 시작 (가동 중이라 재시작 필요, restart로 한 번에 해도 됨)</span>
+<span class="c"># 시작 후 10~15초 대기 — 설정을 읽고 포트를 여는 시간</span>
+netstat -lnptu                     <span class="c"># 3306 LISTEN 확인</span></code>
+</pre>
+<button class="copy" type="button" aria-label="코드 복사">복사</button>
+</div>
+    <div class="dg-bar warn">포트 통일 — 마스터만 수정하고 워커는 그대로. <code>[mysqld]</code>·<code>[client]</code> 두 곳을 같은 값으로 바꾸고 재시작해야 반영되며, 시작 후 10~15초 뒤 포트로 정상 여부를 판단</div>
     <h3>DBeaver 연결 수정</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>상황</th><th>결과</th><th>대응</th></tr></thead><tbody>
@@ -2721,7 +2797,7 @@ port = 10000</code></pre><button class="copy" type="button" aria-label="코드 �
     <ul class="facts">
     <li><strong>포트 개방·자동 시작</strong><div>포트포워딩 기본 규칙과 <code>ntsysv</code> 자동 시작: 이 파일 8장</div></li>
     <li><strong>가상 네트워크·고정 IP</strong><div>NAT·호스트 전용 어댑터와 포트포워딩 개념: linux.html 2장</div></li>
-    <li><strong>같은 포트 변경</strong><div>PostgreSQL의 <code>postgresql.conf</code> port 설정: postgresql.html 6장</div></li>
+    <li><strong>서버 여러 대 순차 처리</strong><div>데몬 목록을 배열로 돌려 <code>systemctl</code>을 반복 실행: linux.html 16장</div></li><li><strong>같은 포트 변경</strong><div>PostgreSQL의 <code>postgresql.conf</code> port 설정: postgresql.html 6장</div></li>
     </ul>
   </section>
 
@@ -2823,6 +2899,7 @@ port = 10000</code></pre><button class="copy" type="button" aria-label="코드 �
       <tr><td><code>journalctl -xeu mysqld.service</code> / <code>tail -n 50 /var/log/mysql/mysqld.log</code></td><td>기동 실패 요약과 상세 로그 마지막 50줄 — MY-xxxxx 코드 확인</td></tr>
       <tr><td><code>skill -kill mysql</code> / <code>skill -kill mysqld</code> / <code>pkill -9 mysqld</code></td><td>고스트 프로세스 정리 — skill -KILL과 pkill -9는 같은 SIGKILL</td></tr>
       <tr><td><code>port = 10000</code> (<code>[mysqld]</code>·<code>[client]</code>) / <code>mysql -P 10000</code></td><td>포트 변경과 TCP 접속 포트 지정 — 개발자 공지·포워딩 규칙도 함께 변경</td></tr>
+       <tr><td><code>port = 3306</code> (<code>[mysqld]</code>·<code>[client]</code>)</td><td>마스터·워커 포트 통일 — 두 서버를 같은 값으로 맞춰 접속 혼동 방지, 마스터만 수정</td></tr>
       <tr><td><code>innodb_fast_shutdown = 1</code> / <code>innodb_flush_log_at_trx_commit = 2</code> / <code>innodb_max_dirty_pages_pct = 10</code></td><td>느린 VM 경량화 — 종료 단축·로그 I/O 감소·dirty page 상한</td></tr>
       <tr><td><code>:18,20 co 5</code></td><td>vi 줄 복사 — 시작,끝 co 목적지줄, 원본은 # 으로 주석 처리</td></tr>
     </tbody></table></div>
