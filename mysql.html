@@ -598,16 +598,17 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#accounts-client">5. 계정·권한·DBeaver</a></li>
         <li><a href="#backup-restore">6. 백업·사고·복구</a></li>
         <li><a href="#image-security">7. 이미지 배포·보안</a></li>
-        <li><a href="#cheatsheet">8. 통합 명령어 치트시트</a></li>
+        <li><a href="#sec-install">8. DB 개요 · DBeaver · MySQL 패키지 설치·포트 개방</a></li>
+        <li><a href="#cheatsheet">9. 통합 명령어 치트시트</a></li>
   </ol></nav></aside>
   <main class="main">
   <header>
     <h1>MySQL 통합 학습노트</h1>
-    <p class="deck">MySQL 통합 학습노트 · 범위: Docker Hardened Image 기반 MySQL 컨테이너로 관리형 DB(RDS형)의 접속·문자셋 설정·장애 대응·백업과 복구 흐름 → MariaDB 11.4 연결 수·timeout·메모리 설정. 화면 값은 실습 관찰값. 컨테이너·Compose 기본: docker.html 4·5장</p>
+    <p class="deck">MySQL 통합 학습노트 · 범위: Docker Hardened Image 기반 MySQL 컨테이너로 관리형 DB(RDS형)의 접속·문자셋 설정·장애 대응·백업과 복구 흐름 → MariaDB 11.4 연결 수·timeout·메모리 설정 → DB 분류·DBeaver·CentOS 패키지(dnf) 설치와 3306 포트 개방. 화면 값은 실습 관찰값. 컨테이너·Compose 기본: docker.html 4·5장</p>
     <div class="core-strip">
       <div><div class="core-metric">컨테이너 ≠ RDS</div><p class="core-desc">Docker MySQL 실습 = 관리형 DB의 접속·운영 흐름을 연습하는 모형. 운영 방식·관리 책임은 다름 (1장)</p></div>
       <div><div class="core-metric">로그 → 설정 수정</div><p class="core-desc"><code>docker logs</code>로 원인·오류값 확인 → 호스트에서 설정 수정 → <code>docker cp</code> → <code>docker restart</code> → 접속·상태 검증 (3장)</p></div>
-      <div><div class="core-metric">백업은 컨테이너 밖</div><p class="core-desc"><code>mysqldump</code> 결과를 호스트로 복사해 별도 보관. 오류가 있으면 파일 존재만으로 성공 판정 금지 → 종료 코드·복원으로 확인 (6장)</p></div>
+      <div><div class="core-metric">백업은 컨테이너 밖</div><p class="core-desc"><code>mysqldump</code> 결과를 호스트로 복사해 별도 보관. 오류가 있으면 파일 존재만으로 성공 판정 금지 → 종료 코드·복원으로 확인 (6장) 서버에 직접 설치하는 방식은 <code>dnf search mysql*</code>·<code>dnf info</code>로 <code>mysql-server</code> 유무 확인 → <code>dnf install mysql*</code> → <code>systemctl start mysqld.service</code> → <code>netstat -lnp</code>로 3306 확인 (8장).</p></div>
     </div>
     <nav class="toc" aria-label="목차">
       <a href="#rds-model">1. RDS형 구성·실습 기준</a>
@@ -617,7 +618,8 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#accounts-client">5. 계정·권한·DBeaver</a>
       <a href="#backup-restore">6. 백업·사고·복구</a>
       <a href="#image-security">7. 이미지 배포·보안</a>
-      <a href="#cheatsheet">8. 통합 명령어 치트시트</a>
+      <a href="#sec-install">8. DB 개요 · DBeaver · MySQL 패키지 설치·포트 개방</a>
+      <a href="#cheatsheet">9. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -1071,7 +1073,231 @@ SELECT COUNT(*) FROM members;</code></pre><button class="copy" type="button" ari
 
   </section>
 
-  <!-- 8 -->
+<section class="sec" id="sec-install">
+<h2>DB 개요 · DBeaver · MySQL 패키지 설치와 포트 개방</h2>
+
+<div class="dg">
+<p class="dg-title">한눈에 보기 — DB 종류 확인 → 패키지 점검 → 설치·기동 → 포트 개방</p>
+
+<div class="dg-flow">
+<div class="dg-node key"><h4>① DBeaver</h4>
+<p class="sub">접속 클라이언트 · DB 목록 확인</p>
+</div>
+
+<div class="dg-arrow"></div>
+
+<div class="dg-node "><h4>② 검색·정보</h4>
+<p class="sub"><code>dnf search mysql*</code> · <code>dnf info</code></p>
+</div>
+
+<div class="dg-arrow"></div>
+
+<div class="dg-node "><h4>③ 설치</h4>
+<p class="sub"><code>dnf install mysql*</code> · 9개 · 187MB</p>
+</div>
+
+<div class="dg-arrow"></div>
+
+<div class="dg-node accent"><h4>④ 기동·개방</h4>
+<p class="sub"><code>systemctl start mysqld</code> · 3306</p>
+</div>
+</div>
+
+<p class="dg-foot">서버에 직접 설치하는 방식(dnf)과 버전 선택 원칙 — 커널(OS) 버전이 맞아야 설치됨</p>
+</div>
+
+<h3>DBeaver Community 설치 (Windows)</h3>
+
+<div class="table-wrap">
+<table><thead><tr><th>단계</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">설치 파일</td><td>[윈도우 · 탐색기] 받은 설치 파일 더블클릭 → 언어 선택 → <b>Next</b></td><td></td></tr><tr><td class="nowrap">설치 위치</td><td>C 드라이브 기본 경로</td><td>DB 클라이언트는 서버가 아니라 내 PC에 설치</td></tr><tr><td class="nowrap">사용자 범위</td><td><b>All users</b>(모든 사용자) 선택 → <b>Next</b></td><td>내 계정에서만 쓰려면 기본값도 가능</td></tr><tr><td class="nowrap">구성 요소</td><td>목록의 <b>처음 항목과 마지막 항목</b>에 체크</td><td>중간 항목은 필요 없음</td></tr><tr><td class="nowrap">약관</td><td>라이선스 동의(<b>I Agree</b>) → <b>Install</b> → <b>Finish</b></td><td>Community 에디션은 무료</td></tr><tr><td class="nowrap">새 연결</td><td>실행 후 <b>전원 플러그 모양 아이콘</b>(New Database Connection) 클릭</td><td>지원 DB 목록이 매우 많음 — Oracle SQL Developer 같은 별도 도구도 같은 역할</td></tr><tr><td class="nowrap">목록의 그 밖</td><td>IBM, Apache 계열, Amazon Redshift, CSV 등도 연결 대상으로 보임</td><td>DB뿐 아니라 파일(CSV)도 연결된다는 의미</td></tr></tbody></table>
+</div>
+
+<h3>DB 분류</h3>
+
+<div class="table-wrap">
+<table><thead><tr><th>분류</th><th>대표</th><th>메모</th></tr></thead><tbody><tr><td class="nowrap"><b>SQL(관계형)</b></td><td>MySQL, MariaDB, Oracle, PostgreSQL, MS SQL Server, SQLite, <b>Cubrid(큐브리드)</b></td><td>왼쪽 목록에서 SQL을 클릭하면 이 묶음으로 줄어듦. 개발자가 가장 많이 다루는 것 = 약 <b>5개</b>(MySQL, MariaDB, Oracle, PostgreSQL, MS SQL)</td></tr><tr><td class="nowrap"><b>NoSQL</b></td><td>MongoDB, Redis</td><td>실습에서 접속·핸들링 예정</td></tr><tr><td class="nowrap">시계열(Time series)</td><td>시계열 DB 제품군</td><td>거의 쓰지 않음</td></tr><tr><td class="nowrap"><b>그래프</b></td><td>Neo4j, OrientDB</td><td>요즘 쓰는 경우가 있음</td></tr><tr><td class="nowrap"><b>벡터</b></td><td>DBeaver 목록에는 없음</td><td>존재하는 분류. SQLite를 이용해 실습 예정</td></tr><tr><td class="nowrap">AWS 전용</td><td>DynamoDB, RDS 계열</td><td>DBeaver 목록에 안 보임. AWS EC2/RDS 신청 후 사용 → 수업 맨 뒤쪽에서</td></tr></tbody></table>
+</div>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">Cubrid</td><td>네이버에서 만든 국산 DB로 설명</td><td>국산 여부·개발 주체는 강사 설명 — CUBRID 공식 사이트 소개로 확인</td></tr><tr><td class="nowrap">MS SQL 서버</td><td>SQL Server는 2017부터 <b>Linux에서도 공식 지원</b> (RHEL·Ubuntu 등)</td><td>"윈도우 서버 전용이라 리눅스에서 안 돌아간다"는 설명은 사실과 다름. 이 수업에서 안 하는 이유는 윈도우 서버 라이선스(PC당 약 25만원)와 교육 환경</td></tr><tr><td class="nowrap">SQLite</td><td>벡터 DB 실습에 사용할 DB — DBeaver 목록에는 벡터 분류가 따로 보이지 않음</td><td>실습 전 접속·생성 절차를 따로 확인해야 함</td></tr></tbody></table>
+</div>
+
+<div class="note-verify">
+<div class="tag">🔍 직접 확인 · 11강 66:22</div>
+
+<p>"Cubrid는 네이버 전용 DB"라는 설명은 강사 발화만 있고 화면 근거가 없음 — CUBRID 공식 사이트(<code>cubrid.org</code>) 소개와 개발 주체로 확인 필요</p>
+</div>
+
+<h3>수업 범위·커리큘럼</h3>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">MS SQL 제외</td><td>이 수업에서 MS SQL은 하지 않음 — 윈도우 서버 라이선스(PC당 약 <b>25만원</b>)가 없고 노트북에 윈도우 서버를 깔아야 해서</td><td>회사에서 사수에게 배우는 항목</td></tr><tr><td class="nowrap">설치 난이도</td><td>설치 방법이 비슷한 두 DB는 <b>하나를 깔 줄 알면 나머지도 세팅 가능</b></td><td>나머지 DB 중 일부는 난이도가 높고, 앞의 두 DB와 다른 한 개는 상대적으로 쉬운 편</td></tr><tr><td class="nowrap">커리큘럼 등록</td><td>현재 커리큘럼 공식 데이터베이스는 <b>3개</b> (정식 등록된 것)</td><td>Oracle은 비공식 → 하면 하고 안 하면 안 함</td></tr><tr><td class="nowrap">클라우드</td><td>GCP는 없음. 로컬에서 설치할 줄 알면 AWS에서도 동일하게 설치 가능</td><td>AWS 전용 DB(DynamoDB·RDS)는 별도 — 수업 뒤쪽</td></tr></tbody></table>
+</div>
+
+<div class="note-verify">
+<div class="tag">🔍 직접 확인 · 11강 68:22</div>
+
+<p>"까는 게 비슷한 두 DB"와 "난이도가 높은 DB"가 DBeaver 목록 중 어느 것인지 화면 지시어("얘랑 얘랑")로만 말해 전사로 알 수 없음 — 영상 68:00~69:00 화면에서 가리킨 DB 확인 필요</p>
+</div>
+
+<div class="note-verify">
+<div class="tag">🔍 직접 확인 · 11강 84:58~85:20</div>
+
+<p>"커리큘럼에 등록된 DB 3개"가 무엇인지 화면 지시어("얘랑 얘랑 얘랑")로만 말해 전사로 알 수 없음 — 영상 84:50~85:20 화면 또는 커리큘럼 문서로 확인 필요</p>
+</div>
+
+<h3>SQL 분류 (DDL · DML · DCL)</h3>
+
+<div class="table-wrap">
+<table><thead><tr><th>분류</th><th>의미·대표 명령</th><th>이 수업</th></tr></thead><tbody><tr><td class="nowrap"><b>DDL</b></td><td>데이터 정의어 — <code>CREATE</code>·<code>ALTER</code>·<code>DROP</code> (구조를 만듦)</td><td>조금 사용</td></tr><tr><td class="nowrap"><b>DML</b></td><td>데이터 조작어 — <code>INSERT</code>·<code>SELECT</code>·<code>UPDATE</code>·<code>DELETE</code> (행을 다룸)</td><td>조금 사용</td></tr><tr><td class="nowrap"><b>DCL</b></td><td>데이터 제어어 — <b>권한 제어</b> : <code>GRANT</code>(권한 부여)·<code>REVOKE</code>(권한 회수)</td><td>거의 안 씀</td></tr><tr><td class="nowrap"><b>TCL</b></td><td>트랜잭션 제어 — <code>COMMIT</code>·<code>ROLLBACK</code>·<code>SAVEPOINT</code></td><td>용어만</td></tr></tbody></table>
+</div>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">인프라 담당 범위</td><td>기본 쿼리 <b>약 12개</b>까지만 다룸</td><td>더 깊은 쿼리는 개발자·AI·검색으로 해결</td></tr><tr><td class="nowrap">자주 쓰는 쿼리</td><td><code>INSERT</code>(입력), <code>DELETE</code>(삭제), <code>UPDATE</code>(수정), <code>SELECT</code>(조회)</td><td>이 네 개가 반복됨</td></tr><tr><td class="nowrap">용어</td><td>DDL·DML·DCL은 외워 두고, 계정·권한 실습에서 <code>GRANT</code>를 직접 사용 (이 파일 5장)</td><td>풀스택(개발+인프라)을 다 하면 범위가 끝이 없어 DB 범위를 한정</td></tr></tbody></table>
+</div>
+
+<div class="dg-bar warn">DCL = 권한 제어 — <code>GRANT</code>(부여)·<code>REVOKE</code>(회수)가 DCL이고, <code>COMMIT</code>·<code>ROLLBACK</code>은 TCL(트랜잭션 제어). DDL은 구조, DML은 행, DCL은 권한</div>
+
+<h3>MySQL 설치 전 점검 (root)</h3>
+
+<div class="code">
+<pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># MySQL 설치·설정은 일반 사용자가 아니라 root로 진행</span>
+dnf search mysql*         <span class="c"># MySQL 관련 패키지 목록 (버전 포함) — * 로 전부 확인</span>
+<span class="c"># 출력: mysql / mysql-common / mysql-errmsg / mysql-libs / mysql-selinux / mysql-server</span>
+<span class="c"># 출력(기타): dovecot-mysql / qt5-qtbase-mysql / rsyslog-mysql</span>
+dnf info mysql*           <span class="c"># 상세 정보(이름·버전·데몬 버전) — Y 누르지 말고 읽기만</span>
+dnf info mysql-server     <span class="c"># 서버 패키지만 확인할 때</span>
+<span class="c"># 출력: Version 8.0.46-1.el9 / Repository appstream (CentOS 기본 제공은 8.0.x)</span>
+<span class="c"># 출력: mysql 2.8M · mysql-server 17M · mysql-libs 1.2M · mysql-errmsg 508k · mysql-selinux 37k · mysql-common 72k</span>
+<span class="c"># 출력(의존): mariadb-connector-c-config · mecab · protobuf-lite</span></code></pre>
+
+<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">확인 포인트</td><td>목록에 <code>mysql</code>, <code>mysql-server</code>, <code>mysql-libs</code>, <code>mysql-errmsg</code>, selinux 관련이 모두 있어야 함</td><td><b><code>mysql-server</code>가 없으면 설치해도 접속·기동이 안 됨</b> → MySQL 사이트에서 repo(저장소)를 다시 설정해 설치</td></tr><tr><td class="nowrap">취소 확인</td><td><code>dnf install</code> 확인 프롬프트에서 <b><code>n</code></b>을 입력하면 설치가 취소되고 목록(mysql, mysql-server, libs, errmsg, selinux)만 확인됨</td><td>DB는 검토 없이 막 설치하면 큰일 남 → 설치 목록을 먼저 눈으로 확인</td></tr><tr><td class="nowrap">repo</td><td><code>appstream</code> = CentOS가 기본 제공하는 저장소</td><td>여기 버전이 낮으면 mysql.com repo를 추가해 상위 버전 설치</td></tr></tbody></table>
+</div>
+
+<h3>MySQL 사이트·버전 개념</h3>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">다운로드</td><td>구글에서 <code>mysql</code> 검색 → <code>mysql.com</code> → Downloads → <b>Free</b> 버전이면 충분</td><td>Enterprise·Cloud·AI 등 유료·별도 제품은 불필요</td></tr><tr><td class="nowrap">회사</td><td>MySQL은 원래 별도 회사였는데 <b>오라클이 인수</b> → 다운로드는 오라클 사이트로 이동</td><td>오라클 계정·약관 화면이 나오는 이유</td></tr><tr><td class="nowrap">패키지 선택</td><td>Red Hat / Oracle Linux 등 <b>OS 버전별 패키지</b>로 갈림 → <b>OS의 커널(Enterprise Linux) 버전에 맞는 것</b>을 받아야 함</td><td>실수 사례 : CentOS 9 서버에 RHEL 10용을 받으면 설치 단계에서 커널 버전 불일치로 거부 (빨간 글씨 에러)</td></tr><tr><td class="nowrap">9.7 LTS</td><td>MySQL 9.7 LTS의 공식 지원 플랫폼 표에 <b>EL9</b>(RHEL 9·Oracle Linux 9 등)가 포함됨</td><td>"최신 9.7은 CentOS 10이 필요해 CentOS 9에는 설치 불가"라는 설명은 맞지 않을 수 있음. "OS(EL) 버전에 맞는 패키지를 받아야 한다"는 원칙은 그대로</td></tr><tr><td class="nowrap">소스 설치</td><td>압축 파일(<code>tar.gz</code> 등) 다운로드는 <b>소스 설치</b> — RPM·dnf 설치가 아니라 원하는 곳에 직접 배치</td><td>이번 수업은 dnf 설치만. 소스 설치는 컴파일·경로 지정이 필요해 난이도가 높음</td></tr><tr><td class="nowrap">Connector</td><td>사이트의 Connector(C, J 등)는 개발 언어용 커넥터 (J = Java)</td><td><b>개발자가 알아서 설치</b>, 서버에 깔 필요 없음 — 인프라 담당은 몰라도 됨</td></tr><tr><td class="nowrap">Oracle 버전 표기</td><td><code>9i/10g/11g/12c…</code> → <b>g</b> = 단독(그리드) 서버용, <b>c</b> = 클라우드용, 최신은 <b>ai</b>(예 : 26ai)</td><td>인프라 담당이 알아야 함 — 클라우드 서버에 g 버전을 깔 수 없는 등 호환 확인 필요</td></tr><tr><td class="nowrap">설치 용량</td><td>Oracle이 가장 큼(약 4GB), 나머지 DB는 1GB 이하로 설명</td><td>디스크 용량을 크게 잡아야 함</td></tr></tbody></table>
+</div>
+
+<div class="note-verify">
+<div class="tag">🔍 직접 확인 · 11강 89:47~90:09</div>
+
+<p>CentOS Stream 9에서 MySQL 9.7이 실제로 설치되는지 — 공식 지원 플랫폼 표는 EL9를 지원한다고 하나 CentOS Stream 9용 repo 제공 여부는 미확인. <code>dnf module list mysql</code> 또는 mysql.com 저장소로 확인 필요</p>
+</div>
+
+<div class="note-verify">
+<div class="tag">🔍 직접 확인 · 11강 98:16</div>
+
+<p>Oracle 약 4GB·나머지 1GB 이하라는 설치 용량은 강사 설명 — 각 DB 공식 설치 요구 용량(디스크 최소 사양)으로 확인 필요</p>
+</div>
+
+<h3>MariaDB와 버전 선택 원칙</h3>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">MariaDB</td><td>MySQL과 유사한 DB. 공식 사이트 상단에 최신 버전 표기 (예 : 12.3)</td><td>명령·설정 파일 이름이 조금 다름 (이 파일 4장)</td></tr><tr><td class="nowrap">버전 지정</td><td><b>버전은 개발자가 지정</b> — 개발자에게 확인하고 맞춰 설치 (예 : 8.0.46으로 괜찮은지)</td><td>고객은 클라이언트가 아니라 <b>개발자</b> — 인프라 담당이 임의로 최신을 깔면 안 됨</td></tr><tr><td class="nowrap">최신 설치의 위험</td><td>마음대로 최신을 깔면 <b>백업 파일 복구가 안 되거나 컨버터(변환) 문제</b>가 생길 수 있음</td><td>개발 환경과 운영 DB 버전이 다르면 데이터 이전 단계에서 막힘</td></tr><tr><td class="nowrap">동시 설치</td><td>같은 서버에 MySQL과 MariaDB <b>동시 설치 불가</b> — 포트 번호 <code>3306</code>이 같음</td><td>클라우드(EC2 등)면 서버를 나눠 둘 다 설치 가능. 현재 실습 환경은 서버가 하나라 <b>하나 설치하면 끝</b></td></tr></tbody></table>
+</div>
+
+<h3>MySQL 버전별 호환</h3>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">버전 흐름</td><td><code>5.1대</code>(구버전, 아직 쓰는 곳 많음) → <code>5.5</code> → <code>5.6</code> → <code>5.7</code> → <code>8.0</code> → <code>9.0</code></td><td>6.x·7.x는 없고 8로 크게 점프</td></tr><tr><td class="nowrap">구조 차이</td><td>버전마다 <b>관리자 쪽 시스템 테이블 구조</b>가 달라 명령어가 조금씩 다름</td><td>같은 관리 명령이 버전에 따라 실패할 수 있음</td></tr><tr><td class="nowrap">올리기</td><td>공식 업그레이드 경로는 <b><code>5.7</code> → <code>8.0</code></b> 한 단계. 버전을 건너뛰는 업그레이드는 지원되지 않음</td><td>예 : 5.6 → 8.0 직접 불가. 5.5에서 8로 한 번에 올리는 것은 공식 경로가 아님</td></tr><tr><td class="nowrap">내리기</td><td><code>8</code> → <code>5.5</code> <b>불가</b> (데이터 유실, INSERT 실패, 백엔드가 죽는 경우)</td><td>다운그레이드는 공식 지원이 아님</td></tr><tr><td class="nowrap">마이너 버전</td><td><code>8.1</code>·<code>8.2</code>처럼 소수점 뒤 마이너 버전끼리는 서로 통용</td><td>패치 수준 차이는 같은 계열로 봄</td></tr><tr><td class="nowrap">실수 사례</td><td>개발자가 <code>5.5</code>를 요구하는데 <code>8</code>을 깔면 에러 → 수동 미러링(또는 파이썬 프로그램)으로 옮겨야 하는 상황</td><td>요청 버전을 먼저 확인하는 이유</td></tr><tr><td class="nowrap">요청 대응</td><td>"8을 5로 내려 달라"는 갑작스러운 요청에는 <b>"왜 그렇게 해야 하나요"</b>라고 당당히 물어봄</td><td>버전을 되돌리는 작업은 데이터 유실 위험이 있어 이유와 범위를 먼저 확인</td></tr></tbody></table>
+</div>
+
+<div class="dg-bar warn">버전은 개발자가 지정 — 올리기는 <code>5.7</code> → <code>8.0</code> 한 단계만 공식 경로, 버전 건너뛰기와 다운그레이드(<code>8</code> → <code>5.5</code>)는 안 됨. 마이너 버전끼리만 통용</div>
+
+<h3>모듈(스트림) 상위 버전 확인</h3>
+
+<div class="code">
+<pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># dnf search 는 CentOS가 지정한 기본(최하위) 버전만 보여줌 → 모듈 스트림 존재 여부 확인</span>
+dnf module list mysql
+<span class="c"># 출력: CentOS Stream 9 - AppStream / Name mysql / Stream 8.4</span>
+<span class="c"># 출력: Profiles api, client, filter, server / Summary MySQL Module</span>
+<span class="c"># 범례: [d]efault, [e]nabled, [x]disabled, [i]nstalled</span></code></pre>
+
+<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">의미</td><td>기본(search) 버전은 <code>8.0.46</code>인데 모듈 스트림으로 <code>8.4</code>가 더 있음</td><td>8.4를 깔아도 되는지 개발자와 협의 (8.0이든 8.4든 개발자가 정하는 대로 설치)</td></tr><tr><td class="nowrap">Profiles</td><td><code>api</code>·<code>client</code>·<code>filter</code>·<code>server</code> — 설치 목적별 묶음</td><td>서버는 <code>server</code> 프로파일이 필요</td></tr><tr><td class="nowrap">스트림 활성</td><td><code>dnf</code> 모듈은 <b>한 번에 스트림 하나만</b> 활성화됨 → 8.4를 enable 하면 8.0과 8.4가 함께 뜨는 게 아니라 <b>8.4만</b> 활성화</td><td>활성 스트림에 같은 이름의 패키지가 있으면 모듈 밖 패키지는 걸러짐</td></tr><tr><td class="nowrap">이번 선택</td><td>기본 <code>8.0</code>으로 설치 (8.4는 나중에 지우고 다시 설치해 볼 예정)</td><td>8.4는 CentOS 10 환경(다른 수강생)에서 가능하고 설치 명령은 비슷 (같은 8번대)</td></tr><tr><td class="nowrap">적용 범위</td><td>이 명령은 DB 쪽에서 중요 — <code>vsftpd</code>·Apache 같은 서비스와는 무관</td><td>모듈 스트림은 여러 버전을 함께 제공하는 패키지에만 있음</td></tr></tbody></table>
+</div>
+
+<h3>설치 : dnf install mysql*</h3>
+
+<div class="code">
+<pre><code><span class="c"># [호스트 리눅스 · root]</span>
+dnf install mysql*   <span class="c"># MySQL 관련 패키지 전부 설치 — 목록 확인 후 Y</span>
+<span class="c"># 출력: 총 9개 패키지 (8.0 계열 전부) / 다운로드 약 22MB / 설치 용량 약 187MB</span>
+<span class="c"># 출력: Complete!</span>
+clear                <span class="c"># Complete! 확인 후 화면 정리</span></code></pre>
+
+<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+<h3>기동과 포트 확인</h3>
+
+<div class="code">
+<pre><code><span class="c"># [호스트 리눅스 · root]</span>
+netstat -lnp   <span class="c"># 기동 전 포트 확인 — 설치만 했으면 3306이 없음</span>
+<span class="c"># 출력: 631 cupsd / 9022 sshd / 80 httpd / 9021 vsftpd / 5353 avahi</span>
+ntsysv         <span class="c"># 부팅 시 자동 시작 서비스 체크 — mysqld.service를 Space로 체크 후 Enter</span>
+systemctl start mysqld.service   <span class="c"># MySQL 기동 (초기화 때문에 시간이 꽤 걸림)</span>
+netstat -lnp   <span class="c"># 기동 후 3306·33060 포트, mysql.sock 확인</span></code></pre>
+
+<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">기동 전 포트</td><td>LISTEN은 <code>631</code> cupsd, <b><code>9022</code></b> sshd, <code>80</code> httpd, <b><code>9021</code></b> vsftpd, <code>5353</code> avahi 등</td><td>3306이 없으면 MySQL이 아직 안 떠 있다는 뜻 — 설치와 기동은 별개</td></tr><tr><td class="nowrap">ntsysv</td><td>목록을 천천히 내려 <b><code>mysqld.service</code></b>를 찾아 <b>스페이스로 체크</b></td><td>서버 재부팅 후에도 MySQL 자동 시작 (httpd.html 3장과 같은 방식)</td></tr><tr><td class="nowrap">기동 시간</td><td>데이터베이스 용량·환경설정 초기화 등 준비 작업으로 <b>시간이 꽤 걸림</b></td><td>Oracle은 더 오래 걸림. DB 재가동은 원래 로드가 커서 서버를 껐다 켤 때도 마찬가지</td></tr><tr><td class="nowrap">정상 확인</td><td>기동 후 <code>3306</code>(MySQL 기본)·<code>33060</code>(MySQL X 프로토콜)·<code>/var/lib/mysql/mysql.sock</code></td><td>sock이 LISTENING이면 설치·기동 정상</td></tr></tbody></table>
+</div>
+
+<div class="note-verify">
+<div class="tag">🔍 직접 확인 · 11강 103:36</div>
+
+<p>부하 때문에 강사가 꺼 준 프로그램이 무엇인지 전사가 불명확("DBB"·"바이지라나"로만 인식) — 영상 103:30~104:10 화면 확인 필요. 메모리·CPU가 한계에 닿으면 서버·접속(<code>su</code> 전환 등)이 버벅이므로 불필요한 프로그램을 끄고 진행 (linux.html 12장)</p>
+</div>
+
+<div class="note-verify">
+<div class="tag">🔍 직접 확인 · 11강 106:55~107:20</div>
+
+<p><code>netstat -lnp</code>에 <code>3306</code>·<code>33060</code> TCP 포트가 실제로 뜬 화면은 영상에 없음 (마지막 화면은 <code>mysql.sock</code>만 확인). 본인 서버에서 <code>netstat -lnp | grep 3306</code>으로 확인 필요</p>
+</div>
+
+<h3>VirtualBox 포트포워딩 (외부 접속용 3306)</h3>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>값</th></tr></thead><tbody><tr><td class="nowrap">경로</td><td>[윈도우 · VirtualBox] 네트워크 → 포트 포워딩 → <code>+</code>로 규칙 추가</td></tr><tr><td class="nowrap">이름</td><td><code>mysql</code></td></tr><tr><td class="nowrap">프로토콜</td><td><code>TCP</code></td></tr><tr><td class="nowrap">호스트 IP</td><td><code>10.2.2.101</code> (앞 규칙 9022·9000과 같은 윈도우 IP)</td></tr><tr><td class="nowrap">호스트 포트</td><td><code>3306</code></td></tr><tr><td class="nowrap">게스트 IP</td><td>서버 IP — 앞 규칙은 <code>192.168.222.2</code></td></tr><tr><td class="nowrap">게스트 포트</td><td><code>3306</code></td></tr></tbody></table>
+</div>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">기본값</td><td>새 규칙의 게스트 IP는 <code>10.0.2.0</code>, 포트는 <code>0</code>으로 잡혀 있어 직접 입력</td><td>그대로 두면 접속이 안 됨</td></tr><tr><td class="nowrap">적용 결과</td><td>외부(윈도우의 DBeaver 등)에서 서버 DB로 접속 가능</td><td><code>localhost:3306</code> 또는 윈도우 IP로 연결</td></tr></tbody></table>
+</div>
+
+<div class="note-verify">
+<div class="tag">🔍 직접 확인 · 11강 105:40~105:55</div>
+
+<p>화면은 새 규칙의 게스트 IP가 기본값 <code>10.0.2.0</code>·포트 <code>0</code>인 상태에서 끝남 — 입력 완료 후 최종 게스트 IP는 VirtualBox 포트 포워딩 목록에서 확인 필요</p>
+</div>
+
+<div class="dg-bar warn">DB 설치 순서 — <code>dnf search</code>·<code>dnf info</code>로 <code>mysql-server</code> 유무 확인 → <code>dnf install mysql*</code> → <code>ntsysv</code>로 자동 시작 체크 → <code>systemctl start mysqld.service</code> → <code>netstat -lnp</code>로 3306 확인. 설치만 하고 start를 안 하면 포트가 없음</div>
+
+<ul class="facts">
+<li><strong>메모리·커널 확인</strong>
+<div>DB를 올리기 전 남은 메모리(<code>free -h</code>)와 커널 버전(<code>uname -r</code>·<code>/etc/os-release</code>): linux.html 12장</div>
+</li>
+<li><strong>계정·권한·접속</strong>
+<div>DB 계정 생성과 <code>GRANT</code>·DBeaver 연결: 이 파일 5장</div>
+</li>
+<li><strong>컨테이너로 설치</strong>
+<div>서버에 직접 설치하지 않고 Docker 이미지로 MySQL을 올리는 방식: 이 파일 2장, docker.html 5장</div>
+</li>
+</ul>
+</section>
+
+
+  <!-- 9 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -1102,6 +1328,13 @@ SELECT COUNT(*) FROM members;</code></pre><button class="copy" type="button" ari
       <tr><td><code>select now();</code> / <code>select user(), current_user();</code></td><td>DB 시간대와 접속 사용자·호스트 확인</td></tr>
       <tr><td><code>select @@max_connections, @@wait_timeout, @@interactive_timeout;</code></td><td>연결 상한과 유휴 timeout 조회 (시간 단위 초)</td></tr>
       <tr><td><code>select @@sort_buffer_size, @@join_buffer_size, @@read_buffer_size, @@thread_stack;</code></td><td>버퍼·thread stack의 실제 값(바이트) 확인 → 거친 메모리 추산 (<code>select @@sort_buffer_size;</code> 강의 화면 관찰값 <code>2097152</code>)</td></tr>
+      <tr class="group"><th colspan="2" scope="colgroup">MySQL 설치·기동 (dnf)</th></tr>
+      <tr><td><code>dnf search mysql*</code> / <code>dnf info mysql*</code> / <code>dnf info mysql-server</code></td><td>설치 전 패키지 목록·상세 확인 (8.0.46-1.el9, appstream). <code>mysql-server</code>가 없으면 repo 재설정</td></tr>
+      <tr><td><code>dnf module list mysql</code></td><td>모듈 스트림 확인 (Stream 8.4, Profiles api·client·filter·server). 스트림은 한 번에 하나만 활성</td></tr>
+      <tr><td><code>dnf install mysql*</code></td><td>MySQL 관련 전체 설치 — 9개 패키지, 다운로드 약 22MB·설치 약 187MB, <code>Complete!</code></td></tr>
+      <tr><td><code>netstat -lnp</code></td><td>열린 포트 확인. 기동 전 631·9022·80·9021·5353만, 기동 후 3306·33060·<code>mysql.sock</code></td></tr>
+      <tr><td><code>ntsysv</code></td><td>부팅 시 자동 시작 — <code>mysqld.service</code>를 Space로 체크</td></tr>
+      <tr><td><code>systemctl start mysqld.service</code></td><td>MySQL 기동. 초기화 때문에 시간이 걸림 — 설치만 하면 3306이 없음</td></tr>
     </tbody></table></div>
   
 
