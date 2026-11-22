@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shell 스크립트 통합 학습노트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #FFFFFF;
+  --paper-alt: #F4F6F8;
+  --ink: #0F172A;
+  --ink2: #273449;
+  --mute: #5B6779;
+  --hair: #CBD5E1;
+  --hair-soft: #E2E8F0;
+  --accent: #0B63CE;
+  --accent-text: #074799;
+  --accent-soft: #EEF4FC;
+  --fix: #B45309;
+  --fix-text: #7C2D12;
+  --fix-soft: #FFF7EC;
+  --fix-line: #F3D9B5;
+  --code-bg: #F5F7FA;
+  --code-line: #E2E8F0;
+  --comment: #6B7A90;
+  --sidebar: 240px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+    --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+    --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+    --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+  --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+  --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+  --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 24px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  line-height: 1.8;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Layout: sticky TOC + one readable column ---------- */
+.page {
+  display: grid;
+  grid-template-columns: var(--sidebar) minmax(0, 1fr);
+  gap: 0 48px;
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: 44px 48px 96px;
+}
+.side { position: relative; }
+.side nav {
+  position: sticky;
+  top: 28px;
+  padding-top: 6px;
+}
+.side .side-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+  margin: 0 0 10px;
+}
+.side ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1px solid var(--hair);
+  max-width: none;
+}
+.side li { margin: 0; font-size: 14px; line-height: 1.45; }
+.side a {
+  display: block;
+  padding: 7px 0 7px 14px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  color: var(--mute);
+  text-decoration: none;
+}
+.side a:hover { color: var(--ink); }
+.side a.on {
+  color: var(--accent-text);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.main { min-width: 0; }
+
+/* Inline TOC only for narrow screens */
+.toc { display: none; }
+
+/* ---------- Typography ---------- */
+h1 {
+  margin: 0 0 18px;
+  font-size: clamp(30px, 3.6vw, 42px);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--ink);
+}
+.deck {
+  margin: 0 0 8px;
+  font-size: 17.5px;
+  line-height: 1.75;
+  color: var(--ink2);
+  max-width: none;
+}
+h2 {
+  margin: 0 0 20px;
+  font-size: clamp(23px, 2.3vw, 28px);
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.sec h2 {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+.sec h2::before {
+  content: counter(sec);
+  counter-increment: sec;
+  flex: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--accent-text);
+  min-width: 1.4em;
+}
+.main { counter-reset: sec; }
+
+h3 {
+  margin: 40px 0 12px;
+  font-size: 19px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--ink);
+}
+p {
+  margin: 0 0 16px;
+  font-size: 16.5px;
+  color: var(--ink2);
+  max-width: none;
+}
+strong { color: var(--ink); font-weight: 700; }
+a { color: var(--accent-text); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+code {
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 1px 6px;
+  border: 1px solid var(--code-line);
+  border-radius: 4px;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Code blocks ---------- */
+.code {
+  position: relative;
+  margin: 14px 0 22px;
+}
+pre {
+  margin: 0;
+  padding: 16px 20px;
+  background: var(--code-bg);
+  border: 1px solid var(--code-line);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink);
+  tab-size: 4;
+}
+code.n { white-space: nowrap; }
+pre code {
+  background: transparent; padding: 0; border: 0; border-radius: 0;
+  font-size: inherit; word-break: normal; white-space: pre;
+}
+pre .c { color: var(--comment); }
+.copy {
+  position: absolute;
+  top: 8px; right: 8px;
+  font: 600 12px/1 'IBM Plex Sans', 'Noto Sans KR', sans-serif;
+  padding: 6px 9px;
+  color: var(--mute);
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0;
+}
+.code:hover .copy, .copy:focus-visible { opacity: 1; }
+.copy.done { color: var(--accent-text); border-color: var(--accent); opacity: 1; }
+@media (hover: none) { .copy { opacity: 1; } }
+
+/* ---------- Sections ---------- */
+.sec {
+  margin-top: 88px;
+  padding-top: 32px;
+  border-top: 2px solid var(--ink);
+}
+.split { display: block; }
+.split-left p { max-width: none; }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 36px;
+  margin-top: 8px;
+}
+/* 코드가 들어간 묶음은 좁아지지 않게 한 줄로 쌓기 */
+.grid-2:has(pre) { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 32px; }
+
+.strip-item {
+  padding-top: 4px;
+}
+.strip-item > h3 {
+  margin: 28px 0 10px;
+  font-size: 17.5px;
+  padding-left: 12px;
+  border-left: 3px solid var(--hair);
+  line-height: 1.4;
+}
+.grid-2:not(:has(pre)) .strip-item {
+  background: var(--paper-alt);
+  padding: 4px 22px 8px;
+  border-radius: 8px;
+}
+.grid-2:not(:has(pre)) .strip-item > h3 { border-left: 0; padding-left: 0; margin-top: 18px; }
+
+/* ---------- Hero ---------- */
+header { padding-bottom: 8px; }
+.core-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+.core-strip > div {
+  padding: 18px 18px 16px;
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 8px 8px;
+}
+.core-metric {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--accent-text);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.core-desc { font-size: 15px; line-height: 1.7; color: var(--ink2); margin: 0; }
+
+/* ---------- Lists ---------- */
+ul, ol { margin: 8px 0 20px; padding-left: 22px; max-width: none; }
+li { margin-bottom: 12px; font-size: 16px; line-height: 1.8; color: var(--ink2); }
+li::marker { color: var(--mute); }
+.wide-list { max-width: none; }
+ol.wide-list > li { padding-left: 4px; }
+
+/* ---------- Callouts ---------- */
+.note-fix, .note-verify {
+  margin: 22px 0 26px;
+  padding: 16px 22px 6px;
+  border-radius: 8px;
+  max-width: none;
+}
+.note-fix { background: var(--fix-soft); border: 1px solid var(--fix-line); border-left: 4px solid var(--fix); }
+.note-verify { background: var(--accent-soft); border: 1px solid var(--hair-soft); border-left: 4px solid var(--accent); }
+.note-fix .tag, .note-verify .tag {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.note-fix .tag { color: var(--fix-text); }
+.note-verify .tag { color: var(--accent-text); }
+.note-fix p, .note-verify p {
+  margin: 0;
+  padding: 10px 0 12px;
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--ink2);
+  max-width: none;
+}
+.note-fix p + p { border-top: 1px dashed var(--fix-line); }
+.note-fix p > strong:first-child,
+.note-verify p > strong:first-child { display: block; margin-bottom: 2px; }
+.note-fix p > strong:first-child { color: var(--fix-text); }
+
+/* ---------- Tables ---------- */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 26px 0 28px;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 15px; text-align: left; line-height: 1.65; }
+thead th {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper-alt);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--hair);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--hair-soft);
+  vertical-align: top;
+  color: var(--ink2);
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--paper-alt); }
+.num, .nowrap { white-space: nowrap; }
+td.nowrap:not(:has(code)) { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; }
+tr.group th {
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--hair);
+  border-top: 1px solid var(--hair);
+}
+tbody tr.group:first-child th { border-top: 0; }
+.cheat td:first-child { width: 46%; }
+.cheat td:first-child code { overflow-wrap: anywhere; }
+
+/* ---------- Definition list ---------- */
+dl.open-dl { margin: 14px 0 20px; display: grid; grid-template-columns: minmax(170px, 240px) minmax(0, 1fr); }
+dl.open-dl dt { padding: 10px 16px 10px 0; border-top: 1px solid var(--hair-soft); font-weight: 600; font-size: 15px; color: var(--ink); }
+dl.open-dl dd { margin: 0; padding: 10px 0; border-top: 1px solid var(--hair-soft); font-size: 15px; color: var(--ink2); }
+
+/* ---------- Figures ---------- */
+figure { margin: 36px 0; padding: 0; }
+figure .fig-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 14px; line-height: 1.5; }
+figure svg.diagram {
+  width: 100%; height: auto; display: block;
+  background: #FFFFFF;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  padding: 10px;
+}
+figcaption { margin-top: 10px; font-size: 14px; color: var(--mute); line-height: 1.6; }
+
+blockquote.pull { margin: 36px 0; padding: 0 0 0 22px; border-left: 3px solid var(--ink); font-size: clamp(20px, 2.2vw, 24px); line-height: 1.5; font-weight: 600; color: var(--ink); max-width: none; }
+
+/* ---------- Exam band ---------- */
+.band {
+  margin-top: 88px;
+  padding: 36px 32px 28px;
+  background: var(--paper-alt);
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 10px 10px;
+}
+.band > p { max-width: none; }
+.exam-list {
+  counter-reset: exam;
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.exam-list li {
+  counter-increment: exam;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 48px;
+  border-top: 1px solid var(--hair);
+  font-size: 16px;
+  line-height: 1.8;
+}
+.exam-list li::before {
+  content: counter(exam, decimal-leading-zero);
+  position: absolute;
+  left: 0; top: 17px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.exam-list li > strong:first-child { display: block; margin-bottom: 2px; }
+
+/* ---------- Key-value fact lists ---------- */
+ul.facts {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 24px;
+  max-width: none;
+  border-top: 1px solid var(--hair-soft);
+}
+ul.facts > li {
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  gap: 2px 20px;
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hair-soft);
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+ul.facts > li > strong:first-child { color: var(--ink); font-weight: 700; }
+ul.facts > li > div { color: var(--ink2); }
+ul.facts ul { margin: 0; padding-left: 18px; }
+ul.facts ul li { margin: 0 0 4px; font-size: 15.5px; }
+li > ul { margin: 6px 0 4px; }
+li > ul > li { margin-bottom: 4px; font-size: 15.5px; }
+td ul { margin: 0; padding-left: 16px; max-width: none; }
+td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
+.opts td:nth-child(2) { min-width: 13em; }
+@media (max-width: 760px) {
+  ul.facts > li { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- HTML diagrams (깨지지 않는 반응형 도식) ---------- */
+.dg {
+  margin: 26px 0 30px;
+  padding: 22px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  background: var(--paper-alt);
+}
+.dg-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 16px; line-height: 1.5; }
+.dg-flow { display: flex; align-items: stretch; }
+.dg-flow > .dg-node, .dg-flow > .dg-stack { flex: 1 1 0; min-width: 0; }
+.dg-stack { display: flex; flex-direction: column; gap: 12px; }
+.dg-node {
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.dg-node.key { border: 2px solid var(--ink); }
+.dg-node.accent { border: 1.5px solid var(--accent); }
+.dg-node.ghost { border: 1.5px dashed var(--hair); background: transparent; color: var(--mute); }
+.dg-node h4 { margin: 0 0 2px; font-size: 15px; line-height: 1.45; font-weight: 700; color: var(--ink); }
+.dg-node.accent h4 { color: var(--accent-text); }
+.dg-node .sub {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px; color: var(--mute);
+  margin: 0 0 8px; overflow-wrap: anywhere;
+}
+.dg-node ul { list-style: none; padding: 0; margin: 0; max-width: none; }
+.dg-node li { margin: 0 0 6px; font-size: 14px; line-height: 1.6; color: var(--ink2); }
+.dg-node li:last-child { margin-bottom: 0; }
+.dg-node .grp { padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--hair-soft); }
+.dg-node .lbl { display: block; font-weight: 700; font-size: 13.5px; color: var(--ink); }
+.dg-node .num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; margin-right: 6px; border-radius: 50%;
+  background: var(--accent); color: var(--paper); font-size: 13px; font-weight: 700;
+  vertical-align: 1px;
+}
+.port { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: var(--accent-text); overflow-wrap: anywhere; }
+.dg-arrow {
+  flex: 0 0 64px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 0 4px;
+  color: var(--accent-text); font-size: 12px; font-weight: 700; text-align: center; line-height: 1.3;
+}
+.dg-arrow::before { content: "→"; font-size: 24px; line-height: 1; color: var(--accent); }
+.dg-foot { margin: 14px 0 0; font-size: 14px; line-height: 1.65; color: var(--mute); max-width: none; }
+.dg-foot strong { color: var(--ink2); }
+
+.dg-compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.dg-panel { background: var(--paper); border: 1px solid var(--hair); border-radius: 10px; padding: 16px 18px 18px; }
+.dg-panel > h4 { margin: 0 0 12px; font-size: 16px; font-weight: 700; color: var(--ink); }
+.dg-panel > h4 span { font-weight: 500; color: var(--mute); font-size: 14px; }
+.dg-grid { display: grid; gap: 10px; }
+.dg-grid.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dg-grid.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dg-panel .dg-node { padding: 10px 12px; }
+.dg-panel .dg-node h4 { font-size: 14px; }
+.dg-panel .dg-node li { font-size: 13.5px; margin-bottom: 3px; }
+.dg-host { border: 2px solid var(--ink); border-radius: 10px; padding: 12px; }
+.dg-host > .host-h { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0 0 2px; }
+.dg-host > .host-s { font-size: 13px; color: var(--mute); margin: 0 0 10px; }
+.dg-bar {
+  display: block;
+  margin: 10px 0 0; padding: 8px 12px;
+  border-radius: 8px; background: var(--paper-alt);
+  font-size: 13.5px; line-height: 1.55; color: var(--ink2);
+}
+.dg-bar.warn { background: var(--fix-soft); color: var(--fix-text); }
+.dg-bar.ok { background: var(--accent-soft); color: var(--accent-text); }
+.dg-down { text-align: center; color: var(--accent); font-size: 13px; font-weight: 700; margin: 8px 0; }
+
+.spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 14px 0 12px; }
+.spec > div { border: 1px solid var(--hair); border-radius: 10px; padding: 12px 14px; background: var(--paper); }
+.spec .k { font-size: 13px; font-weight: 700; color: var(--mute); }
+.spec .v { font-size: 15.5px; font-weight: 700; color: var(--ink); line-height: 1.45; margin: 2px 0; }
+.spec .d { font-size: 13px; color: var(--mute); line-height: 1.55; overflow-wrap: anywhere; }
+.rules { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; max-width: none; }
+.rules li {
+  margin: 0; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--hair); background: var(--paper);
+  font-size: 14px; line-height: 1.5; color: var(--ink2);
+}
+
+@media (max-width: 980px) {
+  .dg-flow { flex-direction: column; }
+  .dg-arrow { flex-basis: auto; padding: 6px 0; flex-direction: row; gap: 8px; }
+  .dg-arrow::before { content: "↓"; font-size: 20px; }
+  .dg-compare, .spec { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .dg { padding: 14px; }
+  .dg-grid.c3 { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .page { display: block; padding: 36px 24px 80px; }
+  .side { display: none; }
+  .main { margin: 0 auto; }
+  .toc {
+    display: block;
+    margin: 32px 0 0;
+    padding: 16px 20px;
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    background: var(--paper-alt);
+    font-size: 15px;
+  }
+  .toc a { display: block; padding: 5px 0; color: var(--ink2); text-decoration: none; }
+  .toc a:hover { color: var(--accent-text); text-decoration: underline; }
+}
+@media (max-width: 760px) {
+  .page { padding: 28px 18px 64px; }
+  .grid-2, .grid-3, .core-strip { grid-template-columns: minmax(0, 1fr); }
+  dl.open-dl { grid-template-columns: 1fr; }
+  dl.open-dl dt { padding-bottom: 2px; }
+  dl.open-dl dd { border-top: 0; padding-top: 2px; }
+  .sec, .band { margin-top: 64px; }
+  .band { padding: 28px 18px 20px; }
+  .note-fix, .note-verify { padding: 14px 16px 4px; }
+  p { font-size: 16px; }
+  pre { font-size: 12.5px; padding: 14px 14px; }
+  .cheat td:first-child { width: auto; }
+  table { min-width: 640px; }
+}
+@media print {
+  .side, .copy { display: none !important; }
+  .page { display: block; }
+}
+</style>
+</head><body>
+<button id="themeBtn" type="button" aria-label="라이트/다크 모드 전환" style="position:fixed;top:12px;right:14px;z-index:60;padding:6px 12px;font:600 13px/1 inherit;font-family:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:999px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15)">다크</button>
+<style>@media print{#themeBtn{display:none}}</style>
+
+<div class="page">
+  <aside class="side">
+    <nav aria-label="목차 (사이드)">
+      <p class="side-title">목차</p>
+      <ol><li><a href="#sec-shellscript">1. Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</a></li><li><a href="#sec-shellcond">2. Shell 조건문·입력 (if · elif · 비교 연산자 · 논리 연산자 · read)</a></li><li><a href="#sec-shellloop">3. Shell 반복문·배열 (for · while · until · 배열 · 이중 반복문 · break)</a></li><li><a href="#cheatsheet">4. 통합 명령어 치트시트</a></li></ol>
+    </nav>
+  </aside>
+  <main class="main">
+
+  <header>
+    <h1>Shell 스크립트 통합 학습노트</h1>
+    <p class="deck">범위: Shell 스크립트 작성(1번 줄 <code>#!/bin/bash</code>·첫 스크립트 <code>test.sh</code>·실행 권한 <code>chmod 700</code>·<code>./</code> 실행과 <code>bash</code> 실행 차이·오류 줄 찾기) · 변수(<code>이름=값</code>·<code>$변수</code>)·산술(<code>$(( ))</code>·<code>$( )</code>와 차이·<code>=</code> 양옆 띄어쓰기 금지) · 실무형 <code>test3.sh</code>(서버 정보 출력) · Shell 조건문(<code>if</code>·<code>elif</code>·<code>else</code>·<code>fi</code>·비교 연산자 <code>=</code>·<code>-eq</code>·<code>(( ))</code>·<code>&amp;&amp;</code>·<code>||</code>·<code>read</code> 입력) · Shell 반복문·배열(<code>for</code>·<code>while</code>·<code>until</code>·배열·이중 반복문·<code>break</code>) · 통합 명령어 치트시트. 내용이 추가될 때마다 범위가 늘어남.</p>
+    <div class="core-strip">
+      <div><div class="core-metric">1번 줄 #!/bin/bash → chmod 700 → ./실행</div><p class="core-desc">스크립트는 1번 줄 <code>#!/bin/bash</code>부터 쓴다(첫 줄을 비우지 않음) — <code>#</code>를 빠뜨리면 1번 줄 오류. <code>./파일.sh</code>는 <code>x</code> 권한이 있어야 실행되고 <code>bash 파일.sh</code>는 읽기(<code>r</code>)만 있어도 실행 → <code>chmod 700</code>을 먼저. 변수는 <code>이름=값</code>에 <code>=</code> 양옆 띄어쓰기 금지, 계산은 괄호 두 겹 <code>$(( ))</code>(한 겹 <code>$( )</code>는 명령 실행이라 오류).</p></div>
+      <div><div class="core-metric">if [ 조건 ]; then · -eq · &amp;&amp; · || · read</div><p class="core-desc">조건문은 <code>if [ 조건 ]; then</code> → <code>elif</code> → <code>else</code> → <code>fi</code>로 닫고, <code>[ ]</code> 안은 값·연산자 사이를 전부 한 칸씩 띄움. 같다는 <code>=</code> 하나, 숫자 비교는 <code>-eq</code>·<code>-ge</code>, 실무는 <code>(( ))</code> 산술 조건에 <code>&amp;&amp;</code>(모두)·<code>||</code>(하나라도). 입력은 <code>echo -n</code> + <code>read</code>로 같은 줄에서 받고 <code>$변수</code>로 사용.</p></div>
+      <div><div class="core-metric">for · while · until · 배열 0부터 · break</div><p class="core-desc">반복은 <code>for</code>(값 목록·<code>(( ))</code>)·<code>while</code>(증가를 본문 안)·<code>until</code>(종료 조건) — <code>done</code>이 빠지면 문법 오류, 증가식을 빼면 무한 루프. 배열은 번호 0부터 <code>${#d[@]}</code> − 1까지, 순회는 <code>for in</code>, <code>break</code>로 강제 종료.</p></div>
+    </div>
+    <nav class="toc" aria-label="목차"><a href="#sec-shellscript">1. Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</a><a href="#sec-shellcond">2. Shell 조건문·입력 (if · elif · 비교 연산자 · 논리 연산자 · read)</a><a href="#sec-shellloop">3. Shell 반복문·배열 (for · while · until · 배열 · 이중 반복문 · break)</a><a href="#cheatsheet">4. 통합 명령어 치트시트</a></nav>
+  </header>
+
+  <section class="sec" id="sec-shellscript"><h2>Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</h2><div class="dg"><p class="dg-title">한눈에 보기 — 작성 → 실행 권한 → 실행 → 출력</p><div class="dg-flow"><div class="dg-node "><h4>① vi test.sh</h4><p class="sub">1번 줄 <code>#!/bin/bash</code></p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② chmod 700</h4><p class="sub">x 없으면 실행 불가</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ ./test.sh</h4><p class="sub"><code>bash test.sh</code>는 r 만 있어도 실행</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 변수·<code>$(( ))</code></h4><p class="sub"><code>=</code> 양옆 띄우면 오류</p></div></div><p class="dg-foot">인프라 담당자가 직접 코드를 짜는 영역이 쉘 스크립트 — WAS의 <code>startup.sh</code>·<code>shutdown.sh</code>도 같은 스크립트</p></div>
+<h3>쉘 스크립트가 필요한 이유</h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">담당 영역</td><td>인프라 담당자가 <strong>유일하게 프로그램(코드)을 짜는 것</strong>이 쉘 스크립트</td><td>나머지는 설치·설정 중심</td></tr><tr><td class="nowrap">이미 쓴 예</td><td>WAS(Tomcat)의 <code>startup.sh</code>·<code>shutdown.sh</code></td><td>기동·정지도 스크립트로 되어 있음 (was.html 8장)</td></tr><tr><td class="nowrap">앞으로</td><td>웹·Python 연동, 오케스트레이션에서 bash shell이 계속 나옴</td><td>못 짜면 운영 자동화가 막힘</td></tr></tbody></table></div>
+<h3>첫 스크립트 작성 (test.sh)</h3>
+<div class="table-wrap"><table><thead><tr><th>순서</th><th>할 일</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">1</td><td><code>vi test.sh</code> → 명령 모드에서 <code>:set number</code></td><td>줄 번호를 보면서 첫 줄부터 쓰기 위해</td></tr><tr><td class="nowrap">2</td><td><code>i</code> → <strong>1번 줄부터</strong> <code>#!/bin/bash</code></td><td>첫 줄을 비우고 엔터부터 치지 말 것. 모든 언어에 시작 단어가 있듯 쉘 스크립트는 이 줄로 시작</td></tr><tr><td class="nowrap">3</td><td>2번 줄에 <code>echo "hi"</code> → <code>Esc</code> → <code>:wq</code></td><td><code>echo</code> = 출력</td></tr><tr><td class="nowrap">4</td><td><code>ls -al</code>로 권한 확인 → <code>chmod 700 test.sh</code></td><td>처음엔 실행 권한(x)이 없음. 700을 주면 파일명이 녹색으로 바뀜(실행 가능 표시)</td></tr></tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test.sh              <span class="c"># 스크립트 파일 열기 (없으면 생성)</span>
+<span class="c"># [호스트 리눅스 · vi 명령 모드 · blue2]</span>
+:set number             <span class="c"># 줄 번호 표시 — 1번 줄부터 쓰기 위해</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test.sh 파일 안]</span>
+<span class="c"># 1번 줄부터 두 줄 입력 (첫 줄을 비우지 않음)</span>
+#!/bin/bash
+echo "hi"
+<span class="c"># [호스트 리눅스 · vi 명령 모드 · blue2]</span>
+:wq                     <span class="c"># 저장 후 종료</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+ls -al                  <span class="c"># -rw-r--r-- — 실행 권한 x 없음</span>
+chmod 700 test.sh       <span class="c"># 소유자에게 rwx 부여 → 파일명이 녹색으로 바뀜</span>
+./test.sh               <span class="c"># 실행 → hi 출력</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>줄</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>#!/bin/bash</code></td><td>이 파일을 bash로 실행하라는 선언 (shebang)</td><td>HTML의 시작 태그처럼 무조건 이 줄로 시작. 없으면 오류가 많이 발생</td></tr><tr><td class="nowrap"><code>echo "hi"</code></td><td>화면에 hi 출력</td><td><code>echo</code> = 출력(찍기)</td></tr></tbody></table></div>
+<h3>실행 방법 — ./ 와 bash</h3>
+<div class="table-wrap"><table><thead><tr><th>실행 방법</th><th>필요 권한</th><th>메모</th></tr></thead><tbody><tr><td class="nowrap"><code>./test.sh</code></td><td><strong>실행 권한(x) 필요</strong></td><td>파일을 직접 실행 — x가 없으면 실행되지 않음</td></tr><tr><td class="nowrap"><code>bash test.sh</code></td><td>읽기(r)만 있어도 실행</td><td>bash가 파일을 읽어 실행하는 방식이라 결과는 <code>./test.sh</code>와 같음</td></tr></tbody></table></div>
+<div class="dg-bar warn">실행 권한 — <code>bash 파일.sh</code>는 읽기(r)만 있어도 실행되지만 <code>./파일.sh</code>는 실행 권한(x)이 있어야 함. 권한을 주는 <code>chmod 700</code>이 먼저</div>
+<h3>실행 권한과 첫 줄 실험 (test2.sh)</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test2.sh             <span class="c"># 두 번째 스크립트 — 내용은 echo "Good" 한 줄</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test2.sh 파일 안]</span>
+#!/bin/bash
+echo "Good"
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+./test2.sh              <span class="c"># chmod 전 → 실행 안 됨 (쉘은 x 권한이 있어야 실행)</span>
+chmod 700 test2.sh      <span class="c"># 실행 권한 부여</span>
+./test2.sh              <span class="c"># 실행 → Good</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>1번 줄 작성</th><th>결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">1번 줄을 비우고(엔터) 작성</td><td>작동은 함</td><td>오타가 전혀 없는데도 가끔 오작동 → 1번 줄부터 쓰는 습관</td></tr><tr><td class="nowrap"><code>#!</code> 뒤에 한 칸 띄움</td><td>실행됨</td><td>공백은 문제가 되지 않음</td></tr><tr><td class="nowrap"><code>#</code> 빠뜨림 (<code>!/bin/bash</code>)</td><td><code>./test2.sh: 1: !/bin/bash: …</code> 1번 줄 오류</td><td>그 아래 <code>echo</code>는 실행되어 <code>Good</code>은 출력됨</td></tr><tr><td class="nowrap"><code>!</code> 빠뜨림</td><td>실행됨</td><td>주석으로 처리되어도 쉘이 파일을 읽어 실행</td></tr></tbody></table></div>
+<div class="dg-bar warn">오류는 몇 번째 줄인지 알려줌 — <code>./test2.sh: 1:</code>처럼 나오면 그 줄을 찾아 고침. 첫 줄 <code>#!/bin/bash</code>를 아예 쓰지 않으면 오류가 많이 생기므로 기본으로 반드시 작성</div>
+<h3>변수</h3>
+<div class="table-wrap"><table><thead><tr><th>코드</th><th>의미</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>userid="홍"</code></td><td>변수 <code>userid</code>에 문자 <code>홍</code> 저장 (앞 = 변수명, 뒤 = 값)</td><td><b><code>=</code> 앞뒤 띄어쓰기 금지</b> — <code>userid = "홍"</code>이면 <code>./test2.sh: 2: userid: …</code> 2번 줄 오류 (100% 오류)</td></tr><tr><td class="nowrap"><code>echo "user $userid"</code></td><td><code>$</code> = 변수 호출 → 값 출력</td><td>변수는 값을 하나만 가짐</td></tr><tr><td class="nowrap"><code>echo "접속 사용자 $userid"</code></td><td>echo 문자열 안에서는 띄어써도 됨</td><td>띄어쓰기 제한은 <code>=</code>에만 적용</td></tr><tr><td class="nowrap"><code>userid=55</code></td><td>숫자 저장 → <code>55</code> 출력</td><td>숫자는 따옴표를 붙이지 않는 것이 정석</td></tr></tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test2.sh                  <span class="c"># 변수 실습 — 아래 내용으로 수정</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test2.sh 파일 안]</span>
+#!/bin/bash
+userid="홍"
+echo "user $userid"
+echo "접속 사용자 $userid"
+userid="apink"               <span class="c"># 값 재할당 — 앞의 홍은 사라지고 최종 값만 남음</span>
+echo "user $userid"
+userid=55                    <span class="c"># 숫자 저장 (따옴표 없이)</span>
+echo "user:$userid"
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+./test2.sh                   <span class="c"># 출력: user 홍 / 접속 사용자 홍 / user apink / user:55</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>구분</th><th>내용</th><th>메모</th></tr></thead><tbody><tr><td class="nowrap">변수</td><td>계속 변할 수 있는 수 (값을 다시 넣으면 마지막 값만 남음)</td><td><code>userid="홍"</code> 다음 줄 <code>userid="apink"</code> → 최종 <code>apink</code> 출력</td></tr><tr><td class="nowrap">상수</td><td>절대 변하지 않는 값</td><td>상수 선언 방식도 따로 있음</td></tr><tr><td class="nowrap">문자·숫자</td><td>문자는 쌍따옴표 <code>"..."</code>로 쓰면 깔끔</td><td>숫자에 쌍따옴표를 붙여도(<code>userid="55"</code>) 계산은 되지만 숫자는 숫자대로 쓰는 것이 정석 — 엉뚱한 결과 방지</td></tr></tbody></table></div>
+<h3>산술 계산 — $(( ))</h3>
+<div class="table-wrap"><table><thead><tr><th>코드</th><th>결과</th><th>이유</th></tr></thead><tbody><tr><td class="nowrap"><code>userid=55</code>, <code>userid2=100</code> → <code>echo "$userid + $userid2"</code></td><td><code>55 + 100</code> 문자 그대로 출력</td><td>echo는 계산하지 않음</td></tr><tr><td class="nowrap"><code>num=userid+userid2</code> → <code>echo $num</code></td><td><code>userid+userid2</code> 글자 그대로</td><td><code>$</code>가 빠져 변수 호출이 아님</td></tr><tr><td class="nowrap"><code>num=$userid+$userid2</code></td><td><code>55+100</code> 문자로 출력</td><td>변수 값은 들어가지만 계산은 안 됨</td></tr><tr><td class="nowrap"><code>num=$userid + $userid2</code> (띄어씀)</td><td><code>./test2.sh: 7: +: …</code> 7번 줄 오류</td><td>띄어쓰기로 인자를 나눔</td></tr><tr><td class="nowrap"><code>num=$(userid+userid2)</code> (괄호 한 겹)</td><td><code>./test2.sh: 7: userid: …</code> 오류</td><td><code>$( )</code>는 명령 실행이라 <code>userid+userid2</code>를 명령으로 해석</td></tr><tr><td class="nowrap"><code>num=$((userid + userid2))</code></td><td><strong>계산됨 → 155</strong></td><td><code>$(( ))</code>가 산술 확장 (괄호 두 겹, 앞에 <code>$</code> 하나)</td></tr></tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test2.sh                    <span class="c"># 계산 실습 — 아래 내용으로 수정</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test2.sh 파일 안]</span>
+#!/bin/bash
+userid=55
+userid2=100
+echo "$userid + $userid2"      <span class="c"># 55 + 100 — 계산 안 됨</span>
+num=$userid+$userid2
+echo $num                      <span class="c"># 55+100 — 문자로 출력</span>
+num=$((userid + userid2))      <span class="c"># 괄호 두 겹 = 산술 계산</span>
+echo $num                      <span class="c"># 155</span>
+echo $((55 * 100))             <span class="c"># 5500 — 곱하기도 정상</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+./test2.sh                     <span class="c"># 오류가 난 줄 번호까지 함께 출력됨</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">산술 형식</td><td><code>$((변수 + 변수))</code> — 괄호 두 겹, 앞에 <code>$</code> 하나</td><td>괄호 안 변수에는 <code>$</code>를 붙이지 않아도 되고, 붙여도(<code>$(($userid + $userid2))</code>) 동작함 (GNU Bash 매뉴얼 "Shell Arithmetic")</td></tr><tr><td class="nowrap">띄어쓰기</td><td>괄호 안 <code>+</code> 양옆은 띄어도 붙여도 같음</td><td>단 <code>=</code> 양옆은 띄우면 오류</td></tr><tr><td class="nowrap">연산자</td><td><code>+</code> 더하기 · <code>-</code> 빼기 · <code>*</code> 곱하기 · <code>/</code> 나누기</td><td>55 * 100 → 5500</td></tr></tbody></table></div>
+<div class="dg-bar warn">산술은 <code>$(( ))</code> 두 겹 — <code>$userid+$userid2</code>는 계산되지 않고 문자로 붙음. <code>$( )</code> 한 겹은 명령 실행이라 오류, <code>=</code> 양옆 띄어쓰기도 오류</div>
+<h3>실무형 예시 (test3.sh)</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test3.sh                   <span class="c"># 서버 정보를 한 번에 보여 주는 스크립트</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test3.sh 파일 안]</span>
+#!/bin/bash
+Server_name="Master"          <span class="c"># 문자는 쌍따옴표</span>
+Server_port=9022              <span class="c"># 숫자는 따옴표 없이</span>
+echo "Server : $Server_name"
+echo "SSH : $Server_port"
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test3.sh            <span class="c"># 실행 권한 부여</span>
+./test3.sh                    <span class="c"># 출력: Server : Master / SSH : 9022</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">변수명</td><td><strong>대소문자 구분</strong> (<code>Server_name</code>과 <code>server_name</code>은 다른 변수)</td><td>실무에서는 의미가 드러나는 이름 사용</td></tr><tr><td class="nowrap">활용</td><td>쉘 하나를 실행해 SSH·Apache·FTP 포트 등 서버 정보를 바로 출력</td><td>서버마다 값을 바꿔 두면 접속 후 한 번에 확인 가능</td></tr></tbody></table></div>
+<div class="dg-bar warn">쉘 스크립트 기본형 — 1번 줄 <code>#!/bin/bash</code>, <code>chmod 700</code>, <code>./파일.sh</code>. 변수는 <code>이름=값</code>에 띄어쓰기 없이, 계산은 <code>$(( ))</code>, 오류는 줄 번호로 찾기</div>
+<ul class="facts"><li><strong>Tomcat 기동·정지 스크립트</strong><div><code>startup.sh</code>·<code>shutdown.sh</code> 실행과 실행 소유자: was.html 8장</div></li><li><strong>컨테이너 안에서 실행</strong><div><code>docker exec</code>로 컨테이너에 들어가 스크립트 실행: docker.html 6장</div></li><li><strong>공용 디렉토리와 실행 권한</strong><div>그룹·퍼미션으로 실행 가능 여부가 갈리는 원리: linux.html 7장·8장</div></li><li><strong>조건문·분기·입력</strong><div>if·elif·비교 연산자·논리 연산자·read: 이 파일 2장</div></li><li><strong>반복문·배열</strong><div>for·while·until·배열·이중 반복문·break: 이 파일 3장</div></li></ul></section>
+
+  <section class="sec" id="sec-shellcond"><h2>Shell 조건문·입력 (if · elif · 비교 연산자 · 논리 연산자 · read)</h2><div class="dg"><p class="dg-title">한눈에 보기 — 조건 판단 → 분기 실행 → 입력 받기</p><div class="dg-flow"><div class="dg-node "><h4>① if [ 조건 ]</h4><p class="sub">조건을 넣는 괄호 · 전부 한 칸씩</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② then · elif</h4><p class="sub">맞을 때 실행 · 또 다른 조건</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ else · fi</h4><p class="sub">조건 없는 반대 · 블록 종료</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ read</h4><p class="sub">입력값을 변수에 저장</p></div></div><p class="dg-foot">조건이 맞으면 echo 대신 <code>systemctl start …</code> 같은 리눅스 명령이 실행 — 실행할 명령을 알아야 조건문을 쓸 수 있음</p></div>
+<h3>if 기본형 — 변수 값 비교 (test4.sh)</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test4.sh                    <span class="c"># 조건문 첫 실습 파일</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test4.sh 파일 안]</span>
+#!/bin/bash
+role="admin"                   <span class="c"># 변수 선언 — = 양옆 띄어쓰기 금지</span>
+if [ "$role" = "admin" ]; then <span class="c"># [ ] 안은 전부 한 칸씩 띄우고 = 하나가 "같다"</span>
+echo "ok"                      <span class="c"># 조건이 맞을 때 실행</span>
+else                           <span class="c"># 조건 없음 — if의 무조건 반대</span>
+echo "no"
+fi                             <span class="c"># if 블록 종료</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test4.sh             <span class="c"># 실행 권한 x 부여 (1장 참고)</span>
+./test4.sh                     <span class="c"># 실행 → ok</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>if</code></td><td>"만약에" — 조건문 시작</td><td>조건문이 필요한 자리마다 이 한 줄로 시작</td></tr><tr><td class="nowrap"><code>[ ... ]</code></td><td>조건을 넣는 괄호</td><td>괄호 안 조건이 참이면 then 쪽, 거짓이면 else 쪽</td></tr><tr><td class="nowrap"><code>"$role"</code></td><td>변수 값 — 쌍따옴표는 문자로 해석하려고 씀</td><td>변수 값에 공백이 있어도 한 덩어리로 비교되게 함</td></tr><tr><td class="nowrap"><code>=</code></td><td>같다 (비교)</td><td><code>[ ]</code> 안에서는 <code>=</code> 하나가 "같다" — 대입이 아님</td></tr><tr><td class="nowrap"><code>;</code> 세미콜론</td><td>조건 끝 표시</td><td><code>then</code>과 같은 줄에 이어 쓰기 위한 구분</td></tr><tr><td class="nowrap"><code>then</code></td><td>"그러면" — 조건이 맞을 때 아래 실행</td><td>if·elif 뒤에 무조건 붙음</td></tr><tr><td class="nowrap"><code>else</code></td><td>if의 <strong>무조건 반대</strong> (다를 경우)</td><td><strong>조건을 넣지 않음</strong> — <code>else [ … ]</code> 형태로 쓰지 않음</td></tr><tr><td class="nowrap"><code>fi</code></td><td>if를 실행했으면 <strong>무조건 종료</strong> 표시</td><td>if를 열었으면 fi로 닫음 (if를 거꾸로 쓴 이름)</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>확인</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행</td><td><code>chmod 700 test4.sh</code> → <code>./test4.sh</code></td><td>실행 권한 x가 없으면 실행 자체가 안 됨</td></tr><tr><td class="nowrap">결과</td><td><code>ok</code> 출력</td><td><code>role</code>이 <code>admin</code>이라 then 쪽이 실행된 것. 값을 <code>user</code>로 바꾸면 <code>no</code></td></tr><tr><td class="nowrap">쓰는 자리</td><td>패스워드가 맞으면 서버 설치 진행, 틀리면 백업도 안 하고 아무것도 안 하게 핸들링</td><td>조건문으로 많이 관리 — 이것이 if문의 가장 기본 문법</td></tr></tbody></table></div>
+<div class="dg-bar warn">같다는 <code>=</code> 하나 — <code>[ ]</code> 안의 <code>=</code>는 비교. <code>==</code>도 같다로 동작하지만 POSIX 표준이 아닌 Bash 확장 문법이라 <code>=</code>로 씀</div>
+<h3>띄어쓰기 규칙 (핵심)</h3>
+<div class="table-wrap"><table><thead><tr><th>자리</th><th>규칙</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">변수 선언 <code>role="admin"</code></td><td><strong>절대 띄우지 않음</strong> (스페이스바 금지)</td><td>가장 많이 틀리는 부분 — <code>role = "admin"</code>이면 2번 줄 오류</td></tr><tr><td class="nowrap">조건문 <code>[ ]</code> 안</td><td><code>[</code>, 값, <code>=</code>, 값, <code>]</code> 사이를 <strong>전부</strong> 한 칸씩 띄움</td><td>안 띄우면 에러 — 예: <code>["$role"="admin"]</code></td></tr><tr><td class="nowrap">조건문 <code>[ ]</code> 밖</td><td><code>;</code>와 <code>then</code>은 붙여 써도 됨</td><td><code>]; then</code> 형태가 기본</td></tr><tr><td class="nowrap">들여쓰기(Tab)</td><td>쉘에서는 의미 없음</td><td>가독성용 — 안 맞춰도 실행 결과는 같음</td></tr></tbody></table></div>
+<div class="dg-bar warn">띄어쓰기 — 변수 선언은 <code>=</code> 양옆을 붙이고, <code>[ ]</code> 안은 값과 연산자 사이를 전부 한 칸씩. 한쪽만 틀려도 실행 전에 에러</div>
+<h3>오류 줄 읽는 법</h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">안내</td><td>오류가 나면 리눅스가 <strong>몇 번째 줄</strong>인지 보여줌</td><td>예: <code>./test4.sh: 2: …</code></td></tr><tr><td class="nowrap">줄 찾기</td><td>vi에서 <code>:set number</code>로 줄 번호를 켜고 그 줄을 처리</td><td>줄 번호가 없으면 <code>2:</code>가 어느 줄인지 못 찾음</td></tr><tr><td class="nowrap">볼 범위</td><td>오류 줄을 <strong>기점으로 위쪽만</strong> 확인</td><td>그 줄 아래는 아예 실행도 안 된 상태 — 아래를 고쳐도 소용없음</td></tr></tbody></table></div>
+<h3>elif — 데몬 가동 (test5.sh)</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test5.sh                        <span class="c"># 데몬 이름에 따라 다른 서비스를 올리는 스크립트</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test5.sh 파일 안]</span>
+#!/bin/bash
+damon="httpd"                      <span class="c"># 비교할 값 — nginx로 바꿔서 다시 실행</span>
+if [ "$damon" = "httpd" ]; then
+systemctl start httpd              <span class="c"># 조건이 맞으면 echo 대신 리눅스 명령 실행</span>
+elif [ "$damon" = "nginx" ]; then  <span class="c"># 또 다른 조건 — 형식은 if와 같고 then 필수</span>
+systemctl start nginx
+else
+echo "Not Found"                   <span class="c"># httpd·nginx 둘 다 아닐 때 출력</span>
+fi
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test5.sh                 <span class="c"># 실행 권한 부여</span>
+./test5.sh                         <span class="c"># 실행 → root가 아니라 인증 창이 뜸</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>elif</code></td><td>else if — if의 <strong>또 다른 조건</strong> (조건이 하나 더 붙는 것)</td><td>형식은 if와 똑같이 <code>[ ]</code>와 <code>; then</code></td></tr><tr><td class="nowrap"><code>then</code></td><td>elif 뒤에도 <strong>무조건</strong> 들어감</td><td>빠지면 그 줄에서 오류</td></tr><tr><td class="nowrap">실행 내용</td><td>조건이 맞으면 echo 대신 <code>systemctl start …</code> 같은 <strong>리눅스 명령</strong> 실행</td><td>"지금까지 리눅스 명령을 배워 온 이유" — 조건문이 명령을 대신 실행</td></tr><tr><td class="nowrap"><code>.service</code></td><td><code>systemctl start nginx.service</code>처럼 붙여도 되고 생략해도 작동</td><td>결과는 같음 — 줄여 쓰는 형태</td></tr><tr><td class="nowrap"><code>echo</code></td><td>출력 — C의 <code>printf</code>, Java의 <code>System.out.println</code> 같은 것</td><td>값 확인·결과 표시용</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>실행</th><th>화면</th><th>판단</th></tr></thead><tbody><tr><td class="nowrap"><code>damon="httpd"</code></td><td>일반 사용자(blue2)라 root가 아니라 <strong>인증 창</strong>: <code>AUTHENTICATING FOR org.freedesktop.systemd1.manage-units</code> → <code>'httpd.service'</code> → <code>Authenticating as: apink</code> → <code>Password:</code></td><td>서비스 이름이 뜨면 조건이 맞은 것 → <code>Ctrl + C</code>로 빠져나옴</td></tr><tr><td class="nowrap"><code>damon="nginx"</code></td><td><code>nginx.service</code> 인증 창</td><td>elif 조건이 맞아 elif 쪽이 실행된 것</td></tr></tbody></table></div>
+<div class="dg-bar warn">일반 사용자의 systemctl — root가 아니면 비밀번호 인증 창이 뜸. 어느 서비스 이름(<code>'httpd.service'</code>·<code>nginx.service</code>)이 뜨는지로 어느 조건이 맞았는지 확인</div>
+<h3>주석(#)과 else에 명령 넣기</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test5.sh 파일 안]</span>
+damon=""                       <span class="c"># httpd·nginx 둘 다 아니게 값을 비움 → else로 감</span>
+if [ "$damon" = "httpd" ]; then
+systemctl start httpd
+elif [ "$damon" = "nginx" ]; then
+systemctl start nginx
+else
+#echo "Not Found"              <span class="c"># 앞에 #을 붙이면 주석 — 작동 안 함</span>
+ifconfig                       <span class="c"># else 자리에 리눅스 명령을 그대로</span>
+fi
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+./test5.sh                     <span class="c"># 실행 → lo 등 네트워크 정보 출력</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>#</code></td><td>주석 — 앞에 <code>#</code>를 붙인 줄은 작동 안 함</td><td><code>#echo "Not Found"</code>처럼 잠시 끄는 용도</td></tr><tr><td class="nowrap">else에 명령</td><td><code>ifconfig</code>를 넣고 damon 값을 비우면 <code>ifconfig</code>가 바로 실행</td><td><code>lo</code> 등 네트워크 정보가 출력되면 else가 실행된 것</td></tr><tr><td class="nowrap">실무</td><td>조건에 따라 명령을 돌리는 형태로 씀</td><td>그래서 <strong>실행할 리눅스 명령을 다 알아야 함</strong> — 조건문은 명령을 고르는 장치</td></tr></tbody></table></div>
+<h3>if · elif · else 뼈대</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test6.sh 파일 안 · 뼈대만]</span>
+if [ ]; then                   <span class="c"># 조건 — [ ] 안을 채워 씀</span>
+elif [ ]; then                 <span class="c"># elif는 여러 개 가능</span>
+elif [ ]; then                 <span class="c"># 조건을 더 늘릴 때마다 한 덩어리씩 추가</span>
+else                           <span class="c"># else 없는 조건문도 가능</span>
+fi                             <span class="c"># if 블록 종료</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>구성</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>if</code> + <code>elif</code> 여러 개</td><td>위에서부터 차례로 조건을 보고 <strong>처음 맞는 하나만</strong> 실행</td><td>조건 순서가 결과를 바꿈 — 좁은 조건을 위에 둠</td></tr><tr><td class="nowrap"><code>else</code></td><td>모든 조건이 틀렸을 때 실행 — 조건 없음</td><td>else를 빼면 아무것도 실행되지 않고 끝남</td></tr><tr><td class="nowrap"><code>fi</code></td><td>블록 종료</td><td>if를 열었으면 반드시 닫음</td></tr></tbody></table></div>
+<h3>숫자 비교 — -eq · -ge (test6.sh)</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test6.sh                       <span class="c"># 숫자 비교 실습</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test6.sh 파일 안]</span>
+#!/bin/bash
+times=60                          <span class="c"># 시간 관련 변수 예시 — 몇 시에 어떤 데이터를 몇 개 백업하는 상황</span>
+if [ "$times" -eq 100 ]; then     <span class="c"># -eq = 같음 (equal)</span>
+echo "100"
+elif [ "$times" -ge 50 ]; then    <span class="c"># -ge = 크거나 같음 — 60 ≥ 50이라 참</span>
+echo "ok"
+else
+echo "cancel"
+fi
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test6.sh                <span class="c"># 실행 권한 부여</span>
+./test6.sh                        <span class="c"># 실행 → ok (else가 아니라 elif가 작동)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>연산자</th><th>뜻</th><th>기호</th></tr></thead><tbody><tr><td class="nowrap"><code>-eq</code></td><td>같음 (equal)</td><td><code>==</code></td></tr><tr><td class="nowrap"><code>-ne</code></td><td>다름 (not equal)</td><td><code>!=</code></td></tr><tr><td class="nowrap"><code>-gt</code></td><td>왼쪽이 오른쪽보다 큼 (greater than)</td><td><code>&gt;</code></td></tr><tr><td class="nowrap"><code>-ge</code></td><td>크거나 같음 (greater or equal)</td><td><code>&gt;=</code></td></tr><tr><td class="nowrap"><code>-lt</code></td><td>작음 (less than)</td><td><code>&lt;</code></td></tr><tr><td class="nowrap"><code>-le</code></td><td>작거나 같음 (less or equal)</td><td><code>&lt;=</code></td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>확인</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">결과</td><td>실행 → <code>ok</code></td><td>60은 100이 아니라 if가 아니고, <code>-ge 50</code>에 걸려 elif가 작동</td></tr><tr><td class="nowrap">변수 뜻</td><td><code>times</code> = 시간 관련 변수 예시</td><td>몇 시에 어떤 데이터를 몇 개 백업하는 상황을 흉내 낸 값</td></tr><tr><td class="nowrap">문자 비교와 구분</td><td><code>eq</code>는 equal이지만 문자열 비교의 <code>=</code>와는 다른 연산자</td><td>숫자는 <code>-eq</code>·<code>-ge</code>, 문자는 <code>=</code> — 실무 방식은 아래 참조</td></tr></tbody></table></div>
+<div class="dg-bar warn">숫자 비교는 하이픈 연산자 — <code>-eq</code>·<code>-ne</code>·<code>-gt</code>·<code>-ge</code>·<code>-lt</code>·<code>-le</code>. 문자열 비교의 <code>=</code>와 섞으면 조건이 틀어짐</div>
+<h3>실무 방식 — (( )) 산술 조건</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test6.sh 파일 안 · 아래쪽]</span>
+#if [ "$times" -eq 100 ]; then    <span class="c"># 위 교재 방식은 # 주석 처리</span>
+# ...
+if (( times &gt;= 100 )); then       <span class="c"># (( )) = 산술 조건 — 기호 그대로, 변수 $ 생략</span>
+echo "up"
+elif (( times &lt;= 50 )); then      <span class="c"># 공백은 붙여도 띄워도 상관없음</span>
+echo "down"
+else
+echo "error"
+fi</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>(( ))</code></td><td>산술 명령어 — 숫자 계산과 비교에 사용</td><td><code>-gt</code>·<code>-eq</code> 같은 <code>test</code> 비교 연산자는 쓰지 않음</td></tr><tr><td class="nowrap">연산자</td><td>산술 기호 <code>+</code> · <code>-</code> · <code>&gt;</code> · <code>&gt;=</code> · <code>==</code> 등</td><td>수학식처럼 씀 — 실무에서 이 형태를 씀</td></tr><tr><td class="nowrap">공백</td><td><code>(( ))</code> 안에서는 상관없음</td><td><code>[ ]</code>와 달리 한 칸씩 맞출 필요 없음</td></tr><tr><td class="nowrap">변수 <code>$</code></td><td>생략 가능 (써도 동작함)</td><td><code>times</code>·<code>$times</code> 모두 같은 값으로 읽힘</td></tr><tr><td class="nowrap">같다·대입</td><td>같다는 <code>==</code>, 대입은 <code>=</code></td><td><code>=</code> 하나를 조건에 쓰면 대입으로 읽혀 판단이 틀어짐</td></tr></tbody></table></div>
+<div class="dg-bar warn">실무는 <code>(( ))</code> — 숫자 비교를 <code>&gt;=</code>·<code>&lt;=</code> 같은 산술 기호로 쓰고 변수 <code>$</code>는 생략. 같다는 <code>==</code>, <code>=</code> 하나는 대입</div>
+<h3>논리 연산자 — &amp;&amp; · || (test7.sh)</h3>
+<div class="table-wrap"><table><thead><tr><th>연산자</th><th>뜻</th></tr></thead><tbody><tr><td class="nowrap"><code>&amp;&amp;</code></td><td>AND (두 조건이 <strong>모두</strong> 맞을 경우)</td></tr><tr><td class="nowrap"><code>||</code></td><td>OR (두 조건 중 <strong>하나라도</strong> 맞을 경우)</td></tr></tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test7.sh                          <span class="c"># 논리 연산자 실습</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test7.sh 파일 안]</span>
+#!/bin/bash
+# &amp;&amp; ||                              <span class="c"># 두 조건을 한 if 안에 이어 붙임</span>
+num=25
+if (( num &gt; 1 &amp;&amp; num &lt; 100 )); then  <span class="c"># 1보다 크고 100보다 작아야 통과 (AND)</span>
+echo "success"
+else
+echo "fail"
+fi
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test7.sh                   <span class="c"># 실행 권한 부여</span>
+./test7.sh                           <span class="c"># num=25 → success</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>num</th><th>연산자</th><th>결과</th><th>이유</th></tr></thead><tbody><tr><td class="nowrap">25</td><td><code>&amp;&amp;</code></td><td><code>success</code></td><td>1보다 크고 100보다 작음 (범위 안)</td></tr><tr><td class="nowrap">125</td><td><code>&amp;&amp;</code></td><td><code>fail</code></td><td>1보다 큰 건 맞지만 100보다 작은 조건이 틀림</td></tr><tr><td class="nowrap">125</td><td><code>||</code></td><td><code>success</code></td><td>한 조건(1보다 큼)만 맞아도 됨 → <code>||</code>면 무조건 success</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">쓰는 자리</td><td>논리 연산자는 <strong>조건문(if)에 해당</strong></td><td>반복문에서는 안 씀</td></tr><tr><td class="nowrap"><code>else</code> 쪽</td><td>else에는 논리 연산을 넣지 않음</td><td>else는 조건 자체가 없는 자리</td></tr><tr><td class="nowrap">조건 늘리기</td><td><code>&amp;&amp;</code>·<code>||</code>로 계속 이어 붙이면 됨</td><td>조건이 여러 개인 판단을 한 줄로 처리</td></tr><tr><td class="nowrap">쉘의 힘</td><td>쉘 하나만 실행하면 Apache부터 자동으로 다 깔리게 만들 수 있음</td><td>그래서 쉘이 정말 중요한 이유 — 조건·입력·명령을 한 파일에 담음</td></tr></tbody></table></div>
+<div class="dg-bar warn"><code>&amp;&amp;</code>는 둘 다, <code>||</code>는 하나라도 — <code>num=125</code>면 <code>&amp;&amp;</code>는 fail, <code>||</code>는 success. else에는 논리 연산을 넣지 않음</div>
+<h3>사용자 입력 — read (test8.sh)</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test8.sh                    <span class="c"># 입력을 받는 스크립트</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test8.sh 파일 안]</span>
+#!/bin/bash
+echo -n "userid : "            <span class="c"># -n = 줄바꿈 없이 출력 → 같은 줄에서 입력 받음</span>
+read username                  <span class="c"># 키보드 입력을 username 변수에 저장</span>
+echo "Hi~ $username 님"        <span class="c"># 저장된 값을 출력</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test8.sh             <span class="c"># 실행 권한 부여</span>
+./test8.sh                     <span class="c"># userid : 뒤에 mega 입력 → Hi~ mega 님</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>echo -n</code></td><td><strong>줄바꿈을 하지 않는</strong> 옵션</td><td>입력이 바로 옆 같은 줄(<code>userid : mega</code>)에서 받아짐</td></tr><tr><td class="nowrap"><code>read 변수</code></td><td>키보드 입력을 읽어 변수(<code>username</code>)에 임시로(캐시처럼) 저장</td><td>아래 줄에서 <code>$username</code>으로 값 사용</td></tr><tr><td class="nowrap">실행</td><td><code>userid : </code> 뒤에 <code>mega</code> 입력 → <code>Hi~ mega 님</code></td><td>입력 전에는 그 줄에서 대기</td></tr><tr><td class="nowrap">실무 1</td><td>"가동할 데몬 명을 입력하세요" → 입력한 이름의 데몬을 바로 실행시키는 쉘</td><td>read로 받은 값을 조건문·systemctl에 넘김</td></tr><tr><td class="nowrap">실무 2</td><td>호스팅·AWS·GCP 회원가입 → 그 아이디로 서버가 자동 생성 = 쉘로 만드는 것</td><td>가입한 아이디로 자동으로 <code>useradd</code>가 작동</td></tr></tbody></table></div>
+<div class="dg-bar warn">read는 앞의 <code>echo -n</code>과 한 쌍 — 줄바꿈이 있으면 입력이 다음 줄에서 받아짐. 받은 값은 아래에서 <code>$변수</code>로 사용</div>
+<ul class="facts"><li><strong>실행 권한·변수·산술</strong><div><code>#!/bin/bash</code>·<code>chmod 700</code>·<code>$(( ))</code>: 이 파일 1장</div></li><li><strong>오류 줄 편집</strong><div>vi <code>:set number</code>·<code>:wq</code>: linux.html 5장</div></li><li><strong>조건에 따라 데몬 기동</strong><div><code>systemctl start</code>·자동 시작 설정: httpd.html 3장</div></li><li><strong>기동·정지 스크립트</strong><div><code>startup.sh</code>·<code>shutdown.sh</code>: was.html 8장</div></li><li><strong>반복문·배열</strong><div>같은 명령을 여러 값에 반복(for·while)·배열 순회: 이 파일 3장</div></li></ul></section>
+
+  <section class="sec" id="sec-shellloop">
+<h2>Shell 반복문·배열 (for · while · until · 배열 · 이중 반복문 · break)</h2>
+<div class="dg"><p class="dg-title">한눈에 보기 — 같은 명령을 여러 값에 자동 반복</p><div class="dg-flow"><div class="dg-node "><h4>① for</h4><p class="sub">값 목록 · 산술 <code>(( ))</code></p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② while</h4><p class="sub">조건이 참인 동안 · 증가는 본문 안</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ until</h4><p class="sub">종료 조건에 닿을 때까지</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>④ 배열 + for in</h4><p class="sub">데몬 목록을 순차 처리</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ break</h4><p class="sub">조건에 닿으면 강제 종료</p></div></div><p class="dg-foot">서버·데몬이 늘어나도 명령을 손으로 반복하지 않음 — 반복문 하나로 목록 전체를 순차 처리</p></div>
+<h3>반복문 3종과 작업 순서</h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">작업 순서</td><td><code>vi testN.sh</code> → 첫 줄 <code>#!/bin/bash</code> → <code>chmod 700 testN.sh</code> → <code>./testN.sh</code> 실행</td><td>1장의 스크립트 작성 순서 그대로 — 실행 권한 x가 없으면 실행 자체가 안 됨</td></tr><tr><td class="nowrap">반복문 종류</td><td><strong>for · while · until</strong> 3종</td><td>같은 반복도 조건을 다루는 방식과 증가식 위치가 다름</td></tr><tr><td class="nowrap">배열</td><td>배열은 <code>for in</code>으로 돌리는 것이 기본</td><td>번호·개수 변수를 따로 만들지 않아도 값 전체를 순서대로 처리</td></tr><tr><td class="nowrap">쓰는 이유</td><td>모든 서버를 셸로 관리 — 서버마다 손으로 명령을 치는 방식은 서버 수가 늘면 불가능</td><td>작업은 "셸로 어떤 걸 작동시켜 보라"는 형태로 확인 — 손으로 친 결과가 아니라 스크립트 실행 결과가 남아야 함</td></tr></tbody></table></div>
+<div class="dg-bar warn">for·while·until 3종 — 증가식 위치가 서로 다름. for는 조건·증가를 괄호 안에, while·until은 시작값을 위에 두고 증가를 본문 안에 씀</div>
+<h3>for in — 값 목록 반복 (test9.sh)</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test9.sh                  <span class="c"># for in 첫 실습 파일</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test9.sh 파일 안]</span>
+#!/bin/bash
+for a in {1..5}; do          <span class="c"># a에 1~5를 하나씩 넣어 반복 ({1..5} = bash 중괄호 확장)</span>
+  echo "$a"                  <span class="c"># 반복마다 현재 값 출력</span>
+done                         <span class="c"># 반복문 종료 — 빼면 문법 오류</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test9.sh           <span class="c"># 실행 권한 x 부여 (1장 참고)</span>
+./test9.sh                   <span class="c"># 실행 → 1 2 3 4 5 (한 줄씩)</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">형식</td><td><code>for 변수 in 값목록; do 명령; done</code></td><td>값목록의 값을 변수에 하나씩 넣으며 <code>do</code>와 <code>done</code> 사이를 반복</td></tr><tr><td class="nowrap">실행 결과</td><td>1 2 3 4 5 (한 줄씩)</td><td>중괄호 확장이 1부터 5까지의 문자열을 만들어 냄</td></tr><tr><td class="nowrap">역순</td><td><code>{5..1}</code> → 5 4 3 2 1</td><td>시작이 끝보다 크면 자동으로 역순</td></tr><tr><td class="nowrap">for문의 두 형식</td><td><code>in</code> 형 / 산술 <code>(( ))</code> 형</td><td><code>for in</code>도 for문이고, 이름만 구분해서 부름</td></tr></tbody></table></div>
+<div class="dg-bar warn">반복문은 <code>do</code>로 열고 <code>done</code>으로 닫음 — done이 빠지면 실행 전에 문법 오류. <code>{5..1}</code>처럼 시작이 크면 역순으로 자동 전개</div>
+<h3>산술형 for — 시작·범위·증감</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test9.sh 파일 안 · 아래쪽]</span>
+for ((b=0; b&lt;10; b++)); do   <span class="c"># 시작값 b=0 ; 범위값 b&lt;10 ; 증감 b++ (b--는 1씩 감소)</span>
+  echo "$b"                  <span class="c"># 0부터 9까지 출력</span>
+done                         <span class="c"># 반복문 종료</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>구성</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td>0 1 2 … 9 (10 미만)</td><td>범위가 <code>b&lt;10</code>이라 10은 찍히지 않음</td></tr><tr><td class="nowrap"><code>(( ))</code></td><td><strong>산술연산</strong> 방식 — <code>&lt;</code>·<code>&lt;=</code>·<code>&gt;</code>·<code>&gt;=</code>·<code>==</code>·<code>!=</code> 기호를 씀</td><td>수학식과 같은 기호라 읽기 쉬움</td></tr><tr><td class="nowrap">쓰지 않는 연산자</td><td><code>-eq</code>·<code>-lt</code> 같은 연산자는 <code>[ ]</code>·<code>[[ ]]</code> 안에서 쓰는 것</td><td><code>(( ))</code> 안에 넣으면 문법 오류</td></tr></tbody></table></div>
+<div class="dg-bar warn">산술형 for 안에는 산술 기호만 — <code>-eq</code>·<code>-lt</code>는 <code>[ ]</code>·<code>[[ ]]</code>용이라 <code>(( ))</code> 안에서는 문법 오류</div>
+<h3>감소 반복과 실수 사례</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test9.sh 파일 안 · 아래쪽]</span>
+for ((c=9; c&gt;0; c--)); do    <span class="c"># 1씩 감소, c&gt;0이라 1에서 끝남 (0까지 찍으려면 c&gt;=0)</span>
+  echo "$c"                  <span class="c"># 9부터 1까지 역순 출력</span>
+done                         <span class="c"># 반복문 종료</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>구분</th><th>코드</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">정상</td><td><code>c&gt;0</code> + <code>c--</code></td><td>9 8 7 … 1 (역순)</td></tr><tr><td class="nowrap">실수 1</td><td><code>c&lt;0</code> (기호 반대)</td><td>처음부터 거짓이라 <strong>0회 실행</strong> — 루프가 아예 안 돎</td></tr><tr><td class="nowrap">실수 2</td><td><code>c--</code> 대신 <code>c-2</code></td><td>값이 바뀌지 않아 <code>c&gt;0</code>이 계속 참 → <strong>무한 루프</strong>(9 9 9 …)</td></tr><tr><td class="nowrap">2씩 감소</td><td><code>c-=2</code></td><td>변수에 다시 대입하는 형태라 조건이 언젠가 거짓이 됨</td></tr></tbody></table></div>
+<div class="dg-bar warn">증감 자리에 <code>c-2</code>를 쓰면 값이 그대로라 무한 루프 — 변수 값을 바꾸는 <code>c--</code>·<code>c-=2</code>를 씀. 기호를 반대로 쓰면 0회 실행</div>
+<h3>2씩 증가·감소</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test9.sh 파일 안 · 아래쪽]</span>
+for ((d=1; d&lt;=10; d+=2)); do  <span class="c"># d+=2 : 2씩 증가 (d-=2는 2씩 감소)</span>
+  echo "$d"                   <span class="c"># 홀수만 출력</span>
+done                          <span class="c"># 반복문 종료</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td>1 3 5 7 9</td><td>다음 값이 11이라 10은 찍히지 않음 — 범위가 <code>&lt;=10</code>이어도 조건에 맞는 값만 나옴</td></tr><tr><td class="nowrap">증감 표기</td><td><code>d+=2</code> / <code>d-=2</code></td><td>1씩이 아닌 간격으로 늘리고 줄일 때</td></tr></tbody></table></div>
+<h3>for 실행 순서 (a=1 · a&lt;9 · a++)</h3>
+<div class="table-wrap"><table><thead><tr><th>순서</th><th>하는 일</th><th>결과</th></tr></thead><tbody><tr><td class="nowrap">1</td><td>시작값 <code>a=1</code>을 <strong>처음 한 번만</strong> 실행</td><td>while 등 다른 반복문도 시작값은 한 번만</td></tr><tr><td class="nowrap">2</td><td>첫 바퀴는 증가 없이 바로 본문(<code>echo</code>) 실행</td><td>1 출력</td></tr><tr><td class="nowrap">3</td><td><strong>본문이 끝난 뒤</strong> <code>a++</code></td><td>a=2 — 이전 값은 버려지고 변수는 계속 변함</td></tr><tr><td class="nowrap">4</td><td>조건 확인 → 참이면 본문 → 증가 → 반복</td><td>2, 3, … 8 출력</td></tr><tr><td class="nowrap">5</td><td>a가 9가 되면 조건 불일치 → <strong>전체 정지</strong></td><td>출력은 8까지</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">시작값 변경</td><td><code>a=5</code>처럼 시작값만 수정</td><td>출력이 5부터로 바뀜 — 범위·증감은 그대로</td></tr></tbody></table></div>
+<div class="dg-bar warn">시작값은 처음 한 번만, 증가는 본문이 끝난 뒤 — 첫 출력은 시작값 그대로. 조건 검사는 증가한 다음 값으로 함</div>
+<h3>while — 조건이 참인 동안 (test10.sh)</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test10.sh               <span class="c"># while 실습 파일</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test10.sh 파일 안]</span>
+#!/bin/bash
+no=1                       <span class="c"># 시작값은 while 위에 먼저 선언</span>
+while (( no &lt;= 5 )); do    <span class="c"># 조건 : 5 이하인 동안 반복</span>
+  echo "$no"               <span class="c"># 현재 값 출력</span>
+  ((no++))                 <span class="c"># 증가는 본문 안에 씀 (찍고 나서 1 증가)</span>
+done                       <span class="c"># 반복문 종료</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test10.sh        <span class="c"># 실행 권한 부여</span>
+./test10.sh                <span class="c"># 실행 → 1 2 3 4 5</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td>1 2 3 4 5</td><td>5를 찍고 6이 되면 조건이 거짓이라 정지</td></tr><tr><td class="nowrap">증가식 위치</td><td>for는 증가식을 괄호 안에, <strong>while은 본문 안</strong>에 씀</td><td>반복문마다 증가식 위치가 다름 — while에서 증가를 빼면 무한 루프</td></tr><tr><td class="nowrap">공백</td><td><code>while</code> 뒤는 한 칸 띄워 씀</td><td><code>(( ))</code>는 붙여 써도 동작하고, 공백이 꼭 필요한 건 <code>[ ]</code> 대괄호</td></tr></tbody></table></div>
+<h4>실행 순서 (b=1 · b&lt;3)</h4>
+<div class="table-wrap"><table><thead><tr><th>순서</th><th>흐름</th><th>결과</th></tr></thead><tbody><tr><td class="nowrap">1</td><td>시작값 <code>b=1</code></td><td>조건 판단 준비</td></tr><tr><td class="nowrap">2</td><td>조건 참 → 1 출력 → 증가 <code>b++</code> → b=2 → 맨 위로</td><td>1 출력</td></tr><tr><td class="nowrap">3</td><td>조건 참 → 2 출력 → 증가 → b=3</td><td>2 출력</td></tr><tr><td class="nowrap">4</td><td>조건 불일치(<code>b&lt;3</code> 거짓) → 정지</td><td>출력 1, 2</td></tr></tbody></table></div>
+<div class="dg-bar warn">while은 시작값을 위에 두고 증가를 본문 안에 — 증가를 빼거나 조건을 그대로 두면 무한 루프. 조건 판단은 증가한 뒤의 값으로 함</div>
+<h3>while 연습 — 12부터 5까지 역순</h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">문제</td><td>while문으로 <strong>12부터 5까지 역순 출력</strong>되는 셸 문법 작성</td><td>조건·증감 방향을 함께 뒤집는 유형 — 출제 가능성이 높은 형태</td></tr><tr><td class="nowrap">푸는 방식</td><td>문제를 <code>#</code> 주석으로 먼저 적고 그 아래에 코드 작성</td><td>무엇을 만들지 코드 안에 남겨 두면 조건을 다시 볼 때 기준이 됨</td></tr><tr><td class="nowrap">예시 성격</td><td>아래 코드는 강의 화면에 없던 <strong>표준 예시</strong></td><td>같은 결과를 내는 한 가지 방식 — 시작값·조건·증감만 맞추면 됨</td></tr></tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test10.sh 파일 안 · 연습]</span>
+# 문제 : while문으로 12부터 5까지 역순 출력
+n=12                       <span class="c"># 시작값 — 큰 값에서 출발</span>
+while (( n &gt;= 5 )); do     <span class="c"># 5 이상인 동안 (역순이라 &gt;=)</span>
+  echo "$n"                <span class="c"># 현재 값 출력</span>
+  ((n--))                  <span class="c"># 1씩 감소</span>
+done                       <span class="c"># 반복문 종료</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>확인</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td>12 11 10 9 8 7 6 5</td><td>5를 찍고 4가 되면 <code>&gt;=5</code>가 거짓이라 정지</td></tr></tbody></table></div>
+<div class="dg-bar warn">정방향은 <code>&lt;=</code>·<code>++</code>, 역순은 <code>&gt;=</code>·<code>--</code> — 부호를 하나만 바꾸면 0회 실행이거나 무한 루프</div>
+<h3>until — 종료 조건까지 (test11.sh)</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test11.sh               <span class="c"># until 실습 파일</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test11.sh 파일 안]</span>
+#!/bin/bash
+no=1                       <span class="c"># 시작값</span>
+until (( no &gt;= 3 )); do    <span class="c"># 종료 조건 : no가 3 이상이 되면 정지</span>
+  echo "$no"               <span class="c"># 종료 조건 전까지 출력</span>
+  ((no++))                 <span class="c"># 증가는 while과 같이 본문 안</span>
+done                       <span class="c"># 반복문 종료</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test11.sh        <span class="c"># 실행 권한 부여</span>
+./test11.sh                <span class="c"># 실행 → 1 2</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td>1 2</td><td>no가 3이 되는 순간 정지 — 3은 찍히지 않음</td></tr><tr><td class="nowrap">while과 차이</td><td>while은 <strong>조건이 맞는 동안</strong> 반복, until은 <strong>종료 조건</strong>을 적고 맞으면 정지</td><td>그래서 같은 3을 두고 부등호 방향이 달라 보임</td></tr><tr><td class="nowrap">핵심</td><td><strong>종료 조건(end point) 설정</strong></td><td>반대로 쓰면 무한 루프 또는 작동 불능 — for·while처럼 생각하면 안 됨</td></tr><tr><td class="nowrap">사용 빈도</td><td>until은 많이 안 쓰임</td><td>for·while을 알면 그걸 쓰면 됨</td></tr></tbody></table></div>
+<div class="dg-bar warn">until은 "종료 조건" — 조건이 참이 되면 멈춤. while과 같은 감각으로 부등호를 쓰면 첫 판정부터 어긋나 0회 실행 또는 무한 루프</div>
+<h3>배열 — 선언·출력·개수 (test12.sh)</h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">왜 배열</td><td>서버에서 다룰 <strong>데몬(서비스)이 많아서</strong> 배열로 만들어 <strong>순차적으로</strong> 띄움</td><td>배열은 반복문과 가장 같이 쓰임</td></tr></tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test12.sh 파일 안]</span>
+f=("hong" "kim" "park")    <span class="c"># 배열 선언 (원소는 공백으로 구분, 쌍따옴표는 생략 가능)</span>
+echo ${f[1]}               <span class="c"># 1번 값 → kim</span>
+echo ${f[@]}               <span class="c"># 등록된 배열 전체 → hong kim park</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">번호(index)</td><td><strong>무조건 0부터</strong> — hong 0 / kim 1 / park 2</td><td>번호를 <strong>노드 번호</strong>라고 부름</td></tr><tr><td class="nowrap">크기</td><td>배열 크기 제한 없음</td><td>데몬·서버 목록을 그대로 담음</td></tr><tr><td class="nowrap">변수명 재사용</td><td>같은 변수명 <code>f</code>를 다시 쓰면 문제가 생김</td><td>이전 선언을 <code>#</code>로 주석 처리한 뒤 새로 선언</td></tr><tr><td class="nowrap">실수</td><td><code>f=("hong","kim","park")</code>처럼 <strong>쉼표</strong>를 쓰면 원소 1개로 들어감</td><td><code>${f[1]}</code>이 빈 값 — 쉼표를 지우고 공백으로 구분</td></tr></tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test12.sh 파일 안 · 아래쪽]</span>
+d=("httpd" "nginx" "vsftpd")  <span class="c"># 데몬 이름 배열</span>
+echo ${#d[@]}                 <span class="c"># 전체 개수 → 3 (length와 비슷)</span>
+ea=${#d[@]}                   <span class="c"># 개수를 변수에 담음 (선택)</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">개수 표기</td><td><code>${#배열[@]}</code> — <code>#</code>이 개수, <code>[@]</code>가 전체</td><td>개수를 읽어 두면 반복 범위를 자동으로 맞출 수 있음</td></tr><tr><td class="nowrap">마지막 번호</td><td><strong>개수 − 1</strong> (개수 3이면 0, 1, 2)</td><td>범위에 <strong><code>&lt;=</code> 금지</strong></td></tr><tr><td class="nowrap"><code>&lt;=</code>를 쓰면</td><td>없는 3번을 읽게 되는데 bash는 에러 없이 빈 값을 줌</td><td>조용히 오류가 남 — 실행은 끝나고 결과만 비어 있음</td></tr></tbody></table></div>
+<div class="dg-bar warn">배열 번호는 0부터, 마지막 번호 = 개수 − 1 — 범위에 <code>&lt;=</code>를 쓰면 없는 번호를 읽고 bash는 에러 없이 빈 값을 줌. 조용한 오류라 눈으로 확인해야 발견됨</div>
+<h3>배열 + for — 데몬 상태를 차례로</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test12.sh 파일 안 · 아래쪽]</span>
+d=("httpd" "nginx" "vsftpd")   <span class="c"># 데몬 목록</span>
+ea=${#d[@]}                     <span class="c"># 개수 3</span>
+for ((a=0; a&lt;ea; a++)); do     <span class="c"># 시작값은 반드시 0 (1이면 데이터 하나 손실), 범위 a&lt;ea (a&lt;3도 가능)</span>
+  echo ${d[a]}                 <span class="c"># d는 배열 전체, a는 도는 번호 (0, 1, 2)</span>
+done                           <span class="c"># a가 3이 되면 정지</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test12.sh            <span class="c"># 실행 권한 부여</span>
+./test12.sh                    <span class="c"># 실행 → httpd nginx vsftpd (한 줄씩)</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td>httpd nginx vsftpd (한 줄씩)</td><td>배열 전체를 번호로 하나씩 읽음</td></tr><tr><td class="nowrap">응용</td><td><code>echo</code> 자리에 <code>systemctl status ${d[a]}</code> → <strong>세 데몬 상태를 차례로 확인</strong></td><td>disabled·inactive라 <code>Active: inactive (dead)</code>로 뜨고 <code>lines 1-4/4 (END)</code> 페이저가 나옴</td></tr><tr><td class="nowrap"><code>status</code> 대신 <code>start</code></td><td>목록의 데몬을 차례로 기동</td><td>기본 베이스일 뿐이라 강의에서는 실행하지 않고 지움 — 실제 서버에서만 실행</td></tr></tbody></table></div>
+<div class="dg-bar warn">배열을 인덱스 for로 돌 때 시작값은 0 — 1부터 시작하면 첫 데이터가 빠짐. 범위는 <code>a&lt;ea</code>로 끝내고 <code>a&lt;=ea</code>는 쓰지 않음</div>
+<h3>같은 출력을 while · for in으로 (연습)</h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">문제</td><td>위 for 코드를 주석 처리하고 <code>d</code>·<code>ea</code>는 그대로 둔 채 <strong>while로 httpd nginx vsftpd 한 줄씩 출력</strong></td><td>같은 결과를 다른 반복문으로 만드는 연습 — 증가 위치만 다름</td></tr></tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test12.sh 파일 안 · while 연습]</span>
+b=0                      <span class="c"># 시작값 0</span>
+while (( b&lt;ea )); do     <span class="c"># ea보다 작은 동안 반복</span>
+  echo ${d[b]}           <span class="c"># b번째 값 출력</span>
+  ((b++))                <span class="c"># 증가는 본문 안</span>
+done                     <span class="c"># 반복문 종료</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test12.sh 파일 안 · for in 연습]</span>
+for c in "${d[@]}"; do   <span class="c"># c가 배열 값을 하나씩 가져옴 (번호·개수 변수 불필요)</span>
+  echo "$c"              <span class="c"># 가져온 값 출력</span>
+done                     <span class="c"># 반복문 종료</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>방식</th><th>특징</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">for in</td><td>값을 하나씩 꺼내므로 번호·개수 변수가 필요 없음</td><td>세 줄이 <strong>한 번에</strong> 끝남</td></tr><tr><td class="nowrap">속도</td><td><strong>배열에서는 for in이 가장 빠름</strong></td><td>20만 개 배열 시연 측정: for in 약 0.7초 &lt; 인덱스 for 약 1.2초 &lt; while 약 1.4~1.5초 (환경에 따라 달라지는 값)</td></tr><tr><td class="nowrap">for·while의 위험</td><td><strong>범위를 직접 정해야</strong> 함</td><td>100개를 50번만 돌리면 50개 손실 — 시작값·범위 실수가 데이터 누락으로 이어짐</td></tr></tbody></table></div>
+<div class="dg-bar warn">배열 순회는 for in이 가장 빠르고 범위 실수도 없음 — 인덱스 for·while은 시작값 0과 범위(개수 − 1)를 직접 맞춰야 함</div>
+<h3>이중 for — 구구단 1~3단 (test13.sh)</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test13.sh                      <span class="c"># 이중 반복문 실습 파일</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test13.sh 파일 안]</span>
+#!/bin/bash
+for ((a=1; a&lt;4; a++)); do         <span class="c"># 바깥 : a = 1, 2, 3 (단)</span>
+  for ((b=1; b&lt;10; b++)); do      <span class="c"># 안쪽 : b = 1~9 (곱하는 수)</span>
+    echo "$a x $b = $((a*b))"     <span class="c"># x, = 는 출력용 글자 / $((a*b))가 실제 계산</span>
+  done                            <span class="c"># 안쪽 for 종료</span>
+done                              <span class="c"># 바깥 for 종료</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test13.sh               <span class="c"># 실행 권한 부여</span>
+./test13.sh                       <span class="c"># 실행 → 1 x 1 = 1 … 3 x 9 = 27 (27줄)</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td><code>1 x 1 = 1</code> … <code>3 x 9 = 27</code></td><td>바깥 3바퀴 × 안쪽 9바퀴 = 27줄</td></tr><tr><td class="nowrap">이중 반복문</td><td><strong>반복문 안에 반복문</strong> ("더블 for")</td><td>바깥·안쪽 <code>do … done</code> 짝을 맞춰서 봄</td></tr><tr><td class="nowrap"><code>$((a*b))</code></td><td>계산 결과를 문자열 안에 넣음</td><td><code>$</code>를 빼면 <code>((a*b))</code> 글자 그대로 출력됨</td></tr></tbody></table></div>
+<h4>실행 순서</h4>
+<div class="table-wrap"><table><thead><tr><th>순서</th><th>흐름</th><th>결과</th></tr></thead><tbody><tr><td class="nowrap">1</td><td><code>a=1</code> → <strong>안쪽 for가 b=1~9 전부 돎</strong></td><td>이 동안 a는 그대로 1</td></tr><tr><td class="nowrap">2</td><td><code>b=10</code>이 되면 안쪽 정지</td><td>1단 9줄 완료</td></tr><tr><td class="nowrap">3</td><td>바깥 <code>a=2</code> → 안쪽 <strong>b가 다시 1부터</strong> 시작</td><td>2단 9줄</td></tr><tr><td class="nowrap">4</td><td>바깥이 한 바퀴 돌 때마다 안쪽은 처음부터 9바퀴</td><td>같은 계산의 반복</td></tr><tr><td class="nowrap">5</td><td><code>a=4</code>가 되면 전체 종료</td><td>27줄 출력 후 정지</td></tr></tbody></table></div>
+<div class="dg-bar warn">바깥이 한 바퀴 돌 때 안쪽은 처음부터 전부 — for의 안쪽 변수는 괄호 안에서 매번 초기화되므로 단마다 1부터 다시 시작</div>
+<h3>이중 while과 초기화 버그</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test13.sh 파일 안 · 아래쪽]</span>
+c=1                                     <span class="c"># 바깥 시작값</span>
+while (( c&lt;3 )); do                     <span class="c"># 바깥 2바퀴</span>
+  d=1                                   <span class="c"># 안쪽 시작값은 바깥 while 안, 안쪽 while 바로 위</span>
+  while (( d&lt;6 )); do                   <span class="c"># 안쪽은 바깥 1바퀴당 5바퀴</span>
+    echo "$c x $d = $((c*d))"           <span class="c"># 현재 조합 출력</span>
+    ((d++))                             <span class="c"># 안쪽 증가 : 안쪽 done 앞</span>
+  done                                  <span class="c"># 안쪽 while 종료</span>
+  ((c++))                               <span class="c"># 바깥 증가 : 안쪽 done 뒤</span>
+done                                    <span class="c"># 바깥 while 종료</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td><code>1 x 1</code> ~ <code>1 x 5</code>, <code>2 x 1</code> ~ <code>2 x 5</code></td><td>바깥 2바퀴 × 안쪽 5바퀴</td></tr><tr><td class="nowrap">버그</td><td><code>d=1</code>을 바깥 while <strong>위</strong>(<code>c=1</code>과 같이)에 두면 <code>1 x 1~5</code>만 나오고 2단이 안 나옴</td><td>안쪽이 끝나면 <code>d=6</code>인데 <code>d=1</code> 줄이 반복문 밖이라 초기화가 안 됨</td></tr><tr><td class="nowrap">원인</td><td>while은 시작값이 괄호 밖에 따로 있음</td><td>for는 괄호 안이라 매번 초기화 — while에서 위치 실수가 생김</td></tr><tr><td class="nowrap">들여쓰기</td><td>안 해도 됨</td><td>가독성용 — 실행 결과는 같음</td></tr></tbody></table></div>
+<div class="dg-bar warn">while 중첩은 안쪽 시작값을 바깥 while 안에 — 밖에 두면 두 번째 바퀴가 안쪽 조건(<code>d&lt;6</code>)에서 바로 끝나 한 단만 출력</div>
+<h3>2차 배열 — 이중 반복문을 배우는 이유</h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">1차 배열</td><td><code>d=("httpd" "nginx" "vsftpd")</code> 같은 목록</td><td>반복문 하나로 돌림</td></tr><tr><td class="nowrap">2차 배열</td><td>행렬 형태로 값이 두 축에 걸쳐 있음</td><td>반복문도 2차, 3차가 필요 → 이중 반복문</td></tr><tr><td class="nowrap">앞 숫자</td><td><strong>1차 노드번호 = 서버 번호</strong></td><td>서버마다 한 줄씩</td></tr><tr><td class="nowrap">뒤 숫자</td><td><strong>2차 노드번호 = 항목</strong></td><td>이름·IP·상태 같은 칸</td></tr></tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test13.sh 파일 안 · 서버 목록]</span>
+declare -A server_matrix                 <span class="c"># 연관 배열 선언 — 키를 문자열로 잡아 두 축을 구분</span>
+server_matrix[0,0]="Web-Node-01"         <span class="c"># 0번 서버 : 이름</span>
+server_matrix[0,1]="192.168.10.10"       <span class="c"># 0번 서버 : IP</span>
+server_matrix[0,2]="Running"             <span class="c"># 0번 서버 : 상태</span>
+server_matrix[1,0]="DB-Node-01"          <span class="c"># 1번 서버 : 이름</span>
+server_matrix[1,1]="192.168.10.20"       <span class="c"># 1번 서버 : IP</span>
+server_matrix[1,2]="stopped"             <span class="c"># 1번 서버 : 상태</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">declare -A</td><td>bash의 연관 배열 선언</td><td>bash에는 진짜 다차원 배열이 없음 — 선언 없이 <code>[0,1]</code>을 쓰면 키가 산술식으로 계산되어 다른 칸과 번호가 겹치고 값이 덮어써짐</td></tr><tr><td class="nowrap">관리 효과</td><td>많은 서버를 이름·IP·상태로 묶어 한 배열에 관리</td><td>서버가 늘어나도 목록만 추가</td></tr><tr><td class="nowrap">출력</td><td>두 축을 모두 도는 이중 반복문 필요</td><td>1차(서버) 안에서 2차(항목)를 도는 구조</td></tr></tbody></table></div>
+<div class="dg-bar warn">bash의 2차 배열은 <code>declare -A</code>(연관 배열)로 키를 문자열로 — 선언을 빼면 <code>[0,1]</code>의 쉼표가 산술식으로 계산되어 칸이 겹치고 값이 덮어써짐</div>
+<h3>반복문 + 조건문 — 짝수만 (test14.sh)</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+vi test14.sh             <span class="c"># 반복문 + 조건문 실습 파일</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test14.sh 파일 안]</span>
+#!/bin/bash
+for ((a=1; a&lt;=50; a++)); do
+  if (( a % 2 == 0 )); then  <span class="c"># % = 나머지. 2로 나눈 나머지가 0이면 짝수 (1이면 홀수)</span>
+    echo "$a"                <span class="c"># 짝수만 출력</span>
+  fi                         <span class="c"># if 종료</span>
+done                         <span class="c"># 반복문 종료</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test14.sh          <span class="c"># 실행 권한 부여</span>
+./test14.sh                  <span class="c"># 실행 → 2 4 6 … 50</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td>2 4 6 … 50 (<strong>짝수만</strong>)</td><td>홀수는 <code>% 2</code>가 1이라 if를 통과하지 못함</td></tr><tr><td class="nowrap">결합</td><td>반복문과 if를 <strong>결합</strong>해 필요한 것만 처리</td><td>조건문 문법은 2장의 <code>then … fi</code> 그대로</td></tr><tr><td class="nowrap">배수</td><td>3의 배수는 <code>a % 3 == 0</code></td><td>4·5의 배수도 같은 방식</td></tr><tr><td class="nowrap">실무 활용</td><td>"몇 번 서버까지만 돌려라", 포트 포워딩, 포트 번호 생성</td><td>여러 값 중 필요한 것만 골라 처리</td></tr><tr><td class="nowrap">예</td><td>8000~8050 중 <strong>짝수 포트만</strong> 열기 → 8000, 8002, 8004, … 8050 (26개)</td><td>모르면 포트를 하나씩 입력해야 해서 시간이 너무 오래 걸림</td></tr></tbody></table></div>
+<div class="dg-bar warn">반복문 안 if로 걸러내기 — <code>%</code>는 나머지, 짝수는 <code>a % 2 == 0</code>·3의 배수는 <code>a % 3 == 0</code>. 26개짜리 포트 목록도 손으로는 못 만듦</div>
+<h3>break — 반복문 강제 종료</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test14.sh 파일 안 · 아래쪽]</span>
+for ((b=1; b&lt;=1000; b++)); do   <span class="c"># 1000까지 돌게 해 놓음</span>
+  if (( b &gt; 30 )); then         <span class="c"># 30 초과일 때</span>
+    break                       <span class="c"># 반복문 강제 종료 (아래 코드는 실행 안 하고 바로 반복문 밖으로)</span>
+  fi                            <span class="c"># if 종료</span>
+  echo "$b"                     <span class="c"># break에 걸리지 않은 값만 출력</span>
+done                            <span class="c"># 반복문 종료</span>
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td>1 … 30</td><td>31에서 break가 걸려 echo 전에 빠져나감. <code>b&gt;=30</code>이면 30에서 걸려 29까지만 출력</td></tr><tr><td class="nowrap">사용 범위</td><td><strong><code>break</code>는 for·while 모두 사용, 반복문 전용</strong></td><td>조건문(if)에는 없음</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>실수 사례</th><th>코드</th><th>결과</th></tr></thead><tbody><tr><td class="nowrap">조건 방향 반대</td><td><code>b&lt;30</code>에서 break</td><td><code>b=1</code>에서 바로 정지 — 출력 없음</td></tr><tr><td class="nowrap">echo를 if 안에</td><td><code>b&gt;30</code>으로 고치고 echo를 if 안에 둠</td><td>31만 출력 — 조건이 맞을 때만 찍음</td></tr><tr><td class="nowrap">정상</td><td>echo를 if 밖(break 뒤)으로 옮기고 안쪽 echo는 <code>#</code> 주석</td><td>1~30 출력</td></tr></tbody></table></div>
+<div class="dg-bar warn">break는 조건이 맞는 순간 반복문 밖으로 — echo가 if 안이면 break가 걸린 값만, if 밖이면 걸리기 전 값까지 출력. 조건 안·밖 위치가 결과를 바꿈</div>
+<ul class="facts"><li><strong>실행 권한·변수·산술</strong><div><code>#!/bin/bash</code>·<code>chmod 700</code>·<code>$(( ))</code>: 이 파일 1장</div></li><li><strong>조건문·분기</strong><div><code>if</code>·<code>elif</code>·비교 연산자·<code>read</code>: 이 파일 2장</div></li><li><strong>여러 데몬을 차례로 기동</strong><div><code>systemctl start</code>·자동 시작 설정: httpd.html 3장</div></li><li><strong>기동·정지 스크립트</strong><div><code>startup.sh</code>·<code>shutdown.sh</code>: was.html 8장</div></li><li><strong>마스터·워커 포트 통일</strong><div><code>/etc/my.cnf</code>의 <code>port = 3306</code>과 재시작: mysql.html 14장</div></li></ul>
+</section>
+
+  <section class="sec" id="cheatsheet"><h2>통합 명령어 치트시트</h2><p>이 카테고리에서 나온 명령어를 영역별로 모음. 내용이 추가되면 해당 영역 묶음 아래에 줄을 추가.</p><div class="table-wrap"><table class="cheat"><thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead><tbody><tr class="group"><th colspan="2" scope="colgroup">Shell 스크립트</th></tr><tr><td><code>#!/bin/bash</code></td><td>스크립트 1번 줄에 반드시 (첫 줄을 비우지 않음)</td></tr><tr><td><code>chmod 700 파일.sh</code></td><td>실행 권한 부여. 없으면 <code>./파일.sh</code>가 실행되지 않음</td></tr><tr><td><code>./파일.sh</code> / <code>bash 파일.sh</code></td><td>x 권한 필요 / 읽기(r)만 있어도 실행. 결과는 같음</td></tr><tr><td><code>변수=값</code> / <code>$변수</code></td><td>변수 선언 / 값 호출. <code>=</code> 양옆 띄어쓰기 금지, 변수는 마지막 값 하나만 유지</td></tr><tr><td><code>$((a + b))</code></td><td>산술 계산 — 괄호 두 겹. <code>$a+$b</code>는 문자로 붙고 <code>$(a+b)</code>는 명령 실행으로 오류</td></tr><tr><td>오류 확인</td><td><code>./test2.sh: 2: userid: …</code>처럼 몇 번째 줄인지 알려 줌 — 그 줄을 고침</td></tr><tr><td><code>if [ 조건 ]; then … fi</code></td><td>조건문 — <code>[ ]</code> 안은 <code>[</code>·값·연산자·값·<code>]</code> 사이를 전부 한 칸씩 띄움. 조건이 맞을 때만 then 아래 실행</td></tr><tr><td><code>=</code> / <code>==</code></td><td>문자열 비교는 <code>=</code> 하나. <code>==</code>도 같다로 동작하지만 POSIX 표준이 아닌 Bash 확장</td></tr><tr><td><code>-eq</code> <code>-ne</code> <code>-gt</code> <code>-ge</code> <code>-lt</code> <code>-le</code></td><td>숫자 비교 (equal·not equal·greater·greater or equal·less·less or equal). 문자열 비교 <code>=</code>와 섞지 않음</td></tr><tr><td><code>elif [ 조건 ]; then</code> / <code>else</code></td><td>또 다른 조건 (여러 개 가능, <code>then</code> 필수) / if의 무조건 반대 — else에는 조건을 넣지 않음</td></tr><tr><td><code>(( a &gt;= 100 ))</code></td><td>산술 조건 — <code>-eq</code> 대신 <code>&gt;</code>·<code>&gt;=</code>·<code>==</code> 사용, 공백 무관, 변수 <code>$</code> 생략 가능, 같다는 <code>==</code></td></tr><tr><td><code>&amp;&amp;</code> / <code>||</code></td><td>AND(두 조건 모두 맞음) / OR(하나라도 맞음). 조건문에 쓰고 else에는 넣지 않음</td></tr><tr><td><code>read 변수</code> / <code>echo -n</code></td><td>키보드 입력을 변수에 저장 / 줄바꿈 없이 출력해 같은 줄에서 입력 받기. 받은 값은 <code>$변수</code>로 사용</td></tr><tr><td>오류 줄 찾기</td><td><code>:set number</code>로 줄 번호를 보고 오류 줄을 기점으로 <b>위쪽</b>만 확인 — 아래는 실행되지 않은 상태</td></tr><tr class="group"><th colspan="2" scope="colgroup">Shell 반복문·배열 (for · while · until · break)</th></tr>
+<tr><td><code>for a in {1..5}; do … done</code></td><td>값 목록 반복 — <code>{5..1}</code>은 역순 자동. <code>done</code>이 빠지면 문법 오류</td></tr>
+<tr><td><code>for ((b=0; b&lt;10; b++))</code></td><td>산술형 for — 시작·범위·증감을 괄호 안에. <code>b+=2</code>·<code>b-=2</code>로 간격 조절, <code>b-2</code>는 값이 안 바뀌어 무한 루프</td></tr>
+<tr><td><code>(( b &gt;= 5 ))</code> / <code>[ "$b" -ge 5 ]</code></td><td>산술 조건은 기호(<code>&lt;</code>·<code>&gt;=</code>·<code>==</code>), <code>-eq</code>·<code>-lt</code>는 <code>[ ]</code>·<code>[[ ]]</code> 전용 — <code>(( ))</code> 안에 넣으면 문법 오류</td></tr>
+<tr><td><code>while (( no &lt;= 5 )); do … done</code></td><td>조건이 참인 동안. 시작값은 while 위에, 증가 <code>((no++))</code>는 본문 안 — 빼면 무한 루프</td></tr>
+<tr><td><code>until (( no &gt;= 3 )); do … done</code></td><td>종료 조건이 참이 되면 정지 — while과 부등호 방향이 반대. 반대로 쓰면 무한 루프 또는 0회 실행</td></tr>
+<tr><td><code>f=("hong" "kim" "park")</code> / <code>${f[1]}</code> / <code>${f[@]}</code></td><td>배열 선언 / 1번 값(kim) / 전체. 번호는 0부터(노드 번호), 쉼표로 구분하면 원소 1개로 들어감. 같은 변수명 재사용 금지</td></tr>
+<tr><td><code>${#d[@]}</code></td><td>배열 개수(3). 마지막 번호 = 개수 − 1이라 범위에 <code>&lt;=</code>를 쓰면 없는 번호를 읽고 빈 값을 받음</td></tr>
+<tr><td><code>for c in "${d[@]}"; do … done</code></td><td>배열 순회 — 번호·개수 변수 불필요, 배열에서 가장 빠름(for in 약 0.7초 &lt; 인덱스 for 약 1.2초 &lt; while 약 1.4~1.5초, 20만 개·환경에 따라 다름)</td></tr>
+<tr><td><code>declare -A server_matrix</code></td><td>2차 배열(연관 배열). 선언 없이 <code>[0,1]</code> 키를 쓰면 산술식으로 계산돼 다른 칸과 겹쳐 값이 덮어써짐</td></tr>
+<tr><td><code>a % 2 == 0</code></td><td>나머지 — 짝수 판별(홀수는 1). 3의 배수는 <code>% 3 == 0</code>, 8000~8050 짝수 포트 26개 생성에 사용</td></tr>
+<tr><td><code>break</code></td><td>반복문 강제 종료(for·while 전용, 조건문에는 없음). echo가 if 안이면 break 건 값만, if 밖이면 그 전 값까지 출력</td></tr>
+</tbody></table></div></section>
+
+  </main>
+</div>
+<script>
+(function () {
+  // 코드 복사
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.parentElement.querySelector('pre').innerText;
+      var done = function () {
+        btn.textContent = '복사됨'; btn.classList.add('done');
+        setTimeout(function () { btn.textContent = '복사'; btn.classList.remove('done'); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+      } else { fallback(text); done(); }
+    });
+  });
+  function fallback(t) {
+    var ta = document.createElement('textarea'); ta.value = t;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  // 현재 읽는 섹션을 목차에 표시
+  var links = Array.prototype.slice.call(document.querySelectorAll('.side a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function spy() {
+    var y = window.scrollY + window.innerHeight * 0.3, idx = 0;
+    secs.forEach(function (el, i) { if (el && el.offsetTop <= y) idx = i; });
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) idx = secs.length - 1;
+    links.forEach(function (a, i) { a.classList.toggle('on', i === idx); });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+})();
+</script>
+<script>
+(function () {
+  var r = document.documentElement, b = document.getElementById('themeBtn');
+  function cur() {
+    var t = r.getAttribute('data-theme');
+    if (t) return t;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function apply(t) {
+    r.setAttribute('data-theme', t);
+    b.textContent = t === 'dark' ? '라이트' : '다크';
+  }
+  try { var s = localStorage.getItem('note-theme'); if (s) r.setAttribute('data-theme', s); } catch (e) {}
+  apply(cur());
+  b.addEventListener('click', function () {
+    var n = cur() === 'dark' ? 'light' : 'dark';
+    apply(n);
+    try { localStorage.setItem('note-theme', n); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
