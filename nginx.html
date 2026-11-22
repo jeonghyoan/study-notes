@@ -772,7 +772,7 @@ events {
     <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
       <tr><td class="nowrap"><code>auto</code></td><td>CPU 코어 수를 자동 감지해 워커 프로세스 수를 정함</td><td>접속할 때마다 코어를 모두 사용하는 값이 아님</td></tr>
       <tr><td class="nowrap">숫자</td><td>워커 프로세스의 <strong>개수</strong> — 예: 24코어 서버에 <code>4</code> → 워커 4개</td><td>특정 코어를 지정하는 값이 아님</td></tr>
-      <tr><td class="nowrap">코어가 많은 서버</td><td>24코어처럼 코어가 많아도 <code>auto</code>를 잡지 않는 운용(강사 경험)</td><td>nginx 문서는 코어 수로 설정하거나 <code>auto</code>로 두는 것을 좋은 출발점으로 권함</td></tr>
+      <tr><td class="nowrap">코어가 많은 서버</td><td>24코어처럼 코어가 많아도 <code>auto</code>를 잡지 않는 운용(강사 경험)</td><td>코어가 한꺼번에 몰렸다 들어오는 구조라 손실이라는 설명은 강사 경험. nginx 문서는 코어 수로 설정하거나 <code>auto</code>로 두는 것을 좋은 출발점으로 권함</td></tr>
       <tr><td class="nowrap">이 서버</td><td>2코어뿐이라 <code>auto</code>든 <code>2</code>든 비슷, 1개만 쓰려면 <code>worker_processes 1;</code></td><td>분산 서버·Spark에서 다시 나오는 개념</td></tr>
     </tbody></table></div>
 
