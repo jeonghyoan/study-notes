@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spark 통합 학습노트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #FFFFFF;
+  --paper-alt: #F4F6F8;
+  --ink: #0F172A;
+  --ink2: #273449;
+  --mute: #5B6779;
+  --hair: #CBD5E1;
+  --hair-soft: #E2E8F0;
+  --accent: #0B63CE;
+  --accent-text: #074799;
+  --accent-soft: #EEF4FC;
+  --fix: #B45309;
+  --fix-text: #7C2D12;
+  --fix-soft: #FFF7EC;
+  --fix-line: #F3D9B5;
+  --code-bg: #F5F7FA;
+  --code-line: #E2E8F0;
+  --comment: #6B7A90;
+  --sidebar: 240px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+    --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+    --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+    --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+  --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+  --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+  --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 24px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  line-height: 1.8;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Layout: sticky TOC + one readable column ---------- */
+.page {
+  display: grid;
+  grid-template-columns: var(--sidebar) minmax(0, 1fr);
+  gap: 0 48px;
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: 44px 48px 96px;
+}
+.side { position: relative; }
+.side nav {
+  position: sticky;
+  top: 28px;
+  padding-top: 6px;
+}
+.side .side-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+  margin: 0 0 10px;
+}
+.side ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1px solid var(--hair);
+  max-width: none;
+}
+.side li { margin: 0; font-size: 14px; line-height: 1.45; }
+.side a {
+  display: block;
+  padding: 7px 0 7px 14px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  color: var(--mute);
+  text-decoration: none;
+}
+.side a:hover { color: var(--ink); }
+.side a.on {
+  color: var(--accent-text);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.main { min-width: 0; }
+
+/* Inline TOC only for narrow screens */
+.toc { display: none; }
+
+/* ---------- Typography ---------- */
+h1 {
+  margin: 0 0 18px;
+  font-size: clamp(30px, 3.6vw, 42px);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--ink);
+}
+.deck {
+  margin: 0 0 8px;
+  font-size: 17.5px;
+  line-height: 1.75;
+  color: var(--ink2);
+  max-width: none;
+}
+h2 {
+  margin: 0 0 20px;
+  font-size: clamp(23px, 2.3vw, 28px);
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.sec h2 {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+.sec h2::before {
+  content: counter(sec);
+  counter-increment: sec;
+  flex: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--accent-text);
+  min-width: 1.4em;
+}
+.main { counter-reset: sec; }
+
+h3 {
+  margin: 40px 0 12px;
+  font-size: 19px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--ink);
+}
+p {
+  margin: 0 0 16px;
+  font-size: 16.5px;
+  color: var(--ink2);
+  max-width: none;
+}
+strong { color: var(--ink); font-weight: 700; }
+a { color: var(--accent-text); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+code {
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 1px 6px;
+  border: 1px solid var(--code-line);
+  border-radius: 4px;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Code blocks ---------- */
+.code {
+  position: relative;
+  margin: 14px 0 22px;
+}
+pre {
+  margin: 0;
+  padding: 16px 20px;
+  background: var(--code-bg);
+  border: 1px solid var(--code-line);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink);
+  tab-size: 4;
+}
+code.n { white-space: nowrap; }
+pre code {
+  background: transparent; padding: 0; border: 0; border-radius: 0;
+  font-size: inherit; word-break: normal; white-space: pre;
+}
+pre .c { color: var(--comment); }
+.copy {
+  position: absolute;
+  top: 8px; right: 8px;
+  font: 600 12px/1 'IBM Plex Sans', 'Noto Sans KR', sans-serif;
+  padding: 6px 9px;
+  color: var(--mute);
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0;
+}
+.code:hover .copy, .copy:focus-visible { opacity: 1; }
+.copy.done { color: var(--accent-text); border-color: var(--accent); opacity: 1; }
+@media (hover: none) { .copy { opacity: 1; } }
+
+/* ---------- Sections ---------- */
+.sec {
+  margin-top: 88px;
+  padding-top: 32px;
+  border-top: 2px solid var(--ink);
+}
+.split { display: block; }
+.split-left p { max-width: none; }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 36px;
+  margin-top: 8px;
+}
+/* 코드가 들어간 묶음은 좁아지지 않게 한 줄로 쌓기 */
+.grid-2:has(pre) { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 32px; }
+
+.strip-item {
+  padding-top: 4px;
+}
+.strip-item > h3 {
+  margin: 28px 0 10px;
+  font-size: 17.5px;
+  padding-left: 12px;
+  border-left: 3px solid var(--hair);
+  line-height: 1.4;
+}
+.grid-2:not(:has(pre)) .strip-item {
+  background: var(--paper-alt);
+  padding: 4px 22px 8px;
+  border-radius: 8px;
+}
+.grid-2:not(:has(pre)) .strip-item > h3 { border-left: 0; padding-left: 0; margin-top: 18px; }
+
+/* ---------- Hero ---------- */
+header { padding-bottom: 8px; }
+.core-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+.core-strip > div {
+  padding: 18px 18px 16px;
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 8px 8px;
+}
+.core-metric {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--accent-text);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.core-desc { font-size: 15px; line-height: 1.7; color: var(--ink2); margin: 0; }
+
+/* ---------- Lists ---------- */
+ul, ol { margin: 8px 0 20px; padding-left: 22px; max-width: none; }
+li { margin-bottom: 12px; font-size: 16px; line-height: 1.8; color: var(--ink2); }
+li::marker { color: var(--mute); }
+.wide-list { max-width: none; }
+ol.wide-list > li { padding-left: 4px; }
+
+/* ---------- Callouts ---------- */
+.note-fix, .note-verify {
+  margin: 22px 0 26px;
+  padding: 16px 22px 6px;
+  border-radius: 8px;
+  max-width: none;
+}
+.note-fix { background: var(--fix-soft); border: 1px solid var(--fix-line); border-left: 4px solid var(--fix); }
+.note-verify { background: var(--accent-soft); border: 1px solid var(--hair-soft); border-left: 4px solid var(--accent); }
+.note-fix .tag, .note-verify .tag {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.note-fix .tag { color: var(--fix-text); }
+.note-verify .tag { color: var(--accent-text); }
+.note-fix p, .note-verify p {
+  margin: 0;
+  padding: 10px 0 12px;
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--ink2);
+  max-width: none;
+}
+.note-fix p + p { border-top: 1px dashed var(--fix-line); }
+.note-fix p > strong:first-child,
+.note-verify p > strong:first-child { display: block; margin-bottom: 2px; }
+.note-fix p > strong:first-child { color: var(--fix-text); }
+
+/* ---------- Tables ---------- */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 26px 0 28px;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 15px; text-align: left; line-height: 1.65; }
+thead th {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper-alt);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--hair);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--hair-soft);
+  vertical-align: top;
+  color: var(--ink2);
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--paper-alt); }
+.num, .nowrap { white-space: nowrap; }
+td.nowrap:not(:has(code)) { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; }
+tr.group th {
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--hair);
+  border-top: 1px solid var(--hair);
+}
+tbody tr.group:first-child th { border-top: 0; }
+.cheat td:first-child { width: 46%; }
+.cheat td:first-child code { overflow-wrap: anywhere; }
+
+/* ---------- Definition list ---------- */
+dl.open-dl { margin: 14px 0 20px; display: grid; grid-template-columns: minmax(170px, 240px) minmax(0, 1fr); }
+dl.open-dl dt { padding: 10px 16px 10px 0; border-top: 1px solid var(--hair-soft); font-weight: 600; font-size: 15px; color: var(--ink); }
+dl.open-dl dd { margin: 0; padding: 10px 0; border-top: 1px solid var(--hair-soft); font-size: 15px; color: var(--ink2); }
+
+/* ---------- Figures ---------- */
+figure { margin: 36px 0; padding: 0; }
+figure .fig-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 14px; line-height: 1.5; }
+figure svg.diagram {
+  width: 100%; height: auto; display: block;
+  background: #FFFFFF;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  padding: 10px;
+}
+figcaption { margin-top: 10px; font-size: 14px; color: var(--mute); line-height: 1.6; }
+
+blockquote.pull { margin: 36px 0; padding: 0 0 0 22px; border-left: 3px solid var(--ink); font-size: clamp(20px, 2.2vw, 24px); line-height: 1.5; font-weight: 600; color: var(--ink); max-width: none; }
+
+/* ---------- Exam band ---------- */
+.band {
+  margin-top: 88px;
+  padding: 36px 32px 28px;
+  background: var(--paper-alt);
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 10px 10px;
+}
+.band > p { max-width: none; }
+.exam-list {
+  counter-reset: exam;
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.exam-list li {
+  counter-increment: exam;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 48px;
+  border-top: 1px solid var(--hair);
+  font-size: 16px;
+  line-height: 1.8;
+}
+.exam-list li::before {
+  content: counter(exam, decimal-leading-zero);
+  position: absolute;
+  left: 0; top: 17px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.exam-list li > strong:first-child { display: block; margin-bottom: 2px; }
+
+/* ---------- Key-value fact lists ---------- */
+ul.facts {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 24px;
+  max-width: none;
+  border-top: 1px solid var(--hair-soft);
+}
+ul.facts > li {
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  gap: 2px 20px;
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hair-soft);
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+ul.facts > li > strong:first-child { color: var(--ink); font-weight: 700; }
+ul.facts > li > div { color: var(--ink2); }
+ul.facts ul { margin: 0; padding-left: 18px; }
+ul.facts ul li { margin: 0 0 4px; font-size: 15.5px; }
+li > ul { margin: 6px 0 4px; }
+li > ul > li { margin-bottom: 4px; font-size: 15.5px; }
+td ul { margin: 0; padding-left: 16px; max-width: none; }
+td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
+.opts td:nth-child(2) { min-width: 13em; }
+@media (max-width: 760px) {
+  ul.facts > li { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- HTML diagrams (깨지지 않는 반응형 도식) ---------- */
+.dg {
+  margin: 26px 0 30px;
+  padding: 22px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  background: var(--paper-alt);
+}
+.dg-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 16px; line-height: 1.5; }
+.dg-flow { display: flex; align-items: stretch; }
+.dg-flow > .dg-node, .dg-flow > .dg-stack { flex: 1 1 0; min-width: 0; }
+.dg-stack { display: flex; flex-direction: column; gap: 12px; }
+.dg-node {
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.dg-node.key { border: 2px solid var(--ink); }
+.dg-node.accent { border: 1.5px solid var(--accent); }
+.dg-node.ghost { border: 1.5px dashed var(--hair); background: transparent; color: var(--mute); }
+.dg-node h4 { margin: 0 0 2px; font-size: 15px; line-height: 1.45; font-weight: 700; color: var(--ink); }
+.dg-node.accent h4 { color: var(--accent-text); }
+.dg-node .sub {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px; color: var(--mute);
+  margin: 0 0 8px; overflow-wrap: anywhere;
+}
+.dg-node ul { list-style: none; padding: 0; margin: 0; max-width: none; }
+.dg-node li { margin: 0 0 6px; font-size: 14px; line-height: 1.6; color: var(--ink2); }
+.dg-node li:last-child { margin-bottom: 0; }
+.dg-node .grp { padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--hair-soft); }
+.dg-node .lbl { display: block; font-weight: 700; font-size: 13.5px; color: var(--ink); }
+.dg-node .num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; margin-right: 6px; border-radius: 50%;
+  background: var(--accent); color: var(--paper); font-size: 13px; font-weight: 700;
+  vertical-align: 1px;
+}
+.port { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: var(--accent-text); overflow-wrap: anywhere; }
+.dg-arrow {
+  flex: 0 0 64px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 0 4px;
+  color: var(--accent-text); font-size: 12px; font-weight: 700; text-align: center; line-height: 1.3;
+}
+.dg-arrow::before { content: "→"; font-size: 24px; line-height: 1; color: var(--accent); }
+.dg-foot { margin: 14px 0 0; font-size: 14px; line-height: 1.65; color: var(--mute); max-width: none; }
+.dg-foot strong { color: var(--ink2); }
+
+.dg-compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.dg-panel { background: var(--paper); border: 1px solid var(--hair); border-radius: 10px; padding: 16px 18px 18px; }
+.dg-panel > h4 { margin: 0 0 12px; font-size: 16px; font-weight: 700; color: var(--ink); }
+.dg-panel > h4 span { font-weight: 500; color: var(--mute); font-size: 14px; }
+.dg-grid { display: grid; gap: 10px; }
+.dg-grid.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dg-grid.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dg-panel .dg-node { padding: 10px 12px; }
+.dg-panel .dg-node h4 { font-size: 14px; }
+.dg-panel .dg-node li { font-size: 13.5px; margin-bottom: 3px; }
+.dg-host { border: 2px solid var(--ink); border-radius: 10px; padding: 12px; }
+.dg-host > .host-h { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0 0 2px; }
+.dg-host > .host-s { font-size: 13px; color: var(--mute); margin: 0 0 10px; }
+.dg-bar {
+  display: block;
+  margin: 10px 0 0; padding: 8px 12px;
+  border-radius: 8px; background: var(--paper-alt);
+  font-size: 13.5px; line-height: 1.55; color: var(--ink2);
+}
+.dg-bar.warn { background: var(--fix-soft); color: var(--fix-text); }
+.dg-bar.ok { background: var(--accent-soft); color: var(--accent-text); }
+.dg-down { text-align: center; color: var(--accent); font-size: 13px; font-weight: 700; margin: 8px 0; }
+
+.spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 14px 0 12px; }
+.spec > div { border: 1px solid var(--hair); border-radius: 10px; padding: 12px 14px; background: var(--paper); }
+.spec .k { font-size: 13px; font-weight: 700; color: var(--mute); }
+.spec .v { font-size: 15.5px; font-weight: 700; color: var(--ink); line-height: 1.45; margin: 2px 0; }
+.spec .d { font-size: 13px; color: var(--mute); line-height: 1.55; overflow-wrap: anywhere; }
+.rules { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; max-width: none; }
+.rules li {
+  margin: 0; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--hair); background: var(--paper);
+  font-size: 14px; line-height: 1.5; color: var(--ink2);
+}
+
+@media (max-width: 980px) {
+  .dg-flow { flex-direction: column; }
+  .dg-arrow { flex-basis: auto; padding: 6px 0; flex-direction: row; gap: 8px; }
+  .dg-arrow::before { content: "↓"; font-size: 20px; }
+  .dg-compare, .spec { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .dg { padding: 14px; }
+  .dg-grid.c3 { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .page { display: block; padding: 36px 24px 80px; }
+  .side { display: none; }
+  .main { margin: 0 auto; }
+  .toc {
+    display: block;
+    margin: 32px 0 0;
+    padding: 16px 20px;
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    background: var(--paper-alt);
+    font-size: 15px;
+  }
+  .toc a { display: block; padding: 5px 0; color: var(--ink2); text-decoration: none; }
+  .toc a:hover { color: var(--accent-text); text-decoration: underline; }
+}
+@media (max-width: 760px) {
+  .page { padding: 28px 18px 64px; }
+  .grid-2, .grid-3, .core-strip { grid-template-columns: minmax(0, 1fr); }
+  dl.open-dl { grid-template-columns: 1fr; }
+  dl.open-dl dt { padding-bottom: 2px; }
+  dl.open-dl dd { border-top: 0; padding-top: 2px; }
+  .sec, .band { margin-top: 64px; }
+  .band { padding: 28px 18px 20px; }
+  .note-fix, .note-verify { padding: 14px 16px 4px; }
+  p { font-size: 16px; }
+  pre { font-size: 12.5px; padding: 14px 14px; }
+  .cheat td:first-child { width: auto; }
+  table { min-width: 640px; }
+}
+@media print {
+  .side, .copy { display: none !important; }
+  .page { display: block; }
+}
+</style>
+</head>
+<body>
+<button id="themeBtn" type="button" aria-label="라이트/다크 모드 전환" style="position:fixed;top:12px;right:14px;z-index:60;padding:6px 12px;font:600 13px/1 inherit;font-family:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:999px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15)">다크</button>
+<style>@media print{#themeBtn{display:none}}</style>
+
+<div class="page">
+  <aside class="side">
+    <nav aria-label="목차 (사이드)">
+      <p class="side-title">목차</p>
+      <ol>
+        <li><a href="#spark-cluster">1. 클러스터 구조·포트·자원</a></li>
+        <li><a href="#spark-image">2. Spark 이미지(Dockerfile·빌드)</a></li>
+        <li><a href="#spark-master">3. 마스터 기동·재시작</a></li>
+        <li><a href="#cheatsheet">4. 통합 명령어 치트시트</a></li>
+      </ol>
+    </nav>
+  </aside>
+  <main class="main">
+
+  <header>
+    <h1>Spark 통합 학습노트</h1>
+    <p class="deck">Spark 통합 학습노트 · 범위: Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. 이번 실습은 이미지와 마스터 기동까지, 워커는 다음 단계. 네트워크 명령: docker.html 9장</p>
+
+    <div class="core-strip">
+      <div>
+        <div class="core-metric">이미지로 미리 설치</div>
+        <p class="core-desc">컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile로 Spark 이미지를 만들어 재사용 → 실무는 Docker Hub로 버전 관리 (2장)</p>
+      </div>
+      <div>
+        <div class="core-metric">7077 · 8080 · 8888</div>
+        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI, 8888 Jupyter, 8081 워커 UI (1장)</p>
+      </div>
+      <div>
+        <div class="core-metric">spark-net + --host</div>
+        <p class="core-desc">사용자 정의 네트워크의 이름 DNS로 <code class="n">spark://spark-master:7077</code> 연결. <code class="n">--ip</code>는 deprecated → <code class="n">--host</code> (3장)</p>
+      </div>
+    </div>
+
+    <nav class="toc" aria-label="목차">
+      <a href="#spark-cluster">1. 클러스터 구조·포트·자원</a>
+      <a href="#spark-image">2. Spark 이미지(Dockerfile·빌드)</a>
+      <a href="#spark-master">3. 마스터 기동·재시작</a>
+      <a href="#cheatsheet">4. 통합 명령어 치트시트</a>
+    </nav>
+  </header>
+
+  <!-- 1 -->
+  <section class="sec" id="spark-cluster">
+    <h2>클러스터 구조·포트·자원 설계</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 마스터 1 + 워커 2 클러스터 구성</p><div class="dg-flow"><div class="dg-node"><h4>① 선행 네트워크</h4><p class="sub">spark-net 먼저 생성</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 마스터 1</h4><p class="sub">7077 · 8080 · 8888</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 워커 2</h4><p class="sub">8081 · 코어·메모리 제한</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 사용자</h4><p class="sub">8080 UI · 8888 Jupyter</p></div></div></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>계획</strong></td><td>마스터 1개 + 워커 2개. 마스터는 워커로 쓰지 않고 워커끼리 연산, 입력 데이터는 CSV로 연결·실행·분석까지 확인 예정</td></tr>
+    </tbody></table></div>
+    <div class="dg">
+      <p class="dg-title">사용자 접속과 Spark 내부 통신</p>
+      <div class="dg-flow">
+        <div class="dg-node"><h4>User Browser</h4><ul><li><span class="port">8080</span> Web UI</li><li><span class="port">8888</span> Jupyter</li></ul></div>
+        <div class="dg-arrow"></div>
+        <div class="dg-node key"><h4>Master</h4><ul><li><span class="port">7077</span> 통신</li><li><span class="port">8080</span> UI</li></ul></div>
+        <div class="dg-arrow">연산·데이터<br>교환</div>
+        <div class="dg-node accent"><h4>Workers</h4><ul><li><span class="port">8081</span> UI</li></ul></div>
+        <div class="dg-arrow"></div>
+        <div class="dg-node"><h4>PySpark</h4><ul><li>Jupyter <span class="port">8888</span></li><li>CSV 분석</li></ul></div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>포트</th><th>역할</th><th>메모</th></tr></thead>
+        <tbody>
+          <tr><td class="nowrap">8080</td><td>Spark Master Web UI</td><td>브라우저에서 리눅스 IP:8080</td></tr>
+          <tr><td class="nowrap">7077</td><td>마스터 통신</td><td>막히면 워커 연결 실패</td></tr>
+          <tr><td class="nowrap">8888</td><td>Jupyter·PySpark</td><td>마스터 실행 때 게시</td></tr>
+          <tr><td class="nowrap">8081</td><td>Worker Web UI</td><td>워커 컨테이너에서 사용</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>포트 충돌</strong></td><td>로컬 서버가 같은 호스트 포트를 쓰고 있으면 컨테이너 시작·게시 실패 → 실행 전 점유 확인. 포트 기본값은 설정으로 변경 가능</td></tr>
+    <tr><td><strong>CPU·메모리 제한</strong></td><td>무제한 컨테이너가 호스트 자원을 소진하면 호스트·서비스 정지 가능 → 코어·메모리 지정. 4코어 서버 예: 호스트 OS 몫을 남기고 워커당 1–2코어 고려, 마스터에도 메모리 배분</td></tr>
+    <tr><td><strong>구성안</strong></td><td>A 워커 1개 / B 워커 2개(각 CPU 2코어·메모리 2GB, 합계 4코어·8GB) / C 워커 3개 / D 워커 4개(각 1코어·1GB) → 부하·비용을 바탕으로 아키텍트가 설계, 실습자는 정해진 구성대로 구축</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">Spark 포트 — 7077=마스터 통신(막히면 워커 연결 실패), 8080=마스터 UI, 8081=워커 UI, 8888=Jupyter. 워커 자원은 호스트 OS 몫을 남기고 코어·메모리를 지정</div>
+  
+
+  </section>
+
+  <!-- 2 -->
+  <section class="sec" id="spark-image">
+    <h2>Spark 3.5.3 이미지: Dockerfile 작성·빌드·검증</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — Spark를 이미지에 미리 설치</p><div class="dg-flow"><div class="dg-node"><h4>① 기존 파일 백업</h4><p class="sub">mv Dockerfile Dockerfile_backup</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 베이스 점검</h4><p class="sub">java -version → 없음이 정상</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ Dockerfile</h4><p class="sub">Java 17 · Spark 3.5.3</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 빌드</h4><p class="sub">docker build -t spark-rocky9:3.5.3 .</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>⑤ 검증</h4><p class="sub">java -version · python3 --version</p></div></div></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>선행 작업</strong></td><td>마스터·워커·Jupyter가 이름으로 통신할 사용자 정의 네트워크 <code>spark-net</code>을 먼저 생성 → 자세한 실습: docker.html 9장</td></tr>
+    <tr><td><strong>실습 환경</strong></td><td><ul><li>Rocky 9 VM 호스트 전용 IP <code>192.168.222.5</code>, PuTTY 접속, 작업 경로 <code>/root/docker</code></li><li>강사 빌드 베이스 <code>mzleejh/apink_rocky:9</code>, 수강생은 각자 만든 Rocky 9 이미지 사용</li></ul></td></tr>
+    <tr><td><strong>기존 파일</strong></td><td>이전 용도의 Dockerfile → <code>Dockerfile_backup</code>으로 이름 변경 후 새 <code>Dockerfile</code> 작성. 기본 파일명 오타는 빌드를 막음</td></tr>
+    <tr><td><strong>베이스 점검 결과</strong></td><td><ul><li><code>java -version</code> → Java 없음이 정상 (Java 11이 있어도 17 설치)</li><li><code>/etc/ssh/sshd_config</code> 있음 → SSH 추가 설치 불필요</li><li><code>/etc/vsftpd</code> 유지, httpd 설치됨, nginx·MySQL 등 DB 없음</li></ul></td></tr>
+    <tr><td><strong>이미지화 이유</strong></td><td>Dockerfile = 이미지 정의, Spark 설치는 빌드 과정에서 진행 → OS 컨테이너에 매번 직접 설치하지 않고 Spark 이미지로 재사용, 실무는 Docker Hub에 올려 버전 관리</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+cd /root/docker
+mv Dockerfile Dockerfile_backup                      <span class="c"># 기존 파일 보존 + 새 기본 파일명 확보</span>
+ls -al                                               <span class="c"># 이름 변경 확인</span>
+docker run --rm -it mzleejh/apink_rocky:9 /bin/bash  <span class="c"># 임시 컨테이너에서 베이스 점검 (--rm: 나오면 삭제)</span>
+exit                                                 <span class="c"># 점검 후 임시 컨테이너 종료·삭제</span>
+
+<span class="c"># [호스트 리눅스 · /root/docker/Dockerfile 파일 안]</span>
+<span class="c"># 기반 OS 이미지 (각자 만든 Rocky 9 이미지)</span>
+FROM mzleejh/apink_rocky:9
+<span class="c"># -y 자동 승인 / --allowerasing: 의존성 충돌 시 기존 패키지 제거·교체 허용 (Rocky 9의 curl-minimal ↔ curl 충돌 사례)</span>
+<span class="c"># java-17-openjdk-devel: Java 17 + 개발 도구 javac / curl·tar: 다운로드·압축 해제 / python3·python3-pip: PySpark·Jupyter용</span>
+<span class="c"># 여러 줄은 역슬래시로 연결, &amp;&amp; 앞뒤 공백 / dnf clean all: 캐시 정리로 이미지 크기 감소</span>
+RUN dnf install -y --allowerasing java-17-openjdk-devel \
+ curl tar python3 python3-pip &amp;&amp; dnf clean all
+<span class="c"># Java 설치 경로</span>
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+<span class="c"># 받을 배포본 선택값 (버전을 바꿀 때는 이 값만 바꿔 URL 관리)</span>
+ENV SPARK_VERSION=3.5.3
+ENV HADOOP_VERSION=3
+<span class="c"># Spark 설치 경로</span>
+ENV SPARK_HOME=/opt/spark
+<span class="c"># Spark·Java의 bin을 PATH에 추가 → 어느 경로에서나 실행. ENV 이름=값은 등호 주변을 붙여 씀</span>
+ENV PATH=$SPARK_HOME/bin:$JAVA_HOME/bin:$PATH
+<span class="c"># 아카이브를 받아(curl -sL) 파이프로 압축 해제 (x 풀기, z gzip, -C 대상 경로) → spark-3.5.3-bin-hadoop3를 /opt/spark로 이동</span>
+<span class="c"># ${변수}: 뒤에 다른 글자가 이어질 때 변수 경계 표시 (독립 변수는 $변수)</span>
+RUN curl -sL https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz | tar -xz -C /opt/ &amp;&amp; mv /opt/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} $SPARK_HOME
+<span class="c"># 컨테이너 기본 작업 경로</span>
+WORKDIR $SPARK_HOME</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>Java 버전</strong></td><td>Spark 3.5.3은 Java 8·11·17 지원 → Java 11이 반드시 오류를 내는 것은 아님, 이 구성은 17 선택 (출처: Spark 3.5.3 문서)</td></tr>
+    <tr><td><strong>아카이브 URL 찾기</strong></td><td>Spark 다운로드 페이지 → Archived releases → 3.5.3 선택 (최신 목록의 더 높은 버전과 구분) → 버전 폴더의 <code>spark-3.5.3-bin-hadoop3.tgz</code> 링크로 URL 작성 → 버전 숫자는 <code>${SPARK_VERSION}</code>·<code>${HADOOP_VERSION}</code>으로 치환. 버전·철자를 정확히 맞춤</td></tr>
+    <tr><td><strong>작성 요령</strong></td><td><code>vi</code>에서 <code>set number</code>로 행 번호 표시, 터미널 붙여넣기는 Shift+Insert</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">Spark Dockerfile — <code>--allowerasing</code>=충돌 패키지 교체 허용(curl-minimal↔curl), <code>-devel</code>=javac 포함, <code>${변수}</code>=문자열 뒤 경계 표시, <code>tar -xz -C</code>=gzip 풀어 대상 경로로. 설치를 이미지에 넣어 재사용</div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · /root/docker]</span>
+docker build -t spark-rocky9:3.5.3 .                <span class="c"># 현재 경로 Dockerfile로 이름:버전 이미지 빌드</span>
+docker images                                        <span class="c"># 이미지 목록·크기 확인</span>
+docker run --rm spark-rocky9:3.5.3 java -version     <span class="c"># Java 런타임 확인</span>
+docker run --rm spark-rocky9:3.5.3 javac -version    <span class="c"># 컴파일러 확인</span>
+docker run --rm spark-rocky9:3.5.3 python3 --version <span class="c"># Python 3 확인 (python -V는 실행 파일이 없어 오류)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>태그·크기</strong></td><td><ul><li><code>-t</code> 태그 = 이미지명 <code>spark-rocky9</code> + Spark 버전 <code>3.5.3</code></li><li>실습 결과 약 2.73GB (CONTENT SIZE 932MB), 베이스는 1.55GB</li><li>이미지가 안 보이면 빌드 실패 확인</li></ul></td></tr>
+    <tr><td><strong>정상 출력</strong></td><td><ul><li>Java <code>openjdk 17.0.21</code>, javac <code>17.0.21</code>, Python <code>3.9.25</code> (실습 출력값)</li><li><code>python -V</code>는 실행 파일이 없어 오류 → <code>python3</code>으로 확인</li></ul></td></tr>
+    <tr><td><strong>검증 실패 시</strong></td><td>컨테이너에서 반복 설치하지 않음 → Dockerfile 수정 → 실패 이미지 제거 후 재빌드</td></tr>
+    </tbody></table></div>
+  
+
+  </section>
+
+  <!-- 3 -->
+  <section class="sec" id="spark-master">
+    <h2>마스터 컨테이너 기동·재시작</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 마스터를 사용자 정의 네트워크에서 기동</p><div class="dg-flow"><div class="dg-node"><h4>① 점유 확인</h4><p class="sub">docker ps</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② docker run</h4><p class="sub">--network spark-net · -p 7077:7077</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ spark-class Master</h4><p class="sub">--host spark-master</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 확인</h4><p class="sub">UI Status ALIVE · 버전 3.5.3</p></div></div></div>
+
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+docker ps                                            <span class="c"># 기존 이름·포트 점유 확인</span>
+<span class="c"># 순서: Docker 옵션 → 이미지명 → 실행 명령</span>
+<span class="c"># -d 백그라운드 / --name 컨테이너 이름 / --hostname 컨테이너 내부 호스트명 / --network 사용자 정의 네트워크 연결 / -p 호스트:컨테이너</span>
+<span class="c"># spark-class가 JVM으로 Master 클래스를 실행 (전체 경로·대문자 Master 정확히)</span>
+<span class="c"># --host: 이름 DNS로 찾을 주소 (--ip는 deprecated) / --port 7077: 기본값이라 생략 가능하지만 명시 / --webui-port 8080: UI 포트</span>
+docker run -d --name spark-master --hostname spark-master --network spark-net \
+ -p 8080:8080 -p 7077:7077 -p 8888:8888 \
+ spark-rocky9:3.5.3 \
+ /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master \
+<span class="c"> --host spark-master --port 7077 --webui-port 8080</span>
+docker ps                                            <span class="c"># Up과 포트 게시 확인</span>
+docker stop spark-master                             <span class="c"># 자동 재기동 확인을 위한 중지</span>
+docker start spark-master                            <span class="c"># 시작 명령으로 지정된 마스터가 자동 기동</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>임시 실행</strong></td><td>이번 실행은 CPU·메모리 옵션을 넣기 전 연습 → 완료본 아님. 같은 이름 컨테이너가 있으면 <code>docker run</code>이 이름 충돌로 실패 → 기존 것 먼저 삭제</td></tr>
+    <tr><td><strong>시작 명령</strong></td><td><code>spark-class ... Master</code>를 컨테이너 시작 명령으로 지정 → <code>docker start</code> 때 마스터 자동 기동</td></tr>
+    <tr><td><strong>마스터 주소</strong></td><td>사용자 정의 네트워크 DNS에서 <code>spark-master</code>로 찾음 → 화면 주소 <code>spark://spark-master:7077</code> (출처: Spark Standalone 문서)</td></tr>
+    <tr><td><strong>정상 확인</strong></td><td><ul><li><code>docker ps</code>에서 <code>spark-master</code> Up + 7077·8080·8888 게시</li><li><code>http://192.168.222.5:8080</code> → Spark Master, 버전 3.5.3, Status ALIVE, Workers 0·Alive Workers 0이면 성공</li><li><code>stop</code> 뒤 UI 접속 불가, <code>start</code> 뒤 자동 복구 확인. 컨테이너 생성은 수 초 내 완료</li></ul></td></tr>
+    <tr><td><strong>AWS 비교</strong></td><td><ul><li>수강생 계정은 VPC·서브넷이 없는 상태 → AWS 실습은 하지 않고, 운영 계정의 VPC·서브넷·flow 구성은 필요한 구축 범위를 확인하는 화면 시연</li><li>MFA 로그인 설정의 MFA 기기·설정은 삭제 금지 (관리자가 설정, 삭제하면 계정 접속 불가)</li></ul></td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">마스터 기동 — <code>docker run</code> 옵션 → 이미지 → 실행 명령 순서. <code>--ip</code>는 deprecated라 <code>--host spark-master</code>, 주소는 <code>spark://spark-master:7077</code>. 정상 = UI에서 Status ALIVE, 버전 3.5.3</div>
+  
+
+  </section>
+
+  <!-- 4 -->
+  <section class="sec" id="cheatsheet">
+    <h2>통합 명령어 치트시트</h2>
+
+    <p>영역별 모음. 모든 명령은 호스트 <code class="n">root</code>에서 실행.</p>
+    <div class="table-wrap">
+      <table class="cheat">
+        <thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead>
+        <tbody>
+          <tr class="group"><th colspan="2" scope="colgroup">네트워크 (자세히: docker.html 9장)</th></tr>
+          <tr><td><code>docker network ls</code> / <code>docker network create spark-net</code></td><td>네트워크 목록 확인 / Spark 이름 DNS용 사용자 정의 네트워크 생성</td></tr>
+          <tr><td><code>docker network inspect spark-net</code> / <code>docker network rm spark-net</code></td><td>서브넷·게이트웨이·컨테이너 IP 확인 / 미사용 네트워크 삭제</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">이미지</th></tr>
+          <tr><td><code>mv Dockerfile Dockerfile_backup</code></td><td>이전 Dockerfile을 보존하고 새 Spark Dockerfile 작성 준비</td></tr>
+          <tr><td><code>docker build -t spark-rocky9:3.5.3 .</code></td><td>현재 폴더 Dockerfile로 Spark 3.5.3 이미지 빌드</td></tr>
+          <tr><td><code>docker run --rm spark-rocky9:3.5.3 java -version</code> / <code>javac -version</code> / <code>python3 --version</code></td><td>이미지 내부 Java·컴파일러·Python 설치 검증, <code>python</code> 대신 <code>python3</code></td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">마스터</th></tr>
+          <tr><td><code>docker run -d --name spark-master --hostname spark-master --network spark-net -p 8080:8080 -p 7077:7077 -p 8888:8888 spark-rocky9:3.5.3 /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --host spark-master --port 7077 --webui-port 8080</code></td><td>마스터 실행 (전체 옵션 설명은 3장). 자원 제한 전 연습 상태, 완료본 아님</td></tr>
+          <tr><td><code>docker stop spark-master</code> / <code>docker start spark-master</code></td><td>중지·시작에 따라 UI 접속과 마스터 자동 재기동 확인</td></tr>
+        </tbody>
+      </table>
+    </div>
+  
+
+  </section>
+
+</main>
+</div>
+
+<script>
+(function () {
+  // 코드 복사
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.parentElement.querySelector('pre').innerText;
+      var done = function () {
+        btn.textContent = '복사됨'; btn.classList.add('done');
+        setTimeout(function () { btn.textContent = '복사'; btn.classList.remove('done'); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+      } else { fallback(text); done(); }
+    });
+  });
+  function fallback(t) {
+    var ta = document.createElement('textarea'); ta.value = t;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  // 현재 읽는 섹션을 목차에 표시
+  var links = Array.prototype.slice.call(document.querySelectorAll('.side a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function spy() {
+    var y = window.scrollY + window.innerHeight * 0.3, idx = 0;
+    secs.forEach(function (el, i) { if (el && el.offsetTop <= y) idx = i; });
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) idx = secs.length - 1;
+    links.forEach(function (a, i) { a.classList.toggle('on', i === idx); });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+})();
+</script>
+<script>
+(function () {
+  var r = document.documentElement, b = document.getElementById('themeBtn');
+  function cur() {
+    var t = r.getAttribute('data-theme');
+    if (t) return t;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function apply(t) {
+    r.setAttribute('data-theme', t);
+    b.textContent = t === 'dark' ? '라이트' : '다크';
+  }
+  try { var s = localStorage.getItem('note-theme'); if (s) r.setAttribute('data-theme', s); } catch (e) {}
+  apply(cur());
+  b.addEventListener('click', function () {
+    var n = cur() === 'dark' ? 'light' : 'dark';
+    apply(n);
+    try { localStorage.setItem('note-theme', n); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>

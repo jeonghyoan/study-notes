@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostgreSQL 통합 학습노트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #FFFFFF;
+  --paper-alt: #F4F6F8;
+  --ink: #0F172A;
+  --ink2: #273449;
+  --mute: #5B6779;
+  --hair: #CBD5E1;
+  --hair-soft: #E2E8F0;
+  --accent: #0B63CE;
+  --accent-text: #074799;
+  --accent-soft: #EEF4FC;
+  --fix: #B45309;
+  --fix-text: #7C2D12;
+  --fix-soft: #FFF7EC;
+  --fix-line: #F3D9B5;
+  --code-bg: #F5F7FA;
+  --code-line: #E2E8F0;
+  --comment: #6B7A90;
+  --sidebar: 240px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+    --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+    --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+    --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+  --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+  --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+  --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 24px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  line-height: 1.8;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Layout: sticky TOC + one readable column ---------- */
+.page {
+  display: grid;
+  grid-template-columns: var(--sidebar) minmax(0, 1fr);
+  gap: 0 48px;
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: 44px 48px 96px;
+}
+.side { position: relative; }
+.side nav {
+  position: sticky;
+  top: 28px;
+  padding-top: 6px;
+}
+.side .side-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+  margin: 0 0 10px;
+}
+.side ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1px solid var(--hair);
+  max-width: none;
+}
+.side li { margin: 0; font-size: 14px; line-height: 1.45; }
+.side a {
+  display: block;
+  padding: 7px 0 7px 14px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  color: var(--mute);
+  text-decoration: none;
+}
+.side a:hover { color: var(--ink); }
+.side a.on {
+  color: var(--accent-text);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.main { min-width: 0; }
+
+/* Inline TOC only for narrow screens */
+.toc { display: none; }
+
+/* ---------- Typography ---------- */
+h1 {
+  margin: 0 0 18px;
+  font-size: clamp(30px, 3.6vw, 42px);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--ink);
+}
+.deck {
+  margin: 0 0 8px;
+  font-size: 17.5px;
+  line-height: 1.75;
+  color: var(--ink2);
+  max-width: none;
+}
+h2 {
+  margin: 0 0 20px;
+  font-size: clamp(23px, 2.3vw, 28px);
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.sec h2 {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+.sec h2::before {
+  content: counter(sec);
+  counter-increment: sec;
+  flex: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--accent-text);
+  min-width: 1.4em;
+}
+.main { counter-reset: sec; }
+
+h3 {
+  margin: 40px 0 12px;
+  font-size: 19px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--ink);
+}
+p {
+  margin: 0 0 16px;
+  font-size: 16.5px;
+  color: var(--ink2);
+  max-width: none;
+}
+strong { color: var(--ink); font-weight: 700; }
+a { color: var(--accent-text); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+code {
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 1px 6px;
+  border: 1px solid var(--code-line);
+  border-radius: 4px;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Code blocks ---------- */
+.code {
+  position: relative;
+  margin: 14px 0 22px;
+}
+pre {
+  margin: 0;
+  padding: 16px 20px;
+  background: var(--code-bg);
+  border: 1px solid var(--code-line);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink);
+  tab-size: 4;
+}
+code.n { white-space: nowrap; }
+pre code {
+  background: transparent; padding: 0; border: 0; border-radius: 0;
+  font-size: inherit; word-break: normal; white-space: pre;
+}
+pre .c { color: var(--comment); }
+.copy {
+  position: absolute;
+  top: 8px; right: 8px;
+  font: 600 12px/1 'IBM Plex Sans', 'Noto Sans KR', sans-serif;
+  padding: 6px 9px;
+  color: var(--mute);
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0;
+}
+.code:hover .copy, .copy:focus-visible { opacity: 1; }
+.copy.done { color: var(--accent-text); border-color: var(--accent); opacity: 1; }
+@media (hover: none) { .copy { opacity: 1; } }
+
+/* ---------- Sections ---------- */
+.sec {
+  margin-top: 88px;
+  padding-top: 32px;
+  border-top: 2px solid var(--ink);
+}
+.split { display: block; }
+.split-left p { max-width: none; }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 36px;
+  margin-top: 8px;
+}
+/* 코드가 들어간 묶음은 좁아지지 않게 한 줄로 쌓기 */
+.grid-2:has(pre) { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 32px; }
+
+.strip-item {
+  padding-top: 4px;
+}
+.strip-item > h3 {
+  margin: 28px 0 10px;
+  font-size: 17.5px;
+  padding-left: 12px;
+  border-left: 3px solid var(--hair);
+  line-height: 1.4;
+}
+.grid-2:not(:has(pre)) .strip-item {
+  background: var(--paper-alt);
+  padding: 4px 22px 8px;
+  border-radius: 8px;
+}
+.grid-2:not(:has(pre)) .strip-item > h3 { border-left: 0; padding-left: 0; margin-top: 18px; }
+
+/* ---------- Hero ---------- */
+header { padding-bottom: 8px; }
+.core-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+.core-strip > div {
+  padding: 18px 18px 16px;
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 8px 8px;
+}
+.core-metric {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--accent-text);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.core-desc { font-size: 15px; line-height: 1.7; color: var(--ink2); margin: 0; }
+
+/* ---------- Lists ---------- */
+ul, ol { margin: 8px 0 20px; padding-left: 22px; max-width: none; }
+li { margin-bottom: 12px; font-size: 16px; line-height: 1.8; color: var(--ink2); }
+li::marker { color: var(--mute); }
+.wide-list { max-width: none; }
+ol.wide-list > li { padding-left: 4px; }
+
+/* ---------- Callouts ---------- */
+.note-fix, .note-verify {
+  margin: 22px 0 26px;
+  padding: 16px 22px 6px;
+  border-radius: 8px;
+  max-width: none;
+}
+.note-fix { background: var(--fix-soft); border: 1px solid var(--fix-line); border-left: 4px solid var(--fix); }
+.note-verify { background: var(--accent-soft); border: 1px solid var(--hair-soft); border-left: 4px solid var(--accent); }
+.note-fix .tag, .note-verify .tag {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.note-fix .tag { color: var(--fix-text); }
+.note-verify .tag { color: var(--accent-text); }
+.note-fix p, .note-verify p {
+  margin: 0;
+  padding: 10px 0 12px;
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--ink2);
+  max-width: none;
+}
+.note-fix p + p { border-top: 1px dashed var(--fix-line); }
+.note-fix p > strong:first-child,
+.note-verify p > strong:first-child { display: block; margin-bottom: 2px; }
+.note-fix p > strong:first-child { color: var(--fix-text); }
+
+/* ---------- Tables ---------- */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 26px 0 28px;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 15px; text-align: left; line-height: 1.65; }
+thead th {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper-alt);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--hair);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--hair-soft);
+  vertical-align: top;
+  color: var(--ink2);
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--paper-alt); }
+.num, .nowrap { white-space: nowrap; }
+td.nowrap:not(:has(code)) { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; }
+tr.group th {
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--hair);
+  border-top: 1px solid var(--hair);
+}
+tbody tr.group:first-child th { border-top: 0; }
+.cheat td:first-child { width: 46%; }
+.cheat td:first-child code { overflow-wrap: anywhere; }
+
+/* ---------- Definition list ---------- */
+dl.open-dl { margin: 14px 0 20px; display: grid; grid-template-columns: minmax(170px, 240px) minmax(0, 1fr); }
+dl.open-dl dt { padding: 10px 16px 10px 0; border-top: 1px solid var(--hair-soft); font-weight: 600; font-size: 15px; color: var(--ink); }
+dl.open-dl dd { margin: 0; padding: 10px 0; border-top: 1px solid var(--hair-soft); font-size: 15px; color: var(--ink2); }
+
+/* ---------- Figures ---------- */
+figure { margin: 36px 0; padding: 0; }
+figure .fig-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 14px; line-height: 1.5; }
+figure svg.diagram {
+  width: 100%; height: auto; display: block;
+  background: #FFFFFF;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  padding: 10px;
+}
+figcaption { margin-top: 10px; font-size: 14px; color: var(--mute); line-height: 1.6; }
+
+blockquote.pull { margin: 36px 0; padding: 0 0 0 22px; border-left: 3px solid var(--ink); font-size: clamp(20px, 2.2vw, 24px); line-height: 1.5; font-weight: 600; color: var(--ink); max-width: none; }
+
+/* ---------- Exam band ---------- */
+.band {
+  margin-top: 88px;
+  padding: 36px 32px 28px;
+  background: var(--paper-alt);
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 10px 10px;
+}
+.band > p { max-width: none; }
+.exam-list {
+  counter-reset: exam;
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.exam-list li {
+  counter-increment: exam;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 48px;
+  border-top: 1px solid var(--hair);
+  font-size: 16px;
+  line-height: 1.8;
+}
+.exam-list li::before {
+  content: counter(exam, decimal-leading-zero);
+  position: absolute;
+  left: 0; top: 17px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.exam-list li > strong:first-child { display: block; margin-bottom: 2px; }
+
+/* ---------- Key-value fact lists ---------- */
+ul.facts {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 24px;
+  max-width: none;
+  border-top: 1px solid var(--hair-soft);
+}
+ul.facts > li {
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  gap: 2px 20px;
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hair-soft);
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+ul.facts > li > strong:first-child { color: var(--ink); font-weight: 700; }
+ul.facts > li > div { color: var(--ink2); }
+ul.facts ul { margin: 0; padding-left: 18px; }
+ul.facts ul li { margin: 0 0 4px; font-size: 15.5px; }
+li > ul { margin: 6px 0 4px; }
+li > ul > li { margin-bottom: 4px; font-size: 15.5px; }
+td ul { margin: 0; padding-left: 16px; max-width: none; }
+td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
+.opts td:nth-child(2) { min-width: 13em; }
+@media (max-width: 760px) {
+  ul.facts > li { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- HTML diagrams (깨지지 않는 반응형 도식) ---------- */
+.dg {
+  margin: 26px 0 30px;
+  padding: 22px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  background: var(--paper-alt);
+}
+.dg-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 16px; line-height: 1.5; }
+.dg-flow { display: flex; align-items: stretch; }
+.dg-flow > .dg-node, .dg-flow > .dg-stack { flex: 1 1 0; min-width: 0; }
+.dg-stack { display: flex; flex-direction: column; gap: 12px; }
+.dg-node {
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.dg-node.key { border: 2px solid var(--ink); }
+.dg-node.accent { border: 1.5px solid var(--accent); }
+.dg-node.ghost { border: 1.5px dashed var(--hair); background: transparent; color: var(--mute); }
+.dg-node h4 { margin: 0 0 2px; font-size: 15px; line-height: 1.45; font-weight: 700; color: var(--ink); }
+.dg-node.accent h4 { color: var(--accent-text); }
+.dg-node .sub {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px; color: var(--mute);
+  margin: 0 0 8px; overflow-wrap: anywhere;
+}
+.dg-node ul { list-style: none; padding: 0; margin: 0; max-width: none; }
+.dg-node li { margin: 0 0 6px; font-size: 14px; line-height: 1.6; color: var(--ink2); }
+.dg-node li:last-child { margin-bottom: 0; }
+.dg-node .grp { padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--hair-soft); }
+.dg-node .lbl { display: block; font-weight: 700; font-size: 13.5px; color: var(--ink); }
+.dg-node .num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; margin-right: 6px; border-radius: 50%;
+  background: var(--accent); color: var(--paper); font-size: 13px; font-weight: 700;
+  vertical-align: 1px;
+}
+.port { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: var(--accent-text); overflow-wrap: anywhere; }
+.dg-arrow {
+  flex: 0 0 64px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 0 4px;
+  color: var(--accent-text); font-size: 12px; font-weight: 700; text-align: center; line-height: 1.3;
+}
+.dg-arrow::before { content: "→"; font-size: 24px; line-height: 1; color: var(--accent); }
+.dg-foot { margin: 14px 0 0; font-size: 14px; line-height: 1.65; color: var(--mute); max-width: none; }
+.dg-foot strong { color: var(--ink2); }
+
+.dg-compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.dg-panel { background: var(--paper); border: 1px solid var(--hair); border-radius: 10px; padding: 16px 18px 18px; }
+.dg-panel > h4 { margin: 0 0 12px; font-size: 16px; font-weight: 700; color: var(--ink); }
+.dg-panel > h4 span { font-weight: 500; color: var(--mute); font-size: 14px; }
+.dg-grid { display: grid; gap: 10px; }
+.dg-grid.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dg-grid.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dg-panel .dg-node { padding: 10px 12px; }
+.dg-panel .dg-node h4 { font-size: 14px; }
+.dg-panel .dg-node li { font-size: 13.5px; margin-bottom: 3px; }
+.dg-host { border: 2px solid var(--ink); border-radius: 10px; padding: 12px; }
+.dg-host > .host-h { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0 0 2px; }
+.dg-host > .host-s { font-size: 13px; color: var(--mute); margin: 0 0 10px; }
+.dg-bar {
+  display: block;
+  margin: 10px 0 0; padding: 8px 12px;
+  border-radius: 8px; background: var(--paper-alt);
+  font-size: 13.5px; line-height: 1.55; color: var(--ink2);
+}
+.dg-bar.warn { background: var(--fix-soft); color: var(--fix-text); }
+.dg-bar.ok { background: var(--accent-soft); color: var(--accent-text); }
+.dg-down { text-align: center; color: var(--accent); font-size: 13px; font-weight: 700; margin: 8px 0; }
+
+.spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 14px 0 12px; }
+.spec > div { border: 1px solid var(--hair); border-radius: 10px; padding: 12px 14px; background: var(--paper); }
+.spec .k { font-size: 13px; font-weight: 700; color: var(--mute); }
+.spec .v { font-size: 15.5px; font-weight: 700; color: var(--ink); line-height: 1.45; margin: 2px 0; }
+.spec .d { font-size: 13px; color: var(--mute); line-height: 1.55; overflow-wrap: anywhere; }
+.rules { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; max-width: none; }
+.rules li {
+  margin: 0; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--hair); background: var(--paper);
+  font-size: 14px; line-height: 1.5; color: var(--ink2);
+}
+
+@media (max-width: 980px) {
+  .dg-flow { flex-direction: column; }
+  .dg-arrow { flex-basis: auto; padding: 6px 0; flex-direction: row; gap: 8px; }
+  .dg-arrow::before { content: "↓"; font-size: 20px; }
+  .dg-compare, .spec { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .dg { padding: 14px; }
+  .dg-grid.c3 { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .page { display: block; padding: 36px 24px 80px; }
+  .side { display: none; }
+  .main { margin: 0 auto; }
+  .toc {
+    display: block;
+    margin: 32px 0 0;
+    padding: 16px 20px;
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    background: var(--paper-alt);
+    font-size: 15px;
+  }
+  .toc a { display: block; padding: 5px 0; color: var(--ink2); text-decoration: none; }
+  .toc a:hover { color: var(--accent-text); text-decoration: underline; }
+}
+@media (max-width: 760px) {
+  .page { padding: 28px 18px 64px; }
+  .grid-2, .grid-3, .core-strip { grid-template-columns: minmax(0, 1fr); }
+  dl.open-dl { grid-template-columns: 1fr; }
+  dl.open-dl dt { padding-bottom: 2px; }
+  dl.open-dl dd { border-top: 0; padding-top: 2px; }
+  .sec, .band { margin-top: 64px; }
+  .band { padding: 28px 18px 20px; }
+  .note-fix, .note-verify { padding: 14px 16px 4px; }
+  p { font-size: 16px; }
+  pre { font-size: 12.5px; padding: 14px 14px; }
+  .cheat td:first-child { width: auto; }
+  table { min-width: 640px; }
+}
+@media print {
+  .side, .copy { display: none !important; }
+  .page { display: block; }
+}
+</style>
+</head>
+<body>
+<button id="themeBtn" type="button" aria-label="라이트/다크 모드 전환" style="position:fixed;top:12px;right:14px;z-index:60;padding:6px 12px;font:600 13px/1 inherit;font-family:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:999px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15)">다크</button>
+<style>@media print{#themeBtn{display:none}}</style>
+
+<div class="page">
+  <aside class="side">
+    <nav aria-label="목차 (사이드)">
+      <p class="side-title">목차</p>
+      <ol>
+        <li><a href="#pg-run">1. 공식 이미지·볼륨·컨테이너 실행</a></li>
+        <li><a href="#pg-auth">2. psql 접속과 pg_hba 인증</a></li>
+        <li><a href="#pg-config">3. postgresql.conf 설정·로그·재시작</a></li>
+        <li><a href="#cheatsheet">4. 통합 명령어 치트시트</a></li>
+      </ol>
+    </nav>
+  </aside>
+  <main class="main">
+
+  <header>
+    <h1>PostgreSQL 통합 학습노트</h1>
+    <p class="deck">PostgreSQL 통합 학습노트 · 범위: 공식 이미지 컨테이너 실행·이름 있는 볼륨 → psql 접속·pg_hba.conf 인증 → postgresql.conf 메모리·로그 설정과 재시작 검증. Docker·Compose 기본 명령은 docker.html 4·5장</p>
+
+    <div class="core-strip">
+      <div>
+        <div class="core-metric">pgdata 볼륨</div>
+        <p class="core-desc">데이터 경로 <code class="n">/var/lib/postgresql/data</code>를 이름 있는 볼륨에 연결 → 컨테이너를 바꿔도 데이터 유지 (1장)</p>
+      </div>
+      <div>
+        <div class="core-metric">pg_hba 첫 일치</div>
+        <p class="core-desc">규칙은 위에서부터 먼저 맞는 줄 적용. <code class="n">trust</code>는 비밀번호 검증 없음 → <code class="n">md5</code>/<code class="n">scram-sha-256</code>으로 (2장)</p>
+      </div>
+      <div>
+        <div class="core-metric">cp → 수정 → restart</div>
+        <p class="core-desc">컨테이너에 편집기가 없으면 <code class="n">docker cp</code>로 꺼내 호스트에서 수정 → 되돌리고 <code class="n">docker restart</code> → 로그·접속으로 검증 (3장)</p>
+      </div>
+    </div>
+
+    <nav class="toc" aria-label="목차">
+      <a href="#pg-run">1. 공식 이미지·볼륨·컨테이너 실행</a>
+      <a href="#pg-auth">2. psql 접속과 pg_hba 인증</a>
+      <a href="#pg-config">3. postgresql.conf 설정·로그·재시작</a>
+      <a href="#cheatsheet">4. 통합 명령어 치트시트</a>
+    </nav>
+  </header>
+
+  <!-- 1 -->
+  <section class="sec" id="pg-run">
+    <h2>공식 이미지·이름 있는 볼륨과 컨테이너 실행</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 이미지에서 볼륨 보존 컨테이너까지</p><div class="dg-flow"><div class="dg-node"><h4>① 이미지</h4><p class="sub">postgres:14.24 · df -m</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 볼륨</h4><p class="sub">docker volume create pgdata</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ docker run</h4><p class="sub">-e POSTGRES_PASSWORD · -p 5432:5432</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ Compose 이전</h4><p class="sub">volumes: external: true</p></div></div></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>이미지</strong></td><td><ul><li>Docker Hub에서 Official Image로 표시된 <code>postgres</code> 확인 → 태그 <code>14.24</code> 사용</li><li>태그 접미사 없는 기본 이미지도 Debian 기반일 수 있음. <code>trixie</code> = Debian 13 코드명 (Ubuntu·CentOS 계열 아님)</li></ul></td></tr>
+    <tr><td><strong>용량</strong></td><td>다운로드 전 <code>df -m</code>으로 디스크 여유 확인. 화면의 <code>postgres:14.24</code> 크기 약 624MB</td></tr>
+    <tr><td><strong>슈퍼유저</strong></td><td>MariaDB의 <code>root</code> 대신 <code>postgres</code></td></tr>
+    <tr><td><strong>환경변수·포트·경로</strong></td><td><code>POSTGRES_PASSWORD</code> = 초기 비밀번호 설정용 / 기본 포트 <code>5432</code> / 데이터 경로 <code>/var/lib/postgresql/data</code></td></tr>
+    <tr><td><strong>이름 있는 볼륨</strong></td><td><code>pgdata</code> 볼륨에 저장 → 컨테이너 교체와 데이터 생명주기 분리. 비밀번호 <code>a1234</code>는 연습값</td></tr>
+    <tr><td><strong>docker run에서 먼저 확인</strong></td><td><ul><li>Compose로 옮기기 전에 같은 이미지·환경변수·포트·볼륨으로 직접 실행해 정상 기동 확인</li><li>이미 초기화한 실습 데이터가 있으면 볼륨 경로와 재사용 대상 확인</li><li>외부 볼륨으로 선언하면 <code>pgdata</code>가 미리 존재해야 함</li></ul></td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 호스트 여유 공간(MB) 확인 후 공식 이미지 다운로드</span>
+df -m
+docker pull postgres:14.24
+docker images
+<span class="c"># 이름 있는 볼륨 생성 → DB 파일을 컨테이너 밖에 보존</span>
+docker volume create pgdata
+<span class="c"># -e 초기 비밀번호(연습값) / -v 볼륨:데이터경로 / -p 호스트:컨테이너 / -d 백그라운드</span>
+docker run --name rds_psql -e POSTGRES_PASSWORD=a1234 \
+  -v pgdata:/var/lib/postgresql/data -p 5432:5432 -d postgres:14.24
+docker ps
+
+<span class="c"># [호스트 리눅스 · /root/yaml/compose.yaml 파일 안]</span>
+services:
+<span class="c">  # 서비스 키 (compose 명령 인자로 쓰는 이름)</span>
+  postgres:
+<span class="c">    # docker ps에 보이는 고정 컨테이너 이름</span>
+    container_name: rds_psql
+    image: postgres:14.24
+<span class="c">    # 초기 슈퍼유저(postgres) 비밀번호. a1234는 연습값</span>
+    environment:
+      - POSTGRES_PASSWORD=a1234
+<span class="c">    # 이름 있는 볼륨 pgdata → PGDATA 경로</span>
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+volumes:
+  pgdata:
+<span class="c">    # 이미 만든 볼륨을 사용 → Compose가 생성·삭제하지 않음 (down -v로도 안 지워짐)</span>
+    external: true
+    name: pgdata</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">볼륨과 데이터 보존 — 컨테이너 안에만 저장한 데이터는 컨테이너 삭제와 함께 소멸, 이름 있는 볼륨은 유지. external 볼륨은 미리 만들어 둬야 하고 Compose가 지우지 않음 (Compose 생명주기: docker.html 5장)</div>
+  
+
+  </section>
+
+  <!-- 2 -->
+  <section class="sec" id="pg-auth">
+    <h2>psql 접속과 pg_hba.conf 인증</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 접속 → 인증 규칙 → 결과 확인</p><div class="dg-flow"><div class="dg-node"><h4>① psql 접속</h4><p class="sub">docker exec · psql -U postgres</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② pg_hba.conf</h4><p class="sub">위에서부터 첫 일치 규칙</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ trust → md5</h4><p class="sub">local · host 규칙 수정</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 결과 확인</h4><p class="sub">틀린 비밀번호 → FATAL</p></div></div></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>접속 경로</strong></td><td><ul><li><code>docker exec -it rds_psql /bin/bash</code>로 컨테이너 셸 → <code>psql -U postgres</code></li><li>한 줄 접속: <code>docker exec ... env PGPASSWORD=... psql</code> → 비밀번호를 명령행 환경변수에 넣는 건 실습용 (셸 기록·프로세스 환경 노출 주의)</li><li>SQL 프롬프트 종료 <code>\q</code></li></ul></td></tr>
+    <tr><td><strong>trust의 범위</strong></td><td><ul><li><code>psql -U postgres -W</code>가 비밀번호를 물어도, 컨테이너 안 Unix 소켓 접속이 기본 <code>pg_hba.conf</code>의 <code>trust</code> 규칙에 걸리면 비밀번호를 검증하지 않을 수 있음</li><li>모든 외부 TCP 연결이 무인증이라는 뜻은 아님 → 실습 화면의 <code>host all all all scram-sha-256</code> 규칙은 TCP 연결에 비밀번호 인증 요구</li></ul></td></tr>
+    <tr><td><strong>규칙 순서</strong></td><td>위에서부터 먼저 일치하는 항목 적용</td></tr>
+    <tr><td><strong>규칙 열 의미</strong></td><td><code>local</code> = Unix socket / <code>host</code> = TCP / 주소 = 허용할 클라이언트 범위</td></tr>
+    <tr><td><strong>주소 범위</strong></td><td><ul><li><code>0.0.0.0/0</code> = 모든 IPv4 → 외부 노출 범위가 넓으므로 실습 외에는 접속 원본 제한</li><li>IPv6 loopback <code>::1/128</code>도 별도 규칙 → 외부 IPv6 허용 여부도 따로 검토</li></ul></td></tr>
+    <tr><td><strong>md5와 실제 확인</strong></td><td><ul><li>실습에서 로컬·TCP 규칙의 <code>trust</code> → <code>md5</code>로 바꿔 비밀번호 인증 확인</li><li>저장된 비밀번호 형식·서버 설정에 따라 SCRAM 인증이 협상될 수 있음 → 실제 동작은 결과로 확인: 틀린 비밀번호 → <code>FATAL: password authentication failed for user "postgres"</code>, 맞는 비밀번호 → 접속</li></ul></td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 컨테이너 셸 진입</span>
+docker exec -it rds_psql /bin/bash
+<span class="c"># [rds_psql 컨테이너 · root]</span>
+<span class="c"># 슈퍼유저 postgres로 접속 (종료는 \q)</span>
+psql -U postgres
+<span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 한 줄 접속 (PGPASSWORD 환경변수는 실습용, a1234는 연습값)</span>
+docker exec -it rds_psql env PGPASSWORD=a1234 psql -U postgres -d postgres
+
+<span class="c"># [호스트 리눅스 · /root/rds/pg_hba.conf 파일 안]</span>
+<span class="c"># 표준 예시: 열 배치(TYPE DATABASE USER [ADDRESS] METHOD)는 표준 형식, 값은 실습값</span>
+<span class="c"># 89행: Unix socket 로컬 접속. trust → md5 (무인증 범위 축소)</span>
+local   all   all                  md5
+<span class="c"># 91행: IPv4 TCP. 주소 127.0.0.1/32 → 0.0.0.0/0(모든 IPv4, 실습용), trust → md5</span>
+host    all   all   0.0.0.0/0      md5
+<span class="c"># 93행: IPv6 loopback. trust → md5 (IPv6 규칙도 따로 인증 점검)</span>
+host    all   all   ::1/128        md5
+<span class="c"># 96~98행 replication 규칙은 그대로</span>
+<span class="c"># 100행: TCP 일반 규칙. 기존 scram-sha-256 그대로 (넓은 주소 허용 규칙·앞선 줄 우선 적용 검토)</span>
+host    all   all   all            scram-sha-256</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">pg_hba.conf — 위에서부터 첫 일치 규칙 적용. <code>local</code>=Unix socket, <code>host</code>=TCP. <code>trust</code>는 비밀번호를 안 봄(<code>-W</code>로 물어도 통과 가능) → <code>md5</code>/<code>scram-sha-256</code>. <code>0.0.0.0/0</code>은 모든 IPv4라 운영에서는 출발지 제한</div>
+  
+
+  </section>
+
+  <!-- 3 -->
+  <section class="sec" id="pg-config">
+    <h2>postgresql.conf 설정·로그와 재시작 검증</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 꺼내기 → 수정 → 되돌리기 → 재시작</p><div class="dg-flow"><div class="dg-node"><h4>① docker cp</h4><p class="sub">컨테이너 → 호스트 /root/rds</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 수정</h4><p class="sub">postgresql.conf · pg_hba.conf</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ docker cp</h4><p class="sub">호스트 → PGDATA</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>④ docker restart</h4><p class="sub">설정 반영</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>⑤ 검증</h4><p class="sub">docker ps -a · docker logs</p></div></div></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>편집 위치</strong></td><td><ul><li>실습의 최소 Debian 기반 이미지에는 <code>vi</code>가 없을 수 있음, 패키지 관리자도 <code>dnf</code>가 아니라 <code>apt</code>/<code>apt-get</code> 계열</li><li>설정 파일은 컨테이너 <code>/var/lib/postgresql/data/</code> 아래 → 호스트 <code>/root/rds</code>로 꺼내 수정한 뒤 되돌림</li></ul></td></tr>
+    <tr><td><strong>반영 조건</strong></td><td>설정 변경은 컨테이너에 복사한 뒤 재시작해야 반영</td></tr>
+    <tr><td><strong>실패 시</strong></td><td>오타·잘못된 값 → 재시작 실패나 컨테이너 종료 가능 → <code>docker ps -a</code>와 로그 확인 → 수정본 다시 복사</td></tr>
+    <tr><td><strong>정리</strong></td><td>비밀번호 실패·성공 결과를 각각 확인한 뒤 실습 컨테이너는 삭제 대신 <code>docker stop</code>으로 보존</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># PGDATA의 설정 파일을 호스트 작업 폴더로 복사해 편집</span>
+mkdir -p /root/rds
+cd /root/rds
+docker cp rds_psql:/var/lib/postgresql/data/postgresql.conf postgresql.conf
+docker cp rds_psql:/var/lib/postgresql/data/pg_hba.conf pg_hba.conf
+vi postgresql.conf
+vi pg_hba.conf
+<span class="c"># 편집본을 PGDATA 디렉터리에 되돌리고 재시작해 설정 반영</span>
+docker cp postgresql.conf rds_psql:/var/lib/postgresql/data/
+docker cp pg_hba.conf rds_psql:/var/lib/postgresql/data/
+docker restart rds_psql
+<span class="c"># Up 상태 확인 → 실패하면 로그에서 오류 줄 확인</span>
+docker ps -a
+docker logs rds_psql
+<span class="c"># 실습 후 삭제하지 않고 정지로 보존</span>
+docker stop rds_psql
+
+<span class="c"># [호스트 리눅스 · /root/rds/postgresql.conf 파일 안]</span>
+<span class="c"># 60행: 모든 컨테이너 인터페이스에서 수신 (네트워크·pg_hba 규칙과 함께 제한)</span>
+listen_addresses = '*'
+<span class="c"># 64행: 서버 TCP 포트</span>
+port = 5432
+<span class="c"># 65행: 최대 연결 수. 기본 100 → 30으로 줄여 메모리 사용 제한 (기본값이 틀려서 고치는 게 아니라 선택)</span>
+max_connections = 30
+<span class="c"># 127행: DB 캐시 메모리. 화면 기본값 128MB. 메모리의 약 25%는 흔한 시작점일 뿐 고정 규칙 아님</span>
+shared_buffers = 1024MB
+<span class="c"># 138행: 정렬·해시 연산 하나당 메모리 상한. 주석 상태여도 기본 4MB 적용</span>
+work_mem = 4MB
+<span class="c"># 439행: stderr 로그를 파일로 수집</span>
+logging_collector = on
+<span class="c"># 445행: 로그 폴더 (PGDATA 기준 상대 경로)</span>
+log_directory = 'log'
+<span class="c"># 447행: 날짜·시간이 들어간 로그 파일명. 기본은 텍스트 로그 (CSV는 log_destination='csvlog' 별도 지정)</span>
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+<span class="c"># 449행: log_file_mode는 화면의 기본 퍼미션 값 그대로 둠</span>
+<span class="c"># 453행: 이 크기를 넘으면 새 파일로 회전. 오래된 로그 삭제가 아님 (덮어쓰기는 기본 off인 log_truncate_on_rotation에 따름)</span>
+log_rotation_size = 10MB</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">postgresql.conf 메모리·로그 — <code>max_connections</code> 100→30은 메모리 절약 선택. <code>shared_buffers</code>=캐시(25%는 시작점일 뿐), <code>work_mem</code>=정렬·해시 연산당 상한. <code>log_rotation_size</code>는 새 파일 회전 기준이지 삭제가 아님. 설정은 복사 후 재시작해야 반영</div>
+  
+
+  </section>
+
+  <!-- 4 -->
+  <section class="sec" id="cheatsheet">
+    <h2>통합 명령어 치트시트</h2>
+
+    <p>영역별 모음. Docker 명령은 호스트 <code class="n">root</code>, <code class="n">psql</code>은 <code class="n">rds_psql</code> 컨테이너에서 실행.</p>
+    <div class="table-wrap">
+      <table class="cheat">
+        <thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead>
+        <tbody>
+          <tr class="group"><th colspan="2" scope="colgroup">이미지·컨테이너</th></tr>
+          <tr><td><code>df -m</code></td><td>디스크 여유(MB) 확인 → 이미지(약 624MB) 받기 전</td></tr>
+          <tr><td><code>docker pull postgres:14.24</code> / <code>docker volume create pgdata</code></td><td>PostgreSQL 공식 이미지 받기 / 데이터 보존용 이름 있는 볼륨 준비</td></tr>
+          <tr><td><code>docker run --name rds_psql -e POSTGRES_PASSWORD=... -v pgdata:/var/lib/postgresql/data -p 5432:5432 -d postgres:14.24</code></td><td>연습용 PostgreSQL 컨테이너 생성: 비밀번호·볼륨·호스트 포트 지정</td></tr>
+          <tr><td><code>docker compose -f postgre.yaml up -d</code> / <code>down</code></td><td>PostgreSQL Compose 파일로 실행·정리 (같은 파일 지정)</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">접속·인증</th></tr>
+          <tr><td><code>docker exec -it rds_psql /bin/bash</code> / <code>psql -U postgres</code></td><td>컨테이너 셸 접속 / 슈퍼유저로 psql 접속 (<code>\q</code> 종료)</td></tr>
+          <tr><td><code>docker exec -it rds_psql env PGPASSWORD=... psql -U postgres -d postgres</code></td><td>한 줄 접속 (실습용, 비밀번호 노출 주의)</td></tr>
+          <tr><td><code>psql -U postgres -W</code></td><td>비밀번호 입력을 요청해 인증 동작 점검 (trust 규칙이면 검증 안 될 수 있음)</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">설정 파일</th></tr>
+          <tr><td><code>docker cp rds_psql:/var/lib/postgresql/data/postgresql.conf postgresql.conf</code></td><td>설정 파일을 호스트로 꺼냄 (<code>pg_hba.conf</code>도 같은 방식)</td></tr>
+          <tr><td><code>docker cp postgresql.conf rds_psql:/var/lib/postgresql/data/</code></td><td>수정본을 PGDATA로 되돌림</td></tr>
+          <tr><td><code>docker restart rds_psql</code> / <code>docker ps -a</code> / <code>docker logs rds_psql</code></td><td>설정 반영 / 기동 상태 / 실패 원인 확인</td></tr>
+          <tr><td><code>docker stop rds_psql</code></td><td>실습 컨테이너를 지우지 않고 보존</td></tr>
+        </tbody>
+      </table>
+    </div>
+  
+
+  </section>
+
+</main>
+</div>
+
+<script>
+(function () {
+  // 코드 복사
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.parentElement.querySelector('pre').innerText;
+      var done = function () {
+        btn.textContent = '복사됨'; btn.classList.add('done');
+        setTimeout(function () { btn.textContent = '복사'; btn.classList.remove('done'); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+      } else { fallback(text); done(); }
+    });
+  });
+  function fallback(t) {
+    var ta = document.createElement('textarea'); ta.value = t;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  // 현재 읽는 섹션을 목차에 표시
+  var links = Array.prototype.slice.call(document.querySelectorAll('.side a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function spy() {
+    var y = window.scrollY + window.innerHeight * 0.3, idx = 0;
+    secs.forEach(function (el, i) { if (el && el.offsetTop <= y) idx = i; });
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) idx = secs.length - 1;
+    links.forEach(function (a, i) { a.classList.toggle('on', i === idx); });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+})();
+</script>
+<script>
+(function () {
+  var r = document.documentElement, b = document.getElementById('themeBtn');
+  function cur() {
+    var t = r.getAttribute('data-theme');
+    if (t) return t;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function apply(t) {
+    r.setAttribute('data-theme', t);
+    b.textContent = t === 'dark' ? '라이트' : '다크';
+  }
+  try { var s = localStorage.getItem('note-theme'); if (s) r.setAttribute('data-theme', s); } catch (e) {}
+  apply(cur());
+  b.addEventListener('click', function () {
+    var n = cur() === 'dark' ? 'light' : 'dark';
+    apply(n);
+    try { localStorage.setItem('note-theme', n); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>

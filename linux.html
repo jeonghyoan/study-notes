@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리눅스 통합 학습노트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #FFFFFF;
+  --paper-alt: #F4F6F8;
+  --ink: #0F172A;
+  --ink2: #273449;
+  --mute: #5B6779;
+  --hair: #CBD5E1;
+  --hair-soft: #E2E8F0;
+  --accent: #0B63CE;
+  --accent-text: #074799;
+  --accent-soft: #EEF4FC;
+  --fix: #B45309;
+  --fix-text: #7C2D12;
+  --fix-soft: #FFF7EC;
+  --fix-line: #F3D9B5;
+  --code-bg: #F5F7FA;
+  --code-line: #E2E8F0;
+  --comment: #6B7A90;
+  --sidebar: 240px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+    --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+    --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+    --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+  --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+  --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+  --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 24px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  line-height: 1.8;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Layout: sticky TOC + one readable column ---------- */
+.page {
+  display: grid;
+  grid-template-columns: var(--sidebar) minmax(0, 1fr);
+  gap: 0 48px;
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: 44px 48px 96px;
+}
+.side { position: relative; }
+.side nav {
+  position: sticky;
+  top: 28px;
+  padding-top: 6px;
+}
+.side .side-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+  margin: 0 0 10px;
+}
+.side ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1px solid var(--hair);
+  max-width: none;
+}
+.side li { margin: 0; font-size: 14px; line-height: 1.45; }
+.side a {
+  display: block;
+  padding: 7px 0 7px 14px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  color: var(--mute);
+  text-decoration: none;
+}
+.side a:hover { color: var(--ink); }
+.side a.on {
+  color: var(--accent-text);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.main { min-width: 0; }
+
+/* Inline TOC only for narrow screens */
+.toc { display: none; }
+
+/* ---------- Typography ---------- */
+h1 {
+  margin: 0 0 18px;
+  font-size: clamp(30px, 3.6vw, 42px);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--ink);
+}
+.deck {
+  margin: 0 0 8px;
+  font-size: 17.5px;
+  line-height: 1.75;
+  color: var(--ink2);
+  max-width: none;
+}
+h2 {
+  margin: 0 0 20px;
+  font-size: clamp(23px, 2.3vw, 28px);
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.sec h2 {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+.sec h2::before {
+  content: counter(sec);
+  counter-increment: sec;
+  flex: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--accent-text);
+  min-width: 1.4em;
+}
+.main { counter-reset: sec; }
+
+h3 {
+  margin: 40px 0 12px;
+  font-size: 19px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--ink);
+}
+p {
+  margin: 0 0 16px;
+  font-size: 16.5px;
+  color: var(--ink2);
+  max-width: none;
+}
+strong { color: var(--ink); font-weight: 700; }
+a { color: var(--accent-text); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+code {
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 1px 6px;
+  border: 1px solid var(--code-line);
+  border-radius: 4px;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Code blocks ---------- */
+.code {
+  position: relative;
+  margin: 14px 0 22px;
+}
+pre {
+  margin: 0;
+  padding: 16px 20px;
+  background: var(--code-bg);
+  border: 1px solid var(--code-line);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink);
+  tab-size: 4;
+}
+code.n { white-space: nowrap; }
+pre code {
+  background: transparent; padding: 0; border: 0; border-radius: 0;
+  font-size: inherit; word-break: normal; white-space: pre;
+}
+pre .c { color: var(--comment); }
+.copy {
+  position: absolute;
+  top: 8px; right: 8px;
+  font: 600 12px/1 'IBM Plex Sans', 'Noto Sans KR', sans-serif;
+  padding: 6px 9px;
+  color: var(--mute);
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0;
+}
+.code:hover .copy, .copy:focus-visible { opacity: 1; }
+.copy.done { color: var(--accent-text); border-color: var(--accent); opacity: 1; }
+@media (hover: none) { .copy { opacity: 1; } }
+
+/* ---------- Sections ---------- */
+.sec {
+  margin-top: 88px;
+  padding-top: 32px;
+  border-top: 2px solid var(--ink);
+}
+.split { display: block; }
+.split-left p { max-width: none; }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 36px;
+  margin-top: 8px;
+}
+/* 코드가 들어간 묶음은 좁아지지 않게 한 줄로 쌓기 */
+.grid-2:has(pre) { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 32px; }
+
+.strip-item {
+  padding-top: 4px;
+}
+.strip-item > h3 {
+  margin: 28px 0 10px;
+  font-size: 17.5px;
+  padding-left: 12px;
+  border-left: 3px solid var(--hair);
+  line-height: 1.4;
+}
+.grid-2:not(:has(pre)) .strip-item {
+  background: var(--paper-alt);
+  padding: 4px 22px 8px;
+  border-radius: 8px;
+}
+.grid-2:not(:has(pre)) .strip-item > h3 { border-left: 0; padding-left: 0; margin-top: 18px; }
+
+/* ---------- Hero ---------- */
+header { padding-bottom: 8px; }
+.core-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+.core-strip > div {
+  padding: 18px 18px 16px;
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 8px 8px;
+}
+.core-metric {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--accent-text);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.core-desc { font-size: 15px; line-height: 1.7; color: var(--ink2); margin: 0; }
+
+/* ---------- Lists ---------- */
+ul, ol { margin: 8px 0 20px; padding-left: 22px; max-width: none; }
+li { margin-bottom: 12px; font-size: 16px; line-height: 1.8; color: var(--ink2); }
+li::marker { color: var(--mute); }
+.wide-list { max-width: none; }
+ol.wide-list > li { padding-left: 4px; }
+
+/* ---------- Callouts ---------- */
+.note-fix, .note-verify {
+  margin: 22px 0 26px;
+  padding: 16px 22px 6px;
+  border-radius: 8px;
+  max-width: none;
+}
+.note-fix { background: var(--fix-soft); border: 1px solid var(--fix-line); border-left: 4px solid var(--fix); }
+.note-verify { background: var(--accent-soft); border: 1px solid var(--hair-soft); border-left: 4px solid var(--accent); }
+.note-fix .tag, .note-verify .tag {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.note-fix .tag { color: var(--fix-text); }
+.note-verify .tag { color: var(--accent-text); }
+.note-fix p, .note-verify p {
+  margin: 0;
+  padding: 10px 0 12px;
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--ink2);
+  max-width: none;
+}
+.note-fix p + p { border-top: 1px dashed var(--fix-line); }
+.note-fix p > strong:first-child,
+.note-verify p > strong:first-child { display: block; margin-bottom: 2px; }
+.note-fix p > strong:first-child { color: var(--fix-text); }
+
+/* ---------- Tables ---------- */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 26px 0 28px;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 15px; text-align: left; line-height: 1.65; }
+thead th {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper-alt);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--hair);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--hair-soft);
+  vertical-align: top;
+  color: var(--ink2);
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--paper-alt); }
+.num, .nowrap { white-space: nowrap; }
+td.nowrap:not(:has(code)) { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; }
+tr.group th {
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--hair);
+  border-top: 1px solid var(--hair);
+}
+tbody tr.group:first-child th { border-top: 0; }
+.cheat td:first-child { width: 46%; }
+.cheat td:first-child code { overflow-wrap: anywhere; }
+
+/* ---------- Definition list ---------- */
+dl.open-dl { margin: 14px 0 20px; display: grid; grid-template-columns: minmax(170px, 240px) minmax(0, 1fr); }
+dl.open-dl dt { padding: 10px 16px 10px 0; border-top: 1px solid var(--hair-soft); font-weight: 600; font-size: 15px; color: var(--ink); }
+dl.open-dl dd { margin: 0; padding: 10px 0; border-top: 1px solid var(--hair-soft); font-size: 15px; color: var(--ink2); }
+
+/* ---------- Figures ---------- */
+figure { margin: 36px 0; padding: 0; }
+figure .fig-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 14px; line-height: 1.5; }
+figure svg.diagram {
+  width: 100%; height: auto; display: block;
+  background: #FFFFFF;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  padding: 10px;
+}
+figcaption { margin-top: 10px; font-size: 14px; color: var(--mute); line-height: 1.6; }
+
+blockquote.pull { margin: 36px 0; padding: 0 0 0 22px; border-left: 3px solid var(--ink); font-size: clamp(20px, 2.2vw, 24px); line-height: 1.5; font-weight: 600; color: var(--ink); max-width: none; }
+
+/* ---------- Exam band ---------- */
+.band {
+  margin-top: 88px;
+  padding: 36px 32px 28px;
+  background: var(--paper-alt);
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 10px 10px;
+}
+.band > p { max-width: none; }
+.exam-list {
+  counter-reset: exam;
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.exam-list li {
+  counter-increment: exam;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 48px;
+  border-top: 1px solid var(--hair);
+  font-size: 16px;
+  line-height: 1.8;
+}
+.exam-list li::before {
+  content: counter(exam, decimal-leading-zero);
+  position: absolute;
+  left: 0; top: 17px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.exam-list li > strong:first-child { display: block; margin-bottom: 2px; }
+
+/* ---------- Key-value fact lists ---------- */
+ul.facts {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 24px;
+  max-width: none;
+  border-top: 1px solid var(--hair-soft);
+}
+ul.facts > li {
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  gap: 2px 20px;
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hair-soft);
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+ul.facts > li > strong:first-child { color: var(--ink); font-weight: 700; }
+ul.facts > li > div { color: var(--ink2); }
+ul.facts ul { margin: 0; padding-left: 18px; }
+ul.facts ul li { margin: 0 0 4px; font-size: 15.5px; }
+li > ul { margin: 6px 0 4px; }
+li > ul > li { margin-bottom: 4px; font-size: 15.5px; }
+td ul { margin: 0; padding-left: 16px; max-width: none; }
+td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
+.opts td:nth-child(2) { min-width: 13em; }
+@media (max-width: 760px) {
+  ul.facts > li { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- HTML diagrams (깨지지 않는 반응형 도식) ---------- */
+.dg {
+  margin: 26px 0 30px;
+  padding: 22px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  background: var(--paper-alt);
+}
+.dg-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 16px; line-height: 1.5; }
+.dg-flow { display: flex; align-items: stretch; }
+.dg-flow > .dg-node, .dg-flow > .dg-stack { flex: 1 1 0; min-width: 0; }
+.dg-stack { display: flex; flex-direction: column; gap: 12px; }
+.dg-node {
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.dg-node.key { border: 2px solid var(--ink); }
+.dg-node.accent { border: 1.5px solid var(--accent); }
+.dg-node.ghost { border: 1.5px dashed var(--hair); background: transparent; color: var(--mute); }
+.dg-node h4 { margin: 0 0 2px; font-size: 15px; line-height: 1.45; font-weight: 700; color: var(--ink); }
+.dg-node.accent h4 { color: var(--accent-text); }
+.dg-node .sub {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px; color: var(--mute);
+  margin: 0 0 8px; overflow-wrap: anywhere;
+}
+.dg-node ul { list-style: none; padding: 0; margin: 0; max-width: none; }
+.dg-node li { margin: 0 0 6px; font-size: 14px; line-height: 1.6; color: var(--ink2); }
+.dg-node li:last-child { margin-bottom: 0; }
+.dg-node .grp { padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--hair-soft); }
+.dg-node .lbl { display: block; font-weight: 700; font-size: 13.5px; color: var(--ink); }
+.dg-node .num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; margin-right: 6px; border-radius: 50%;
+  background: var(--accent); color: var(--paper); font-size: 13px; font-weight: 700;
+  vertical-align: 1px;
+}
+.port { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: var(--accent-text); overflow-wrap: anywhere; }
+.dg-arrow {
+  flex: 0 0 64px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 0 4px;
+  color: var(--accent-text); font-size: 12px; font-weight: 700; text-align: center; line-height: 1.3;
+}
+.dg-arrow::before { content: "→"; font-size: 24px; line-height: 1; color: var(--accent); }
+.dg-foot { margin: 14px 0 0; font-size: 14px; line-height: 1.65; color: var(--mute); max-width: none; }
+.dg-foot strong { color: var(--ink2); }
+
+.dg-compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.dg-panel { background: var(--paper); border: 1px solid var(--hair); border-radius: 10px; padding: 16px 18px 18px; }
+.dg-panel > h4 { margin: 0 0 12px; font-size: 16px; font-weight: 700; color: var(--ink); }
+.dg-panel > h4 span { font-weight: 500; color: var(--mute); font-size: 14px; }
+.dg-grid { display: grid; gap: 10px; }
+.dg-grid.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dg-grid.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dg-panel .dg-node { padding: 10px 12px; }
+.dg-panel .dg-node h4 { font-size: 14px; }
+.dg-panel .dg-node li { font-size: 13.5px; margin-bottom: 3px; }
+.dg-host { border: 2px solid var(--ink); border-radius: 10px; padding: 12px; }
+.dg-host > .host-h { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0 0 2px; }
+.dg-host > .host-s { font-size: 13px; color: var(--mute); margin: 0 0 10px; }
+.dg-bar {
+  display: block;
+  margin: 10px 0 0; padding: 8px 12px;
+  border-radius: 8px; background: var(--paper-alt);
+  font-size: 13.5px; line-height: 1.55; color: var(--ink2);
+}
+.dg-bar.warn { background: var(--fix-soft); color: var(--fix-text); }
+.dg-bar.ok { background: var(--accent-soft); color: var(--accent-text); }
+.dg-down { text-align: center; color: var(--accent); font-size: 13px; font-weight: 700; margin: 8px 0; }
+
+.spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 14px 0 12px; }
+.spec > div { border: 1px solid var(--hair); border-radius: 10px; padding: 12px 14px; background: var(--paper); }
+.spec .k { font-size: 13px; font-weight: 700; color: var(--mute); }
+.spec .v { font-size: 15.5px; font-weight: 700; color: var(--ink); line-height: 1.45; margin: 2px 0; }
+.spec .d { font-size: 13px; color: var(--mute); line-height: 1.55; overflow-wrap: anywhere; }
+.rules { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; max-width: none; }
+.rules li {
+  margin: 0; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--hair); background: var(--paper);
+  font-size: 14px; line-height: 1.5; color: var(--ink2);
+}
+
+@media (max-width: 980px) {
+  .dg-flow { flex-direction: column; }
+  .dg-arrow { flex-basis: auto; padding: 6px 0; flex-direction: row; gap: 8px; }
+  .dg-arrow::before { content: "↓"; font-size: 20px; }
+  .dg-compare, .spec { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .dg { padding: 14px; }
+  .dg-grid.c3 { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .page { display: block; padding: 36px 24px 80px; }
+  .side { display: none; }
+  .main { margin: 0 auto; }
+  .toc {
+    display: block;
+    margin: 32px 0 0;
+    padding: 16px 20px;
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    background: var(--paper-alt);
+    font-size: 15px;
+  }
+  .toc a { display: block; padding: 5px 0; color: var(--ink2); text-decoration: none; }
+  .toc a:hover { color: var(--accent-text); text-decoration: underline; }
+}
+@media (max-width: 760px) {
+  .page { padding: 28px 18px 64px; }
+  .grid-2, .grid-3, .core-strip { grid-template-columns: minmax(0, 1fr); }
+  dl.open-dl { grid-template-columns: 1fr; }
+  dl.open-dl dt { padding-bottom: 2px; }
+  dl.open-dl dd { border-top: 0; padding-top: 2px; }
+  .sec, .band { margin-top: 64px; }
+  .band { padding: 28px 18px 20px; }
+  .note-fix, .note-verify { padding: 14px 16px 4px; }
+  p { font-size: 16px; }
+  pre { font-size: 12.5px; padding: 14px 14px; }
+  .cheat td:first-child { width: auto; }
+  table { min-width: 640px; }
+}
+@media print {
+  .side, .copy { display: none !important; }
+  .page { display: block; }
+}
+</style>
+</head>
+<body>
+<button id="themeBtn" type="button" aria-label="라이트/다크 모드 전환" style="position:fixed;top:12px;right:14px;z-index:60;padding:6px 12px;font:600 13px/1 inherit;font-family:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:999px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15)">다크</button>
+<style>@media print{#themeBtn{display:none}}</style>
+
+<div class="page">
+  <aside class="side">
+    <nav aria-label="목차 (사이드)">
+      <p class="side-title">목차</p>
+      <ol><li><a href="#sec-vbox-install">1. VirtualBox·CentOS Stream 9 설치</a></li><li><a href="#sec-network">2. 네트워크 구성 (IP·NAT·호스트 전용·고정 IP·포트포워딩)</a></li><li><a href="#sec-remote">3. 원격 접속 (PuTTY·SSH·sshd_config·FileZilla)</a></li><li><a href="#sec-shell">4. 터미널 기본·서버 종료·디렉터리 이동</a></li><li><a href="#sec-vi">5. vi 편집기</a></li><li><a href="#sec-fileops">6. 파일·디렉터리 조작 (mv·cp·rm·rmdir)</a></li><li><a href="#sec-perm">7. 파일 권한·chmod·ls -al·SELinux</a></li><li><a href="#sec-useradd">8. 사용자 추가·비밀번호 설정</a></li><li><a href="#sec-session">9. 접속자 확인·강제 접속 해제</a></li><li><a href="#sec-userdel">10. 사용자 삭제·복구</a></li><li><a href="#cheatsheet">11. 통합 명령어 치트시트</a></li></ol>
+    </nav>
+  </aside>
+  <main class="main">
+
+  <header>
+    <h1>리눅스 통합 학습노트</h1>
+    <p class="deck">범위: 실습 환경 구축(VirtualBox·CentOS Stream 9 설치, 호스트 전용 어댑터, 고정 IP, 포트포워딩) · 기본 명령어와 PuTTY 원격 접속(SSH 22) · FileZilla·서브넷·윈도우 방화벽(ICMP) · sshd_config(root 원격 로그인) · vi · mv·cp·rm·rmdir · 권한 숫자·chmod·ls -al·디렉터리 권한·SELinux 영구 해제 · 사용자 계정 관리 — 추가(useradd)·비밀번호(passwd)·접속자 확인(who)·강제 접속 해제(skill)·삭제와 복구(userdel). 내용이 추가될 때마다 범위가 늘어남.</p>
+    <div class="core-strip">
+      <div><div class="core-metric">NAT + 호스트 전용 → SSH 22</div><p class="core-desc">NAT(<code>enp0s3</code>, 10.0.2.15)는 외부 접속 불가 → 호스트 전용 어댑터(<code>enp0s8</code>) 추가 → PuTTY(포트 22, SSH)로 일반 사용자 로그인 후 <code>su</code>. root 직접 로그인은 <code>PermitRootLogin</code>이 결정하며 수정 후 <code>systemctl restart sshd.service</code> 필수.</p></div>
+      <div><div class="core-metric">권한 r4·w2·x1 · chmod · 디렉터리 권한</div><p class="core-desc">3묶음(오너/그룹/게스트)을 <code>chmod 숫자</code>로 변경, <strong>상위 디렉터리</strong>가 막히면 하위 권한은 무의미. 생성·삭제는 <strong>파일이 든 디렉터리</strong> 권한이 결정(root 소유 파일도 apink 홈 안이면 apink가 삭제). <code>cp</code> = 복사한 사용자 소유 / <code>mv</code> = 원 소유자 유지 + 대상 w 필요. <code>ls -al</code> 맨 앞 <code>d</code>/<code>-</code>/<code>l</code>, 이름 앞 두 열 = 소유자·그룹.</p></div>
+      <div><div class="core-metric">useradd → passwd · skill · userdel -r</div><p class="core-desc"><code>useradd</code>만으로는 비번이 없어 로그인 불가 → <code>passwd 아이디</code>. 침입 대응은 <code>who</code> → passwd 먼저 → <code>skill -KILL -t pts/번호</code>. <code>userdel</code> = ID·비번만, <code>-r</code> = 디렉터리까지(복구 불가).</p></div>
+    </div>
+    <nav class="toc" aria-label="목차"><a href="#sec-vbox-install">1. VirtualBox·CentOS Stream 9 설치</a><a href="#sec-network">2. 네트워크 구성 (IP·NAT·호스트 전용·고정 IP·포트포워딩)</a><a href="#sec-remote">3. 원격 접속 (PuTTY·SSH·sshd_config·FileZilla)</a><a href="#sec-shell">4. 터미널 기본·서버 종료·디렉터리 이동</a><a href="#sec-vi">5. vi 편집기</a><a href="#sec-fileops">6. 파일·디렉터리 조작 (mv·cp·rm·rmdir)</a><a href="#sec-perm">7. 파일 권한·chmod·ls -al·SELinux</a><a href="#sec-useradd">8. 사용자 추가·비밀번호 설정</a><a href="#sec-session">9. 접속자 확인·강제 접속 해제</a><a href="#sec-userdel">10. 사용자 삭제·복구</a><a href="#cheatsheet">11. 통합 명령어 치트시트</a></nav>
+  </header>
+
+
+
+
+
+
+  <section class="sec" id="sec-vbox-install"><h2>VirtualBox·CentOS Stream 9 설치</h2><div class="dg"><p class="dg-title">한눈에 보기 — 설치 흐름</p><div class="dg-flow"><div class="dg-node "><h4>① VirtualBox 설치</h4><p class="sub"><code>D:\vm</code> · VC++ 2019</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>② 환경설정</h4><p class="sub">폴더 · 호스트 키 Ctrl · Hint</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ VM 만들기</h4><p class="sub">4096MB · 2코어 · 30GB</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ CentOS 설치</h4><p class="sub">서버 - GUI 사용 + 4개</p></div></div></div><h3>설치 전 확인</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>이유·주의</th></tr></thead><tbody><tr><td>VirtualBox 다운로드</td><td>사이트 → <code>Download</code> → <code>Windows hosts</code> (맥: 인텔 CPU면 인텔용, 애플 CPU면 아래쪽 파일)</td><td>마법사: <code>Next</code> → <code>Yes</code> → <code>Yes</code> → <code>Next</code> → <code>Install</code></td></tr><tr><td>설치 경로</td><td><code>D:\vm</code></td><td>C 드라이브 설치 금지, D 드라이브의 VM 파일 삭제 금지</td></tr><tr><td>에러</td><td><code>Visual C++ 2019 재배포 패키지</code> 없음</td><td>구글에서 받아 설치 후 VirtualBox 재실행</td></tr><tr><td>PC 사양</td><td><code>Ctrl + Alt + Del</code> → 작업 관리자 → 성능 → CPU 코어·논리 프로세서, 메모리</td><td>4코어 8스레드 → VM에는 <strong>2코어</strong>만. EC2 만들 때 코어·GB·스토리지 정하는 것(인스턴스 유형 선택)과 같은 판단</td></tr></tbody></table></div><div class="code"><pre><code><span class="c">REM [윈도우 PC · cmd · 내 윈도우 계정]</span>
+ipconfig /all         <span class="c">REM 무선 LAN 어댑터 Wi-Fi의 IPv4·서브넷 마스크 메모 (예시값 10.143.242.155 / 255.0.0.0). ipconfig만 쳐도 IP 확인</span>
+ping 10.143.242.155   <span class="c">REM 연결 확인. "요청 시간 만료" = 네트워크(와이파이 번호)가 다름</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><h3>VirtualBox 환경설정</h3><p>[윈도우 · VirtualBox] <code>파일</code> &gt; <code>환경설정</code> → <strong><code>Expert</code></strong> 모드</p><div class="table-wrap"><table><thead><tr><th>탭</th><th>항목</th><th>변경값</th></tr></thead><tbody><tr><td>일반</td><td>기본 머신 폴더</td><td><code>D:\vm</code> (가상 OS 정보를 저장하는 곳)</td></tr><tr><td>일반 / 입력</td><td>호스트 키</td><td><code>Right Ctrl</code> → <strong><code>Ctrl</code></strong> (VM 안에 들어간 마우스·키보드를 윈도우로 되돌리는 키)</td></tr><tr><td>언어</td><td>언어</td><td>한국어</td></tr><tr><td>디스플레이</td><td>최대 게스트 화면 크기</td><td><code>Automatic</code> → <strong><code>Hint</code></strong>, <code>1024</code> × <code>768</code></td></tr></tbody></table></div><h3>새 VM 만들기</h3><div class="dg"><p class="dg-title">내 PC 자원 중 VM에는 절반만 → 나머지는 두 번째 서버용</p><div class="dg-flow"><div class="dg-node "><h4>윈도우 PC</h4><p class="sub">4코어 8스레드</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>server-1 (centos9)</h4><p class="sub">2코어 · 4096MB · VDI 30GB</p></div><div class="dg-arrow"></div><div class="dg-node ghost"><h4>두 번째 서버 (예정)</h4><p class="sub">나머지 2코어</p></div></div></div><div class="table-wrap"><table><thead><tr><th>단계</th><th>설정</th><th>값 / 이유</th></tr></thead><tbody><tr><td>새로 만들기</td><td>Name · Folder</td><td><code>centos9</code> · <code>기타</code> → D 드라이브 최상위에 <strong><code>server-1</code></strong> 폴더 생성 후 선택</td></tr><tr><td></td><td>ISO Image · Type</td><td><code>기타</code> → <code>CentOS-Stream-9-latest-x86_64-dvd1.iso</code> · <code>Linux</code> / <code>Red Hat</code> / <code>Red Hat (64-bit)</code> 자동 인식 → 변경 금지</td></tr><tr><td></td><td>Unattended</td><td>User <code>vboxuser</code>, 암호 <code>1234</code> (연습값), Host <code>centos9</code>, Domain <code>myguest.virtualbox.org</code> · <strong><code>Install Guest Additions</code> 해제</strong>, <strong><code>백그라운드에서 설치</code> 해제</strong></td></tr><tr><td>하드웨어</td><td>메모리 · CPU</td><td><strong><code>4096MB</code></strong> · <strong><code>2</code></strong> (녹색 구간까지만, 빨간 구간까지 올리면 윈도우가 멈춤 / 나머지 2코어는 두 번째 서버용)</td></tr><tr><td></td><td>EFI</td><td><strong><code>Use EFI</code> 해제</strong></td></tr><tr><td>디스크</td><td>종류 · 크기</td><td><code>Create a Virtual Hard Disk Now</code> · <strong>VDI</strong> · <code>20GB</code> → <strong><code>30GB</code></strong> → <code>완료</code> (위치 <code>D:\server-1\centos9\centos9.vdi</code> / "…설치를 실행할 수 없습니다" 경고 팝업은 무시)</td></tr><tr><td>설정 → Expert</td><td>시스템 → 포인팅 장치</td><td><code>PS/2 마우스</code> → <strong><code>USB 태블릿</code></strong></td></tr></tbody></table></div><h3>CentOS 설치</h3><div class="table-wrap"><table><thead><tr><th>단계</th><th>선택</th><th>메모</th></tr></thead><tbody><tr><td>VM 시작</td><td>ISO 선택 → <strong><code>마운트 후 재시도</code></strong></td><td></td></tr><tr><td>부팅 메뉴</td><td><code>↑↓</code>로 카운트 정지 → <code>Install CentOS Stream 9</code> → <code>Enter</code></td><td>1번째 = 정상 설치 / 마지막 <code>Troubleshooting</code> = 서버가 안 켜질 때 오류 확인용 (윈도우 안전 모드와 같음, ISO 필요). VM 화면 클릭 후 <code>Ctrl</code> → 포인터가 밖으로 빠지면 정상</td></tr><tr><td>언어</td><td><code>한국어</code> → <code>한국어(대한민국)</code> → <code>계속 진행</code></td><td></td></tr><tr><td>설치 목적지</td><td>30GiB <code>sda</code> → <code>자동 설정(A)</code> → <code>완료</code></td><td></td></tr><tr><td>소프트웨어 선택</td><td><strong><code>서버 - GUI 사용</code></strong> + 추가 4개만: <code>디버깅 툴</code> · <code>FTP 서버</code> · <code>메일 서버</code> · <code>Windows 파일 서버</code></td><td></td></tr><tr><td>root 비밀번호</td><td><code>A123456</code> (연습값) → <code>완료</code></td><td><strong><code>Num Lock</code> 켜고</strong> 입력</td></tr><tr><td>사용자 생성</td><td><strong>안 함</strong></td><td>설치 후 첫 로그인 때 만듦 → 4장 참고</td></tr><tr><td>마지막</td><td><strong><code>설치 시작</code></strong></td><td></td></tr></tbody></table></div></section>
+  <section class="sec" id="sec-network"><h2>네트워크 구성 (IP·NAT·호스트 전용·고정 IP·포트포워딩)</h2><div class="dg"><p class="dg-title">한눈에 보기 — 윈도우 ↔ VM 네트워크 만들기</p><div class="dg-flow"><div class="dg-node "><h4>① 윈도우 준비</h4><p class="sub">서브넷 규칙 · 보안 해제 · edu#2</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 어댑터 2개</h4><p class="sub">NAT(인터넷) + 호스트 전용(접속)</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ DHCP 설정</h4><p class="sub">192.168.222.1 · 범위</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 고정 IP</h4><p class="sub">enp0s8 → 192.168.222.2</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>⑤ 포트포워딩</h4><p class="sub">윈도우 22 → 리눅스 22</p></div></div></div><h3>IP · 서브넷 마스크 · 기본 게이트웨이</h3><div class="code"><pre><code><span class="c">REM [윈도우 PC · cmd · 내 윈도우 계정]</span>
+ipconfig   <span class="c">REM IPv4 주소 / 서브넷 마스크 / 기본 게이트웨이 확인</span>
+<span class="c">REM 예시값: IPv4 10.143.242.155 / 서브넷 255.0.0.0 / 게이트웨이 10.128.128.128</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>서브넷 마스크</th><th>같아야 하는 자리</th><th>기기마다 다른 자리</th></tr></thead><tbody><tr><td><code>255.255.255.0</code></td><td>앞 3자리</td><td>마지막 자리</td></tr><tr><td><code>255.255.0.0</code></td><td>앞 2자리</td><td>뒤 2자리</td></tr><tr><td><code>255.0.0.0</code> (표준 예시)</td><td>앞 1자리 (예시 IP는 <code>10.</code>)</td><td>뒤 3자리</td></tr></tbody></table></div><ul class="rules"><li>255 자리 = 고정(같은 그룹), 0 자리 = 기기별 번호</li><li><code>0.0.0.0</code> 마스크는 없음</li><li>같은 서브넷 아니면 통신 불가</li><li>기본 게이트웨이는 모두 같아야 함</li><li>게이트웨이 다름 → 어댑터 <code>사용 안 함</code> → <code>사용</code> 재연결</li></ul><div class="dg-bar warn">서브넷 마스크·게이트웨이 — 255 자리 = 같은 그룹, 0 자리 = 기기별 번호. 서브넷이 다르면 통신 불가, 기본 게이트웨이는 모두 같아야 함</div><h3>윈도우 보안 해제</h3><p>[윈도우 · 제어판] 보기 기준 <strong><code>큰 아이콘</code></strong> → <code>Windows Defender 방화벽</code> / <code>Windows 보안</code> 두 개 열기</p><div class="table-wrap"><table><thead><tr><th>위치</th><th>끌 항목</th></tr></thead><tbody><tr><td>Windows 보안 → 바이러스 및 위협 방지 → <strong>설정 관리</strong></td><td><code>실시간 보호</code> · <code>개발 드라이브 보호</code> · <code>변조 보호</code> 모두 끔</td></tr><tr><td>방화벽 및 네트워크 보호</td><td><code>도메인 네트워크</code> / <code>개인 네트워크</code> / <code>공용 네트워크</code> 모두 끔 (초록 = 켜짐, 빨강 = 꺼짐 → <code>방화벽 사용 안 함(권장하지 않음)</code> 체크)</td></tr><tr><td>앱 및 브라우저 컨트롤</td><td><strong><code>스마트 앱 컨트롤</code></strong> 끄기</td></tr></tbody></table></div><h3>실습 네트워크 준비</h3><ol class="wide-list"><li>[윈도우] 와이파이를 강사와 같은 <strong>edu#2</strong>로 변경 → 인터넷 작동 확인</li><li>[윈도우] 어댑터 재연결(IP 재할당): 시작 검색 <code>네트워크</code> → <strong><code>네트워크 연결 보기</code></strong> → Wi-Fi 어댑터 우클릭 → <code>사용 안 함</code> → <code>사용</code></li><li>자동 할당(DHCP)은 IP가 계속 바뀌므로 <strong>수동 고정 IP</strong>로 설정 예정 (아래 고정 IP 설정 참고)</li></ol><h3>호스트 전용 어댑터 추가 (외부 접속용)</h3><div class="dg"><p class="dg-title">NAT(어댑터 1)은 인터넷용, 호스트 전용(어댑터 2)이 PuTTY 접속용</p><div class="dg-compare"><div class="dg-panel"><h4>어댑터 1 <span>NAT</span></h4><ul><li><code>enp0s3</code> → <code>10.0.2.15</code></li><li>VM → 인터넷 용도, 외부 접속 불가</li></ul></div><div class="dg-panel"><h4>어댑터 2 <span>호스트 전용</span></h4><ul><li><code>enp0s8</code> → <code>192.168.56.104</code> (사람마다 다름)</li><li>윈도우 ↔ VM 직접 통신, PuTTY 접속 IP</li></ul></div></div></div><ol class="wide-list"><li><strong>서버 전원 끄기</strong> (<code>init 0</code>) — 켜져 있으면 어댑터 변경 불가</li><li>[윈도우 · VirtualBox] <code>centos9</code> → <code>설정</code> → <code>네트워크</code> → 어댑터 1 <code>NAT</code> 그대로 → <strong>어댑터 2</strong> <code>네트워크 어댑터 사용하기</code> 체크 → 연결 대상 <strong><code>호스트 전용 어댑터(Host-only Adapter)</code></strong> → <code>확인</code> (윈도우 <code>네트워크 연결</code>에 <code>이더넷</code>(가상 랜카드) 새로 생김)</li><li>[호스트 리눅스 · root] VM 시작 → <code>설정</code> → <code>네트워크</code> → 새 유선 연결(이더넷) <strong>활성화 → 연결됨</strong> 확인 (root만 가능)</li><li>[호스트 리눅스 · root] <code>ifconfig</code> → <code>enp0s8</code> → <code>inet 192.168.56.104</code> = 외부 접속용 IP</li></ol><h3>호스트 전용 네트워크 설정</h3><p>[윈도우 · VirtualBox] 리눅스는 끈 상태에서 관리자 → <code>네트워크</code> → <code>호스트 전용 네트워크</code> → <code>속성</code> (기존 항목 있으면 삭제 후)</p><div class="table-wrap"><table><thead><tr><th>탭</th><th>항목</th><th>값</th><th>이유·메모</th></tr></thead><tbody><tr><td>어댑터</td><td>IPv4 주소</td><td><code>192.168.56.1</code> → 세 번째 숫자만 각자 다르게 (예: <code>192.168.<strong>222</strong>.1</code>)</td><td>마지막은 <strong>무조건 <code>1</code></strong> = 게이트웨이(VirtualBox 자체 IP). 서버는 <code>2</code>번부터</td></tr><tr><td>어댑터</td><td>마스크</td><td><code>255.255.255.0</code></td><td>앞 3자리 동일 → 위 서브넷 규칙 참고</td></tr><tr><td>DHCP 서버</td><td>서버 활성화 · 주소 · 마스크</td><td>체크 · <code>192.168.222.2</code> · <code>255.255.255.0</code></td><td>중간 숫자는 어댑터와 동일하게</td></tr><tr><td>DHCP 서버</td><td>최저 / 최고 주소 한계</td><td><code>192.168.222.5</code> / <code>192.168.222.5</code> → <code>적용</code></td><td>최저~최고 = 자동 할당 범위(IP 대역폭). 최저는 <code>2</code> 이상(<code>1</code> = 게이트웨이), 최고는 서버 대수만큼만 (넓으면 순서 없이 할당). 예: 최저 101·최고 102 → 서버 2대</td></tr></tbody></table></div><div class="dg"><p class="dg-title">네트워크 주소 구조(마스크 255.255.255.0) — 동네에 비유</p><div class="dg-flow"><div class="dg-node"><h4>.0 네트워크</h4><p class="sub">동네 이름 · 네트워크 대표</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>.1 게이트웨이</h4><p class="sub">동네 출입구 · 밖으로 나가는 장비</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>.2 ~ .254 사용 IP</h4><p class="sub">개별 집 주소(호스트)</p></div><div class="dg-arrow"></div><div class="dg-node ghost"><h4>.255 브로드캐스트</h4><p class="sub">동네 전체 방송</p></div></div></div><div class="dg-bar warn">게이트웨이 = .1 — 호스트 전용 어댑터의 마지막 숫자는 1(= 게이트웨이), 서버 IP는 2번부터. .255는 브로드캐스트 주소라 게이트웨이로 쓰지 않음</div><h3>NAT 네트워크·머신 네트워크</h3><div class="table-wrap"><table><thead><tr><th>위치</th><th>할 일</th><th>확인</th></tr></thead><tbody><tr><td>[윈도우 · VirtualBox] <code>네트워크</code> → <code>NAT 네트워크</code> → <code>만들기</code></td><td>자동 생성 <code>NatNetwork 10.0.2.0/24</code>, DHCP 사용 → 값 변경 없이 <code>적용</code></td><td></td></tr><tr><td>[윈도우 · VirtualBox] <code>머신</code> → <code>설정</code> → <code>네트워크</code></td><td>어댑터 1 <code>NAT</code> + 어댑터 2 <code>호스트 전용 어댑터</code> <strong>둘 다</strong> 있어야 함 (NAT만 있으면 안 됨)</td><td>어댑터 <strong>활성화</strong> 상태 / 종류가 <code>PCnet</code>이면 <code>Intel</code>로 변경</td></tr></tbody></table></div><h3>네트워크 점검 명령</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+nslookup naver.com   <span class="c"># NS = 네임 서버(DNS 연결), Lookup = 도메인명으로 IP 알아내기. IP가 나오면 정상</span>
+<span class="c"># 타임아웃·IP 안 나옴 = IP를 잘못 잡았거나 네트워크 미설정. exit 으로 나감 (설치 직후 가장 먼저 점검)</span>
+ifconfig             <span class="c"># 윈도우 ipconfig 대응. net-tools 필요, 없으면 ip a</span>
+<span class="c"># 출력: enp0s3 → inet 10.0.2.15 (NAT 사설 IP) / lo → 127.0.0.1 (자기 자신)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><h3>고정(수동) IP 설정</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+ifconfig   <span class="c"># 부팅 후 IP 확인</span>
+<span class="c"># enp0s3 = NAT (10.0.2.x, 인터넷용) → 절대 건드리지 말 것</span>
+<span class="c"># enp0s8 = 호스트 전용 (192.168.222.5, DHCP 자동 할당) → 수정 대상</span>
+nslookup   <span class="c"># 설정 전 인터넷 확인: 대화형 진입 후 &gt; naver.com 입력 → IP가 나오면 정상 → &gt; exit</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>GUI 경로</th><th>입력값</th></tr></thead><tbody><tr><td>우측 상단 <code>네트워크</code> → <code>enp0s8</code> 유선 네트워크 설정(톱니) → <strong><code>IPv4</code></strong> 탭</td><td>IPv4 방식 <code>자동(DHCP)</code> → <strong><code>수동</code></strong> / 주소 <code>192.168.222.2</code> / 넷마스크 <code>255.255.255.0</code> / 게이트웨이 <code>192.168.222.1</code> (<code>.255</code>는 브로드캐스트라 부적합) / DNS 자동 그대로 → <code>적용</code></td></tr></tbody></table></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]  (네트워크 토글 끄기 → 켜기 후)</span>
+ifconfig             <span class="c"># enp0s8의 inet이 .5 → .2 로 바뀌었는지 확인</span>
+nslookup naver.com   <span class="c"># 고정 IP 설정 후 인터넷 재확인 (IP가 나오면 정상)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><h3>포트포워딩</h3><p>[윈도우 · VirtualBox] <code>네트워크</code> → <code>NAT 네트워크</code> → <code>포트 포워딩</code> → <code>IPv4</code> → 추가(초록 <code>+</code>)</p><div class="table-wrap"><table><thead><tr><th>이름</th><th>프로토콜</th><th>호스트 IP</th><th>호스트 포트</th><th>게스트 IP</th><th>게스트 포트</th></tr></thead><tbody><tr><td><code>SSH</code></td><td><code>TCP</code></td><td>윈도우 IP (<code>10.x.x.x</code>)</td><td><code>22</code></td><td>리눅스 IP (<code>192.168.x.x</code>)</td><td><code>22</code></td></tr></tbody></table></div><div class="dg"><p class="dg-title">윈도우 IP 확인: cmd → ipconfig /all → 무선 LAN IPv4 (위 IP 확인 참고)</p><div class="dg-flow"><div class="dg-node "><h4>윈도우</h4><p class="sub">10.x.x.x : 22</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>VirtualBox 포트포워딩</h4><p class="sub">SSH · TCP</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>리눅스</h4><p class="sub">192.168.x.x : 22</p></div></div></div><ul class="facts"><li><strong>자세한 실습</strong><div>FTP 포트를 9021로 바꾼 뒤 포트 포워딩 규칙(호스트 21 → 9021) 변경: vsftpd.html 6장</div></li></ul></section>
+  <section class="sec" id="sec-remote"><h2>원격 접속 (PuTTY·SSH·sshd_config·FileZilla)</h2><div class="dg"><p class="dg-title">한눈에 보기 — 원격 접속</p><div class="dg-flow"><div class="dg-node "><h4>PuTTY</h4><p class="sub">Host IP · Port 22 · SSH</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>로그인</h4><p class="sub">일반 사용자 apink</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>su</h4><p class="sub">root 전환</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>sshd_config</h4><p class="sub">PermitRootLogin 으로 root 직접 로그인 허용/차단</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>FileZilla</h4><p class="sub">FTP 포트 21</p></div></div></div><h3>PuTTY 접속</h3><div class="table-wrap"><table><thead><tr><th>단계</th><th>내용</th><th>메모</th></tr></thead><tbody><tr><td>받기</td><td>[윈도우] 구글 <code>putty</code> → 공식 사이트(<code>chiark.greenend.org.uk/~sgtatham/putty/</code>) → <code>putty.exe</code> (설치 없이 실행)</td><td>VM 창은 <strong>닫지 말고 최소화</strong> (닫으면 서버가 꺼짐)</td></tr><tr><td>접속 설정</td><td>[윈도우 · PuTTY] Host Name = 서버 IP(<code>192.168.x.x</code>), Port = <strong><code>22</code></strong>, Connection type = <strong><code>SSH</code></strong> → <code>Open</code></td><td><code>10.0.2.15</code>나 윈도우 IP를 넣으면 실패 → <strong>NAT 상태라 외부 접속 불가</strong> (호스트 전용 어댑터 필요, 2장 참고)</td></tr><tr><td>글자 크기</td><td>[윈도우 · PuTTY] <code>Window</code> → <code>Appearance</code> → <code>Change</code> → 14, 굵게</td><td>세션마다 다시 설정</td></tr><tr><td>고정 IP로 접속</td><td>Host Name <code>192.168.222.2</code>, Port <code>22</code> → <code>Open</code></td><td>고정 IP 설정 후 (2장 참고)</td></tr><tr><td>보안 경고</td><td><code>PuTTY Security Alert</code> → <strong><code>Accept</code></strong></td><td>키를 캐시에 저장 / <code>Connect Once</code>는 1회만</td></tr><tr><td>성공 확인</td><td>로그인 화면이 뜨면 성공, 까만 화면만 유지되면 실패</td><td></td></tr><tr><td>로그인</td><td><code>login as:</code> → <strong>일반 사용자(<code>apink</code>)</strong> → 비밀번호 → 필요 시 <code>su</code></td><td>root 직접 로그인 안 됨 (아래 sshd_config 참고). 로그인 안 되면 <code>Caps Lock</code>·<code>Num Lock</code> 확인</td></tr></tbody></table></div><div class="dg-bar warn">SSH = 22번 포트 — 꼭 외울 것. 서버 종료는 root만(init 0 종료 / 6 재부팅 / 1 단일 사용자 / 3 CLI / 5 GUI), 원격 접속은 일반 사용자 로그인 → su</div><h3>루트 원격접속 허용 / 차단 (sshd_config)</h3><div class="dg"><p class="dg-title">SSH는 클라이언트가 요청하고 sshd가 응답 — root 직접 로그인은 서버 설정(sshd_config)이 결정</p><div class="dg-flow"><div class="dg-node "><h4>내 PC (클라이언트)</h4><p class="sub"><code>ssh user@IP</code> 입력 · 설정 <code>ssh_config</code></p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>리눅스 서버</h4><p class="sub"><code>sshd</code>(서버 데몬 = 백그라운드 서버 프로그램) · 설정 <code>/etc/ssh/sshd_config</code> · <code>sshd_config.d</code> = 설정 파일 모음 디렉터리</p></div></div></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+vi /etc/ssh/sshd_config   <span class="c"># SSH 데몬 설정 열기. 편집: i → # 삭제 → prohibit-password 지우고 yes(또는 no) → ESC → :wq</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/ssh/sshd_config 파일 안 · 40번째 줄]</span>
+<span class="c"># 기본값 (주석 처리됨): root 비밀번호 로그인 차단 상태. # 을 다시 달면 이 기본값으로 복귀</span>
+#PermitRootLogin prohibit-password
+<span class="c"># 허용: # 을 지우고 yes → root 직접 원격 로그인 가능</span>
+PermitRootLogin yes
+<span class="c"># 차단: no → root 직접 원격 로그인 불가</span>
+PermitRootLogin no</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+systemctl restart sshd.service   <span class="c"># 설정 변경 후 반드시 재시작해야 반영</span>
+<span class="c"># 확인: [윈도우 · PuTTY] 새 창으로 root 접속 → yes면 접속됨 / no면 막힘</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="dg-bar warn">PermitRootLogin — 기본 prohibit-password / yes = 허용 / no = 차단. 수정 후 sshd 재시작 필수. sshd_config = 서버, ssh_config = 클라이언트</div><h3>FileZilla Client 설치·접속</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의</th></tr></thead><tbody><tr><td>다운로드</td><td>구글 <code>파일질라</code> → <code>filezilla-project.org</code> → <strong><code>FileZilla Client</code></strong> (Free, Server 아님)</td><td>기본 버튼으로 안 되면 <strong><code>Show additional download options</code></strong></td></tr><tr><td>설치 순서</td><td><code>I Agree</code> → 광고성 백신 <strong><code>Decline</code></strong> 후 <code>Next</code> → <strong><code>All Users</code></strong> → 구성요소 기본값 <code>Next</code> → 기본 경로 <code>Install</code> → <code>Start FileZilla</code> 체크 → <code>Finish</code></td><td>Decline 안 하고 넘기면 설치가 막힘. All Users = 여러 명이 쓰는 PC (두 번째 항목은 나 혼자)</td></tr><tr><td>FTP 접속 (상단 빠른 연결)</td><td>호스트 = 서버 <strong>IP 또는 도메인명</strong> / 사용자명·비밀번호 = <strong>리눅스에서 만든 사용자 계정</strong> / 포트 = <strong><code>21</code></strong></td><td><code>http://</code> 넣지 않음. FTP 서버 패키지는 CentOS 설치 때 선택 (1장 참고)</td></tr></tbody></table></div><h3>FileZilla 접속 준비 — 윈도우 방화벽·ICMP·네트워크 프로필</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td>목표</td><td>[윈도우 · FileZilla] 호스트 = 리눅스 서버 IP, 사용자 <code>apink</code>, 비밀번호 <code>1234</code>(연습값), 포트 <strong><code>21</code></strong></td><td><strong>22 = SSH, 21 = FTP</strong> (포트 구분)</td></tr><tr><td>환경 차이</td><td>집 = ICMP가 안 막혀 바로 접속 / 교육장 = ICMP 차단 → <strong>우회 설정 필요</strong></td><td>아래 윈도우 방화벽·ICMP 규칙 설정</td></tr></tbody></table></div><p>[윈도우 · 윈도우 보안] 윈도우 11 방화벽·ICMP 설정</p><div class="table-wrap"><table><thead><tr><th>순서</th><th>작업</th><th>주의·이유</th></tr></thead><tbody><tr><td>1</td><td>윈도우 보안 → 방화벽 및 네트워크 보호 → <strong>개인 네트워크·공용 네트워크 방화벽 전부 끔</strong> (공용도 끔)</td><td>방화벽·보안은 최대한 끄는 것이 지금은 필수 — 안 끄면 연결 확인 불가</td></tr><tr><td>2</td><td>계정 보호·바이러스 위협은 신경 안 써도 됨. 방화벽만 끔</td><td>백신 미설치 가정</td></tr><tr><td>3</td><td>아래 <strong>고급 설정</strong> 클릭 → 인바운드 규칙(들어오는 트래픽)·아웃바운드 규칙 창</td><td></td></tr><tr><td>4</td><td>인바운드 규칙을 끝까지 내려 <strong>ICMP 규칙(ICMPv4·ICMPv6)</strong> 선택 → 오른쪽 <strong>규칙 사용</strong>으로 녹색 체크</td><td>ICMP 규칙이 적용된 상태에서는 핸들링 안 하면 방법이 없어 직접 조절</td></tr><tr><td>5</td><td>아웃바운드 규칙도 똑같이 처리. IPv4·IPv6 모두 열기 (인/아웃 × v4/v6 = <strong>4개 전부</strong>)</td><td></td></tr></tbody></table></div><p>[윈도우] 네트워크 프로필·공유·FileZilla 점검</p><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td>공용 → 개인 네트워크</td><td>윈도우 키 + I → 네트워크 및 인터넷 → Wi-Fi(연결된 네트워크) 속성 → <strong>개인 네트워크</strong> 선택</td><td>공용 네트워크로 잡혀 있을 때</td></tr><tr><td>고급 공유 설정</td><td>네트워크 및 인터넷 → 고급 네트워크 설정 → <strong>고급 공유 설정</strong>: 개인 네트워크·공용(모든) 네트워크 3개 모두 켜짐. 공용 폴더 공유도 확인</td><td></td></tr><tr><td>현상</td><td>윈도우 IP로 FTP 21번 접속이 한동안 안 됨 → 윈도우 설정 외 다른 문제는 없다고 판단하고 root에서 재점검 예정</td><td>접속 시 "bad IP" 오류가 뜨며 포트 관련 설정을 바꿔 해결 시도 (아래 확인 필요)</td></tr><tr><td>FileZilla 점검</td><td>방화벽을 아예 끈 상태에서 호스트에 윈도우 IP, 사용자 <code>apink</code>, 패스워드, 포트 <code>21</code> 입력 → <strong>21번을 강제로 연결</strong></td><td>오류(bad 등)가 떠도 괜찮음 — 목적은 <strong>접근이 되는지</strong>. 접속 시 메시지(목록)가 뜬다고 연결 실패는 아님</td></tr><tr><td>SSH와 FTP</td><td>PuTTY(SSH) 접속 성공과 FTP 접속은 별개</td><td><strong>21번(FTP) 자체가 작동</strong>해야 함</td></tr><tr><td>새 서버 (실습 전제)</td><td>서버를 하나 더 설치. 현재 서버가 2번이므로 새 서버는 <strong>3번</strong> (IP <code>192.168.x.3</code>) → IP를 잡고 외부에서 접속되는 것까지 확인</td><td>접속되면 인프라 구성 완료로 보고하고 정리, 안 되면 문제 발생 → <strong>무조건 접속돼야 함</strong></td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 21:44 부근 강사 발언</div><p>포트 변경 내용과 "bad IP" 오류의 정확한 문구 — 음성이 불명확하므로 영상 21분 40초 전후를 직접 들어 확인</p></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 17:00~18:00, 20:45~21:20 수강생 문답</div><p>방화벽 통과 대상 프로토콜(TCP·UDP, UDP 통과 필요 여부)과 윈도우 보안이 막는 원인(ICMP 관련 추정) — 음성이 불명확하므로 해당 구간을 직접 들어 확인</p></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 접속 대상 IP</div><p>FileZilla 목표는 리눅스 서버 IP, 점검 단계는 윈도우 IP로 적혀 있어 자료 안에서 충돌 — 확정하지 않음. 영상 확인 필요</p></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 23:46 부근 "외부에서 연결"</div><p>"2t로 외부에서 연결"의 정확한 도구 이름(PuTTY로 추정) — 음성이 불명확하므로 영상 23분 40초 전후를 직접 들어 확인</p></div><div class="dg-bar warn">FileZilla 점검 — 22 = SSH, 21 = FTP로 별개 포트. SSH(PuTTY) 성공이 FTP 성공을 뜻하지 않음. 방화벽을 끄고 21번을 강제 연결해 접근 여부만 확인</div><ul class="facts"><li><strong>자세한 실습</strong><div>vsftpd 설정(익명·쓰기·chroot·포트 변경·오류 대응): vsftpd.html 2~7장</div></li></ul></section>
+  <section class="sec" id="sec-shell"><h2>터미널 기본·서버 종료·디렉터리 이동</h2><div class="dg"><p class="dg-title">한눈에 보기 — 터미널 기본 흐름</p><div class="dg-flow"><div class="dg-node "><h4>첫 로그인</h4><p class="sub">일반 사용자 apink</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>프롬프트 확인</h4><p class="sub">$ 일반 / # root</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>su · exit</h4><p class="sub">root 전환·복귀</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>init</h4><p class="sub">종료·재부팅 (root만)</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>cd · pwd · ls</h4><p class="sub">디렉터리 이동·조회</p></div></div></div><h3>첫 로그인·터미널 기본</h3><ul><li>설치 완료 → <code>시스템 재시작</code> → <code>설정 시작</code> → 위치 정보 켜기 → 온라인 계정 <strong><code>건너뛰기</code></strong> → 사용자 이름(예: <code>apink</code>) → 기업 로그인 사용 안 함(도메인 없으면 일반 사용자) → 비밀번호(대소문자·특수문자 섞기, 입력 중 화면에 안 보여도 입력됨) → <code>Stream 시작</code></li><li>일반 사용자 = 세컨드 루트(부관리자) → 외부 접속은 <strong>일반 사용자로 로그인 → <code>su</code>로 root 전환</strong></li><li>터미널: 바탕화면 <code>터미널</code> (안 보이면 <code>현재 활동(Activities)</code>) / 프롬프트 <code>[apink@localhost ~]$</code> = 아이디@호스트명 현재위치 / <code>Tab</code> = 앞 2~3글자 + Tab 자동완성</li></ul><div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+su      <span class="c"># substitute user: root로 전환 (root 비밀번호 입력) → 프롬프트 # 로 바뀜</span>
+<span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+exit    <span class="c"># root → 일반 사용자 복귀</span>
+<span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+exit    <span class="c"># 일반 사용자 세션 종료</span>
+clear   <span class="c"># 화면 정리 (cl + Tab). 몰라도 관계없지만 편리</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="dg-bar warn">프롬프트 $ / # — $ = 일반 사용자, # = root. 명령 전에 반드시 확인 — root 전용 명령을 $에서 치면 에러</div><h3>서버 종료·재부팅</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]  (root만 가능, 창 닫기(X)로 끄지 말 것)</span>
+init 0   <span class="c"># 종료(poweroff)</span>
+init 6   <span class="c"># 재부팅(reboot)</span>
+init 1   <span class="c"># 단일 사용자 모드</span>
+init 3   <span class="c"># CLI 모드  (2·3·4 = CLI)</span>
+init 5   <span class="c"># GUI 모드</span>
+<span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+init 0   <span class="c"># 일반 사용자가 실행 → 거부됨</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><h3>디렉터리 이동 기초</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+cd /             <span class="c"># Change Directory: 최상위로</span>
+cd ..            <span class="c"># 상위 디렉터리</span>
+cd               <span class="c"># (= cd ~) 현재 사용자의 홈 (root면 /root)</span>
+cd /home/apink   <span class="c"># 절대경로로 바로 이동</span>
+pwd              <span class="c"># Print Working Directory: 현재 작업 디렉터리 출력</span>
+ls               <span class="c"># list: 디렉터리 내용 확인</span>
+mkdir aaa        <span class="c"># 디렉터리 생성 (make directory)</span>
+cd aaa           <span class="c"># aaa 로 이동</span>
+cd ..            <span class="c"># aaa 안에서 실행 → 상위 apink 로 이동</span>
+<span class="c"># ↑ 방향키 = 이전 명령 재호출</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><ul><li>사용자 생성 시 <code>/home/사용자명</code> 자동 생성 (8장 참고)</li><li>작업은 일반 사용자(<code>apink</code>, 홈 = <code>/home/apink</code>)로, root는 건드리지 않음</li><li>리눅스는 그래픽이 아니므로 <strong>현재 경로를 머릿속에 그리고</strong> 작업 — 경로가 틀리면 파일을 못 찾음</li></ul><div class="dg-bar warn">cd — <code>cd ..</code> = 상위(이전 단계) 디렉터리 · <code>cd</code> 단독 = 홈 디렉터리(최상위 <code>/</code> 아님) · <code>cd 경로</code> = 해당 경로로 이동. 출제 대상으로 언급</div><h3>서버 상태 확인 : top</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+top   <span class="c"># CPU·메모리 실시간 확인 (q로 종료)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div></section>
+  <section class="sec" id="sec-vi"><h2>vi 편집기</h2><div class="dg"><p class="dg-title">한눈에 보기 — vi 기본 사용 순서</p><div class="dg-flow"><div class="dg-node "><h4>vi 파일명</h4><p class="sub">없으면 생성 · 있으면 열기</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>i</h4><p class="sub">입력 모드 (INSERT)</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>Esc</h4><p class="sub">입력 모드 해제</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>:wq</h4><p class="sub">저장 후 종료</p></div></div><p class="dg-foot">수정 취소는 <code>:q!</code> (저장 없이 강제 종료)</p></div><h3>vi 편집기</h3><p>[호스트 리눅스 · apink · 프롬프트 $] 셸에서 <code>vi 파일명</code>(또는 <code>vim</code>) → 파일 없으면 생성, 있으면 열기 / <code>cat 파일명</code> = vi 없이 내용 출력</p><div class="table-wrap"><table><thead><tr><th>구분</th><th>키</th><th>기능</th></tr></thead><tbody><tr><td>모드</td><td><code>i</code> / <code>Esc</code> / <code>Esc</code> → <code>:</code></td><td>입력 모드(하단 <code>INSERT</code>) / 입력 모드 해제(명령 사용) / 명령줄</td></tr><tr><td>저장·종료</td><td><code>:wq</code> / <code>:q</code> / <code>:q!</code></td><td>저장(write) 후 종료(quit) / 종료(수정 없을 때만) / 저장 없이 강제 종료</td></tr><tr><td>편집</td><td><code>:set nu</code> · <code>dd</code> · <code>:%d</code> · <code>yy</code> → <code>p</code> · <code>u</code></td><td>줄 번호 표시 · 현재 줄 삭제 · 전체 삭제 · 현재 줄 복사 → 붙여넣기 · 실행 취소(undo)</td></tr><tr><td>줄 복사</td><td><code>:시작줄,끝줄 co 목적줄</code></td><td>예: <code>:2,4 co 8</code> = 2~4줄을 8줄 아래에 복사</td></tr><tr><td>재호출</td><td><code>:</code> 입력 후 <code>↑</code></td><td>이전 명령 재호출</td></tr><tr><td>화면 분할</td><td><code>:split</code> / <code>:vsplit</code></td><td>상하 분할 / 좌우 분할</td></tr><tr><td>이동·검색</td><td><code>gg</code> · <code>G</code>(Shift + g) · <code>:줄번호</code> · <code>/문자열</code></td><td>맨 처음 · 맨 끝 · 해당 라인 · 검색 (<code>n</code> 다음, <code>N</code> 이전)</td></tr></tbody></table></div><ul class="facts"><li><strong>자세한 실습</strong><div>vsftpd.conf 편집 시 활용(라인 번호·<code>:60</code> 이동·<code>Shift + G</code>·주석 해제): vsftpd.html 1장</div></li></ul></section>
+  <section class="sec" id="sec-fileops"><h2>파일·디렉터리 조작 (mv·cp·rm·rmdir)</h2><div class="dg"><p class="dg-title">한눈에 보기 — 이동·복사·삭제</p><div class="dg-flow"><div class="dg-node key"><h4>mv</h4><p class="sub">이동 · 이름 변경</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>cp</h4><p class="sub">복사 · 디렉터리는 -r</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>rm</h4><p class="sub">파일 삭제 · 휴지통 없음</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>rmdir · rm -drf</h4><p class="sub">디렉터리 삭제</p></div></div></div><h3>mv (move) — 이동·이름 변경</h3><p>사용자·root 모두 사용 / 형식 <code>mv 원본(파일명 또는 디렉터리명) 목적지</code></p><div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+mv aaa.txt aaa/   <span class="c"># 파일을 디렉터리 aaa 안으로 이동. 사라진 것이 아님 → cd aaa → ls -al 로 확인</span>
+mv aaa.txt aaa   <span class="c"># aaa 가 없는 이름이면 파일 이름이 aaa 로 변경 (aaa 가 이미 있는 디렉터리면 / 없이도 그 안으로 이동)</span>
+mv aaa test   <span class="c"># 디렉터리 이름 변경 (aaa → test)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>실수 사례</th><th>결과</th><th>대응</th></tr></thead><tbody><tr><td><code>mv aaa.txt bbb</code> (끝 / 없음)</td><td>파일 자체가 <code>bbb</code>로 이름 변경 (이동이 아님)</td><td>원복: <code>mv bbb aaa.txt</code></td></tr><tr><td><code>mv web backup</code></td><td><code>web</code> 안의 파일이 아니라 <code>web</code> 디렉터리 자체가 <code>backup</code> 안으로 들어감 (backup이 이미 있는 디렉터리)</td><td>파일만 옮기려면 <code>web/파일</code> 형태로 지정</td></tr><tr><td>이름이 잘못 바뀐 경우</td><td>파일이 손상돼 다시 다운로드해야 할 수 있음</td><td>이동할 디렉터리를 정확히 지정</td></tr></tbody></table></div><div class="dg-bar warn">mv — 이동 + 이름 변경 2가지 기능. 판단 기준은 <code>/</code> 유무가 아니라 대상이 이미 있는 디렉터리인지 (있으면 그 안으로 이동, 없는 이름일 때만 이름 변경). 사고 사례 포함 출제 대상</div><h3>cp (copy) — 복사</h3><p>형식 <code>cp 원본 사본</code></p><div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+<span class="c"># 파일 복사 — 원본 유지 + 사본 생성. 가동 중인 환경 설정을 잘못 건드렸을 때 복구용으로 실무에서 많이 씀</span>
+vi 123.data   <span class="c"># 원본 파일 생성</span>
+cp 123.data 222.data   <span class="c"># 같은 디렉터리에 사본 생성</span>
+ls -l   <span class="c"># 복제 확인</span>
+cp 123.data test/backup.data   <span class="c"># test 디렉터리 안에 backup.data 이름으로 복사</span>
+cd test   <span class="c"># 복사 확인용 이동</span>
+ls   <span class="c"># backup.data 존재 확인</span>
+cat backup.data   <span class="c"># 내용 빠르게 확인</span>
+<span class="c"># 디렉터리 복사 — -r(recursive) 필수</span>
+cp web backup   <span class="c"># -r 없이 디렉터리 복사 → 에러: cp: -r not specified; omitting directory 'web' (옵션이 빠진 것)</span>
+cp -r web backup/   <span class="c"># 디렉터리를 안의 파일까지 통째로 복사 (원래 web 도 그대로)</span>
+cd backup   <span class="c"># 복사 확인: backup 안에 web 존재</span>
+ls -al   <span class="c"># backup 안 확인</span>
+cd web   <span class="c"># web 안에서 복제 확인</span>
+ls -al   <span class="c"># 복사된 파일 확인</span>
+<span class="c"># 특정 파일만 복사 — 준비: web 에 test.data, web.xml, kkk.xml 생성(vi, 내용은 아무거나) → ls -l 하면 xml 2개, data 1개</span>
+cp *.xml backup/   <span class="c"># 홈(/home/apink)에서 실행 → 에러: cannot stat '*.xml' (현재 경로에 xml 파일이 없음 → 현재 경로를 봐야 함)</span>
+cp web/*.xml backup/   <span class="c"># web 안의 확장자가 xml 인 파일만 복사 (* 와일드카드)</span>
+cd backup   <span class="c"># 복사 확인</span>
+ls -l   <span class="c"># xml 파일만 복사된 것 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>cp 형태</th><th>결과</th><th>주의·활용</th></tr></thead><tbody><tr><td><code>cp 파일 디렉터리/</code></td><td>파일이 디렉터리로 복사</td><td></td></tr><tr><td><code>cp 원본디렉터리 대상</code></td><td>에러 → <code>-r</code> 필요. <code>-r</code>이면 디렉터리 안 파일까지 모두 복사</td><td>그냥 <code>cp</code>는 파일 복사용</td></tr><tr><td><code>cp 디렉터리/*.속성 대상디렉터리</code></td><td>속성(확장자)이 같은 파일만 복사</td><td>DB 백업 파일(<code>.sql</code> 등) 확장자만 골라 복사·이동 가능</td></tr><tr><td>DB 백업 확장자</td><td>Oracle Data Pump 덤프 기본 확장자 = <code>.dmp</code>(바이너리) / mysqldump 출력은 텍스트 SQL이라 <code>.sql</code>이 관례</td><td>MySQL 쪽은 매뉴얼을 직접 확인하지 못함 (아래 확인 필요)</td></tr><tr><td>속도 (리눅스 vs 윈도우)</td><td>같은 파일시스템 안의 이동 = 이름(메타데이터)만 바꾸는 rename이라 빠름 / 다른 드라이브(파일시스템) 간 이동 = 복사 후 삭제라 시간이 걸림 (EXDEV)</td><td>강사 사례: 윈도우는 5GB를 다른 드라이브로 옮기는 데 꽤 걸림(SSD여도), 파일 4,000개 디렉터리 강제 삭제도 한참 / 리눅스는 5GB 이동·삭제가 약 1초. 서버 OS로 채택된 이유가 이 속도라는 설명은 근거 없음</td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · MySQL 백업 확장자</div><p>mysqldump 출력의 <code>.sql</code> 관례는 MySQL 매뉴얼에서 직접 확인하지 못함 — 공식 문서에서 확인 필요</p></div><div class="dg-bar warn">cp -r — 디렉터리 복사는 <code>-r</code> 필수(없으면 에러), 확장자 일괄 복사는 <code>cp 디렉터리/*.xml 대상/</code>. 원본을 유지해 두어야 설정을 잘못 건드렸을 때 복구 가능</div><h3>rm · rmdir — 삭제</h3><ul><li><code>rm</code> = remove. 파일 삭제용 / <strong>휴지통이 없음</strong>: 지우는 순간 복구 불가 → 한두 번 더 검토한 뒤 쳐야 하는 유일한 명령</li><li>삭제 후 전문 도구·시간이 있으면 일부 복구될 수 있으나 보장되지 않음. root 권한이 복구 수단은 아니며 <strong>백업이 최선</strong></li></ul><div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+rm 222.data   <span class="c"># 파일 삭제 (remove)</span>
+ls -a   <span class="c"># 사라진 것 확인</span>
+rm test   <span class="c"># 디렉터리에는 사용 불가 → 에러: cannot remove 'test'</span>
+rmdir test   <span class="c"># 빈 디렉터리만 삭제. 파일이 들어 있으면 에러: failed to remove 'test'</span>
+rm -drf test   <span class="c"># 하위 디렉터리·파일까지 전부 삭제 (파일명·디렉터리명 가리지 않음)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>옵션</th><th>의미</th><th>주의</th></tr></thead><tbody><tr><td><code>-r</code></td><td>recursive(재귀) — 안에 있는 하위 디렉터리·파일까지 삭제</td><td><code>-r</code>만으로도 중첩 삭제 가능</td></tr><tr><td><code>-d</code></td><td>빈 디렉터리 삭제</td><td><code>-r</code>과 함께 쓰면 따로 필요 없음</td></tr><tr><td><code>-f</code></td><td>force — 없는 파일 무시, 확인 질문 안 함</td><td></td></tr></tbody></table></div><ul><li>결론: <code>rm -drf 이름</code>으로 외우기 (옵션 의미는 자격증 시험용으로 공부)</li></ul><div class="dg-bar warn">rm — 휴지통 없음, 디렉터리는 <code>rm</code>만으로 못 지움, <code>rmdir</code>은 빈 디렉터리만, <code>rm -drf</code> 옵션(-r 재귀 · -d 빈 디렉터리 · -f 확인 생략) 정리</div><ul class="facts"><li><strong>자세한 실습</strong><div>설정 파일 수정 전 <code>cp</code> 백업 활용: vsftpd.html 1장</div></li></ul></section>
+  <section class="sec" id="sec-perm"><h2>파일 권한·chmod·ls -al·SELinux</h2><div class="dg"><p class="dg-title">한눈에 보기 — 파일 생성·삭제는 "디렉터리" 권한이 결정</p><div class="dg-flow"><div class="dg-node "><h4>/home</h4><p class="sub">root 소유 → apink 생성 불가</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>/home/apink</h4><p class="sub">apink 소유 → 생성 가능</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>fff.doc (root 소유)</h4><p class="sub">들어 있는 디렉터리 주인 apink → 삭제 가능</p></div></div></div><h3>ls 옵션</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+ls -a    <span class="c"># 숨김 파일 포함 (. = 현재 디렉터리, .. = 상위 디렉터리)</span>
+ls -al   <span class="c"># 상세 목록 (시험 출제 형태)</span>
+<span class="c"># 표준 예시 출력 (구조 설명용)</span>
+<span class="c"># drwxr-xr-x. 2 apink apink 6 11월 7 20:10 dir1</span>
+<span class="c"># -rw-r--r--. 1 apink apink 0 11월 7 20:11 aaa.txt</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>위치</th><th>의미</th></tr></thead><tbody><tr><td>맨 앞 글자</td><td><code>d</code> = 디렉터리 / 없음(<code>-</code>) = 파일 / <code>l</code> = 심볼릭 링크(바로가기 같은 존재) → d의 여부로 파일/디렉터리 구분</td></tr><tr><td>날짜·시간 열</td><td>생성(수정) 시각</td></tr><tr><td>이름 앞 두 열</td><td>owner(소유자) · group(그룹)</td></tr></tbody></table></div><div class="dg-bar warn">ls -al — 시험 출제 형태 — 맨 앞 d = 디렉터리, - = 파일, l = 심볼릭 링크. 이름 앞 두 열 = 소유자·그룹</div><h3>권한 실습 (일반 사용자 vs root)</h3><p>[윈도우 · PuTTY] 창 2개: <code>root</code> / <code>apink</code> 로 각각 접속</p><div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+<span class="c"># 1) /home 에 생성 → 실패 (/home 은 root root 소유)</span>
+cd /home
+vi aaa.txt        <span class="c"># /home/aaa.txt 저장 불가 → :q! 로 빠져나옴</span>
+<span class="c"># 2) 자기 홈에 생성 → 성공</span>
+cd                <span class="c"># /home/apink 로 이동</span>
+vi aaa.txt        <span class="c"># /home/apink/aaa.txt → :wq 저장 성공</span>
+ls -al            <span class="c"># 생성 확인</span>
+<span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+<span class="c"># 3) root가 apink 홈에 파일 생성</span>
+cd /home/apink
+vi fff.doc        <span class="c"># /home/apink/fff.doc → :wq 저장</span>
+ls -al            <span class="c"># fff.doc 소유자가 root root 인 것 확인</span>
+<span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+rm -drf fff.doc   <span class="c"># 삭제 성공 (-d 빈 디렉터리, -r 재귀, -f 확인 생략). 이유: 파일 소유자(root)가 아니라 들어 있는 디렉터리 /home/apink 의 소유자가 apink</span>
+ls -al            <span class="c"># 삭제된 것 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="dg-bar warn">디렉터리 권한 — 생성·삭제 가능 여부는 디렉터리 권한이 결정 — root 소유 파일이라도 apink 소유 디렉터리 안이면 apink가 삭제, /home(root 소유)에는 생성 불가</div><h3>권한 문자열·숫자 (r=4, w=2, x=1)</h3><p>예 <code>rwxr-x--x</code> — 맨 앞 1글자 = 파일 종류, 권한은 그 뒤 9글자를 <strong>3글자씩 3묶음</strong>으로 읽기 (각 묶음 = <code>r w x</code>)</p><div class="table-wrap"><table><thead><tr><th>묶음</th><th>대상</th><th>설명</th></tr></thead><tbody><tr><td>1번째</td><td>오너(owner, 만든 사람)</td><td>정식 용어 user(owner)</td></tr><tr><td>2번째</td><td>그룹</td><td>같은 그룹 소속</td></tr><tr><td>3번째</td><td>게스트</td><td>정식 용어 <strong>others</strong>(나머지 모두)</td></tr></tbody></table></div><div class="table-wrap"><table><thead><tr><th>글자</th><th>의미</th><th>숫자</th></tr></thead><tbody><tr><td><code>r</code></td><td>read (읽기)</td><td><strong>4</strong></td></tr><tr><td><code>w</code></td><td>write (쓰기)</td><td><strong>2</strong></td></tr><tr><td><code>x</code></td><td>execute (실행)</td><td><strong>1</strong></td></tr><tr><td><code>-</code></td><td>권한 없음</td><td>0</td></tr></tbody></table></div><ul><li>한 묶음 합 최대 <strong>7</strong> (7보다 큰 숫자 없음), 전부 <code>-</code>이면 0 / 예: 읽기+실행 = 4+1 = <strong>5</strong>, 읽기+쓰기 = 4+2 = <strong>6</strong>, 실행만 = <strong>1</strong></li><li>읽기만 있으면 내용을 볼 수만 있고 쓰기·실행 불가 / 예: <code>123.data</code>의 기존 권한 <code>rw-r--r--</code> → 오너는 읽기·쓰기(실행 없음), 그룹·게스트는 읽기만</li></ul><div class="table-wrap"><table><thead><tr><th>숫자</th><th>오너</th><th>그룹</th><th>게스트</th><th>메모</th></tr></thead><tbody><tr><td>751</td><td>rwx</td><td>r-x</td><td>--x</td><td></td></tr><tr><td>750</td><td>rwx</td><td>r-x</td><td>---</td><td></td></tr><tr><td>752</td><td>rwx</td><td>r-x</td><td>-w-</td><td>게스트 쓰기만 가능 → 저장(업로드)만 되고 읽기(다운로드)는 막는 식으로 활용</td></tr><tr><td>777</td><td>rwx</td><td>rwx</td><td>rwx</td><td></td></tr><tr><td>700</td><td>rwx</td><td>---</td><td>---</td><td></td></tr><tr><td>705</td><td>rwx</td><td>---</td><td>r-x</td><td></td></tr><tr><td>640</td><td>rw-</td><td>r--</td><td>---</td><td></td></tr><tr><td>606</td><td>rw-</td><td>---</td><td>rw-</td><td></td></tr></tbody></table></div><div class="dg-bar warn">권한 숫자 — r=4 w=2 x=1, 묶음 최대 7, 3글자씩 3묶음(오너/그룹/게스트), <code>chmod</code> = change mode, 751·700·640 등 변환 연습</div><h3>chmod — 권한 변경</h3><p>형식 <code>chmod 숫자 파일/디렉터리</code> (change mode)</p><div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+chmod 777 123.data   <span class="c"># owner·group·guest 전부 읽기·쓰기·실행 → ls -al 에서 파일명이 녹색으로 바뀜 (실행 권한이 붙으면 실행 파일로 인식, 쉘 스크립트 같은 실행 파일은 녹색)</span>
+chmod 700 123.data   <span class="c"># 나만 읽고 쓰고 실행 (그룹·게스트는 손을 못 댐) → 민감 파일 보호용</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><ul><li><code>700</code>은 파일을 숨기는 것이 아니라 <strong>접근을 막는 것</strong> — 목록(<code>ls -al</code>)에는 그대로 보임. 숨김 파일은 이름이 <code>.</code>으로 시작</li><li>그룹을 만들어 그룹 단위로 접근을 막는 것도 가능 (그룹 설정 방식은 추후)</li></ul><h3>디렉터리 권한은 상위부터 · root 권한</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+mkdir cms   <span class="c"># apink 가 cms 생성</span>
+<span class="c"># [호스트 리눅스 · megazone · 프롬프트 $]</span>
+cd /home/apink/cms   <span class="c"># → Permission denied. 일반 사용자끼리는 서로 접근 불가, 풀어줄 수 있는 사람은 소유자(apink)</span>
+<span class="c"># [호스트 리눅스 · apink · 프롬프트 $ · /home 에서 실행]</span>
+chmod 705 apink   <span class="c"># 상위 /home/apink 게스트에 5(읽기+실행) 부여 → drwx---r-x. megazone 이 cms 까지 한 번에 들어감</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td>Permission denied 원인</td><td><code>cms</code>의 게스트에 실행 권한이 있어도 <strong>상위 디렉터리(<code>/home/apink</code>)에 권한이 없어서</strong> 못 들어감</td><td>상위를 막으면 하위에 권한을 줘도 무의미 = <strong>기본 보안</strong></td></tr><tr><td>게스트 값 선택</td><td>megazone은 apink와 같은 그룹이 아닌 <strong>게스트</strong>이므로 게스트 자리에 부여 (그룹은 안 풂)</td><td>7은 쓰기까지 열려 과하고, 4는 읽기만 가능해 부족 → 읽기+실행 <strong>5</strong></td></tr><tr><td>보안 사례</td><td>협업하던 상대 계정(megazone)이 뚫리면 apink가 <strong>상위 디렉터리의 게스트 권한을 0</strong>으로 바꿔 차단</td><td>가장 먼저 상위 디렉터리 권한부터 회수</td></tr><tr><td>root 권한</td><td>소유자가 접근을 막아도 root는 모든 곳에 들어갈 수 있음</td><td>root를 뺏기는 순간 큰 사고. root는 보통 사수(선임)가 가지고 부사수에게는 세컨드 root를 줌</td></tr></tbody></table></div><div class="dg-bar warn">상위 디렉터리 권한 — 상위가 막히면 하위 권한이 무의미(기본 보안). 계정이 뚫리면 가장 먼저 상위 디렉터리 게스트 권한 회수</div><h3>다중 사용자 실습 (apink / megazone)</h3><ul><li>권한 확인용으로 사용자 2개 필요: <code>megazone</code>은 전날 만든 계정. 기존 창은 최소화하되 <strong>apink 창은 닫지 말고</strong>, PuTTY를 하나 더 띄워 접속 (<code>login as: megazone</code>, 서버 IP <code>192.168.222.2</code>)</li><li>PuTTY 창 2개: 위 = apink, 아래 = megazone. 같은 사무실 직원이지만 인프라 구축 파트가 달라 따로 작업한다는 설정</li></ul><div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink · 프롬프트 $ · /home/apink/cms 안]</span>
+vi info.txt   <span class="c"># db info 입력 후 저장 → ls -l 에서 게스트는 읽기만(r--)</span>
+<span class="c"># [호스트 리눅스 · megazone · 프롬프트 $]</span>
+vi info.txt   <span class="c"># i 를 누르면 WARNING: Changes to a read-only file (읽기 전용이라 쓸 수 없음) → 그냥 빠져나가야 함</span>
+<span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+chmod 640 info.txt   <span class="c"># 오너 6 · 그룹 4 · 게스트 0 → 게스트는 읽기도 막음</span>
+<span class="c"># [호스트 리눅스 · megazone · 프롬프트 $]</span>
+vi info.txt   <span class="c"># Permission denied, 내용이 안 보임</span>
+<span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+chmod 606 info.txt   <span class="c"># 오너 6 · 그룹 0 · 게스트 6 → 게스트(megazone)도 읽기·쓰기</span>
+<span class="c"># [호스트 리눅스 · megazone · 프롬프트 $]</span>
+vi info.txt   <span class="c"># i 로 수정 가능 → rds 입력 후 저장</span>
+<span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+cat info.txt   <span class="c"># 저장된 내용 반영 확인 → megazone·apink 둘 다 수정 가능</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><ul><li>640: 파일이 "숨겨진" 것이 아니라 열기가 Permission denied로 막힌 것 — 목록에는 여전히 보임. 활용: 개인정보 같은 DB 정보를 공유 폴더에 둘 때 오너·그룹이 아니면 열람 불가</li><li>606: 게스트에게 준 권한이므로 게스트가 한 명 더 있어도 쓸 수 있음 (그룹은 아직 안 만든 상태, 그룹 설정은 따로)</li></ul><div class="code"><pre><code><span class="c"># [호스트 리눅스 · megazone · 프롬프트 $]</span>
+cp info.txt /home/megazone   <span class="c"># 자기 홈으로 복사 → ls -l 비교: 복사본 소유자 = 복사한 사용자(megazone). 읽기 전용으로 바뀌는 것은 아니고 모드 = 원본 모드에 umask 를 적용한 값</span>
+vi info.txt   <span class="c"># 복사본 수정 (user01 추가)</span>
+cp info.txt /home/apink/cms   <span class="c"># 수정한 복사본을 다시 복사해 넣음 (이미 있고 쓰기 가능한 파일을 덮어쓰는 경우라 대상 w 없이도 되고 소유자도 그대로)</span>
+<span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+ls -al   <span class="c"># 소유자 확인</span>
+cat info.txt   <span class="c"># 수정 내용 반영 확인</span>
+<span class="c"># 응용: cp vs mv (따라 치지 말고 직접 해볼 것)</span>
+<span class="c"># [호스트 리눅스 · megazone · 프롬프트 $]</span>
+cp info.txt info2.txt   <span class="c"># 이름이 다른 사본 생성</span>
+mv info2.txt /home/apink/cms   <span class="c"># → Permission denied. 원인: 대상 cms 에 w(쓰기) 권한이 없음</span>
+<span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+chmod 757 cms   <span class="c"># drwxr-xrwx, 게스트에 7 부여</span>
+<span class="c"># [호스트 리눅스 · megazone · 프롬프트 $]</span>
+mv info2.txt /home/apink/cms   <span class="c"># 성공. 이동이므로 apink 쪽 cms 의 info2.txt 소유자는 megazone 그대로</span>
+<span class="c"># [호스트 리눅스 · apink · 프롬프트 $ · cms 안]</span>
+vi info2.txt   <span class="c"># i → 수정 불가 (megazone 소유 — megazone 이 풀어주지 않는 이상)</span>
+rm info2.txt   <span class="c"># 확인 질문 remove 'info2.txt'? → y → 삭제됨 (megazone 소유 파일인데도 지워짐)</span>
+<span class="c"># [호스트 리눅스 · megazone · 프롬프트 $]</span>
+vi /home/apink/cms/info2.txt   <span class="c"># 탭 자동완성 → i 로 수정 가능(자기 소유) → pass / 010101 입력 후 저장 → apink 쪽에서 변경 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>cp</th><th>mv</th></tr></thead><tbody><tr><td>소유자</td><td>복사한 사용자가 소유자</td><td>원 소유자 유지</td></tr><tr><td>대상 디렉터리 w</td><td>새 파일을 만들 때 필요 — 없으면 <code>cp: cannot create regular file ... Permission denied</code></td><td>필요 — 없으면 Permission denied</td></tr><tr><td>w 없이 되는 경우</td><td>이미 있고 쓰기 가능한 파일을 덮어쓸 때뿐 (소유자도 그대로)</td><td>없음</td></tr><tr><td>원본</td><td>유지 + 사본 생성</td><td>이동(원본 사라짐)</td></tr></tbody></table></div><ul><li><strong><code>mv</code>와 <code>cp</code>는 완전히 다른 명령</strong> — 퍼미션과 오너/그룹에 따라 동작이 다르므로 실행·수정·읽기를 권한으로 명확히 체크. 활용: 보안 문서는 게스트가 수정 못 하게 읽기 전용으로 둠 (변경되면 사고)</li></ul><div class="dg-bar warn">cp vs mv — cp는 복사한 사용자가 소유자, mv는 원 소유자 유지 + 대상 디렉터리 w 필요. 새 파일을 만드는 cp도 대상 w 필요</div><div class="table-wrap"><table><thead><tr><th>삭제 규칙</th><th>내용</th><th>이유</th></tr></thead><tbody><tr><td>상위 디렉터리가 내 것</td><td>홈 아래 사용자 디렉터리 포함, 하위 파일이 남의 것이어도 삭제 가능</td><td>megazone 소유 info2.txt가 지워진 이유 = 파일이 있는 상위 <code>cms</code>가 apink 소유</td></tr><tr><td>상위 디렉터리가 상대 것</td><td>내가 그 안의 것을 못 지움</td><td></td></tr><tr><td>상위까지 뺏긴 경우</td><td>아무것도 못 함</td><td></td></tr></tbody></table></div><div class="dg-bar warn">삭제 권한 — 파일 소유자가 아니라 그 파일이 든 상위 디렉터리의 소유·권한이 결정. 상위가 내 것이면 남의 파일도 삭제</div><ul><li>소유자가 자기 파일 수정: apink가 "수정 요청"하면 megazone이 경로 그대로 두고 직접 수정한 뒤 수정 완료를 통보. 원본 소유자가 내 명의가 아니게 된 것을 보면 소유자가 바뀌었음을 알 수 있어 <strong>변경 여부를 빨리 체크</strong>할 수 있음</li><li>디지털 포렌식(Digital Forensic): 파일의 원래 소유자, 사본 여부까지 추적하는 분야 (이미지에 개인정보가 들어 있는 사례는 추후 별도로 다룸)</li></ul><h3>SELinux</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+sestatus       <span class="c"># SELinux 상태 (Current mode 확인)</span>
+getenforce     <span class="c"># 상태 조회(get)</span>
+setenforce 0   <span class="c"># 임시 해제 → Current mode: permissive. 재부팅하면 다시 켜짐</span>
+setenforce 1   <span class="c"># Enforcing으로 되돌림</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>SELinux(Security-Enhanced Linux, 리눅스 보안 기능) 상태</th><th>동작</th></tr></thead><tbody><tr><td><code>Enforcing</code></td><td>정책 검사 + 차단</td></tr><tr><td><code>Permissive</code></td><td>정책 검사 + 로그만 (<code>setenforce 0</code>)</td></tr><tr><td><code>Disabled</code></td><td>SELinux 비활성화</td></tr></tbody></table></div><div class="dg-bar warn">setenforce 0 — 임시 해제(permissive)라 재부팅하면 다시 켜짐. sestatus의 Current mode로 확인</div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+vi /etc/selinux/config   <span class="c"># SELinux 설정 파일 열기 (재부팅 후에도 유지되는 영구 설정). 위 4~6번 줄 주석에 enforcing / permissive / disabled 3가지 값 설명 → disabled 를 그대로 복사해 입력</span>
+<span class="c"># [호스트 리눅스 · vi 명령 모드 · root]</span>
+:set nu   <span class="c"># 줄 번호 표시</span>
+:wq   <span class="c"># 저장·종료</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/selinux/config 파일 안 · 22번째 줄]</span>
+<span class="c"># enforcing → disabled 로 수정. 오타 1글자만 나도 부팅(스타트)이 안 됨</span>
+SELINUX=disabled</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td><code>disabled</code> 의미</td><td>SELinux 정책을 로드하지 않는 비활성 상태 ("완전히 잠금"이 아님)</td><td>변경은 <strong>재부팅 후</strong> 적용. 서버를 껐다 켜도 SELinux가 돌지 않음</td></tr><tr><td>해제 이유</td><td>인바운드·아웃바운드 모두 받을 수 있게 세팅</td><td>안 하면 SELinux가 계속 걸려 외부로 아웃바운드가 안 나감. 이후 SELinux·방화벽 모두 정지 상태</td></tr><tr><td>방화벽 원칙</td><td>경계 방화벽(스위치·방화벽 장비)이 있어도 서버 자체의 호스트 방화벽을 함께 두는 것이 심층 방어 원칙상 권장</td><td>수업에서 푸는 것은 실습 환경 한정. 현장에서는 인프라 부분을 웬만하면 풀어둔다는 것이 강사 경험담</td></tr></tbody></table></div><div class="dg-bar warn">SELinux 영구 해제 — <code>/etc/selinux/config</code> 22번 줄 <code>SELINUX=disabled</code> (오타 시 부팅 불가, 재부팅 후 적용). <code>setenforce 0</code>은 즉시 적용이지만 permissive 임시</div><ul class="facts"><li><strong>자세한 실습</strong><div>FTP 업로드 파일의 umask(<code>local_umask</code> 022·066): vsftpd.html 2장</div></li></ul><ul class="facts"><li><strong>자세한 실습</strong><div>웹 접속자는 게스트(others) → 홈 디렉토리 705·755, 사용자 웹 디렉토리 권한: httpd.html 6장</div></li></ul></section>
+
+  <section class="sec" id="sec-useradd"><h2>사용자 추가·비밀번호 설정</h2><div class="dg"><p class="dg-title">한눈에 보기 — 사용자 추가는 useradd + passwd 둘 다</p><div class="dg-flow"><div class="dg-node "><h4>useradd 아이디</h4><p class="sub">root만 · /home/아이디 생성</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>비번 없음</h4><p class="sub">로그인 불가</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>passwd 아이디</h4><p class="sub">비번 지정 (root)</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>로그인 가능</h4><p class="sub">PuTTY 접속 확인</p></div></div></div><h3>실습 환경</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>서버 IP</td><td><code>192.168.222.2</code> (강사 기준 "2번")</td></tr><tr><td>접속 출발지</td><td>PuTTY 접속 PC <code>192.168.222.1</code></td></tr><tr><td>터미널 3개</td><td>root 창 / 일반 사용자 <code>apink</code> 창 / 새로 만든 사용자 <code>hong</code> 창 → 서버가 늘면 PuTTY 창이 더 많아지니 창 구분 주의</td></tr><tr><td>프롬프트 구분</td><td>root = <code>#</code>, 일반 사용자 = <code>$</code> → 프롬프트로 누구 창인지 확인</td></tr><tr><td>새 창 접속</td><td>[윈도우 · PuTTY] IP 입력 → 폰트 크게·굵게 설정 → 확인 → 접속 → <code>login as:</code>에 아이디 → 비밀번호 입력</td></tr></tbody></table></div><h3>사용자 추가 : useradd</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>권한</td><td>사용자 최초 등록은 <strong>root만 가능</strong> (일반 사용자 불가)</td></tr><tr><td>형식</td><td><code>useradd 사용자아이디</code> (user + add) → 실행 위치 무관, 어디서 쳐도 됨</td></tr><tr><td>결과</td><td>실행하는 순간 <code>/home</code> 아래 사용자 디렉토리(<code>hong</code>)가 바로 생성</td></tr><tr><td>한계</td><td>아이디만 만들고 비밀번호가 없어 <strong>로그인 불가</strong> (접속하면 비밀번호를 묻는데 설정된 비밀번호가 없음)</td></tr></tbody></table></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+useradd hong   <span class="c"># hong 계정 추가 + /home/hong 디렉토리 생성</span>
+cd /home/      <span class="c"># 사용자 디렉토리가 생겼는지 보러 이동</span>
+ls -a          <span class="c"># 확인 (ls -al, ls도 가능)</span>
+<span class="c"># 정상 출력: . .. 123.txt apink hong pass.dat   ← hong 디렉토리가 생김</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="dg-bar warn">useradd 단독 — useradd만으로는 로그인 불가 — 아이디만 생기고 비밀번호가 없음 → <code>passwd 아이디</code>까지 해야 "사용자 추가" 완료</div><h3>비밀번호 설정 : passwd</h3><div class="table-wrap"><table><thead><tr><th>실행</th><th>동작·원리</th><th>주의·오류</th></tr></thead><tbody><tr><td><code>passwd</code> (root, 인자 없음)</td><td><strong>실행한 사용자 자신</strong>의 비번 변경 → root로 실행하면 root 비번 (화면 <code>root 사용자의 비밀 번호 변경 중</code>)</td><td>모르고 쳐서 root 비번이 바뀌면 "해킹당했다"고 오해하는 사례 (실습 때 급하게 치다가 자기도 모르게 함). 잘못 들어갔으면 <strong>Ctrl+C</strong>로 탈출</td></tr><tr><td><code>passwd hong</code> (root)</td><td>그 사용자의 패스워드를 적용(변경 또는 추가) — root가 다른 사용자 비번을 지정할 때</td><td><code>잘못된 암호: 암호는 8 개의 문자 보다 짧습니다</code> 경고가 떠도 root는 그대로 설정됨 (연습값 <code>b1234</code>) → 비번에 아이디가 들어가면 <code>암호에 이름이 포함돼있습니다</code> 경고도 뜸 (마찬가지로 엔터 치면 설정됨)</td></tr><tr><td><code>passwd</code> (apink, 일반 사용자)</td><td>일반 사용자도 <strong>자기 비번은 변경 가능</strong> (다른 사용자 것만 불가) → 먼저 <code>Current password:</code>(현재 비번)로 본인 확인</td><td>현재 비번 자리에 연습값 <code>C1234</code>를 넣어 인증 실패 → <code>passwd: 인증 토큰 수정 오류</code></td></tr></tbody></table></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+passwd        <span class="c"># 인자 없음 → root 본인 비번 변경 화면. 바꿀 생각이 없으면 Ctrl+C로 탈출</span>
+<span class="c"># 출력: root 사용자의 비밀 번호 변경 중</span>
+passwd hong   <span class="c"># hong 비번 적용</span>
+<span class="c"># 출력: hong 사용자의 비밀 번호 변경 중 → 새 암호 b1234 (연습값) 입력</span>
+<span class="c"># 출력: 잘못된 암호: 암호는 8 개의 문자 보다 짧습니다   ← 경고만 뜨고 진행됨 → 재입력 b1234</span>
+<span class="c"># 정상 출력: passwd: 모든 인증 토큰이 성공적으로 업데이트 되었습니다.</span>
+<span class="c"># [호스트 리눅스 · apink · 프롬프트 $]</span>
+passwd        <span class="c"># apink 자신의 비번 변경 (현재 비번 인증이 먼저)</span>
+<span class="c"># 출력: apink 사용자의 비밀 번호 변경 중 / Current password:   ← 현재 비번이 아닌 C1234(연습값) 입력</span>
+<span class="c"># 오류 출력: passwd: 인증 토큰 수정 오류</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><ul><li><strong>확인</strong>: PuTTY로 <code>hong</code> / <code>b1234</code> 로그인 성공 = 아이디 + 패스워드 발급 완료 = "사용자 추가" 완료</li><li><strong>근거</strong>: man7.org passwd(1)</li><li><strong>비밀번호 분실 시</strong>: 웹페이지의 "관리자에게 문의"와 같음 → 관리자 = root가 바꿔 줌. root도 기존 비밀번호를 <strong>찾아 줄 수는 없고</strong> "무엇으로 바꿔 드릴까요?" 하고 <strong>새로 바꿔 줌</strong> (직접 핸들링하지 않음)</li></ul><div class="dg-bar warn">passwd 단독 실행 — 인자 없으면 "실행한 사용자 본인" 비번 → root 창이면 root 비번. 실수로 입력하면 Ctrl+C</div><div class="dg-bar warn">일반 사용자의 passwd — 자기 비번은 변경 가능, 다른 사용자 비번 지정은 root만. 현재 비번 인증 실패 시 "인증 토큰 수정 오류"</div></section>
+
+  <section class="sec" id="sec-session"><h2>접속자 확인·강제 접속 해제</h2><div class="dg"><p class="dg-title">한눈에 보기 — 계정 도용 대응 순서 (비번 먼저!)</p><div class="dg-flow"><div class="dg-node "><h4>who</h4><p class="sub">pts 번호 확인 (hong = pts/3)</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>passwd hong</h4><p class="sub">비번 먼저 변경 (해커가 알던 비번 무효화)</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>skill -KILL -t pts/3</h4><p class="sub">강제 종료(튕겨냄)</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>재접속 시도</h4><p class="sub">같은 비번으로도 막힘</p></div></div><p class="dg-foot">순서가 바뀌면: 그냥 튕겨내면 해커는 패스워드를 알고 있으니 다시 접속 → 또 튕겨내도 또 들어옴</p></div><h3>접속자 확인 : who</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>기능</td><td><code>who</code> → 지금 내 서버에 <strong>누가 접속했는지</strong> 리스트 (사용자·터미널·접속 시각·출발지)</td></tr><tr><td>기준</td><td><strong>지금 접속 중인</strong> 사용자만 표시 (<code>/var/run/utmp</code>) → 지난 접속 기록은 <code>/var/log/wtmp</code>에 남음</td></tr><tr><td>관제 용도</td><td>누가 몇 시 몇 분 몇 초에 접속했는지 기록이 남고 관제 쪽에서 확인 (예: "왜 새벽에 접속했어요?")</td></tr><tr><td>다음 단계</td><td>강제 해제에 쓸 <strong>pts 번호</strong>를 알아내려고 먼저 배움 (hong = pts/3). 근거 man7.org who(1)</td></tr></tbody></table></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+who   <span class="c"># 현재 접속자 목록. 강제 해제 전에 대상 pts 번호를 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>사용자</th><th>터미널</th><th>접속 시각</th><th>출발지</th></tr></thead><tbody><tr><td><code>root</code></td><td>tty2</td><td>2026-10-07 10:37</td><td>(local)</td></tr><tr><td><code>apink</code></td><td>pts/1</td><td>2026-10-07 11:22</td><td>(192.168.222.1)</td></tr><tr><td><code>apink</code></td><td>pts/2</td><td>2026-10-07 14:48</td><td>(192.168.222.1)</td></tr><tr><td><code>hong</code></td><td>pts/3</td><td>2026-10-07 15:30</td><td>(192.168.222.1)</td></tr></tbody></table></div><ul><li><strong>apink가 2개</strong>: 하나는 apink로 접속한 뒤 root로 전환해 들어온 창 / <strong>root</strong>: 로컬(<code>tty2</code>, <code>local</code>)로 잡혀 있음</li></ul><div class="dg-bar warn">who — 현재 접속자만 보여줌(과거 기록은 wtmp). 강제 해제 전 <code>pts/번호</code> 확인용</div><h3>강제 접속 해제 : skill</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>상황</td><td>관제에서 "hong이 접속했다"고 전화 → hong 본인은 "접속 안 했다" → 계정을 뺏긴 것(해킹) → root가 그 사용자를 <strong>강제 접속 해제("튕겨낸다")</strong></td></tr><tr><td>핵심 옵션</td><td><code>-t</code> = <strong>terminal</strong> : 해당 터미널을 강제로 죽이라는 뜻</td></tr><tr><td>-t 없이 쓰면</td><td>에러는 안 나지만 튕겨나지 않음 → 선택 옵션(<code>t</code> 터미널, <code>u</code> 사용자 등) 없이 쓰면 대상 해석이 모호해 의도대로 안 될 수 있음 (배포판 차이가 아님)</td></tr><tr><td>참고</td><td>man 페이지는 skill 자체를 obsolete로 보고 <code>pkill</code>·<code>killall</code> 사용을 권장 (man7.org skill(1))</td></tr></tbody></table></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+skill -KILL hong       <span class="c"># 사용자만 지정 → 에러 없음, 하지만 안 튕겨남 (hong 창에서 ls -al 계속 됨)</span>
+skill -KILL pts/3      <span class="c"># 터미널만 지정 → 역시 안 튕겨남</span>
+skill -KILL -t pts/3   <span class="c"># -t(terminal)로 대상 명시 → pts/3 강제 종료 (hong 창 닫힘)</span>
+who                    <span class="c"># hong이 목록에서 사라졌는지 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="dg-bar warn">skill 강제 해제 — <code>skill -KILL -t pts/번호</code> (<code>t</code> = terminal). 사용자·터미널만 쓴 형식은 에러 없이 안 튕겨남</div><div class="dg-bar warn">passwd 먼저, 튕겨내기는 나중 — 비번을 안 바꾸고 튕겨내면 같은 비번으로 즉시 재접속됨</div><ul><li><strong>이후 대응</strong>: 패스워드 바꿔 아무것도 못 하게 막음 → 어느 위치(IP)에서 접속했는지 역추적 → 그 IP는 접속 못 하게 서버에 세팅 → 공격 차단 (나중에 연습 예정)</li></ul><h3>주의 : 엉뚱한 터미널 종료</h3><div class="table-wrap"><table><thead><tr><th>경우</th><th>결과</th></tr></thead><tbody><tr><td>root 자기 자신</td><td><code>skill -KILL -t tty2</code>처럼 root의 터미널을 지정하면 <strong>root 자신이 튕겨나감</strong> (막으려다 자기가 나감) — tty2 = root 로컬 터미널(who에서 확인)</td></tr><tr><td>su 전환 창</td><td>apink(pts/1)로 접속한 뒤 root로 전환한 창이 있으면, pts/1을 튕겨낼 때 root 작업도 같이 끊길 수 있음</td></tr><tr><td>원칙</td><td>항상 <code>who</code>로 확인하고 <strong>일반 사용자 것만</strong> 종료</td></tr></tbody></table></div><div class="dg-bar warn">자기 터미널 종료 주의 — <code>who</code>로 대상 확인 후 일반 사용자 터미널만 종료. root(tty2) 지정 시 자신이 나감</div></section>
+
+  <section class="sec" id="sec-userdel"><h2>사용자 삭제·복구</h2><div class="dg"><p class="dg-title">한눈에 보기 — userdel 두 가지</p><div class="dg-flow"><div class="dg-node key"><h4>userdel 아이디</h4><p class="sub">ID·비번만 삭제 · 홈 디렉토리 보관 · 복구 가능</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>userdel -r 아이디</h4><p class="sub">ID·비번 + 홈 디렉토리 삭제 · 복구 불가</p></div></div><p class="dg-foot">메가존 등 호스팅 서비스(AI, 프로페셔널 서비스 등 다양): 요금 미납 시 서비스 종료(셧다운) — 고객이 깜빡해서 못 냈고 나중에 재개를 원할 수 있으면 userdel, 완전 종료·데이터 보관도 필요 없으면 userdel -r</p></div><h3>userdel 사용자아이디 (데이터 보관)</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>기능</td><td>아이디와 패스워드만 삭제 → 디렉토리·파일은 그대로 보관</td></tr><tr><td>ls -al 변화</td><td>소유자·그룹 자리가 이름에서 <strong>숫자</strong>로 바뀜</td></tr><tr><td>숫자의 의미</td><td>권한이 풀린 것이 아님 → 소유권은 <strong>UID·GID 1001 그대로</strong> 남고 계정 이름만 지워져 숫자로 보임 (같은 UID로 다시 만들면 다시 hong 소유로 보임). 근거 man7.org userdel(8)</td></tr></tbody></table></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+userdel hong   <span class="c"># 계정(ID·비번)만 삭제. 홈 디렉토리는 보관</span>
+ls -al         <span class="c"># 소유자 표시 비교</span>
+<span class="c"># 삭제 전: drwx------. 3 hong hong 78 ... hong</span>
+<span class="c"># 삭제 후: drwx------. 3 1001 1001 78 ... hong   ← 소유자·그룹이 숫자(UID·GID 1001)로 바뀜</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="dg-bar warn">userdel 기본 — ID·비번만 삭제, 디렉토리 보관, 소유자는 숫자(UID 1001)로 표시</div><h3>서비스 재개(복구)</h3><div class="dg"><p class="dg-title">복구 순서 : 디렉토리 소유권 복귀 → 비번 재지정</p><div class="dg-flow"><div class="dg-node "><h4>userdel hong</h4><p class="sub">계정 삭제, 디렉토리 보관</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>useradd hong</h4><p class="sub">디렉토리 오너·그룹 복귀 (재개 시점)</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>passwd hong</h4><p class="sub">패스워드 다시 적용</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>로그인 가능</h4></div></div></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>상황</td><td>고객 응대 예: "복구 가능하니 확인하고 4시간 후에 재개해 드리겠습니다"</td></tr><tr><td>재생성 화면</td><td>기존 홈 디렉토리를 그대로 재사용 (아래 출력)</td></tr><tr><td>결과</td><td><code>ls -al</code> → 디렉토리 소유자·그룹이 다시 <code>hong hong</code>으로 복귀</td></tr><tr><td>비밀번호</td><td><strong>복구 안 됨</strong>: userdel이 계정 항목을 지워 비번도 사라지고, 재생성한 계정은 비번이 없음 → 담당자가 "비밀번호가 바뀌었다"고 안내하고 새로 알려줌</td></tr><tr><td>확인</td><td>기존 비번으로 PuTTY 접속 → <code>Access denied</code> 반복 (간혹 메모리 때문에 접속될 수도 있지만 웬만하면 불가)</td></tr></tbody></table></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+useradd hong   <span class="c"># 같은 이름으로 재생성 → 기존 /home/hong 재사용, 소유자 복귀</span>
+<span class="c"># 출력: useradd: warning: the home directory /home/hong already exists.</span>
+<span class="c"># 출력: useradd: Not copying any file from skel directory into it.</span>
+<span class="c"># 출력: 메일함 파일을 만드는 중: 파일이 있습니다</span>
+ls -al         <span class="c"># 소유자·그룹이 다시 hong hong인지 확인</span>
+passwd hong    <span class="c"># 비번은 복구가 안 되므로 다시 지정해야 로그인 가능</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="dg-bar warn">재 useradd — 디렉토리 소유자는 복귀하지만 비번은 복구 안 됨 → <code>passwd 아이디</code>로 다시 지정. 안 하면 <code>Access denied</code></div><h3>userdel -r 사용자아이디 (완전 삭제)</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>상황</td><td>고객이 서비스 완전 종료. 데이터 보관 기본 30일이지만 필요 없다고 함 → 보관할 필요 없음</td></tr><tr><td>기능</td><td><code>r</code> = <strong>remove</strong> : ID·패스워드 + 홈 디렉토리까지 삭제 (메일 스풀도 함께 삭제) → 안의 데이터도 복구 안 됨</td></tr><tr><td>접속 중이면 실패</td><td><code>userdel: user hong is currently used by process 64543</code> → 명령은 맞지만 hong이 <strong>접속 중</strong>이라 못 지움</td></tr><tr><td>해결 순서</td><td>접속 해제(고객이 백업·서버 이전 완료) → <code>who</code>에서 hong 없음 확인 → <code>userdel -r hong</code></td></tr><tr><td>주의</td><td>실수로 <code>userdel -r</code> 하면 복구 불가 ("날아가는 순간 끝") → 삭제 전에 고객에게 "데이터 복구 안 된다"고 분명히 확인받고 삭제. 근거 man7.org userdel(8)</td></tr></tbody></table></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+userdel -r hong   <span class="c"># -r(remove): 계정 + 홈 디렉토리(+ 메일 스풀) 삭제</span>
+<span class="c"># 오류 출력(hong 접속 중): userdel: user hong is currently used by process 64543</span>
+<span class="c"># → 고객이 백업·서버 이전을 끝내고 접속 해제한 뒤 진행</span>
+who               <span class="c"># hong이 없는지 확인</span>
+userdel -r hong   <span class="c"># 이번에는 삭제됨</span>
+ls -al            <span class="c"># hong 디렉토리가 없어짐 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="dg-bar warn">userdel vs userdel -r — <code>userdel</code> = ID·비번만(디렉토리 보관), <code>-r</code> = 디렉토리까지(복구 불가). 접속 중 사용자는 <code>-r</code> 불가</div><h3>마무리 정리 (강사 메모장)</h3><div class="code"><pre><code><span class="c"># [강사 메모장 · 사용자 관리 정리]</span>
+useradd 사용자아이디
+userdel 사용자아이디 : 아이디와 패스워드만 삭제
+userdel -r 사용자아이디 : 아이디 및 패스워드 포함 디렉토리까지 삭제
+passwd : 실행한 사용자 본인의 패스워드 (root로 실행하면 root 패스워드)
+passwd 사용자아이디 : 해당 사용자의 패스워드를 변경 또는 추가함</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div></section>
+
+  <section class="sec" id="cheatsheet"><h2>통합 명령어 치트시트</h2><p>이 카테고리에서 나온 명령어를 영역별로 모음. 내용이 추가되면 해당 영역 묶음 아래에 줄을 추가.</p><div class="table-wrap"><table class="cheat"><thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead><tbody><tr class="group"><th colspan="2" scope="colgroup">윈도우 확인 (cmd)</th></tr><tr><td><code>ipconfig</code>, <code>ipconfig /all</code></td><td>윈도우 IPv4·서브넷 마스크·기본 게이트웨이 확인. 무선 LAN 어댑터 Wi-Fi 항목</td></tr><tr><td><code>ping IP</code></td><td>연결 확인. "요청 시간 만료" = 네트워크(와이파이 번호) 다름</td></tr><tr class="group"><th colspan="2" scope="colgroup">기본 명령·터미널·네트워크 점검</th></tr><tr><td><code>su</code>, <code>exit</code></td><td>일반 사용자 → root 전환(substitute user) / 이전 사용자 복귀·세션 종료. 프롬프트 <code>$</code> 일반, <code>#</code> root</td></tr><tr><td><code>clear</code>, <code>Tab</code></td><td>화면 정리 / 앞 2~3글자 + Tab 자동완성</td></tr><tr><td><code>nslookup naver.com</code>, <code>nslookup</code></td><td>IP가 나오면 네트워크 정상. 타임아웃 = IP 잘못 잡음·네트워크 미설정. 대화형은 <code>exit</code>로 나감</td></tr><tr><td><code>ifconfig</code>, <code>ip a</code></td><td>IP 확인 (net-tools 필요, 없으면 ip a). <code>enp0s3</code> = NAT(10.0.2.15), <code>enp0s8</code> = 호스트 전용, <code>lo</code> = 127.0.0.1</td></tr><tr class="group"><th colspan="2" scope="colgroup">서버 종료·재부팅 (root만)</th></tr><tr><td><code>init 0</code> / <code>init 6</code></td><td>종료(poweroff) / 재부팅(reboot). 일반 사용자는 거부, 창 닫기(X)로 끄지 말 것</td></tr><tr><td><code>init 1</code>, <code>init 3</code>, <code>init 5</code></td><td>단일 사용자 모드 / CLI 모드 / GUI 모드 (2·3·4 = CLI, 5 = GUI)</td></tr><tr class="group"><th colspan="2" scope="colgroup">SSH·원격 접속</th></tr><tr><td>FileZilla 점검 (포트 21)</td><td>윈도우 방화벽 끔 + ICMP 인/아웃 × v4/v6 4개 규칙 사용 + 개인 네트워크 + 고급 공유 3개 켜기 → 21번 강제 연결, 오류가 떠도 접근 여부가 목적. 22 = SSH / 21 = FTP</td></tr><tr><td>PuTTY (Host Name · Port 22 · SSH)</td><td>서버 IP + 22번 포트. 첫 접속 Accept. 일반 사용자 로그인 후 su. NAT IP(10.0.2.15)로는 접속 불가</td></tr><tr><td><code>vi /etc/ssh/sshd_config</code></td><td>SSH 데몬(서버) 설정. 40번째 줄 <code>PermitRootLogin</code> (기본 <code>#…prohibit-password</code> / <code>yes</code> 허용 / <code>no</code> 차단)</td></tr><tr><td><code>systemctl restart sshd.service</code></td><td>sshd 재시작. 설정 변경 후 필수 (안 하면 반영 안 됨)</td></tr><tr><td><code>systemctl status 서비스</code>, <code>journalctl -xeu 서비스</code></td><td>서비스 상태·실패 원인 확인 → vsftpd.html 7장</td></tr><tr class="group"><th colspan="2" scope="colgroup">디렉터리 이동·조회</th></tr><tr><td><code>cd /</code>, <code>cd ..</code>, <code>cd</code></td><td>최상위 / 상위 / 홈(= cd ~, root면 /root). Change Directory</td></tr><tr><td><code>cd /home/apink</code></td><td>절대경로로 바로 이동</td></tr><tr><td><code>pwd</code>, <code>ls</code></td><td>현재 작업 디렉터리(Print Working Directory) / 목록(list). ↑ 키 = 이전 명령 재호출</td></tr><tr class="group"><th colspan="2" scope="colgroup">파일·디렉터리 조작</th></tr><tr><td><code>mkdir 이름</code></td><td>디렉터리 생성 (make directory)</td></tr><tr><td><code>mv 파일 디렉터리/</code></td><td>파일을 디렉터리로 이동. 기존 디렉터리면 / 없이도 그 안으로 이동</td></tr><tr><td><code>mv 이전이름 새이름</code></td><td>이름 변경 (파일·디렉터리). 대상이 없는 이름일 때만. 사고: <code>mv aaa.txt bbb</code>는 이름이 바뀜, <code>mv web backup</code>은 web 자체가 들어감</td></tr><tr><td><code>cp 원본 사본</code></td><td>파일 복사 (원본 유지). 소유자 = 복사한 사용자. 새 파일 생성은 대상 디렉터리 w 필요</td></tr><tr><td><code>cp -r 디렉터리 대상/</code></td><td>디렉터리 통째 복사. <code>-r</code> 없으면 <code>cp: -r not specified; omitting directory</code></td></tr><tr><td><code>cp 디렉터리/*.xml 대상/</code></td><td>확장자가 같은 파일만 복사 (* 와일드카드). 현재 경로에 없으면 <code>cannot stat '*.xml'</code></td></tr><tr><td><code>rm 파일</code></td><td>파일 삭제 (remove). 휴지통 없음, 디렉터리에는 에러 <code>cannot remove</code></td></tr><tr><td><code>rmdir 디렉터리</code></td><td>빈 디렉터리만 삭제. 파일이 있으면 <code>failed to remove</code></td></tr><tr class="group"><th colspan="2" scope="colgroup">권한 (chmod)</th></tr><tr><td><code>chmod 숫자 대상</code></td><td>권한 변경 (change mode). r=4 w=2 x=1, 묶음 최대 7. 777 전부 / 700 나만 / 640 게스트 읽기도 막음 / 606 게스트 읽기·쓰기 / 705 상위 디렉터리 게스트 5 / 757 대상 디렉터리 게스트 w 부여</td></tr><tr><td><code>ls -l</code> 권한 문자열</td><td>맨 앞 <code>d</code> 디렉터리 · <code>l</code> 링크 · <code>-</code> 파일 + 오너/그룹/게스트(others) 3묶음</td></tr><tr class="group"><th colspan="2" scope="colgroup">시스템 점검·SELinux (root)</th></tr><tr><td><code>top</code></td><td>CPU·메모리 실시간 확인 (q 종료)</td></tr><tr><td><code>sestatus</code>, <code>getenforce</code></td><td>SELinux 상태 확인 (Current mode) / 상태 조회</td></tr><tr><td><code>setenforce 0</code>, <code>setenforce 1</code></td><td>permissive(임시 해제, 재부팅하면 복귀) / enforcing</td></tr><tr><td><code>vi /etc/selinux/config</code></td><td>SELinux 영구 설정 파일. 22번 줄 <code>SELINUX=disabled</code> (오타 시 부팅 안 됨, 재부팅 후 적용)</td></tr><tr class="group"><th colspan="2" scope="colgroup">vi 편집기</th></tr><tr><td><code>vi 파일</code>, <code>vim 파일</code>, <code>cat 파일</code></td><td>없으면 생성·있으면 열기 / vi 없이 내용 출력</td></tr><tr><td><code>i</code>, <code>Esc</code>, <code>:</code></td><td>입력 모드(INSERT) / 입력 모드 해제 / 명령줄</td></tr><tr><td><code>:wq</code>, <code>:q</code>, <code>:q!</code></td><td>저장 후 종료 / 수정 없을 때만 종료 / 저장 없이 강제 종료</td></tr><tr><td><code>:set nu</code></td><td>줄 번호 표시</td></tr><tr><td><code>dd</code>, <code>:%d</code>, <code>yy</code>, <code>p</code>, <code>u</code></td><td>현재 줄 삭제 / 전체 삭제 / 현재 줄 복사 / 붙여넣기 / 실행 취소</td></tr><tr><td><code>:2,4 co 8</code></td><td>2~4줄을 8줄 아래에 복사 (<code>:시작줄,끝줄 co 목적줄</code>)</td></tr><tr><td><code>:split</code>, <code>:vsplit</code></td><td>상하 분할 / 좌우 분할</td></tr><tr><td><code>gg</code>, <code>G</code>, <code>:줄번호</code>, <code>/문자열</code></td><td>맨 처음 / 맨 끝 / 해당 줄 이동 / 검색 (n 다음, N 이전)</td></tr><tr class="group"><th colspan="2" scope="colgroup">파일 삭제</th></tr><tr><td><code>rm -drf 파일</code></td><td>삭제 (-d 빈 디렉터리, -r 재귀, -f 확인 생략). 삭제 가능 여부는 파일이 든 디렉터리 권한이 결정</td></tr><tr class="group"><th colspan="2" scope="colgroup">사용자 추가·비밀번호</th></tr><tr><td><code>useradd 아이디</code></td><td>사용자 추가 + <code>/home/아이디</code> 디렉토리 생성. root만. 비번 없으면 로그인 불가</td></tr><tr><td><code>passwd</code></td><td>실행한 사용자 본인 비번 변경 (root 창이면 root 비번). 실수 시 Ctrl+C로 탈출. 일반 사용자는 <code>Current password:</code>부터 인증</td></tr><tr><td><code>passwd 아이디</code></td><td>해당 사용자 비번 변경·추가 (root). 8자 미만 경고가 떠도 root는 설정됨</td></tr><tr class="group"><th colspan="2" scope="colgroup">접속자 확인·강제 해제</th></tr><tr><td><code>who</code></td><td>현재 접속자 목록 (사용자·tty/pts·시각·IP). 강제 해제 전 pts 번호 확인. 과거 기록은 <code>/var/log/wtmp</code></td></tr><tr><td><code>skill -KILL -t pts/번호</code></td><td>해당 터미널 강제 종료(튕겨냄). <code>-t</code> = terminal. 먼저 passwd 변경. root 터미널(tty2) 지정 주의</td></tr><tr><td><code>skill -KILL 아이디</code>, <code>skill -KILL pts/3</code></td><td>에러는 안 나지만 튕겨내지 못함 (-t 없이 대상 해석 모호)</td></tr><tr class="group"><th colspan="2" scope="colgroup">사용자 삭제</th></tr><tr><td><code>userdel 아이디</code></td><td>계정(ID·비번)만 삭제. 홈 디렉토리 보관, 소유자는 숫자(UID·GID 1001)로 표시</td></tr><tr><td><code>userdel -r 아이디</code></td><td>계정 + 홈 디렉토리 삭제 (<code>r</code> = remove). 접속 중이면 <code>currently used by process</code>로 실패, 복구 불가</td></tr><tr class="group"><th colspan="2" scope="colgroup">확인·보조</th></tr><tr><td><code>ls -a</code>, <code>ls -al</code></td><td>디렉토리 확인, 소유자·그룹 변화 확인</td></tr><tr><td><code>Ctrl+C</code></td><td>진행 중 명령 빠져나가기 (passwd 실수 시)</td></tr></tbody></table></div></section>
+
+  </main>
+</div>
+<script>
+(function () {
+  // 코드 복사
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.parentElement.querySelector('pre').innerText;
+      var done = function () {
+        btn.textContent = '복사됨'; btn.classList.add('done');
+        setTimeout(function () { btn.textContent = '복사'; btn.classList.remove('done'); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+      } else { fallback(text); done(); }
+    });
+  });
+  function fallback(t) {
+    var ta = document.createElement('textarea'); ta.value = t;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  // 현재 읽는 섹션을 목차에 표시
+  var links = Array.prototype.slice.call(document.querySelectorAll('.side a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function spy() {
+    var y = window.scrollY + window.innerHeight * 0.3, idx = 0;
+    secs.forEach(function (el, i) { if (el && el.offsetTop <= y) idx = i; });
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) idx = secs.length - 1;
+    links.forEach(function (a, i) { a.classList.toggle('on', i === idx); });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+})();
+</script>
+<script>
+(function () {
+  var r = document.documentElement, b = document.getElementById('themeBtn');
+  function cur() {
+    var t = r.getAttribute('data-theme');
+    if (t) return t;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function apply(t) {
+    r.setAttribute('data-theme', t);
+    b.textContent = t === 'dark' ? '라이트' : '다크';
+  }
+  try { var s = localStorage.getItem('note-theme'); if (s) r.setAttribute('data-theme', s); } catch (e) {}
+  apply(cur());
+  b.addEventListener('click', function () {
+    var n = cur() === 'dark' ? 'light' : 'dark';
+    apply(n);
+    try { localStorage.setItem('note-theme', n); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>

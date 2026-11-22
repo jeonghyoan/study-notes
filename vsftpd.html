@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vsftpd(FTP) 통합 학습노트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #FFFFFF;
+  --paper-alt: #F4F6F8;
+  --ink: #0F172A;
+  --ink2: #273449;
+  --mute: #5B6779;
+  --hair: #CBD5E1;
+  --hair-soft: #E2E8F0;
+  --accent: #0B63CE;
+  --accent-text: #074799;
+  --accent-soft: #EEF4FC;
+  --fix: #B45309;
+  --fix-text: #7C2D12;
+  --fix-soft: #FFF7EC;
+  --fix-line: #F3D9B5;
+  --code-bg: #F5F7FA;
+  --code-line: #E2E8F0;
+  --comment: #6B7A90;
+  --sidebar: 240px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+    --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+    --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+    --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+  --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+  --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+  --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 24px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  line-height: 1.8;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Layout: sticky TOC + one readable column ---------- */
+.page {
+  display: grid;
+  grid-template-columns: var(--sidebar) minmax(0, 1fr);
+  gap: 0 48px;
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: 44px 48px 96px;
+}
+.side { position: relative; }
+.side nav {
+  position: sticky;
+  top: 28px;
+  padding-top: 6px;
+}
+.side .side-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+  margin: 0 0 10px;
+}
+.side ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1px solid var(--hair);
+  max-width: none;
+}
+.side li { margin: 0; font-size: 14px; line-height: 1.45; }
+.side a {
+  display: block;
+  padding: 7px 0 7px 14px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  color: var(--mute);
+  text-decoration: none;
+}
+.side a:hover { color: var(--ink); }
+.side a.on {
+  color: var(--accent-text);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.main { min-width: 0; }
+
+/* Inline TOC only for narrow screens */
+.toc { display: none; }
+
+/* ---------- Typography ---------- */
+h1 {
+  margin: 0 0 18px;
+  font-size: clamp(30px, 3.6vw, 42px);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--ink);
+}
+.deck {
+  margin: 0 0 8px;
+  font-size: 17.5px;
+  line-height: 1.75;
+  color: var(--ink2);
+  max-width: none;
+}
+h2 {
+  margin: 0 0 20px;
+  font-size: clamp(23px, 2.3vw, 28px);
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.sec h2 {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+.sec h2::before {
+  content: counter(sec);
+  counter-increment: sec;
+  flex: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--accent-text);
+  min-width: 1.4em;
+}
+.main { counter-reset: sec; }
+
+h3 {
+  margin: 40px 0 12px;
+  font-size: 19px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--ink);
+}
+p {
+  margin: 0 0 16px;
+  font-size: 16.5px;
+  color: var(--ink2);
+  max-width: none;
+}
+strong { color: var(--ink); font-weight: 700; }
+a { color: var(--accent-text); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+code {
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 1px 6px;
+  border: 1px solid var(--code-line);
+  border-radius: 4px;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Code blocks ---------- */
+.code {
+  position: relative;
+  margin: 14px 0 22px;
+}
+pre {
+  margin: 0;
+  padding: 16px 20px;
+  background: var(--code-bg);
+  border: 1px solid var(--code-line);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink);
+  tab-size: 4;
+}
+code.n { white-space: nowrap; }
+pre code {
+  background: transparent; padding: 0; border: 0; border-radius: 0;
+  font-size: inherit; word-break: normal; white-space: pre;
+}
+pre .c { color: var(--comment); }
+.copy {
+  position: absolute;
+  top: 8px; right: 8px;
+  font: 600 12px/1 'IBM Plex Sans', 'Noto Sans KR', sans-serif;
+  padding: 6px 9px;
+  color: var(--mute);
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0;
+}
+.code:hover .copy, .copy:focus-visible { opacity: 1; }
+.copy.done { color: var(--accent-text); border-color: var(--accent); opacity: 1; }
+@media (hover: none) { .copy { opacity: 1; } }
+
+/* ---------- Sections ---------- */
+.sec {
+  margin-top: 88px;
+  padding-top: 32px;
+  border-top: 2px solid var(--ink);
+}
+.split { display: block; }
+.split-left p { max-width: none; }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 36px;
+  margin-top: 8px;
+}
+/* 코드가 들어간 묶음은 좁아지지 않게 한 줄로 쌓기 */
+.grid-2:has(pre) { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 32px; }
+
+.strip-item {
+  padding-top: 4px;
+}
+.strip-item > h3 {
+  margin: 28px 0 10px;
+  font-size: 17.5px;
+  padding-left: 12px;
+  border-left: 3px solid var(--hair);
+  line-height: 1.4;
+}
+.grid-2:not(:has(pre)) .strip-item {
+  background: var(--paper-alt);
+  padding: 4px 22px 8px;
+  border-radius: 8px;
+}
+.grid-2:not(:has(pre)) .strip-item > h3 { border-left: 0; padding-left: 0; margin-top: 18px; }
+
+/* ---------- Hero ---------- */
+header { padding-bottom: 8px; }
+.core-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+.core-strip > div {
+  padding: 18px 18px 16px;
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 8px 8px;
+}
+.core-metric {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--accent-text);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.core-desc { font-size: 15px; line-height: 1.7; color: var(--ink2); margin: 0; }
+
+/* ---------- Lists ---------- */
+ul, ol { margin: 8px 0 20px; padding-left: 22px; max-width: none; }
+li { margin-bottom: 12px; font-size: 16px; line-height: 1.8; color: var(--ink2); }
+li::marker { color: var(--mute); }
+.wide-list { max-width: none; }
+ol.wide-list > li { padding-left: 4px; }
+
+/* ---------- Callouts ---------- */
+.note-fix, .note-verify {
+  margin: 22px 0 26px;
+  padding: 16px 22px 6px;
+  border-radius: 8px;
+  max-width: none;
+}
+.note-fix { background: var(--fix-soft); border: 1px solid var(--fix-line); border-left: 4px solid var(--fix); }
+.note-verify { background: var(--accent-soft); border: 1px solid var(--hair-soft); border-left: 4px solid var(--accent); }
+.note-fix .tag, .note-verify .tag {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.note-fix .tag { color: var(--fix-text); }
+.note-verify .tag { color: var(--accent-text); }
+.note-fix p, .note-verify p {
+  margin: 0;
+  padding: 10px 0 12px;
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--ink2);
+  max-width: none;
+}
+.note-fix p + p { border-top: 1px dashed var(--fix-line); }
+.note-fix p > strong:first-child,
+.note-verify p > strong:first-child { display: block; margin-bottom: 2px; }
+.note-fix p > strong:first-child { color: var(--fix-text); }
+
+/* ---------- Tables ---------- */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 26px 0 28px;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 15px; text-align: left; line-height: 1.65; }
+thead th {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper-alt);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--hair);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--hair-soft);
+  vertical-align: top;
+  color: var(--ink2);
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--paper-alt); }
+.num, .nowrap { white-space: nowrap; }
+td.nowrap:not(:has(code)) { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; }
+tr.group th {
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--hair);
+  border-top: 1px solid var(--hair);
+}
+tbody tr.group:first-child th { border-top: 0; }
+.cheat td:first-child { width: 46%; }
+.cheat td:first-child code { overflow-wrap: anywhere; }
+
+/* ---------- Definition list ---------- */
+dl.open-dl { margin: 14px 0 20px; display: grid; grid-template-columns: minmax(170px, 240px) minmax(0, 1fr); }
+dl.open-dl dt { padding: 10px 16px 10px 0; border-top: 1px solid var(--hair-soft); font-weight: 600; font-size: 15px; color: var(--ink); }
+dl.open-dl dd { margin: 0; padding: 10px 0; border-top: 1px solid var(--hair-soft); font-size: 15px; color: var(--ink2); }
+
+/* ---------- Figures ---------- */
+figure { margin: 36px 0; padding: 0; }
+figure .fig-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 14px; line-height: 1.5; }
+figure svg.diagram {
+  width: 100%; height: auto; display: block;
+  background: #FFFFFF;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  padding: 10px;
+}
+figcaption { margin-top: 10px; font-size: 14px; color: var(--mute); line-height: 1.6; }
+
+blockquote.pull { margin: 36px 0; padding: 0 0 0 22px; border-left: 3px solid var(--ink); font-size: clamp(20px, 2.2vw, 24px); line-height: 1.5; font-weight: 600; color: var(--ink); max-width: none; }
+
+/* ---------- Exam band ---------- */
+.band {
+  margin-top: 88px;
+  padding: 36px 32px 28px;
+  background: var(--paper-alt);
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 10px 10px;
+}
+.band > p { max-width: none; }
+.exam-list {
+  counter-reset: exam;
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.exam-list li {
+  counter-increment: exam;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 48px;
+  border-top: 1px solid var(--hair);
+  font-size: 16px;
+  line-height: 1.8;
+}
+.exam-list li::before {
+  content: counter(exam, decimal-leading-zero);
+  position: absolute;
+  left: 0; top: 17px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.exam-list li > strong:first-child { display: block; margin-bottom: 2px; }
+
+/* ---------- Key-value fact lists ---------- */
+ul.facts {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 24px;
+  max-width: none;
+  border-top: 1px solid var(--hair-soft);
+}
+ul.facts > li {
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  gap: 2px 20px;
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hair-soft);
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+ul.facts > li > strong:first-child { color: var(--ink); font-weight: 700; }
+ul.facts > li > div { color: var(--ink2); }
+ul.facts ul { margin: 0; padding-left: 18px; }
+ul.facts ul li { margin: 0 0 4px; font-size: 15.5px; }
+li > ul { margin: 6px 0 4px; }
+li > ul > li { margin-bottom: 4px; font-size: 15.5px; }
+td ul { margin: 0; padding-left: 16px; max-width: none; }
+td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
+.opts td:nth-child(2) { min-width: 13em; }
+@media (max-width: 760px) {
+  ul.facts > li { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- HTML diagrams (깨지지 않는 반응형 도식) ---------- */
+.dg {
+  margin: 26px 0 30px;
+  padding: 22px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  background: var(--paper-alt);
+}
+.dg-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 16px; line-height: 1.5; }
+.dg-flow { display: flex; align-items: stretch; }
+.dg-flow > .dg-node, .dg-flow > .dg-stack { flex: 1 1 0; min-width: 0; }
+.dg-stack { display: flex; flex-direction: column; gap: 12px; }
+.dg-node {
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.dg-node.key { border: 2px solid var(--ink); }
+.dg-node.accent { border: 1.5px solid var(--accent); }
+.dg-node.ghost { border: 1.5px dashed var(--hair); background: transparent; color: var(--mute); }
+.dg-node h4 { margin: 0 0 2px; font-size: 15px; line-height: 1.45; font-weight: 700; color: var(--ink); }
+.dg-node.accent h4 { color: var(--accent-text); }
+.dg-node .sub {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px; color: var(--mute);
+  margin: 0 0 8px; overflow-wrap: anywhere;
+}
+.dg-node ul { list-style: none; padding: 0; margin: 0; max-width: none; }
+.dg-node li { margin: 0 0 6px; font-size: 14px; line-height: 1.6; color: var(--ink2); }
+.dg-node li:last-child { margin-bottom: 0; }
+.dg-node .grp { padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--hair-soft); }
+.dg-node .lbl { display: block; font-weight: 700; font-size: 13.5px; color: var(--ink); }
+.dg-node .num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; margin-right: 6px; border-radius: 50%;
+  background: var(--accent); color: var(--paper); font-size: 13px; font-weight: 700;
+  vertical-align: 1px;
+}
+.port { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: var(--accent-text); overflow-wrap: anywhere; }
+.dg-arrow {
+  flex: 0 0 64px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 0 4px;
+  color: var(--accent-text); font-size: 12px; font-weight: 700; text-align: center; line-height: 1.3;
+}
+.dg-arrow::before { content: "→"; font-size: 24px; line-height: 1; color: var(--accent); }
+.dg-foot { margin: 14px 0 0; font-size: 14px; line-height: 1.65; color: var(--mute); max-width: none; }
+.dg-foot strong { color: var(--ink2); }
+
+.dg-compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.dg-panel { background: var(--paper); border: 1px solid var(--hair); border-radius: 10px; padding: 16px 18px 18px; }
+.dg-panel > h4 { margin: 0 0 12px; font-size: 16px; font-weight: 700; color: var(--ink); }
+.dg-panel > h4 span { font-weight: 500; color: var(--mute); font-size: 14px; }
+.dg-grid { display: grid; gap: 10px; }
+.dg-grid.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dg-grid.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dg-panel .dg-node { padding: 10px 12px; }
+.dg-panel .dg-node h4 { font-size: 14px; }
+.dg-panel .dg-node li { font-size: 13.5px; margin-bottom: 3px; }
+.dg-host { border: 2px solid var(--ink); border-radius: 10px; padding: 12px; }
+.dg-host > .host-h { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0 0 2px; }
+.dg-host > .host-s { font-size: 13px; color: var(--mute); margin: 0 0 10px; }
+.dg-bar {
+  display: block;
+  margin: 10px 0 0; padding: 8px 12px;
+  border-radius: 8px; background: var(--paper-alt);
+  font-size: 13.5px; line-height: 1.55; color: var(--ink2);
+}
+.dg-bar.warn { background: var(--fix-soft); color: var(--fix-text); }
+.dg-bar.ok { background: var(--accent-soft); color: var(--accent-text); }
+.dg-down { text-align: center; color: var(--accent); font-size: 13px; font-weight: 700; margin: 8px 0; }
+
+.spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 14px 0 12px; }
+.spec > div { border: 1px solid var(--hair); border-radius: 10px; padding: 12px 14px; background: var(--paper); }
+.spec .k { font-size: 13px; font-weight: 700; color: var(--mute); }
+.spec .v { font-size: 15.5px; font-weight: 700; color: var(--ink); line-height: 1.45; margin: 2px 0; }
+.spec .d { font-size: 13px; color: var(--mute); line-height: 1.55; overflow-wrap: anywhere; }
+.rules { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; max-width: none; }
+.rules li {
+  margin: 0; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--hair); background: var(--paper);
+  font-size: 14px; line-height: 1.5; color: var(--ink2);
+}
+
+@media (max-width: 980px) {
+  .dg-flow { flex-direction: column; }
+  .dg-arrow { flex-basis: auto; padding: 6px 0; flex-direction: row; gap: 8px; }
+  .dg-arrow::before { content: "↓"; font-size: 20px; }
+  .dg-compare, .spec { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .dg { padding: 14px; }
+  .dg-grid.c3 { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .page { display: block; padding: 36px 24px 80px; }
+  .side { display: none; }
+  .main { margin: 0 auto; }
+  .toc {
+    display: block;
+    margin: 32px 0 0;
+    padding: 16px 20px;
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    background: var(--paper-alt);
+    font-size: 15px;
+  }
+  .toc a { display: block; padding: 5px 0; color: var(--ink2); text-decoration: none; }
+  .toc a:hover { color: var(--accent-text); text-decoration: underline; }
+}
+@media (max-width: 760px) {
+  .page { padding: 28px 18px 64px; }
+  .grid-2, .grid-3, .core-strip { grid-template-columns: minmax(0, 1fr); }
+  dl.open-dl { grid-template-columns: 1fr; }
+  dl.open-dl dt { padding-bottom: 2px; }
+  dl.open-dl dd { border-top: 0; padding-top: 2px; }
+  .sec, .band { margin-top: 64px; }
+  .band { padding: 28px 18px 20px; }
+  .note-fix, .note-verify { padding: 14px 16px 4px; }
+  p { font-size: 16px; }
+  pre { font-size: 12.5px; padding: 14px 14px; }
+  .cheat td:first-child { width: auto; }
+  table { min-width: 640px; }
+}
+@media print {
+  .side, .copy { display: none !important; }
+  .page { display: block; }
+}
+</style>
+</head>
+<body>
+<button id="themeBtn" type="button" aria-label="라이트/다크 모드 전환" style="position:fixed;top:12px;right:14px;z-index:60;padding:6px 12px;font:600 13px/1 inherit;font-family:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:999px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15)">다크</button>
+<style>@media print{#themeBtn{display:none}}</style>
+
+<div class="page">
+  <aside class="side">
+    <nav aria-label="목차 (사이드)">
+      <p class="side-title">목차</p>
+      <ol><li><a href="#sec-overview">1. vsftpd 개요·작업 요령</a></li><li><a href="#sec-conf">2. vsftpd.conf 기본 설정 (라인별)</a></li><li><a href="#sec-timeout">3. 타임아웃 (idle_session_timeout · data_connection_timeout)</a></li><li><a href="#sec-ascii">4. ASCII/Binary 전송 · 확장자 차단(deny_file)</a></li><li><a href="#sec-chroot">5. 홈 디렉토리 밖 접근 막기 (chroot)</a></li><li><a href="#sec-port">6. 포트 변경 (listen_port · 포트 선택 · 포트 포워딩)</a></li><li><a href="#sec-trouble">7. 설정 오류 대응 (오타 · systemctl status · journalctl)</a></li><li><a href="#cheatsheet">8. 통합 명령어 치트시트</a></li></ol>
+    </nav>
+  </aside>
+  <main class="main">
+
+  <header>
+    <h1>vsftpd(FTP) 통합 학습노트</h1>
+    <p class="deck">범위: vsftpd(FTP 서버) 설정 파일 <code>/etc/vsftpd/vsftpd.conf</code> 라인별 설정(익명·쓰기·umask·로그·포트 20/21) · 타임아웃 · ASCII/Binary 전송과 확장자 차단(deny_file) · chroot(홈 디렉토리 밖 접근 차단) · 포트 변경(9021)과 VirtualBox 포트 포워딩 · 설정 오류 대응·백업(systemctl status·journalctl). 내용이 추가될 때마다 범위가 늘어남.</p>
+    <div class="core-strip"><div><div class="core-metric">변경 → restart → 같은 조건 접속 확인</div><p class="core-desc">설정을 하나라도 바꾸면 <code>systemctl restart vsftpd.service</code> 필수, FileZilla를 완전히 종료하고 같은 아이디·비번으로 재접속해 확인. 오타 한 글자로 서비스가 안 뜨므로 수정 전 <code>cp</code> 백업, 원인은 <code>systemctl status</code>·<code>journalctl -xeu</code>로 확인.</p></div><div><div class="core-metric">보안 4축 : 익명 · 쓰기 · chroot · 포트</div><p class="core-desc"><code>anonymous_enable=NO</code> 유지, <code>write_enable=NO</code>면 다운로드 전용, <code>xferlog_enable</code> NO 금지. <code>chroot_local_user=YES</code>는 쓰기 가능한 홈에서 500 에러 → <code>allow_writeable_chroot=YES</code>. 기본 포트 21은 <code>listen_port=9021</code>로 변경.</p></div><div><div class="core-metric">접속 21 · 포트 선택 · 타임아웃 기준</div><p class="core-desc">접속은 21번, 20번은 액티브 모드 데이터 연결 포트. 포트 변경 시 충돌 주의(<code>3306</code> 금지, 9000번 이상 권장, 1500 이하 금지). <code>idle_session_timeout</code> = 무동작 시간, <code>data_connection_timeout</code> = 전송이 멈춘 시간.</p></div></div>
+    <nav class="toc" aria-label="목차"><a href="#sec-overview">1. vsftpd 개요·작업 요령</a><a href="#sec-conf">2. vsftpd.conf 기본 설정 (라인별)</a><a href="#sec-timeout">3. 타임아웃 (idle_session_timeout · data_connection_timeout)</a><a href="#sec-ascii">4. ASCII/Binary 전송 · 확장자 차단(deny_file)</a><a href="#sec-chroot">5. 홈 디렉토리 밖 접근 막기 (chroot)</a><a href="#sec-port">6. 포트 변경 (listen_port · 포트 선택 · 포트 포워딩)</a><a href="#sec-trouble">7. 설정 오류 대응 (오타 · systemctl status · journalctl)</a><a href="#cheatsheet">8. 통합 명령어 치트시트</a></nav>
+  </header>
+
+  <section class="sec" id="sec-overview"><h2>vsftpd 개요·작업 요령</h2><div class="dg"><p class="dg-title">한눈에 보기 — 설정 변경 4단계 (모든 실습 공통)</p><div class="dg-flow"><div class="dg-node "><h4>① 백업</h4><p class="sub"><code>cp</code> 로 설정 파일 복사본</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>② 편집</h4><p class="sub"><code>vi /etc/vsftpd/vsftpd.conf</code> · <code>:set nu</code></p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 재시작</h4><p class="sub"><code>systemctl restart vsftpd.service</code></p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 접속 확인</h4><p class="sub">FileZilla 완전 종료 후 같은 아이디·비번으로 재접속</p></div></div><p class="dg-foot">설정을 하나라도 바꾸면 ③·④ 필수. 오류가 나면 7장 참고</p></div><h3>실습 환경</h3><div class="table-wrap"><table><thead><tr><th>구분</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">서버</td><td>리눅스 VM(VirtualBox, CentOS 계열), IP <code>192.168.222.2</code>, <code>root</code>로 작업</td><td>VM 설치·고정 IP는 linux.html 1·2장</td></tr><tr><td class="nowrap">클라이언트</td><td>윈도우 <strong>FileZilla</strong>, 사용자 <code>apink</code>(앞서 만든 일반 사용자) + 비밀번호, 포트 <code>21</code> (후반부에 <code>9021</code>로 변경 → 6장)</td><td>FileZilla 설치·접속 기본은 linux.html 3장</td></tr><tr><td class="nowrap">호스트 칸</td><td>리눅스 IP를 그대로 입력</td><td>윈도우 IP는 ICMP 때문에 불안정</td></tr><tr><td class="nowrap">선행 지식</td><td>권한(permission)·<code>cp</code>를 먼저 알아야 함</td><td><code>local_umask</code> 이해에 필요 → linux.html 6·7장</td></tr></tbody></table></div><h3>FTP 데몬 종류</h3><div class="table-wrap"><table><thead><tr><th>데몬</th><th>설정 파일·특징</th><th>비고</th></tr></thead><tbody><tr><td class="nowrap"><code>vsftpd</code></td><td>설정 파일 <code>/etc/vsftpd/vsftpd.conf</code> — 이 노트의 대상</td><td>AWS·GCP·NCP(네이버 클라우드)에도 있음. CentOS 계열은 vsftpd 하나만 알면 충분</td></tr><tr><td class="nowrap"><code>ProFTPD</code>, <code>Pure-FTPd</code></td><td>설정 방식이 완전히 달라 따로 공부해야 함</td><td>SUSE 리눅스는 FTP가 달라 vsftpd가 잘 인식되지 않음 → 이 둘을 사용</td></tr><tr><td class="nowrap">실무 사례</td><td>고객사가 갑자기 SUSE를 요구해 FTP 환경설정을 새로 세팅한 적 있음</td><td></td></tr></tbody></table></div><h3>작업 요령</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">라인 번호</td><td><code>set number</code>로 라인 번호를 띄우고 라인 단위로 따라 하며 직접 확인</td><td>라인은 업데이트로 바뀌지 않으므로 라인 번호·단어를 외우는 것이 빠름</td></tr><tr><td class="nowrap">재시작·확인</td><td>설정을 하나라도 바꾸면 <strong>반드시 서비스 재시작</strong> → 같은 조건(아이디·비번)으로 접속해 되는지 확인</td><td>이 확인이 핵심</td></tr><tr><td class="nowrap">Tab 자동완성</td><td>경로·서비스명은 중간까지 치고 <strong>Tab</strong> (예 <code>vs</code> + Tab → <code>vsftpd.service</code>)</td><td></td></tr><tr><td class="nowrap">백업</td><td>설정 파일은 바로 건드리지 말고 먼저 <code>cp</code>로 복사해 둠 (환경설정은 따로 정리해 둘 것)</td><td>문제가 생기면 복사본으로 복구 (환경설정 초기화 질문의 답). 오타 대응은 7장</td></tr><tr><td class="nowrap">대소문자</td><td>설정값은 대소문자 구분 없음 (<code>YES</code>·<code>yes</code> 모두 동작, 오타만 없으면 됨). 구분하는 것은 파일·디렉토리 이름</td><td>불리언 옵션 값은 YES 또는 NO만 정의됨 (vsftpd.conf man 페이지)</td></tr><tr><td class="nowrap">값이 안 먹을 때</td><td>대문자 <code>NO</code>로 바꿔 다시 시도 (<code>write_enable</code>에 소문자 <code>n</code>을 입력한 사례도 있음)</td><td>한 글자 <code>N</code>·<code>n</code>은 정의된 값이 아니므로 <code>NO</code>로 쓸 것 (영상에서 실제 입력값은 확인 못 함)</td></tr></tbody></table></div><h3>vi 편집 요령 (vsftpd.conf)</h3><div class="table-wrap"><table><thead><tr><th>동작</th><th>키</th><th>비고</th></tr></thead><tbody><tr><td class="nowrap">라인 번호 표시</td><td><code>:set number</code> (<code>:set nu</code>)</td><td></td></tr><tr><td class="nowrap">입력 모드 / 종료</td><td><code>i</code> / <code>ESC</code></td><td>값 바꿀 때 <code>i</code>로 입력</td></tr><tr><td class="nowrap">저장 후 나가기</td><td><code>:wq</code></td><td>저장만 하고 빠져나가면 됨</td></tr><tr><td class="nowrap">특정 라인으로 이동</td><td><code>ESC</code> → <code>:</code> 입력 후 숫자, Enter (예 <code>:60</code>)</td><td>라인 번호를 입력하면 바로 이동</td></tr><tr><td class="nowrap">파일 맨 아래로</td><td><code>Shift + G</code></td><td>줄 수가 많을 때 한 번에 이동</td></tr><tr><td class="nowrap">주석 해제</td><td>라인 맨 앞 <code>#</code> 삭제</td><td>주석 달면 그 라인은 사용 안 함</td></tr></tbody></table></div><ul class="facts"><li><strong>자세한 실습</strong><div>vi 키 전체: linux.html 5장 / <code>cp</code>: linux.html 6장 / 권한·SELinux: linux.html 7장</div></li></ul><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 수정 전 복사본 생성 (복구용) — 백업경로는 직접 지정</span>
+cp /etc/vsftpd/vsftpd.conf 백업경로/
+vi /etc/vsftpd/vsftpd.conf          <span class="c"># 설정 파일 편집 (경로 중간까지 치고 Tab)</span>
+systemctl restart vsftpd.service    <span class="c"># 변경 후 재시작 필수 (.service = 서비스 제공 단위)</span>
+<span class="c"># 접속이 유지된 채라 반영이 안 될 때 : 중지 후 시작 (restart로도 가능)</span>
+systemctl stop vsftpd.service
+systemctl start vsftpd.service</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="dg-bar warn">설정 변경 후 — 반드시 restart 하고 같은 조건(아이디·비번)으로 접속해 확인. 접속이 유지된 채로는 반영 안 될 수 있으므로 FileZilla를 완전히 종료하고 재접속 (필요하면 stop → start)</div></section>
+  <section class="sec" id="sec-conf"><h2>vsftpd.conf 기본 설정 (라인별)</h2><div class="dg"><p class="dg-title">한눈에 보기 — 접속·쓰기·로그·권한 핵심 5개</p><div class="dg-flow"><div class="dg-node key"><h4>anonymous_enable</h4><p class="sub">12번 · NO = 익명 차단</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>local_enable</h4><p class="sub">15번 · YES = 일반 사용자 로그인</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>write_enable</h4><p class="sub">18번 · YES = 업로드 허용</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>xferlog_enable</h4><p class="sub">39번 · YES = 업·다운로드 로그</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>local_umask</h4><p class="sub">22번 · 022 = 업로드 파일 권한 마스크</p></div></div><p class="dg-foot">라인 번호는 <code>:set number</code>로 띄운 화면 기준. 설정 변경은 1장의 4단계로 확인</p></div><h3>라인별 설정 표</h3><div class="table-wrap"><table><thead><tr><th>라인</th><th>지시어</th><th>파일에 적힌 값</th><th>실습 후 최종</th><th>의미·주의</th></tr></thead><tbody><tr><td class="nowrap">12</td><td><code>anonymous_enable</code></td><td>NO</td><td>NO (실습 후 원복)</td><td>익명(anonymous) 접속 허용 여부. YES면 아이디·비번 없이 접속됨</td></tr><tr><td class="nowrap">15</td><td><code>local_enable</code></td><td>YES</td><td>YES</td><td>일반(로컬) 사용자 접속 허용. NO로 바꾸면 일반 사용자 전원 접속 불가 (웬만하면 건드리지 말 것)</td></tr><tr><td class="nowrap">18</td><td><code>write_enable</code></td><td>YES</td><td>YES (실습 후 원복)</td><td>FTP 쓰기(업로드) 허용. NO면 업로드 불가, 다운로드만 가능</td></tr><tr><td class="nowrap">22</td><td><code>local_umask</code></td><td>022</td><td>022</td><td>로컬 사용자가 만드는 업로드 파일의 권한 마스크. 실무에선 <code>066</code> (실행 차단)</td></tr><tr><td class="nowrap">28</td><td><code>anon_upload_enable</code></td><td><code>#</code>(주석)</td><td><code>#</code> 유지</td><td>익명 사용자 업로드. 풀지 말 것</td></tr><tr><td class="nowrap">32</td><td><code>anon_mkdir_write_enable</code></td><td><code>#</code>(주석)</td><td><code>#</code> 유지</td><td>익명 사용자 디렉토리 생성. 풀지 말 것</td></tr><tr><td class="nowrap">36</td><td><code>dirmessage_enable</code></td><td>YES</td><td>YES</td><td>디렉토리 이동 시 메시지 출력</td></tr><tr><td class="nowrap">39</td><td><code>xferlog_enable</code></td><td>YES</td><td>YES</td><td>업로드·다운로드 로그 기록. NO 금지</td></tr><tr><td class="nowrap">42</td><td><code>connect_from_port_20</code></td><td>YES</td><td>YES</td><td>PORT(액티브) 방식 데이터 연결을 서버 20번 포트에서 시작</td></tr><tr><td class="nowrap">47</td><td><code>chown_uploads</code></td><td><code>#</code>(주석)</td><td><code>#</code> 유지</td><td>쓰지 말 것</td></tr><tr><td class="nowrap">52</td><td><code>xferlog_file</code></td><td><code>/var/log/xferlog</code> (앞에 <code>#</code>)</td><td><code>#</code> 해제</td><td>로그 파일 경로. 앞의 <code>#</code>을 풀어 줌</td></tr><tr><td class="nowrap">56</td><td><code>xferlog_std_format</code></td><td>YES</td><td>YES</td><td>로그를 wu-ftpd 표준 포맷으로 쓸지 여부</td></tr><tr><td class="nowrap">59</td><td><code>idle_session_timeout</code></td><td>600</td><td><code>#</code> 해제, 600 → 10 (연습값)</td><td>접속만 하고 가만히 있을 때 자동 해제 시간(초) → 3장</td></tr><tr><td class="nowrap">62</td><td><code>data_connection_timeout</code></td><td>120</td><td><code>#</code> 해제, 120 → 10 (연습값)</td><td>데이터 전송이 멈춘 시간 제한(초) → 3장</td></tr><tr><td class="nowrap">66</td><td><code>nopriv_user</code></td><td><code>#</code>(주석)</td><td><code>#</code> 유지</td><td>vsftpd가 권한 없이 동작할 때 쓰는 비특권 계정(기본 nobody). 건드리지 말 것 → 4장</td></tr><tr><td class="nowrap">71</td><td><code>async_abor_enable</code></td><td><code>#</code>(주석)</td><td><code>#</code> 유지</td><td>쓰지 말 것 → 4장</td></tr><tr><td class="nowrap">82·83</td><td><code>ascii_upload_enable</code>·<code>ascii_download_enable</code></td><td><code>#</code>(주석)</td><td><code>#</code> 유지 (실습 후 원복)</td><td>ASCII 모드 요청 적용 여부 → 4장</td></tr><tr><td class="nowrap">84</td><td><code>deny_file</code></td><td>(직접 추가)</td><td><code>#</code> 유지 (실습 후 원복)</td><td>확장자별 차단 → 4장</td></tr><tr><td class="nowrap">87</td><td><code>ftpd_banner</code></td><td><code>#</code>(주석)</td><td><code>#</code> 유지</td><td>환영 메시지. 안 씀 → 4장</td></tr><tr><td class="nowrap">101~104 (추가 후 105)</td><td><code>chroot_*</code></td><td>—</td><td>101 <code>YES</code> · 102 <code>NO</code> · 103 추가 · 105 <code>#</code> 해제</td><td>사용자 홈 가둠 → 5장</td></tr><tr><td class="nowrap">맨 아래</td><td><code>listen_port</code></td><td>(직접 추가)</td><td><code>9021</code></td><td>포트 변경 → 6장</td></tr></tbody></table></div><h3>anonymous_enable (12번) — 익명 접속 실습</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/vsftpd/vsftpd.conf 파일 안 · root]</span>
+<span class="c"># 12번 : 익명(anonymous) 접속 허용. 실습 때만 YES, 끝나면 NO로 복구 (YES 상태는 실무에서 크게 문제됨)</span>
+anonymous_enable=YES</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>단계</th><th>내용</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">YES로 변경 + 재시작</td><td>FileZilla를 완전히 종료 후 재실행 → 호스트 = 리눅스 IP, 사용자·비밀번호 비움, 포트 21 → 빠른 연결</td><td>접속됨(뚫림) — 이 한 줄로 익명 접속 허용 여부, 곧 보안이 갈림</td></tr><tr><td class="nowrap">NO로 복구 + 재시작</td><td>같은 조건(아이디·비번 없이)으로 접속</td><td>안 됨(막힘)</td></tr></tbody></table></div><div class="dg-bar warn">anonymous_enable — YES면 아이디·비번 없이 접속되어 보안이 뚫림. NO 유지. 바꾼 뒤에는 반드시 restart 후 같은 조건으로 접속 확인</div><h3>local_enable (15번)</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">값</td><td><code>YES</code> 그대로 둠</td><td>웬만하면 건드리지 말 것</td></tr><tr><td class="nowrap">의미</td><td>로컬(익명이 아닌) 사용자 로그인 허용 여부</td><td>NO면 일반 사용자 전원 접속 불가 (로그 기록 옵션이 아님)</td></tr></tbody></table></div><div class="dg-bar warn">local_enable — 일반(로컬) 사용자 로그인 허용 여부. NO면 일반 사용자 전원 접속 불가이므로 YES 그대로 유지</div><h3>write_enable (18번) — 다운로드 전용 실습</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/vsftpd/vsftpd.conf 파일 안 · root]</span>
+<span class="c"># 18번 : 쓰기(업로드) 차단 → 다운로드 전용 시스템 구축. 실습 후 YES로 복구</span>
+write_enable=NO</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>단계</th><th>내용</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">NO로 변경 + 재시작</td><td>접속·디렉토리 목록 확인</td><td>접속 정상, 디렉토리 목록 보임</td></tr><tr><td class="nowrap">파일 업로드</td><td>FileZilla로 업로드 시도</td><td><code>치명적인 전송 오류</code>, 큐에서 계속 대기하며 업로드 안 됨 (접속은 허용하고 쓰기만 막은 것)</td></tr><tr><td class="nowrap">다운로드</td><td>서버에만 있는 파일(예 <code>123.data</code>) 더블클릭</td><td>다운로드됨</td></tr><tr><td class="nowrap">복구</td><td>18번을 <code>YES</code>로 되돌림</td><td>읽기·업로드·다운로드 모두 가능</td></tr></tbody></table></div><div class="dg-bar warn">write_enable — NO면 업로드 불가, 다운로드만 가능 (다운로드 전용 서버). 접속은 되므로 업로드 시 치명적인 전송 오류로 확인</div><h3>local_umask (22번)</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/vsftpd/vsftpd.conf 파일 안 · root]</span>
+<span class="c"># 22번 : 로컬 사용자가 만드는 파일에 적용하는 umask (8진수, 맨 앞에 0 필요). 이 실습에서는 기본값 022 유지</span>
+local_umask=022
+<span class="c"># 실무 사례 값 : 읽기·쓰기는 되고 실행은 안 되게 함. 실행되면 FTP로 올린 파일로 백도어를 돌려 서버 권한을 빼앗기고 포트가 열릴 수 있음</span>
+local_umask=066</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">기본값 <code>022</code></td><td>숫자는 보통 앞에 0을 붙여 표기, 쓰기 권한(w) 관련 부분이 <code>2</code></td><td>man 기본값은 <code>077</code>, 샘플 설정 파일 값이 <code>022</code></td></tr><tr><td class="nowrap">실무 <code>066</code></td><td>읽기·쓰기는 되고 실행은 안 되게 함</td><td>실행을 막는 이유 : 백도어 실행 방지</td></tr><tr><td class="nowrap">권한 확인 위치</td><td>FileZilla 오른쪽 서버 쪽 목록의 권한 열 (<code>rwx…</code>)</td><td>숫자로 읽을 때는 앞에 0을 붙여서 생각</td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 8강 077 설명 · 13:49~14:09</div><p>"077로 바꾸면 읽고 쓰고 실행이 다 됨", "게스트가 작동되니 다른 사람이 덮어쓸 수 있다"는 설명이 어느 값 기준인지 문맥 불분명 — 영상 해당 구간을 다시 듣고 확인 필요</p></div><div class="dg-bar warn">local_umask — 업로드 파일의 권한 마스크(8진수, 맨 앞 0). 실무 066 = 실행 권한 차단으로 FTP 업로드 파일 백도어 실행 방지</div><h3>익명 업로드 계열 (24~32번)</h3><div class="table-wrap"><table><thead><tr><th>라인</th><th>지시어</th><th>값</th><th>이유</th></tr></thead><tbody><tr><td class="nowrap">28</td><td><code>anon_upload_enable</code></td><td><code>#</code> 유지</td><td>풀면 난리남 — 익명 사용자가 파일을 올리게 하는 기능이라 절대 허용하지 않음</td></tr><tr><td class="nowrap">32</td><td><code>anon_mkdir_write_enable</code></td><td><code>#</code> 유지</td><td>익명 사용자가 디렉토리를 만들게 하는 기능이라 절대 허용하지 않음</td></tr><tr><td class="nowrap">28~32 구간</td><td>SELinux·FTP 익명 사용자 설정</td><td><code>#</code> 유지</td><td>이 구간 전체가 SELinux와 FTP가 함께 쓰는 익명 사용자 관련 설정</td></tr><tr><td class="nowrap">27번 근처</td><td>SELinux 설명 (<code>allow_ftpd_anon_write</code> 등)</td><td><code>#</code> 그대로</td><td>SELinux를 쓰지 않음 (<code>#</code> = 그 라인을 안 쓴다는 뜻). SELinux 해제는 linux.html 7장</td></tr></tbody></table></div><div class="dg-bar warn">익명 업로드 — anon_upload_enable·anon_mkdir_write_enable은 # 유지. 익명 사용자의 파일 업로드·디렉토리 생성은 절대 허용하지 않음</div><h3>dirmessage_enable (36번)</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">출력 내용</td><td>어느 경로로 이동했는지, 업로드가 완료됐는지 등</td><td>출력해 주는 것이 가장 좋음 (업로드 여부를 체크할 수 있음)</td></tr><tr><td class="nowrap">확인 방법</td><td>FileZilla 로그창에서 <code>backup</code> 디렉토리로 이동하면 메시지가 뜸</td><td>웬만해서는 손대지 않음 (NO로 바꿀 일이 별로 없음)</td></tr></tbody></table></div><h3>xferlog_enable (39번) — 로그</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">기록 내용</td><td>누가 올렸는지, 몇 시에 했는지, 언제 내려받았는지</td><td></td></tr><tr><td class="nowrap">저장 위치</td><td><code>/var/log</code> 아래</td><td></td></tr><tr><td class="nowrap">NO 금지</td><td>누가 언제 업로드·다운로드 했는지 파악이 안 됨 (보험사 위험도 있음)</td><td>해커는 이 로그를 다 망가뜨리므로 손을 못 대게 해야 함</td></tr></tbody></table></div><div class="dg-bar warn">xferlog_enable — 업·다운로드 로그(누가·몇 시·무엇을)를 /var/log에 기록. NO 금지. xferlog_file 앞 #을 풀어야 로그 파일이 실제로 만들어짐</div><h3>connect_from_port_20 (42번) — FTP 포트 2개</h3><div class="dg"><p class="dg-title">FTP 연결 — 접속은 21번, 액티브 모드 데이터 연결은 서버 20번에서 시작</p><div class="dg-flow"><div class="dg-node "><h4>클라이언트 (FileZilla)</h4><p class="sub">서버로 접속</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>서버 <code>21</code>번 포트</h4><p class="sub">접속(제어) 연결</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>서버 <code>20</code>번 포트</h4><p class="sub">PORT(액티브) 방식 데이터 연결 시작 (<code>connect_from_port_20=YES</code>)</p></div></div></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">접속</td><td>클라이언트가 서버로 접속할 때는 <strong>21번</strong> 포트</td><td></td></tr><tr><td class="nowrap">데이터 연결</td><td><code>connect_from_port_20</code>은 PORT 방식(액티브 모드) 데이터 연결을 서버의 <strong>20번</strong> 포트에서 시작하게 하는 옵션</td><td>"다운로드할 때 20번"은 액티브 모드일 때만 해당. man 기본값은 <code>NO</code>, 샘플 설정 파일에서만 <code>YES</code></td></tr><tr><td class="nowrap">번호 변경</td><td>20번 대신 다른 번호를 쓰는 설정도 가능</td><td></td></tr></tbody></table></div><div class="dg-bar warn">FTP 포트 — 접속 21번, 20번은 액티브(PORT) 모드의 서버→클라이언트 데이터 연결 포트. 다운로드할 때 항상 20번은 아님</div><h3>chown_uploads (47번)</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">값</td><td><code>chown_uploads=YES</code> 계열은 쓰지 말 것 (<code>#</code> 유지)</td><td>위 주석에 root로 업로드 파일 소유를 권장하지 않는다고 적혀 있음</td></tr><tr><td class="nowrap">의미</td><td>익명 업로드 파일의 소유자를 <code>chown_username</code>으로 바꾸는 옵션</td><td>root 로그인 허용 여부와는 별개</td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 8강 root의 FTP 접속 차단 위치</div><p>root의 업로드·다운로드·접속을 무조건 막아야 한다는 것이 강사 발언의 취지이나, root의 FTP 접속을 막는 설정이 어디인지는 확인한 man 페이지 범위에 나오지 않음 — 서버에서 <code>/etc/vsftpd/ftpusers</code>·<code>/etc/vsftpd/user_list</code> 파일에 root가 들어 있는지 <code>cat</code>으로 확인 필요</p></div><h3>xferlog_file·xferlog_std_format (52·56번)</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/vsftpd/vsftpd.conf 파일 안 · root]</span>
+<span class="c"># 52번 : 로그 파일 경로. 앞에 # 이 있으면 로그 기록을 켜도 파일이 안 만들어짐 → i 로 입력 모드에서 # 을 풀 것(권고)</span>
+xferlog_file=/var/log/xferlog
+<span class="c"># 56번 : 로그를 wu-ftpd 표준 포맷으로 쓸지 여부</span>
+xferlog_std_format=YES</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">52번</td><td><code>#</code>이 있으면 로그 기록을 켜도 실제 기록은 안 됨 (파일이 안 만들어짐)</td><td>로그를 꼭 남기려면 <code>#</code>을 풀 것 (권고)</td></tr><tr><td class="nowrap">56번</td><td>로그를 wu-ftpd 표준 포맷으로 쓸지 여부</td><td>로그 파일 경로는 <code>xferlog_file</code>(기본 <code>/var/log/xferlog</code>) 또는 <code>vsftpd_log_file</code>(기본 <code>/var/log/vsftpd.log</code>)로 정해짐. man 페이지에는 날짜별 파일명을 만드는 옵션이 없음</td></tr><tr><td class="nowrap">로그 정리</td><td>로그가 어느 정도 쌓이면 지움</td><td>보관 기준 30일 (CCTV 보관 기간과 비슷한 개념)</td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 8강 날짜별 로그 파일 · 56번</div><p>"10월 8일이면 <code>20261008.vsftpd.log</code>로 저장되고 날짜별로 쌓임"이라는 설명이 있었으나 날짜별 파일이 실제로 생기는지는 확인 못 함 — 서버에서 <code>ls /var/log | grep -i ftp</code>로 실제 로그 파일 이름 확인 필요</p></div></section>
+  <section class="sec" id="sec-timeout"><h2>타임아웃 (idle_session_timeout · data_connection_timeout)</h2><div class="dg"><p class="dg-title">한눈에 보기 — 두 타임아웃의 기준이 다름</p><div class="dg-flow"><div class="dg-node key"><h4>idle_session_timeout</h4><p class="sub">59번 · 샘플 600초 · 명령 없이 기다린 시간</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>data_connection_timeout</h4><p class="sub">62번 · 샘플 120초 · 전송이 멈춘 시간</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>실습 (연습값 10초)</h4><p class="sub">idle만 10초 뒤 끊김, 14.7GiB 업로드는 계속 진행</p></div></div><p class="dg-foot">전송이 계속 이어지는 동안은 끊기지 않음</p></div><h3>두 옵션 비교</h3><div class="table-wrap"><table><thead><tr><th>지시어</th><th>라인·값</th><th>의미</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>idle_session_timeout</code></td><td>59번 · 샘플 <code>600</code>(10분)</td><td>유휴(idle) 세션 타임아웃 — FTP 명령 사이에 기다리는 시간. 접속만 하고 아무것도 안 하면 자동 접속 해제</td><td>은행·인터넷 자동 로그아웃과 같은 개념. 앞의 <code>#</code>을 풀어서 사용</td></tr><tr><td class="nowrap"><code>data_connection_timeout</code></td><td>62번 · 샘플 <code>120</code>(2분)</td><td>전송이 진전 없이 멈춰 있는 시간의 한도 ("how long a data transfer may stall")</td><td>파일 전송이 계속 이어지는 동안은 끊기지 않음. 앞의 <code>#</code>을 풀어서 사용</td></tr><tr><td class="nowrap">기본값</td><td>man 기본값은 두 값 모두 <code>300</code>초</td><td><code>600</code>·<code>120</code>은 샘플 설정 파일의 값</td><td>대용량(1GB·2GB 영상) 파일 서버는 시간을 넉넉히 늘려 둠</td></tr></tbody></table></div><h3>실습</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/vsftpd/vsftpd.conf 파일 안 · root]</span>
+<span class="c"># 59번 : 무동작 시 자동 접속 해제(초). 600 → 10 (연습값 — 10분은 너무 길어서)</span>
+idle_session_timeout=10
+<span class="c"># 62번 : 데이터 전송이 멈춘 시간 한도(초). 120 → 10 (연습값, 실습 2에서 추가 변경)</span>
+data_connection_timeout=10</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>실습</th><th>변경·방법</th><th>결과</th></tr></thead><tbody><tr><td class="nowrap">실습 1</td><td>59번만 600 → 10 변경 → FileZilla 접속 후 아무것도 안 하고 기다림 (접속 후 <code>desktop.ini</code>를 업로드하고 가만히 두는 방식도 사용)</td><td>10초가 지나면 세션이 끊김</td></tr><tr><td class="nowrap">실습 2</td><td>59·62번 둘 다 10 → 재시작 → FileZilla 재접속 → 약 14.7GiB 리눅스 ISO 업로드 (D 드라이브 <code>CentOS-Stream-9-latest-x86_64-dvd1.iso</code>)</td><td>10초가 지나도 업로드가 끊기지 않고 계속 진행됨 (약 35MiB/s) → 취소 후 업로드된 파일 삭제</td></tr><tr><td class="nowrap">이후</td><td>59·62번을 10으로 두고 연계된 다른 항목도 함께 설정 (끊기는 시점 확인은 시간이 지나야 하므로 일단 이렇게 설정)</td><td>나중에 접속이 끊기면 그때 시간을 늘리면 됨</td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 8강 실습 2 · 추가로 바꾼 줄 · 38:42~39:58</div><p>추가로 건드릴 지시어가 정확히 무엇인지 말하지 않음 (아래 줄·연계 항목으로만 지칭) — 추가로 바꾼 줄(라인 번호)이 있는지 영상 확인 필요</p></div><div class="dg-bar warn">타임아웃 — idle_session_timeout = 명령 없이 기다리는 시간(무동작 시 해제), data_connection_timeout = 전송이 진전 없이 멈춘 시간. 전송이 계속되면 끊기지 않음 (10초로 줄여도 14GB ISO 업로드 지속). man 기본값은 둘 다 300초, 600·120은 샘플 값</div></section>
+  <section class="sec" id="sec-ascii"><h2>ASCII/Binary 전송 · 확장자 차단(deny_file)</h2><div class="dg"><p class="dg-title">한눈에 보기 — 파일 종류와 차단 옵션의 역할 분리</p><div class="dg-flow"><div class="dg-node "><h4>ASCII / Binary</h4><p class="sub">글자 파일 vs 이미지·영상·음악</p></div><div class="dg-arrow"></div><div class="dg-node "><h4><code>ascii_*_enable</code></h4><p class="sub">82·83번 · ASCII 모드 요청 적용 여부</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4><code>deny_file</code></h4><p class="sub">84번 · 이름 패턴으로 차단 <code>{*.png,*.jpg,*.jpeg}</code></p></div></div><p class="dg-foot">확장자 차단은 deny_file 담당. ascii_*_enable은 파일 종류를 허용·차단하지 않음</p></div><h3>ASCII와 Binary</h3><div class="table-wrap"><table><thead><tr><th>구분</th><th>내용</th><th>비고</th></tr></thead><tbody><tr><td class="nowrap">ASCII</td><td>메모장으로 만든 글자(문서) 형태 파일</td><td>판별법 : vi로 열었을 때 글자가 읽힘</td></tr><tr><td class="nowrap">Binary</td><td>동영상·이미지·음악 등</td><td>판별법 : vi로 열었을 때 외계어처럼 보임</td></tr><tr><td class="nowrap">PPTX(파워포인트)</td><td>Binary</td><td></td></tr><tr><td class="nowrap">한글(hwp)</td><td>Binary</td><td>저장 방식 때문</td></tr><tr><td class="nowrap">파이썬·HTML·CSS·자바스크립트 등 코드 파일</td><td>ASCII</td><td>비주얼 스튜디오 코드로 짠 코드</td></tr><tr><td class="nowrap">이미지·동영상·음악</td><td>Binary</td><td></td></tr><tr><td class="nowrap">FileZilla 설정 위치</td><td>[윈도우 · FileZilla] 메뉴 <code>전송</code> → <code>전송 유형</code> → <code>ASCII</code> / <code>바이너리</code> 선택</td><td>서버 설정을 정확히 적용하려면 알아야 함</td></tr><tr><td class="nowrap">82·83번 <code>#</code> 주석 상태</td><td>ASCII·Binary 모두 전송됨</td><td><code>ascii_upload_enable</code>·<code>ascii_download_enable</code>은 ASCII 모드 요청을 실제로 적용할지 여부 (기본 NO)</td></tr><tr><td class="nowrap">파일 위쪽 주석</td><td>ASCII 모드에서 <code>SIZE</code> 명령을 이용한 DoS 공격 설명</td><td>vsftpd는 이 공격을 예측해 항상 안전하다고 적혀 있음</td></tr></tbody></table></div><h3>실습 1 — ascii_*_enable 을 NO로</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/vsftpd/vsftpd.conf 파일 안 · root]</span>
+<span class="c"># 82번 : ASCII 업로드 — 앞의 # 해제 후 NO</span>
+ascii_upload_enable=NO
+<span class="c"># 83번 : ASCII 다운로드 — 앞의 # 해제 후 NO</span>
+ascii_download_enable=NO</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 순서</td><td>저장 → 재시작</td><td>접속이 유지된 상태에서는 적용되지 않으므로 접속을 끊거나 서비스를 <code>stop</code> 후 <code>start</code> (restart로도 가능)</td></tr><tr><td class="nowrap">확인 방법</td><td>접속해서 ASCII 업·다운로드를 시도</td><td>NO로 두면 서버는 ASCII 모드를 허용하는 척하지만 활성화 요청을 무시할 뿐 (줄바꿈 변환 없이 그대로 전송). 전송 자체를 막지 않음 (vsftpd.conf man 페이지)</td></tr></tbody></table></div><h3>실습 2 — 확장자 차단 (deny_file, 84번)</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/vsftpd/vsftpd.conf 파일 안 · root]</span>
+<span class="c"># 82번 : ASCII 업로드 (소문자 yes)</span>
+ascii_upload_enable=yes
+<span class="c"># 83번 : ASCII 다운로드 (소문자 no)</span>
+ascii_download_enable=no
+<span class="c"># 84번 : 직접 추가 — 확장자 차단. 값은 중괄호 { } 로 감싸고 *.확장자를 쉼표(,)로 이음 (대괄호 아님)</span>
+deny_file={*.png,*.jpg,*.jpeg}</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 순서</td><td>저장 → 재시작</td><td></td></tr><tr><td class="nowrap">테스트 이미지</td><td>구글 이미지에서 png·jpg로 바탕화면에 저장</td><td>avif는 안 됨</td></tr><tr><td class="nowrap">확인</td><td>FileZilla로 바탕화면 이미지를 업로드</td><td>업로드 안 됨. ASCII 파일(예 인수인계 파일)은 업로드됨 → 제어됨</td></tr><tr><td class="nowrap">원리</td><td>이미지가 막힌 것은 <code>deny_file</code>의 이름 패턴 때문</td><td><code>deny_file</code>은 목록에는 보이되 해당 파일에 대한 모든 동작을 거부. man 페이지는 본격적인 접근 제어 용도로는 권하지 않음</td></tr><tr><td class="nowrap">실무 사례</td><td>개발자 계정에 이렇게 걸기도 함</td><td>개발자는 이미지·Binary 없이 HTML 소스 코드만 올리므로 그 외 파일이 올라가면 이상한 것 → 차단. 디자이너 계정에는 부적합 (이미지를 올려야 함)</td></tr><tr><td class="nowrap">원복</td><td>82~84번에 다시 <code>#</code>을 달고 재시작</td><td>실습 끝에 <code>#</code> 주석 상태로 돌려놓음</td></tr></tbody></table></div><div class="dg-bar warn">deny_file — 확장자 차단은 deny_file={*.png,*.jpg,*.jpeg} 가 담당 (중괄호 + 쉼표). ascii_*_enable은 ASCII 모드 요청을 적용할지 여부일 뿐 파일 종류를 허용·차단하지 않음. ASCII = 글자 파일(코드), Binary = pptx·hwp·이미지·동영상·음악</div><h3>쓰지 않는 라인 (설명만)</h3><div class="table-wrap"><table><thead><tr><th>라인</th><th>지시어</th><th>의미</th><th>실습</th></tr></thead><tbody><tr><td class="nowrap">71</td><td><code>async_abor_enable</code></td><td>전송 취소(ABOR) 명령을 비동기로 받는 옵션 (일부 클라이언트가 취소 시 멈추는 문제용, 기본 NO). 파일 동기화와 무관</td><td>쓰지 않음 (손대지도, 외우지도 말 것)</td></tr><tr><td class="nowrap">66</td><td><code>nopriv_user</code></td><td>vsftpd가 권한 없이 동작할 때 쓰는 비특권 계정 (기본 nobody, 전용 계정 권장). 키 인증과 무관</td><td>지금은 설정하지 않음 (추후 사용 예정)</td></tr><tr><td class="nowrap">87</td><td><code>ftpd_banner</code></td><td>접속 시 보이는 환영(인사) 배너를 바꾸는 옵션</td><td>실무에서 쓰지 않는 불필요한 라인</td></tr><tr><td class="nowrap">선수학습</td><td>SFTP·키 파일 접속</td><td>[윈도우 · FileZilla] 사이트 관리자 → 새 사이트 → 프로토콜(FTP/SFTP). 로그인 유형에서 비밀번호 대신 <code>키 파일</code>을 쓰는 SFTP가 있고, 키 파일이 없으면 접속 못 함</td><td>키 파일로 비밀번호 없이 접속하는 방법은 이후에 다룸 (지금은 몰라도 됨)</td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 8강 ftpd_banner · 61:08~61:31</div><p>"FileZilla에서는 이 메시지가 안 뜨고 RFTP 같은 소프트웨어를 쓰면 뜬다"는 설명이 있었으나 소프트웨어 이름(rftp, rmap 등)이 정확히 무엇인지 불명확하고, FileZilla에서 안 뜬다는 말은 확인 못 함 — 영상 확인 + FileZilla 로그창 맨 위 <code>220</code> 줄에 배너가 표시되는지 접속해서 확인 필요</p></div></section>
+  <section class="sec" id="sec-chroot"><h2>홈 디렉토리 밖 접근 막기 (chroot)</h2><div class="dg"><p class="dg-title">한눈에 보기 — chroot 설정 → 500 에러 → 해결</p><div class="dg-flow"><div class="dg-node "><h4>① 문제</h4><p class="sub">홈·루트 버튼으로 최상위까지 보임</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 설정</h4><p class="sub">101 <code>chroot_local_user=YES</code> · 102 <code>chroot_list_enable=NO</code></p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ 500 에러</h4><p class="sub">재시작 후 접속 불가 (쓰기 가능한 홈 거부)</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 해결</h4><p class="sub">103번 자리에 <code>allow_writeable_chroot=YES</code> 추가</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>⑤ 정상</h4><p class="sub">최상위를 눌러도 자기 디렉토리만 보임</p></div></div><p class="dg-foot">실무에서 이렇게 한다는 소개 — 외울 필요 없음</p></div><h3>문제와 설정 라인</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">문제</td><td>FileZilla에서 <code>홈</code>·<code>루트(최상위)</code> 버튼을 누르면 최상위 디렉토리까지 다 보임 (101~104번 라인을 설정한 뒤에도 이 상태에서 시작)</td><td>보안이 뚫린 것과 같음 (자기 디렉토리만 보여야 함)</td></tr><tr><td class="nowrap">FTP가 약하다는 말</td><td>대부분 이 상태로 두기 때문 (해커가 좋아함)</td><td></td></tr><tr><td class="nowrap">101번 <code>chroot_local_user=YES</code></td><td>로컬 사용자를 홈 디렉토리에 가둠 — 접속하면 자신의 경로가 기준점(최상위)이 됨</td><td>리눅스에 등록된 로컬 사용자만 해당</td></tr><tr><td class="nowrap">102번 <code>chroot_list_enable</code></td><td>켜면 <code>chroot_list_file</code>의 목록이 가두지 않을 사용자(예외)가 됨</td><td>NO로 하면 예외 목록이 없어져 모두 가둬짐 → 에러가 나는 흐름</td></tr><tr><td class="nowrap">104번 <code>chroot_list_file=/etc/vsftpd/chroot_list</code></td><td>예외(가두지 않을) 사용자 목록 파일</td><td>103번 추가 후 105번으로 밀림</td></tr></tbody></table></div><h3>실습 — 500 에러와 해결</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/vsftpd/vsftpd.conf 파일 안 · root]</span>
+<span class="c"># 101번 : 로컬 사용자를 홈 디렉토리에 가둠 (# 해제)</span>
+chroot_local_user=YES
+<span class="c"># 102번 : 예외 목록 미사용 (# 해제 후 NO). 단독 적용 시 500 에러</span>
+chroot_list_enable=NO
+<span class="c"># 103번 : 추가한 줄 — 가둔 홈이 쓰기 가능해도 실행되게 함 (모두 소문자, 추가하면 아래 줄이 한 칸씩 밀림)</span>
+allow_writeable_chroot=YES
+<span class="c"># 105번 : 최종 화면 기준 (기존 104번이 밀림, # 해제)</span>
+chroot_list_file=/etc/vsftpd/chroot_list</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>단계</th><th>내용</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">1. 설정</td><td>102번 <code>chroot_list_enable</code>을 <code>NO</code>로 변경 (위쪽 ASCII 관련 줄은 전부 <code>#</code>으로 걸어 둠)</td><td>ASCII·Binary 모두 업로드해야 하므로</td></tr><tr><td class="nowrap">2. 500 에러</td><td>재시작 후 FileZilla 재접속</td><td><code>500</code> 에러로 접속 못 함 (보안상 막힘). 설정을 다시 풀면 최상위까지 다 보이므로 이러지도 저러지도 못하는 상황</td></tr><tr><td class="nowrap">3. 원인</td><td>가둔 홈 디렉토리가 쓰기 가능하면 vsftpd가 실행을 거부하는 보안 검사</td><td><code>500 OOPS: vsftpd: refusing to run with writable root inside chroot()</code> (vsftpd 2.3.5 이후)</td></tr><tr><td class="nowrap">4. 해결</td><td>103번(<code>#(default follows)</code> 윗줄) 자리에 <code>allow_writeable_chroot=YES</code> 한 줄 추가</td><td>위 보안 검사를 우회. man 페이지에는 이 옵션이 없었음 (출처 : DigitalOcean Community, Dell KB 000214872)</td></tr><tr><td class="nowrap">실수 사례</td><td><code>allow_writeable_chroot</code>를 대문자 <code>W</code>로 입력해 오타 발생</td><td>소문자로 수정</td></tr><tr><td class="nowrap">5. 정상 확인</td><td>재시작 후 FileZilla를 완전히 종료하고 다시 접속</td><td>자기 디렉토리만 보이고 최상위를 눌러도 자기 것만 보임 = 정상</td></tr></tbody></table></div><div class="dg-bar warn">chroot 500 에러 — chroot_local_user=YES인데 가둔 홈이 쓰기 가능하면 500 OOPS: refusing to run with writable root inside chroot() → allow_writeable_chroot=YES(모두 소문자)로 해결. 홈 디렉토리 밖이 보이면 안 됨</div><div class="dg-bar warn">chroot 범위 — 이 장(chroot 상세)은 평가 범위에 나오지 않음. 외울 필요 없고 실무 소개로 이해</div><ul class="facts"><li><strong>자세한 실습</strong><div>컨테이너(megaweb) 안 vsftpd의 chroot 적용: docker.html 7장</div></li></ul><div class="note-verify"><div class="tag">🔍 직접 확인 · 8강 chroot의 평가 범위</div><p>이 장은 평가 범위가 아니라고 했으나, 요약 정리에는 <code>chroot_local_user=YES</code>·<code>allow_writeable_chroot=YES</code>가 보안 포인트로 함께 적혀 있어 자료 안에서 충돌 — 범위 여부를 확정하지 않음, 영상 확인 필요</p></div></section>
+  <section class="sec" id="sec-port"><h2>포트 변경 (listen_port · 포트 선택 · 포트 포워딩)</h2><div class="dg"><p class="dg-title">한눈에 보기 — 기본 포트 21 → 9021 변경 흐름</p><div class="dg-flow"><div class="dg-node key"><h4>① 설정</h4><p class="sub">맨 아래 <code>listen_ipv6=YES</code> 아래에 <code>listen_port=9021</code></p></div><div class="dg-arrow"></div><div class="dg-node "><h4>② 재시작</h4><p class="sub"><code>systemctl restart vsftpd.service</code></p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ 접속</h4><p class="sub">FileZilla 포트 21 = 안 됨 / 9021 = 됨</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 확인</h4><p class="sub"><code>netstat -lnp</code> — 21 없고 9021 표시</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>⑤ 포워딩</h4><p class="sub">VirtualBox 규칙 <code>9021 → 9021</code></p></div></div><p class="dg-foot">FTP는 그대로 쓰는 중이고 포트만 바꾼 것</p></div><h3>listen_port 추가</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/vsftpd/vsftpd.conf 파일 안 · root]</span>
+<span class="c"># 기존 줄 (변경 없음) — 표준 설명 : listen=NO 이면 IPv4 단독 standalone 모드를 쓰지 않음</span>
+listen=NO
+<span class="c"># 기존 줄. 맨 아래의 이 줄 바로 아래에 listen_port 를 추가 (Shift + G → i → 입력 → ESC → :wq → 재시작)</span>
+listen_ipv6=YES
+<span class="c"># 직접 추가 : 기본 21 대신 사용할 포트 (연습값 9021)</span>
+listen_port=9021
+<span class="c"># 기존 줄 (변경 없음) — 표준 설명 : PAM 서비스 이름</span>
+pam_service_name=vsftpd
+<span class="c"># 기존 줄 (변경 없음) — 표준 설명 : user_list 파일 사용</span>
+userlist_enable=YES</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+netstat -lnp   <span class="c"># 서버에서 열린(리슨) 포트 목록 확인 (표준 예시 : -l 리슨 중 / -n 숫자로 표시 / -p 프로세스 표시)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>단계</th><th>내용</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">접속 확인</td><td>[윈도우 · FileZilla] 기존대로 21번으로 접속</td><td>안 됨</td></tr><tr><td class="nowrap">새 포트로 접속</td><td>포트 칸에 <code>9021</code> 입력</td><td>접속됨</td></tr><tr><td class="nowrap">서버에서 확인</td><td><code>netstat -lnp</code></td><td>21번은 없고 <code>9021</code>이 떠 있음 (FTP는 계속 쓰는 중이고 포트만 바꾼 것)</td></tr></tbody></table></div><h3>기본 포트를 바꾸는 이유</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">보안 효과</td><td>21번(기본 포트)은 공격하기 쉬우므로 임의로 <code>9021</code>로 변경</td><td>해커가 9021을 모르면 헤매다 다른 대상으로 넘어감 (접속하는 사람만 새 포트를 알면 됨)</td></tr><tr><td class="nowrap">실무</td><td>기본 포트는 거의 안 씀</td><td>선임이 포트를 다 바꾸라고 하는 것이 정석</td></tr><tr><td class="nowrap">SMTP 예시</td><td>기본 포트를 쓰면 공격당하기 때문에 메일 서버도 다른 포트를 쓴다는 설명 (네이트 메일)</td><td>SMTP 서버 간 릴레이는 25번, 메일 제출(submission) 표준 포트는 <code>587</code> (RFC 6409)</td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 8강 SMTP 포트 번호 · 78:08</div><p>전사에는 "567번"으로 적혀 있으나 587의 오기일 가능성이 큼 — 실제 발언 확인 필요. 네이트 메일이 실제로 쓰는 포트는 확인 못 함 — 네이트 메일 SMTP 설정 안내 페이지에서 포트 번호 확인 필요</p></div><div class="dg-bar warn">기본 포트 변경 — 21(기본 포트)은 공격 대상이 되기 쉬움 → listen_port=9021 로 변경하고 netstat -lnp 로 확인, 접속자는 새 포트로 접속. 실무에서 기본 포트는 거의 안 씀</div><h3>포트 선택 기준</h3><div class="table-wrap"><table><thead><tr><th>대역</th><th>사용 권고</th><th>이유</th></tr></thead><tbody><tr><td class="nowrap">9000번 이상</td><td>웬만하면 다 사용 가능 — 가장 안전</td><td>만 번대도 충돌 없음</td></tr><tr><td class="nowrap">8000번대</td><td>피할 것</td><td>8080 같은 포트가 있어 톰캣 등과 충돌 → 포트가 안 열리는 문제 발생</td></tr><tr><td class="nowrap">7000번대</td><td>사용해도 됨</td><td></td></tr><tr><td class="nowrap">6000번대</td><td>웬만하면 피할 것</td><td>나중에 스파크 같은 것에서 주로 사용</td></tr><tr><td class="nowrap">5000번대</td><td>쓰지 말 것</td><td>데이터베이스가 쓰는 5000번대 포트가 있어 충돌</td></tr><tr><td class="nowrap">1500 이하</td><td>건드리지도 말 것</td><td>웬만한 서비스가 다 씀</td></tr></tbody></table></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">포트 충돌</td><td>이미 쓰고 있는 포트와 겹치면 안 됨</td><td>사용하지 않는 포트로 돌려야 함</td></tr><tr><td class="nowrap">예시</td><td><code>listen_port</code>를 <code>3306</code>으로 하면 FTP는 돌지만 나중에 MySQL(포트 3306)을 설치할 수 없음</td><td>MySQL 포트는 mysql.html 참고</td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 8강 포트 대역별 소프트웨어 이름 · 75:37 · 76:12 · 76:20</div><p>8000번대에서 충돌하는 소프트웨어 이름(전사 "단뜻", 톰캣으로 추정), 6000번대 스파크 포트, 5000번대에서 충돌하는 데이터베이스 이름(전사 "퍼스트 그레이") — 전사가 불명확하므로 영상 확인 필요</p></div><div class="dg-bar warn">포트 변경 시 충돌 주의 — 3306(MySQL) 금지, 9000번 이상 권장, 8000·6000·5000번대는 피함, 1500 이하는 건드리지 않음</div><h3>VirtualBox 포트 포워딩</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>변경 전</th><th>변경 후</th></tr></thead><tbody><tr><td class="nowrap">위치</td><td>[윈도우 · VirtualBox] <code>네트워크</code>(NAT 네트워크) → <code>포트 포워딩</code></td><td></td></tr><tr><td class="nowrap">FTP 규칙</td><td><code>FTP</code> · TCP · 호스트 IP <code>21</code> → 게스트 <code>192.168.222.2</code> <code>21</code></td><td>호스트 포트 <code>9021</code> → 게스트 포트 <code>9021</code></td></tr><tr><td class="nowrap">SSH 규칙</td><td><code>22</code></td><td>그대로 (<code>22</code>)</td></tr><tr><td class="nowrap">확인</td><td>윈도우(호스트 IP <code>10.143.242.155</code>) 쪽에서도 <code>9021</code>로 열림</td><td>윈도우에서 21번으로 접근할 일이 없어짐</td></tr></tbody></table></div><ul class="facts"><li><strong>자세한 실습</strong><div>포트포워딩 설정 화면·NAT: linux.html 2장 / 컨테이너 환경의 vsftpd 9021 포트: docker.html 7장 (포트 게시: docker.html 9장)</div></li></ul><ul class="facts"><li><strong>자세한 실습</strong><div>웹 포트 <code>Listen</code> 변경과 포트포워딩: httpd.html 5장</div></li></ul></section>
+  <section class="sec" id="sec-trouble"><h2>설정 오류 대응 (오타 · systemctl status · journalctl)</h2><div class="dg"><p class="dg-title">한눈에 보기 — 서비스가 안 뜰 때 원인 찾기</p><div class="dg-flow"><div class="dg-node "><h4>① restart 실패</h4><p class="sub"><code>Job for vsftpd.service failed …</code></p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 상태·로그</h4><p class="sub"><code>systemctl status</code> · <code>journalctl -xeu</code></p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ 라인 확인</h4><p class="sub"><code>journalctl -u … -n 50 --no-pager</code></p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 수정</h4><p class="sub">오타 줄 고친 뒤 restart (못 찾으면 백업본 복구)</p></div></div><p class="dg-foot">백업은 1장 참고</p></div><h3>오타로 서비스가 안 뜨는 경우</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실수 사례</td><td>수정 중 점(<code>.</code>)을 잘못 찍은 채 저장하고 나가 재시작 → 에러</td><td>원래대로 고치기 전에는 서비스가 뜨지 않음</td></tr><tr><td class="nowrap">대응</td><td>서비스가 안 뜨면 오타부터 찾음</td><td>점 하나로도 안 뜸. 틀린 위치는 직접 찾아야 함</td></tr><tr><td class="nowrap">복구</td><td>못 찾으면 수정 전에 복사해 둔 백업본으로 복구</td><td>백업은 1장 참고</td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 8강 오타 원인 줄 · 29:27~30:04</div><p>실제로 어느 줄이 원인이었는지 영상에서 직접 말하지 않음. 이후 56번 <code>xferlog_std_format</code> 줄이 <code>#</code> 주석 처리된 상태가 화면에 보임 (강사 침묵 구간) — 고친 줄이 56번인지 영상 확인 필요</p></div><h3>오류 위치 확인</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 재시작 실패 시 아래 안내문이 출력됨 (설정 오류)</span>
+<span class="c">#   Job for vsftpd.service failed because the control process exited with error code.</span>
+<span class="c">#   See "systemctl status vsftpd.service" and "journalctl -xeu vsftpd.service" for details.</span>
+systemctl restart vsftpd.service
+<span class="c"># 안내문의 명령을 그대로 실행 → 어느 부분에서 문제가 났는지 확인 (화면에 failed, vsftpd exit 코드 에러 표시)</span>
+systemctl status vsftpd.service                 <span class="c"># 서비스 상태·실패 원인 확인</span>
+journalctl -xeu vsftpd.service                  <span class="c"># 서비스 로그 상세 확인</span>
+<span class="c"># -u : 서비스(유닛) 지정 / -n 50 : 최근 50줄 / --no-pager : 페이저 없이 출력</span>
+journalctl -u vsftpd.service -n 50 --no-pager   <span class="c"># 몇 번째 라인 문제인지 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">에러 문구</td><td><code>500 OOPS: bad bool value</code></td><td>YES/NO 자리에 잘못된 값</td></tr><tr><td class="nowrap">원인(실습 사례)</td><td>로그(<code>xferlog</code>) std 포맷 설정</td><td>해당 줄을 찾아 고쳐야 정상 기동 (나머지는 문제 없음)</td></tr></tbody></table></div><div class="dg-bar warn">설정 오타 대응 — 오타 한 글자로 서비스가 안 뜸 → 수정 전 cp 백업, 오류는 systemctl status / journalctl -xeu 로 확인. 500 OOPS: bad bool value = YES/NO 자리에 잘못된 값</div><ul class="facts"><li><strong>자세한 실습</strong><div><code>systemctl</code> 서비스 재시작 기본: linux.html 3장 (sshd) / 오류 확인 명령은 이 장 기준</div></li></ul></section>
+  <section class="sec" id="cheatsheet"><h2>통합 명령어 치트시트</h2><p>이 카테고리에서 나온 명령어를 영역별로 모음. 내용이 추가되면 해당 영역 묶음 아래에 줄을 추가.</p><div class="table-wrap"><table class="cheat"><thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead><tbody><tr class="group"><th colspan="2" scope="colgroup">설정 파일 편집·백업</th></tr><tr><td><code>vi /etc/vsftpd/vsftpd.conf</code></td><td>vsftpd 설정 파일 편집. 경로 중간까지 치고 Tab</td></tr><tr><td><code>cp /etc/vsftpd/vsftpd.conf 백업경로/</code></td><td>환경설정 복사 백업. 수정 전 복사본 필수</td></tr><tr class="group"><th colspan="2" scope="colgroup">vi 편집 동작 (vsftpd.conf)</th></tr><tr><td><code>:set number</code> / <code>:set nu</code></td><td>라인 번호 표시</td></tr><tr><td><code>:숫자</code></td><td>해당 라인으로 이동 (ESC 후 입력, 예 <code>:60</code>)</td></tr><tr><td><code>Shift + G</code></td><td>맨 아래 라인으로 이동</td></tr><tr class="group"><th colspan="2" scope="colgroup">vsftpd 서비스</th></tr><tr><td><code>systemctl restart vsftpd.service</code></td><td>vsftpd 재시작. 설정을 한 번이라도 바꾸면 필수. <code>.service</code>는 서비스 제공 단위</td></tr><tr><td><code>systemctl stop</code> / <code>systemctl start vsftpd.service</code></td><td>중지·시작. 접속이 유지된 채로는 적용 안 될 때 사용</td></tr><tr><td><code>systemctl status vsftpd.service</code></td><td>서비스 상태·실패 원인 확인. 오류 시 화면 안내문</td></tr><tr><td><code>journalctl -xeu vsftpd.service</code></td><td>서비스 로그(상세). 오류 시 화면 안내문</td></tr><tr><td><code>journalctl -u vsftpd.service -n 50 --no-pager</code></td><td>최근 50줄 로그를 페이저 없이 출력. 몇 번째 라인 문제인지 확인</td></tr><tr class="group"><th colspan="2" scope="colgroup">포트 확인</th></tr><tr><td><code>netstat -lnp</code></td><td>열린(리슨) 포트 목록. 9021이 떠 있는지 확인</td></tr></tbody></table></div></section>
+
+  </main>
+</div>
+<script>
+(function () {
+  // 코드 복사
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.parentElement.querySelector('pre').innerText;
+      var done = function () {
+        btn.textContent = '복사됨'; btn.classList.add('done');
+        setTimeout(function () { btn.textContent = '복사'; btn.classList.remove('done'); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+      } else { fallback(text); done(); }
+    });
+  });
+  function fallback(t) {
+    var ta = document.createElement('textarea'); ta.value = t;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  // 현재 읽는 섹션을 목차에 표시
+  var links = Array.prototype.slice.call(document.querySelectorAll('.side a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function spy() {
+    var y = window.scrollY + window.innerHeight * 0.3, idx = 0;
+    secs.forEach(function (el, i) { if (el && el.offsetTop <= y) idx = i; });
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) idx = secs.length - 1;
+    links.forEach(function (a, i) { a.classList.toggle('on', i === idx); });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+})();
+</script>
+<script>
+(function () {
+  var r = document.documentElement, b = document.getElementById('themeBtn');
+  function cur() {
+    var t = r.getAttribute('data-theme');
+    if (t) return t;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function apply(t) {
+    r.setAttribute('data-theme', t);
+    b.textContent = t === 'dark' ? '라이트' : '다크';
+  }
+  try { var s = localStorage.getItem('note-theme'); if (s) r.setAttribute('data-theme', s); } catch (e) {}
+  apply(cur());
+  b.addEventListener('click', function () {
+    var n = cur() === 'dark' ? 'light' : 'dark';
+    apply(n);
+    try { localStorage.setItem('note-theme', n); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>

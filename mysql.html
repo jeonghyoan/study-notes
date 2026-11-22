@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MySQL 통합 학습노트 · Docker 기반 RDS형 구성·백업·복구</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #FFFFFF;
+  --paper-alt: #F4F6F8;
+  --ink: #0F172A;
+  --ink2: #273449;
+  --mute: #5B6779;
+  --hair: #CBD5E1;
+  --hair-soft: #E2E8F0;
+  --accent: #0B63CE;
+  --accent-text: #074799;
+  --accent-soft: #EEF4FC;
+  --fix: #B45309;
+  --fix-text: #7C2D12;
+  --fix-soft: #FFF7EC;
+  --fix-line: #F3D9B5;
+  --code-bg: #F5F7FA;
+  --code-line: #E2E8F0;
+  --comment: #6B7A90;
+  --sidebar: 240px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+    --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+    --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+    --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+  --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+  --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+  --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 24px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  line-height: 1.8;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Layout: sticky TOC + one readable column ---------- */
+.page {
+  display: grid;
+  grid-template-columns: var(--sidebar) minmax(0, 1fr);
+  gap: 0 48px;
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: 44px 48px 96px;
+}
+.side { position: relative; }
+.side nav {
+  position: sticky;
+  top: 28px;
+  padding-top: 6px;
+}
+.side .side-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+  margin: 0 0 10px;
+}
+.side ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1px solid var(--hair);
+  max-width: none;
+}
+.side li { margin: 0; font-size: 14px; line-height: 1.45; }
+.side a {
+  display: block;
+  padding: 7px 0 7px 14px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  color: var(--mute);
+  text-decoration: none;
+}
+.side a:hover { color: var(--ink); }
+.side a.on {
+  color: var(--accent-text);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.main { min-width: 0; }
+
+/* Inline TOC only for narrow screens */
+.toc { display: none; }
+
+/* ---------- Typography ---------- */
+h1 {
+  margin: 0 0 18px;
+  font-size: clamp(30px, 3.6vw, 42px);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--ink);
+}
+.deck {
+  margin: 0 0 8px;
+  font-size: 17.5px;
+  line-height: 1.75;
+  color: var(--ink2);
+  max-width: none;
+}
+h2 {
+  margin: 0 0 20px;
+  font-size: clamp(23px, 2.3vw, 28px);
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.sec h2 {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+.sec h2::before {
+  content: counter(sec);
+  counter-increment: sec;
+  flex: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--accent-text);
+  min-width: 1.4em;
+}
+.main { counter-reset: sec; }
+
+h3 {
+  margin: 40px 0 12px;
+  font-size: 19px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--ink);
+}
+p {
+  margin: 0 0 16px;
+  font-size: 16.5px;
+  color: var(--ink2);
+  max-width: none;
+}
+strong { color: var(--ink); font-weight: 700; }
+a { color: var(--accent-text); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+code {
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 1px 6px;
+  border: 1px solid var(--code-line);
+  border-radius: 4px;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Code blocks ---------- */
+.code {
+  position: relative;
+  margin: 14px 0 22px;
+}
+pre {
+  margin: 0;
+  padding: 16px 20px;
+  background: var(--code-bg);
+  border: 1px solid var(--code-line);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink);
+  tab-size: 4;
+}
+code.n { white-space: nowrap; }
+pre code {
+  background: transparent; padding: 0; border: 0; border-radius: 0;
+  font-size: inherit; word-break: normal; white-space: pre;
+}
+pre .c { color: var(--comment); }
+.copy {
+  position: absolute;
+  top: 8px; right: 8px;
+  font: 600 12px/1 'IBM Plex Sans', 'Noto Sans KR', sans-serif;
+  padding: 6px 9px;
+  color: var(--mute);
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0;
+}
+.code:hover .copy, .copy:focus-visible { opacity: 1; }
+.copy.done { color: var(--accent-text); border-color: var(--accent); opacity: 1; }
+@media (hover: none) { .copy { opacity: 1; } }
+
+/* ---------- Sections ---------- */
+.sec {
+  margin-top: 88px;
+  padding-top: 32px;
+  border-top: 2px solid var(--ink);
+}
+.split { display: block; }
+.split-left p { max-width: none; }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 36px;
+  margin-top: 8px;
+}
+/* 코드가 들어간 묶음은 좁아지지 않게 한 줄로 쌓기 */
+.grid-2:has(pre) { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 32px; }
+
+.strip-item {
+  padding-top: 4px;
+}
+.strip-item > h3 {
+  margin: 28px 0 10px;
+  font-size: 17.5px;
+  padding-left: 12px;
+  border-left: 3px solid var(--hair);
+  line-height: 1.4;
+}
+.grid-2:not(:has(pre)) .strip-item {
+  background: var(--paper-alt);
+  padding: 4px 22px 8px;
+  border-radius: 8px;
+}
+.grid-2:not(:has(pre)) .strip-item > h3 { border-left: 0; padding-left: 0; margin-top: 18px; }
+
+/* ---------- Hero ---------- */
+header { padding-bottom: 8px; }
+.core-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+.core-strip > div {
+  padding: 18px 18px 16px;
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 8px 8px;
+}
+.core-metric {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--accent-text);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.core-desc { font-size: 15px; line-height: 1.7; color: var(--ink2); margin: 0; }
+
+/* ---------- Lists ---------- */
+ul, ol { margin: 8px 0 20px; padding-left: 22px; max-width: none; }
+li { margin-bottom: 12px; font-size: 16px; line-height: 1.8; color: var(--ink2); }
+li::marker { color: var(--mute); }
+.wide-list { max-width: none; }
+ol.wide-list > li { padding-left: 4px; }
+
+/* ---------- Callouts ---------- */
+.note-fix, .note-verify {
+  margin: 22px 0 26px;
+  padding: 16px 22px 6px;
+  border-radius: 8px;
+  max-width: none;
+}
+.note-fix { background: var(--fix-soft); border: 1px solid var(--fix-line); border-left: 4px solid var(--fix); }
+.note-verify { background: var(--accent-soft); border: 1px solid var(--hair-soft); border-left: 4px solid var(--accent); }
+.note-fix .tag, .note-verify .tag {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.note-fix .tag { color: var(--fix-text); }
+.note-verify .tag { color: var(--accent-text); }
+.note-fix p, .note-verify p {
+  margin: 0;
+  padding: 10px 0 12px;
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--ink2);
+  max-width: none;
+}
+.note-fix p + p { border-top: 1px dashed var(--fix-line); }
+.note-fix p > strong:first-child,
+.note-verify p > strong:first-child { display: block; margin-bottom: 2px; }
+.note-fix p > strong:first-child { color: var(--fix-text); }
+
+/* ---------- Tables ---------- */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 26px 0 28px;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 15px; text-align: left; line-height: 1.65; }
+thead th {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper-alt);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--hair);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--hair-soft);
+  vertical-align: top;
+  color: var(--ink2);
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--paper-alt); }
+.num, .nowrap { white-space: nowrap; }
+td.nowrap:not(:has(code)) { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; }
+tr.group th {
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--hair);
+  border-top: 1px solid var(--hair);
+}
+tbody tr.group:first-child th { border-top: 0; }
+.cheat td:first-child { width: 46%; }
+.cheat td:first-child code { overflow-wrap: anywhere; }
+
+/* ---------- Definition list ---------- */
+dl.open-dl { margin: 14px 0 20px; display: grid; grid-template-columns: minmax(170px, 240px) minmax(0, 1fr); }
+dl.open-dl dt { padding: 10px 16px 10px 0; border-top: 1px solid var(--hair-soft); font-weight: 600; font-size: 15px; color: var(--ink); }
+dl.open-dl dd { margin: 0; padding: 10px 0; border-top: 1px solid var(--hair-soft); font-size: 15px; color: var(--ink2); }
+
+/* ---------- Figures ---------- */
+figure { margin: 36px 0; padding: 0; }
+figure .fig-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 14px; line-height: 1.5; }
+figure svg.diagram {
+  width: 100%; height: auto; display: block;
+  background: #FFFFFF;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  padding: 10px;
+}
+figcaption { margin-top: 10px; font-size: 14px; color: var(--mute); line-height: 1.6; }
+
+blockquote.pull { margin: 36px 0; padding: 0 0 0 22px; border-left: 3px solid var(--ink); font-size: clamp(20px, 2.2vw, 24px); line-height: 1.5; font-weight: 600; color: var(--ink); max-width: none; }
+
+/* ---------- Exam band ---------- */
+.band {
+  margin-top: 88px;
+  padding: 36px 32px 28px;
+  background: var(--paper-alt);
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 10px 10px;
+}
+.band > p { max-width: none; }
+.exam-list {
+  counter-reset: exam;
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.exam-list li {
+  counter-increment: exam;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 48px;
+  border-top: 1px solid var(--hair);
+  font-size: 16px;
+  line-height: 1.8;
+}
+.exam-list li::before {
+  content: counter(exam, decimal-leading-zero);
+  position: absolute;
+  left: 0; top: 17px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.exam-list li > strong:first-child { display: block; margin-bottom: 2px; }
+
+/* ---------- Key-value fact lists ---------- */
+ul.facts {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 24px;
+  max-width: none;
+  border-top: 1px solid var(--hair-soft);
+}
+ul.facts > li {
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  gap: 2px 20px;
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hair-soft);
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+ul.facts > li > strong:first-child { color: var(--ink); font-weight: 700; }
+ul.facts > li > div { color: var(--ink2); }
+ul.facts ul { margin: 0; padding-left: 18px; }
+ul.facts ul li { margin: 0 0 4px; font-size: 15.5px; }
+li > ul { margin: 6px 0 4px; }
+li > ul > li { margin-bottom: 4px; font-size: 15.5px; }
+td ul { margin: 0; padding-left: 16px; max-width: none; }
+td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
+.opts td:nth-child(2) { min-width: 13em; }
+@media (max-width: 760px) {
+  ul.facts > li { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- HTML diagrams (깨지지 않는 반응형 도식) ---------- */
+.dg {
+  margin: 26px 0 30px;
+  padding: 22px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  background: var(--paper-alt);
+}
+.dg-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 16px; line-height: 1.5; }
+.dg-flow { display: flex; align-items: stretch; }
+.dg-flow > .dg-node, .dg-flow > .dg-stack { flex: 1 1 0; min-width: 0; }
+.dg-stack { display: flex; flex-direction: column; gap: 12px; }
+.dg-node {
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.dg-node.key { border: 2px solid var(--ink); }
+.dg-node.accent { border: 1.5px solid var(--accent); }
+.dg-node.ghost { border: 1.5px dashed var(--hair); background: transparent; color: var(--mute); }
+.dg-node h4 { margin: 0 0 2px; font-size: 15px; line-height: 1.45; font-weight: 700; color: var(--ink); }
+.dg-node.accent h4 { color: var(--accent-text); }
+.dg-node .sub {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px; color: var(--mute);
+  margin: 0 0 8px; overflow-wrap: anywhere;
+}
+.dg-node ul { list-style: none; padding: 0; margin: 0; max-width: none; }
+.dg-node li { margin: 0 0 6px; font-size: 14px; line-height: 1.6; color: var(--ink2); }
+.dg-node li:last-child { margin-bottom: 0; }
+.dg-node .grp { padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--hair-soft); }
+.dg-node .lbl { display: block; font-weight: 700; font-size: 13.5px; color: var(--ink); }
+.dg-node .num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; margin-right: 6px; border-radius: 50%;
+  background: var(--accent); color: var(--paper); font-size: 13px; font-weight: 700;
+  vertical-align: 1px;
+}
+.port { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: var(--accent-text); overflow-wrap: anywhere; }
+.dg-arrow {
+  flex: 0 0 64px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 0 4px;
+  color: var(--accent-text); font-size: 12px; font-weight: 700; text-align: center; line-height: 1.3;
+}
+.dg-arrow::before { content: "→"; font-size: 24px; line-height: 1; color: var(--accent); }
+.dg-foot { margin: 14px 0 0; font-size: 14px; line-height: 1.65; color: var(--mute); max-width: none; }
+.dg-foot strong { color: var(--ink2); }
+
+.dg-compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.dg-panel { background: var(--paper); border: 1px solid var(--hair); border-radius: 10px; padding: 16px 18px 18px; }
+.dg-panel > h4 { margin: 0 0 12px; font-size: 16px; font-weight: 700; color: var(--ink); }
+.dg-panel > h4 span { font-weight: 500; color: var(--mute); font-size: 14px; }
+.dg-grid { display: grid; gap: 10px; }
+.dg-grid.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dg-grid.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dg-panel .dg-node { padding: 10px 12px; }
+.dg-panel .dg-node h4 { font-size: 14px; }
+.dg-panel .dg-node li { font-size: 13.5px; margin-bottom: 3px; }
+.dg-host { border: 2px solid var(--ink); border-radius: 10px; padding: 12px; }
+.dg-host > .host-h { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0 0 2px; }
+.dg-host > .host-s { font-size: 13px; color: var(--mute); margin: 0 0 10px; }
+.dg-bar {
+  display: block;
+  margin: 10px 0 0; padding: 8px 12px;
+  border-radius: 8px; background: var(--paper-alt);
+  font-size: 13.5px; line-height: 1.55; color: var(--ink2);
+}
+.dg-bar.warn { background: var(--fix-soft); color: var(--fix-text); }
+.dg-bar.ok { background: var(--accent-soft); color: var(--accent-text); }
+.dg-down { text-align: center; color: var(--accent); font-size: 13px; font-weight: 700; margin: 8px 0; }
+
+.spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 14px 0 12px; }
+.spec > div { border: 1px solid var(--hair); border-radius: 10px; padding: 12px 14px; background: var(--paper); }
+.spec .k { font-size: 13px; font-weight: 700; color: var(--mute); }
+.spec .v { font-size: 15.5px; font-weight: 700; color: var(--ink); line-height: 1.45; margin: 2px 0; }
+.spec .d { font-size: 13px; color: var(--mute); line-height: 1.55; overflow-wrap: anywhere; }
+.rules { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; max-width: none; }
+.rules li {
+  margin: 0; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--hair); background: var(--paper);
+  font-size: 14px; line-height: 1.5; color: var(--ink2);
+}
+
+@media (max-width: 980px) {
+  .dg-flow { flex-direction: column; }
+  .dg-arrow { flex-basis: auto; padding: 6px 0; flex-direction: row; gap: 8px; }
+  .dg-arrow::before { content: "↓"; font-size: 20px; }
+  .dg-compare, .spec { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .dg { padding: 14px; }
+  .dg-grid.c3 { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .page { display: block; padding: 36px 24px 80px; }
+  .side { display: none; }
+  .main { margin: 0 auto; }
+  .toc {
+    display: block;
+    margin: 32px 0 0;
+    padding: 16px 20px;
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    background: var(--paper-alt);
+    font-size: 15px;
+  }
+  .toc a { display: block; padding: 5px 0; color: var(--ink2); text-decoration: none; }
+  .toc a:hover { color: var(--accent-text); text-decoration: underline; }
+}
+@media (max-width: 760px) {
+  .page { padding: 28px 18px 64px; }
+  .grid-2, .grid-3, .core-strip { grid-template-columns: minmax(0, 1fr); }
+  dl.open-dl { grid-template-columns: 1fr; }
+  dl.open-dl dt { padding-bottom: 2px; }
+  dl.open-dl dd { border-top: 0; padding-top: 2px; }
+  .sec, .band { margin-top: 64px; }
+  .band { padding: 28px 18px 20px; }
+  .note-fix, .note-verify { padding: 14px 16px 4px; }
+  p { font-size: 16px; }
+  pre { font-size: 12.5px; padding: 14px 14px; }
+  .cheat td:first-child { width: auto; }
+  table { min-width: 640px; }
+}
+@media print {
+  .side, .copy { display: none !important; }
+  .page { display: block; }
+}
+</style>
+</head>
+<body>
+<button id="themeBtn" type="button" aria-label="라이트/다크 모드 전환" style="position:fixed;top:12px;right:14px;z-index:60;padding:6px 12px;font:600 13px/1 inherit;font-family:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:999px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15)">다크</button>
+<style>@media print{#themeBtn{display:none}}</style>
+
+<div class="page">
+  <aside class="side"><nav aria-label="목차 (사이드)"><p class="side-title">목차</p><ol>
+        <li><a href="#rds-model">1. RDS형 구성·실습 기준</a></li>
+        <li><a href="#image-run">2. 이미지 인증·컨테이너 실행</a></li>
+        <li><a href="#charset-config">3. 문자셋·설정 파일·오류 복구</a></li>
+        <li><a href="#mariadb-config">4. MariaDB 연결 수·메모리</a></li>
+        <li><a href="#accounts-client">5. 계정·권한·DBeaver</a></li>
+        <li><a href="#backup-restore">6. 백업·사고·복구</a></li>
+        <li><a href="#image-security">7. 이미지 배포·보안</a></li>
+        <li><a href="#cheatsheet">8. 통합 명령어 치트시트</a></li>
+  </ol></nav></aside>
+  <main class="main">
+  <header>
+    <h1>MySQL 통합 학습노트</h1>
+    <p class="deck">MySQL 통합 학습노트 · 범위: Docker Hardened Image 기반 MySQL 컨테이너로 관리형 DB(RDS형)의 접속·문자셋 설정·장애 대응·백업과 복구 흐름 → MariaDB 11.4 연결 수·timeout·메모리 설정. 화면 값은 실습 관찰값. 컨테이너·Compose 기본: docker.html 4·5장</p>
+    <div class="core-strip">
+      <div><div class="core-metric">컨테이너 ≠ RDS</div><p class="core-desc">Docker MySQL 실습 = 관리형 DB의 접속·운영 흐름을 연습하는 모형. 운영 방식·관리 책임은 다름 (1장)</p></div>
+      <div><div class="core-metric">로그 → 설정 수정</div><p class="core-desc"><code>docker logs</code>로 원인·오류값 확인 → 호스트에서 설정 수정 → <code>docker cp</code> → <code>docker restart</code> → 접속·상태 검증 (3장)</p></div>
+      <div><div class="core-metric">백업은 컨테이너 밖</div><p class="core-desc"><code>mysqldump</code> 결과를 호스트로 복사해 별도 보관. 오류가 있으면 파일 존재만으로 성공 판정 금지 → 종료 코드·복원으로 확인 (6장)</p></div>
+    </div>
+    <nav class="toc" aria-label="목차">
+      <a href="#rds-model">1. RDS형 구성·실습 기준</a>
+      <a href="#image-run">2. 이미지 인증·컨테이너 실행</a>
+      <a href="#charset-config">3. 문자셋·설정 파일·오류 복구</a>
+      <a href="#mariadb-config">4. MariaDB 연결 수·메모리</a>
+      <a href="#accounts-client">5. 계정·권한·DBeaver</a>
+      <a href="#backup-restore">6. 백업·사고·복구</a>
+      <a href="#image-security">7. 이미지 배포·보안</a>
+      <a href="#cheatsheet">8. 통합 명령어 치트시트</a>
+    </nav>
+  </header>
+
+  <!-- 1 -->
+  <section class="sec" id="rds-model">
+    <h2>RDS형 구성과 실습 기준</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 실습에서 접속이 흐르는 경로</p><div class="dg-flow"><div class="dg-node"><h4>① DBeaver</h4><p class="sub">호스트 IP:3306</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 호스트 포트 게시</h4><p class="sub">-p 3306:3306</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ mysql8 컨테이너</h4><p class="sub">MySQL 8.4 계열 관찰</p></div></div></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>RDS</strong></td><td>Amazon Relational Database Service = MySQL·PostgreSQL 등 DB 엔진을 관리형 서비스로 제공 → AWS가 인프라 프로비저닝·유지보수·백업 같은 관리 기능 제공, 사용자는 endpoint·port·계정·DB 사용. 이 노트는 MySQL 실습만</td></tr>
+    <tr><td><strong>실습 모형</strong></td><td><ul><li>로컬 VirtualBox Linux 호스트 위 Docker 컨테이너에서 MySQL 실행 → DBeaver가 호스트 IP의 3306/tcp로 접속</li><li>클라우드 관리형 RDS와 Docker 컨테이너는 운영 방식·관리 책임이 다름 → 동일 구조로 단정하지 않음</li></ul></td></tr>
+    <tr><td><strong>RDS 내부 구현</strong></td><td>"RDS 전용 서버에서 Docker로 여러 RDS를 구동" = 교육용 비유. AWS 공개 문서는 관리형 아키텍처를 설명하지만 내부 구현이 Docker라고 밝히지 않음 (참고: <a href="https://docs.aws.amazon.com/AmazonRDS/latest/gettingstartedguide/concepts.html">AWS RDS 핵심 개념·아키텍처</a>)</td></tr>
+    <tr><td><strong>실습 위치</strong></td><td>호스트 Linux 작업 경로 <code>/root/rds</code>, 로그인 계정 <code>apink</code> → root 전환. DB 클라이언트는 DBeaver</td></tr>
+    <tr><td><strong>포트 선점 확인</strong></td><td>실행 전 <code>docker ps</code>와 호스트 LISTEN 확인 → 다른 컨테이너가 이미 3306을 게시하면 bind 실패("port is already allocated" 등) → 다른 컨테이너를 임의로 끄지 말고 사용 대상 확인</td></tr>
+    </tbody></table></div>
+    <div class="dg"><p class="dg-title">실습에서 접속이 흐르는 경로</p><div class="dg-flow">
+      <div class="dg-node"><h4>DBeaver</h4><p class="sub">VirtualBox Linux IP:3306</p><ul><li>DB 계정으로 연결</li></ul></div><div class="dg-arrow">호스트 포트 게시</div>
+      <div class="dg-node key"><h4>Linux Docker 호스트</h4><p class="sub">3306/tcp</p><ul><li><code>-p 3306:3306</code></li></ul></div><div class="dg-arrow">컨테이너 포트</div>
+      <div class="dg-node accent"><h4>mysql8</h4><p class="sub">MySQL 8.4 계열 관찰</p><ul><li>데이터베이스 서비스</li></ul></div>
+    </div><p class="dg-foot">실습의 포트 게시·접속 흐름은 관리형 RDS의 운영 아키텍처 자체를 재현하지 않음</p></div>
+    <h3>RDS 포트</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>MySQL 기본 포트</strong></td><td>AWS RDS for MySQL 기본 포트 = <code>3306</code>. <code>23306</code>은 사용자가 고를 수 있는 사용자 지정 포트 예</td></tr>
+    <tr><td><strong>포트 변경 범위·영향</strong></td><td><ul><li>일반 DB 인스턴스 포트 범위 1150–65535</li><li>포트 변경 → DB 인스턴스 재시작 가능 → 보안그룹·애플리케이션 연결 문자열도 함께 변경</li><li>사용자 지정 포트가 보안그룹·인증을 대체하지 않음 (출처: <a href="https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_ModifyDBInstance.html">ModifyDBInstance</a>, <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ModifyInstance.Settings.html">DB 인스턴스 설정</a>)</li></ul></td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">RDS와 포트 — Docker MySQL은 접속·운영 흐름을 연습하는 모형(RDS 내부가 Docker라고 단정 금지). RDS MySQL 기본 포트 <code>3306</code>, <code>23306</code>은 사용자 지정 예. 포트 변경은 인스턴스 재시작·클라이언트·보안그룹 변경을 유발할 수 있음</div>
+  
+
+  </section>
+
+  <!-- 2 -->
+  <section class="sec" id="image-run">
+    <h2>이미지 인증과 MySQL 컨테이너 실행</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 이미지 받기부터 접속까지</p><div class="dg-flow"><div class="dg-node"><h4>① 레지스트리 인증</h4><p class="sub">docker login dhi.io</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 이미지 받기</h4><p class="sub">docker pull dhi.io/mysql:8</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 컨테이너 실행</h4><p class="sub">-e MYSQL_ROOT_PASSWORD · -p 3306:3306</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 접속</h4><p class="sub">docker exec -it · mysql -u root -p</p></div></div></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>레지스트리 구분</strong></td><td><code>dhi.io/mysql:8</code> = Docker Hardened Images(DHI) 레지스트리 참조 → Docker Hub 공식 MySQL 이미지와 같은 이미지라고 부르지 않음. DHI Community 이미지 pull에는 레지스트리 인증 필요</td></tr>
+    <tr><td><strong>tag 관찰값</strong></td><td><ul><li>실습은 <code>:8</code> 사용 → 서버 버전 <code>8.4.13</code>, 이미지 약 <code>461MB</code>, 이미지 목록 화면은 Debian 13 기반 표시</li><li>tag·용량은 갱신될 수 있음 → 실행 후 <code>SELECT VERSION()</code>으로 확인</li></ul></td></tr>
+    <tr><td><strong>dev·정식 tag</strong></td><td>실습 화면 안내: <code>dev</code> = 개발·테스트용, 정식 <code>8.4</code> = 안정화 버전 → tag 이름만으로 지원정책을 단정하지 말고 현재 이미지 카탈로그·조직 배포 정책 확인</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># DHI 레지스트리 인증 → 성공 시 Login Succeeded</span>
+docker login dhi.io
+<span class="c"># DHI MySQL tag를 내려받음 → 이미지 이름·tag 일치 확인</span>
+docker pull dhi.io/mysql:8
+docker images</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>인증 정보</strong></td><td>로그인 암호·access token은 명령행·노트에 기록하지 않음 (인증·이미지 형식 출처: <a href="https://docs.docker.com/dhi/how-to/use/">Docker Hardened Image 사용 안내</a>)</td></tr>
+    </tbody></table></div>
+    <h3>단일 MySQL 서비스 컨테이너</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># --name mysql8: 컨테이너 이름 고정 → docker logs mysql8처럼 이름으로 참조</span>
+<span class="c"># -e MYSQL_ROOT_PASSWORD: 이미지 초기화 때 MySQL root 암호 전달. a1234는 연습값 → 명령 기록·프로세스 정보에 노출될 수 있어 운영은 안전한 secret 경로로 주입</span>
+<span class="c"># -p 3306:3306: 호스트:컨테이너 순서, 호스트 3306 → 컨테이너 3306. 호스트에서 이미 사용 중이면 컨테이너 시작 실패 가능</span>
+<span class="c"># -d: 백그라운드 실행</span>
+docker run --name mysql8 -e MYSQL_ROOT_PASSWORD=a1234 -p 3306:3306 -d dhi.io/mysql:8
+<span class="c"># 실행 상태와 게시 포트 확인</span>
+docker ps
+<span class="c"># 외부:내부 포트 게시 확인</span>
+docker port mysql8</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong><code>--privileged</code>·<code>/sbin/init</code></strong></td><td>systemd가 필요한 OS 연습용 컨테이너 방식(docker.html 3·4장). MySQL 단일 서비스 이미지는 엔트리포인트가 서버를 실행 → 별도 init 권한 불필요</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">MySQL 단일 서비스 실행 — <code>MYSQL_ROOT_PASSWORD</code>는 초기 설정용, <code>-p 3306:3306</code>은 호스트:컨테이너 순서. 일반 MySQL 컨테이너에는 <code>--privileged</code>·<code>/sbin/init</code> 불필요. <code>dhi.io</code>는 로그인 후 pull, 버전은 tag가 아니라 <code>SELECT VERSION()</code>으로 확인</div>
+    <h3>컨테이너 사용자와 MySQL 프롬프트</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 이미지 기본 사용자(mysql)로 컨테이너 셸 진입</span>
+docker exec -it mysql8 /bin/bash
+<span class="c"># UID 0(root) 권한으로 컨테이너 셸 진입</span>
+docker exec -it -u 0 mysql8 /bin/bash
+<span class="c"># [mysql8 컨테이너 · mysql 또는 root(-u 0)]</span>
+<span class="c"># MySQL root 계정으로 접속 (-p 뒤 암호는 프롬프트에서 입력)</span>
+mysql -u root -p
+<span class="c"># [mysql8 컨테이너 · MySQL 프롬프트 · root]</span>
+\s
+SELECT VERSION();</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong><code>-u 0</code></strong></td><td>컨테이너 프로세스를 UID 0으로 실행. 프롬프트가 <code>I have no name!</code>이어도 이름 해석이 안 된 것일 수 있음 → <code>id</code>로 uid=0 확인</td></tr>
+    <tr><td><strong>최소 이미지</strong></td><td>DHI는 공격면을 줄이려 최소 구성 → <code>vi</code>·<code>nano</code>·<code>dnf</code>·<code>clear</code>가 없을 수 있음. <code>bash: clear: command not found</code> = clear 프로그램이 없다는 뜻, MySQL 서버 장애와 무관</td></tr>
+    <tr><td><strong>기동 확인</strong></td><td><code>docker ps</code>는 실행 중만 표시 → 안 보이면 <code>docker ps -a</code>에서 종료 상태·exit code 확인</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">컨테이너 사용자 구분 — <code>docker exec -it</code>는 이미지 기본 사용자, <code>-u 0</code>은 UID 0. 프롬프트 모양이 아니라 <code>id</code>로 권한 확인</div>
+  
+
+  </section>
+
+  <!-- 3 -->
+  <section class="sec" id="charset-config">
+    <h2>문자셋 설정, 설정 파일 전달과 설정 오류 복구</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 설정 파일 수정 → 전달 → 재시작 → 검증</p><div class="dg-flow"><div class="dg-node"><h4>① 상태 확인</h4><p class="sub">\s · Client character set</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② my.cnf 작성</h4><p class="sub">호스트 /root/rds</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ docker cp</h4><p class="sub">컨테이너 /etc/my.cnf</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 재시작</h4><p class="sub">docker restart / start</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>⑤ 검증</h4><p class="sub">docker logs · \s utf8mb4</p></div></div></div>
+
+    <h3>접속 직후 문자셋 상태 확인</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+docker exec -it mysql8 /bin/bash
+<span class="c"># [mysql8 컨테이너 · mysql]</span>
+<span class="c"># MySQL root로 접속 (생성 때 설정한 암호)</span>
+mysql -u root -p
+<span class="c"># [mysql8 컨테이너 · MySQL 프롬프트 · root]</span>
+<span class="c"># 현재 세션·서버 상태(문자셋 포함) 확인</span>
+\s</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>관찰 결과</strong></td><td>실습 화면: Server·DB character set <code>utf8mb4</code>, Client character set <code>latin1</code>. <code>\s</code> = 현재 세션·서버 상태를 보는 MySQL 클라이언트 명령</td></tr>
+    <tr><td><strong>왜 맞추나</strong></td><td>클라이언트가 어떤 인코딩으로 보내고 서버가 어떻게 변환하는지 = 연결 문자셋이 결정 → 한글 입력 시 변환 오류·깨짐·<code>Incorrect string value</code> 가능 → 클라이언트·서버·DB 문자셋 확인</td></tr>
+    <tr><td><strong>DBeaver 별도 설정</strong></td><td><code>my.cnf</code>의 <code>[client]</code>·<code>[mysql]</code>은 MySQL CLI 클라이언트에 적용. DBeaver는 JDBC 드라이버 설정·연결 properties를 따로 사용 → CLI 설정이 자동 적용된다고 가정하지 않음</td></tr>
+    </tbody></table></div>
+    <h3>설정 파일을 찾고 호스트에서 전달</h3>
+<div class="code"><pre><code><span class="c"># [mysql8 컨테이너 · mysql]</span>
+<span class="c"># 전체 파일시스템에서 설정 파일 탐색 → Permission denied는 권한 없는 경로라는 뜻</span>
+find / -name my.cnf
+<span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 컨테이너 안에서 UID 0으로 전체 경로 탐색</span>
+docker exec -it -u 0 mysql8 find -name "my.cnf"
+<span class="c"># [mysql8 컨테이너 · root]</span>
+<span class="c"># /etc 범위의 설정 파일 존재 여부 확인</span>
+find /etc -name "my.cnf"
+ls /etc
+ls -al /etc
+<span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 컨테이너 파일을 호스트로 복사 → 원본이 없으면 no such file 오류</span>
+docker cp mysql8:/etc/my.cnf my.cnf
+<span class="c"># 파일이 없으면 호스트에서 작성해 컨테이너로 전달</span>
+docker cp my.cnf mysql8:/etc/</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>실습 관찰</strong></td><td><ul><li>사용한 <code>dhi.io/mysql:8</code> 컨테이너에는 <code>/etc/my.cnf</code>가 없었음 → 이미지·버전마다 설정 경로·include 구성이 다를 수 있어 모든 MySQL 8.4 이미지의 규칙으로 확대하지 않음</li><li>실습 메모: MySQL 8.0 이미지에는 <code>/etc/my.cnf</code>가 있었고 사용한 8.4 tag에는 없었음 (이미지별 차이로 확인)</li></ul></td></tr>
+    <tr><td><strong>파일 없음 판단</strong></td><td><code>find /</code>의 Permission denied = 접근 못 한 경로가 있다는 뜻 → 확인 가능한 표준 위치와 서버 시작 옵션을 함께 점검 → 파일이 없으면 호스트에서 만든 설정을 컨테이너에 복사. 없는 파일을 <code>docker cp 컨테이너:/경로/파일 로컬파일</code>로 꺼내면 "no such file" 오류</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 컨테이너에 전달할 설정을 호스트 작업 경로에 작성</span>
+cd /root
+<span class="c"># 새 작업 디렉터리 (이미 있으면 mkdir 오류 가능)</span>
+mkdir rds
+cd rds
+vi my.cnf
+
+<span class="c"># [호스트 리눅스 · /root/rds/my.cnf 파일 안]</span>
+<span class="c"># 공통 클라이언트에 utf8mb4 적용 → MySQL 도구의 송수신 문자셋 지정</span>
+[client]
+default-character-set = utf8mb4
+
+<span class="c"># mysql CLI 명령에 적용</span>
+[mysql]
+default-character-set = utf8mb4
+
+<span class="c"># MySQL 서버 기본 문자셋</span>
+[mysqld]
+character-set-server = utf8mb4
+<span class="c"># 유효한 기본 collation (MySQL 8.4 기본값). 문자셋 이름을 collation 값으로 쓰지 않음</span>
+collation-server = utf8mb4_0900_ai_ci</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>기본값</strong></td><td>MySQL 8.4 기본 server charset/collation = <code>utf8mb4</code> / <code>utf8mb4_0900_ai_ci</code> (출처: <a href="https://dev.mysql.com/doc/refman/8.4/en/charset-server.html">MySQL 8.4 Server Character Set and Collation</a>)</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 호스트 설정 파일을 컨테이너 /etc/my.cnf로 복사</span>
+docker cp /root/rds/my.cnf mysql8:/etc/my.cnf
+<span class="c"># 설정을 읽도록 컨테이너 재시작 (단일 서비스 컨테이너는 docker로 제어)</span>
+docker restart mysql8</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>재시작 방식</strong></td><td>실습 컨테이너는 systemd 서비스 관리 환경이 아님 → 호스트에서 <code>docker restart mysql8</code>로 프로세스 재기동. <code>docker cp</code>는 컨테이너가 정지된 상태에서도 파일 전달 가능</td></tr>
+    <tr><td><strong>정상 확인</strong></td><td><code>docker ps</code> Running → 컨테이너 안 <code>mysql -u root -p</code> → <code>\s</code>에서 Client character set <code>utf8mb4</code></td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">문자셋·collation — <code>utf8mb4</code>는 문자셋, <code>utf8mb4_0900_ai_ci</code>는 MySQL 8.4 기본 collation. <code>[client]</code>·<code>[mysql]</code>은 CLI용이라 DBeaver에는 자동 적용 안 됨</div>
+    <h3>오류값이 서버를 멈추게 하는 과정</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · /root/rds/my.cnf 파일 안]</span>
+[mysqld]
+character-set-server = utf8mb4
+<span class="c"># 오류 재현: collation 자리에 문자셋 이름을 넣음 (collation 이름이 필요)</span>
+collation-server = utf8mb4
+
+<span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 잘못된 설정을 컨테이너로 복사한 뒤 서버 프로세스 재기동</span>
+docker cp /root/rds/my.cnf mysql8:/etc/my.cnf
+docker restart mysql8
+<span class="c"># 실행 중만 확인 → 죽어 있으면 -a로 종료 상태 확인</span>
+docker ps
+docker ps -a
+<span class="c"># 기동 실패 원인과 실제 오류값 확인</span>
+docker logs mysql8</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>관찰된 로그</strong></td><td><code>[ERROR] [MY-010933] [Server] Unknown collation: 'utf8mb4'.</code> → <code>[ERROR] [MY-010119] [Server] Aborting</code></td></tr>
+    <tr><td><strong>장애 이유</strong></td><td>서버가 시작 시 설정을 읽고 지원 collation인지 검사 → <code>utf8mb4</code>는 문자셋 이름이지 collation이 아님 → 초기화 중단 → 컨테이너가 시작했다가 종료될 수 있음</td></tr>
+    <tr><td><strong>오류 처리</strong></td><td><ul><li>로그의 파일·옵션·오류값을 찾아 해당 줄을 유효한 값으로 수정</li><li>잘못된 설정의 주석 처리는 서비스 복구용 임시 조치, 문자셋 정책이 필요하면 올바른 collation 설정</li></ul></td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · /root/rds/my.cnf 파일 안]</span>
+[mysqld]
+character-set-server = utf8mb4
+<span class="c"># 유효한 MySQL 8.4 기본 collation으로 수정 (설정 파일에는 줄 끝 주석 금지)</span>
+collation-server = utf8mb4_0900_ai_ci
+
+<span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 컨테이너가 종료돼 있어도 설정 파일 복사 가능</span>
+docker cp /root/rds/my.cnf mysql8:/etc/my.cnf
+<span class="c"># 정지된 컨테이너 시작</span>
+docker start mysql8
+<span class="c"># 상태·로그 안정 확인 (1분은 강의 실습의 관찰 시간이지 보편적 정상 판정 기준 아님)</span>
+docker ps
+docker logs --tail 50 mysql8</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ol class="wide-list"><li><strong>로그 확인</strong>: <code>docker logs mysql8</code>에서 첫 오류와 설정 위치 확인</li><li><strong>호스트 파일 수정</strong>: <code>/root/rds/my.cnf</code>의 오타 수정 → 유효한 문자셋·collation 조합</li><li><strong>재전송</strong>: <code>docker cp</code>로 컨테이너 경로에 덮어씀</li><li><strong>재기동</strong>: 실행 중이면 <code>docker restart</code>, 종료됐으면 <code>docker start</code></li><li><strong>정상 판정</strong>: <code>docker ps</code> Running, 새 치명 오류 없음, MySQL 접속 및 <code>\s</code> 결과 확인</li></ol>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>시작 대기</strong></td><td>강의 실습: MySQL 컨테이너 약 1분, Oracle DB 1분 30초~2분 관찰 → 데이터·스토리지·리소스에 따라 다르므로 시간만 기다리지 말고 health 상태·로그·쿼리 접속으로 판정</td></tr>
+    <tr><td><strong>운영 판단</strong></td><td>DB 중단은 서비스 영향이 큼 → 원인 파악·정상 기동 확인 우선, 고객 데이터·인증정보는 요청하지 않음, 계정·연결 제한은 필요한 범위로</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">장애 로그·Unknown collation — charset 이름을 <code>collation-server</code>에 넣으면 <code>Unknown collation</code> → <code>Aborting</code>으로 서버 종료. <code>docker logs</code>에서 최초 오류 확인 → 수정 → <code>docker cp</code> → 종료 상태면 <code>docker start</code>(<code>docker ps -a</code>로 확인)</div>
+  
+
+  </section>
+
+  <!-- 4 -->
+  <section class="sec" id="mariadb-config">
+    <h2>MariaDB 11.4 설정·연결 수·메모리</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 연결 수와 timeout을 설정 파일로 제한</p><div class="dg-flow"><div class="dg-node"><h4>① mariadb11</h4><p class="sub">mariadb:11.4-ubi9 · 3309→3306</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② my.cnf</h4><p class="sub">max_connections · wait_timeout</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ docker cp + restart</h4><p class="sub">~/rds → /etc/my.cnf</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 조회 검증</h4><p class="sub">select @@max_connections</p></div></div></div>
+
+    <h3>MariaDB 11.4 설정·연결 수·메모리</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>최적화</strong></td><td><ul><li>서버 환경에 맞춰 <code>mysqld</code> 설정을 조정하는 작업. MySQL·MariaDB는 같은 계열이라 설정·문법이 같다는 강의 기준</li><li>경량화 옵션은 <code>[mysqld]</code>, 문자셋 설정은 <code>[client]</code>·<code>[mysql]</code>에 둠</li></ul></td></tr>
+    <tr><td><strong>실습 환경</strong></td><td><ul><li><code>mariadb11</code> 컨테이너, 이미지 <code>mariadb:11.4-ubi9</code>, 호스트 <code>3309</code> → 컨테이너 <code>3306</code></li><li>호스트 작업 경로 <code>~/rds</code>, 설정 파일은 컨테이너 <code>/etc/my.cnf</code></li><li><code>docker run</code>에서 CPU·메모리 한도를 안 걸었다면 <code>max_connections</code>로 연결 수를 제한하는 방식도 검토</li></ul></td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · ~/rds/my.cnf 파일 안]</span>
+<span class="c"># MariaDB 클라이언트 도구 문자셋</span>
+[client]
+default-character-set = utf8mb4
+
+<span class="c"># mysql(mariadb) CLI 문자셋</span>
+[mysql]
+default-character-set = utf8mb4
+
+[mysqld]
+<span class="c"># 클라이언트가 요청한 문자셋 대신 서버 설정 문자셋 사용</span>
+character-set-client-handshake = FALSE
+character-set-server = utf8mb4
+<span class="c"># collation = 문자열 정렬·비교 규칙 (백업 전용 설정 아님). 화면 파일에서 빠져 메모장 정리본에 추가된 값</span>
+collation-server = utf8mb4_unicode_ci
+port = 3306
+<span class="c"># UTC 대비 절대 오프셋 → OS가 KST여도 9시간을 다시 더하지 않음</span>
+default-time-zone = "+09:00"
+<span class="c"># 최대 client 연결 수 (화면의 max_connection은 오타, 표준은 max_connections). 80은 하드웨어·메모리 배정에 따라 정한 값</span>
+max_connections = 80
+<span class="c"># 비대화형 유휴 연결 timeout(초): API 서버(FastAPI 등)·APM·웹앱</span>
+wait_timeout = 600
+<span class="c"># 대화형 유휴 연결 timeout(초): DBeaver 같은 수동 접속 도구</span>
+interactive_timeout = 600</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>문자셋 설정</strong></td><td>MariaDB 11.4는 server 기본값이 배포판마다 다를 수 있음 → <code>utf8mb4</code>와 유효한 MariaDB collation을 명시하고 실제 상태 조회</td></tr>
+    <tr><td><strong>연결 상한</strong></td><td><code>max_connections</code> = 최대 client 연결 수, 값은 하드웨어·메모리 배정에 따라 결정</td></tr>
+    <tr><td><strong>연결 수를 정하는 이유</strong></td><td><ul><li>서비스는 메모리 보호를 위해 상한 설정, 혼자 로컬 공부할 때는 필수 아님</li><li>상한 1이면 DBeaver 접속 뒤 다음 연결이 막히는 예</li><li>IntelliJ·Eclipse 등 개발 도구가 약 6개 연결 유지 + DBeaver SQL 편집기가 추가 연결 → 개발자 1명이 7~8개 차지하는 예 (강의 예, 모든 도구의 고정값 아님)</li><li>연결을 안 닫으면 유휴 timeout 후 종료, 다시 작업하면 재연결</li></ul></td></tr>
+    <tr><td><strong>클라이언트별 연결</strong></td><td>IDE·DB 도구는 편집기·탭마다 여러 연결 → pool 크기·idle timeout은 개발팀과 협의, 배포 전 동시 접속 시험</td></tr>
+    <tr><td><strong>계산 예와 실측</strong></td><td><ul><li>연습값 <code>sort_buffer_size=1000</code>, <code>join_buffer_size=3000</code>, <code>read_buffer_size=3000</code> → 합 <code>7000</code>, 연결 80개면 <code>560000</code></li><li>InnoDB buffer pool 같은 cache 공간은 별도 고려</li><li>DB 메모리 3GB 가정 → 백업·복구까지 고려해 약 2.5GB에 맞추는 예</li><li>실제 <code>select @@sort_buffer_size;</code> 관찰값 <code>2097152</code></li><li>최초 조회 때 <code>Server has gone away</code> 뒤 자동 재연결된 실습 결과</li></ul></td></tr>
+    <tr><td><strong>자원·값 협의</strong></td><td><ul><li>10GB 서버 예: OS·서비스용 3GB 이상 확보 → 약 7GB를 컨테이너·데몬이 나눠 사용</li><li>3GB 아래에서 Docker·crontab·SSH 문제와 <code>out of memory</code> 반복 가능 (강의 기준)</li><li>개발 단계는 연결 약 50개로 제한 → 개발자에게 buffer 값 등을 받아 계산·확정</li><li>F12의 Network·Memory·Application·Performance 탭에서 페이지 할당량 확인</li><li>동시 80명이 필요한데 메모리가 부족하면 연결 수를 줄이기보다 메모리 증설, timeout은 개발팀과 협의</li></ul></td></tr>
+    <tr><td><strong>timeout 적용</strong></td><td><ul><li>게시판에서 SELECT 후 브라우저를 두는 경우 = 웹앱 연결 → <code>wait_timeout</code></li><li>너무 길면 연결 수 부족, 너무 짧으면 데이터가 오가는 중 끊겨 데이터 유실·timed out → 두 값을 함께 조정. 끊긴 뒤 다시 작업하면 재연결될 수 있음</li></ul></td></tr>
+    <tr><td><strong>시간대</strong></td><td>자료 기준 AWS·GCP·Azure 기본은 UTC, NCP는 한국 시간 → 실제 환경은 <code>select now();</code>로 확인</td></tr>
+    </tbody></table></div>
+    <div class="note-verify">
+      <div class="tag">🔍 확인 필요 · 자료 안에서 충돌하는 두 항목</div>
+      <p><strong>상한을 넘은 연결</strong>강의 메모: "상한을 넘으면 신규 연결은 대기하고 유휴 연결이 timeout으로 끊긴 뒤 연결될 수 있다" ↔ 같은 자료의 다른 정리: "대기한다고 보장되지 않고 <code>Too many connections</code>로 즉시 거절될 수 있음 → 모니터링·pool 제한·재시도 정책으로 대응"</p>
+      <p><strong>메모리 계산 단위</strong>한 정리: 단위를 KB로 가정한 가상 예 → 560000 ≈ 약 0.5GB ↔ 다른 정리: 변수 단위는 bytes → <code>7000 × 80 = 560000 bytes</code> ≈ 약 0.53 MiB, sort/join/read buffer와 <code>thread_stack</code> 합산식은 모든 buffer가 모든 연결에서 동시에 최대 할당되는 것이 아닌 거친 상한 참고식</p>
+    </div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · ~/rds]</span>
+<span class="c"># MariaDB 11.4 실습 설정 파일 편집</span>
+vi my.cnf
+<span class="c"># 컨테이너 설정 경로로 전달 후 재기동</span>
+docker cp my.cnf mariadb11:/etc/my.cnf
+docker restart mariadb11
+docker ps
+docker exec -it mariadb11 /bin/bash
+<span class="c"># [mariadb11 컨테이너 · root]</span>
+<span class="c"># mysql 별칭도 동작하지만 MariaDB 11.4는 mariadb CLI 권장</span>
+mariadb -uroot -p
+<span class="c"># [mariadb11 컨테이너 · MariaDB 프롬프트 · root]</span>
+select now();
+select user(), current_user();
+select @@max_connections, @@wait_timeout, @@interactive_timeout;
+select @@sort_buffer_size, @@join_buffer_size, @@read_buffer_size, @@thread_stack;
+\s</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>정상 확인</strong></td><td><code>docker ps</code>에서 <code>Up</code> + <code>0.0.0.0:3309-&gt;3306</code> → DB 접속 → <code>select now()</code>, <code>select user(), current_user()</code>에서 시간·접속 사용자(예 <code>root@localhost</code>), timeout·buffer 값 확인 → <code>\s</code>에서 Server·Db·client·Conn. 문자셋 <code>utf8mb4</code>, UNIX socket <code>/run/mariadb/mariadb.sock</code></td></tr>
+    <tr><td><strong>실수·경고</strong></td><td><ul><li><code>/bin/bash</code>를 빠뜨린 <code>docker exec</code> → <code>Usage: docker exec [OPTIONS] CONTAINER COMMAND [ARG...]</code></li><li>DB 프롬프트에서 OS 명령 <code>date;</code> → <code>ERROR 1064</code></li><li><code>\s status exit</code>를 한 줄에 붙여 쳐도 <code>ERROR 1064</code> → 한 명령씩 입력</li><li>MariaDB 11.4에서 <code>mysql</code> → <code>Deprecated program name. It will be removed in a future release, use '/usr/bin/mariadb' instead</code> 경고 → <code>mariadb</code> 권장</li></ul></td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">MariaDB 연결·timeout — <code>max_connections</code>가 최대 연결 수(<code>max_connection</code>은 오타). <code>wait_timeout</code>=비대화형(웹·API), <code>interactive_timeout</code>=대화형(DBeaver). 너무 길면 연결 부족, 너무 짧으면 작업 중 끊김. <code>+09:00</code>은 고정 오프셋 → <code>select now()</code>로 확인</div>
+    <div class="dg-bar warn">my.cnf 반영 확인 — 편집 → <code>docker cp</code> → <code>docker restart</code> → <code>docker ps</code> → DB에 직접 접속해 <code>select now()</code>, <code>\s</code> 등으로 확인. 메모리 계산은 실제 서버 값을 조회해 사용</div>
+  
+
+  </section>
+
+  <!-- 5 -->
+  <section class="sec" id="accounts-client">
+    <h2>DB·사용자·권한과 DBeaver 연결</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — DB·계정·권한을 만들고 외부에서 접속</p><div class="dg-flow"><div class="dg-node"><h4>① CREATE DATABASE</h4><p class="sub">testdb</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② CREATE USER</h4><p class="sub">host별 별도 계정</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ GRANT</h4><p class="sub">최소 권한</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ DBeaver</h4><p class="sub">호스트 IP:3306 · testdb</p></div></div></div>
+
+    <h3>계정 host 부분은 서로 다른 계정</h3>
+<div class="code"><pre><code><span class="c">-- [mysql8 컨테이너 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 연습 데이터베이스 먼저 생성 (서버 기본 문자셋 utf8mb4인 실습 이미지, 운영은 명시 가능)</span>
+CREATE DATABASE testdb;
+<span class="c">-- 사용자 계정 관리를 위해 mysql 시스템 DB로 이동</span>
+USE mysql;
+<span class="c">-- 연습값: localhost와 % 계정은 별도 계정, 운영 암호로 쓰지 않음</span>
+CREATE USER 'hong'@'localhost' IDENTIFIED BY 'hong1234';
+CREATE USER 'hong'@'%' IDENTIFIED BY 'hong1234';
+<span class="c">-- 연습 권한: 운영은 필요한 작업만 최소 권한으로</span>
+GRANT ALL PRIVILEGES ON testdb.* TO 'hong'@'localhost';
+GRANT ALL PRIVILEGES ON testdb.* TO 'hong'@'%';
+<span class="c">-- CREATE USER / GRANT는 즉시 반영 → 권한 테이블을 직접 수정한 경우가 아니면 보통 불필요</span>
+FLUSH PRIVILEGES;
+SHOW GRANTS FOR 'hong'@'localhost';
+SHOW GRANTS FOR 'hong'@'%';
+<span class="c">-- 권한 행 확인용 읽기 쿼리 (권한 변경은 GRANT로)</span>
+SELECT * FROM mysql.db WHERE user='hong';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong><code>'hong'@'localhost'</code>와 <code>'hong'@'%'</code></strong></td><td>사용자 이름이 같아도 host가 다르면 별도 MySQL 계정. <code>%</code>는 여러 원격 호스트에 매치 → 범위가 넓음 → 운영은 출발지 IP·호스트 제한 + 최소 권한</td></tr>
+    <tr><td><strong><code>FLUSH PRIVILEGES</code></strong></td><td>실습 메모에 포함된 명령. 일반 <code>CREATE USER</code>·<code>GRANT</code>는 즉시 반영 → 다시 읽게 할 필요 없음, 권한 테이블 직접 수정은 피함</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">계정 host 범위 — <code>'hong'@'localhost'</code>와 <code>'hong'@'%'</code>는 다른 계정, <code>%</code>는 넓은 원격 접근 → 운영은 출발지 제한·최소 권한. <code>CREATE USER</code>·<code>GRANT</code>는 즉시 적용이라 보통 <code>FLUSH PRIVILEGES</code> 불필요</div>
+    <h3>DBeaver에서 연결 확인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>연결 정보</strong></td><td><strong>[윈도우 · DBeaver]</strong> Host = VirtualBox Linux IP(실습 화면 <code>10.2.2.101</code>), Port <code>3306</code>, Database <code>testdb</code>, User <code>hong</code> → 주소·포트는 본인 VirtualBox 규칙·Docker 게시에 맞춤</td></tr>
+    <tr><td><strong>드라이버·정상 확인</strong></td><td>실습은 MariaDB 드라이버로 Test Connection 성공, 표시 버전 <code>MySQL 8.4.13</code> → 새 연결은 대상 엔진에 맞는 MySQL 드라이버 사용 가능 여부 확인</td></tr>
+    <tr><td><strong>접속 실패 시</strong></td><td>호스트 3306 LISTEN → Docker 포트 게시 → VirtualBox NAT 전달(3306) → 계정 host·비밀번호 → 보안 규칙을 각각 확인. 서버가 켜져 있어도 host가 <code>localhost</code>뿐이면 원격 DBeaver가 매치 안 될 수 있음</td></tr>
+    </tbody></table></div>
+
+  </section>
+
+  <!-- 6 -->
+  <section class="sec" id="backup-restore">
+    <h2>백업·사고 재현·복구</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 덤프 → 컨테이너 밖 보관 → 복원 검증</p><div class="dg-flow"><div class="dg-node"><h4>① mysqldump</h4><p class="sub">--no-tablespaces</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② docker cp</h4><p class="sub">호스트 /root/rds 보관</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 사고</h4><p class="sub">DROP DATABASE</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 복원</h4><p class="sub">mysql -u root -p testdb <</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>⑤ 검증</h4><p class="sub">SELECT COUNT(*) → 100행</p></div></div></div>
+
+    <h3>백업 연습용 테이블</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>테이블 목적</strong></td><td><code>members</code> 테이블(회원 ID·이름·연락처·이메일·성별·주소 컬럼) + 가상 데이터 100행 → 백업·복원 검증용</td></tr>
+    <tr><td><strong>SQL 실행 흐름</strong></td><td><strong>[윈도우 · DBeaver]</strong> 연결 선택 → 우클릭 → SQL 편집기 → 새 스크립트 → CREATE 문과 INSERT 문을 각각 선택하고 <code>Ctrl+Enter</code> → 새로고침 후 테이블·행 수 확인</td></tr>
+    <tr><td><strong>자료 범위</strong></td><td>제공 필기에 실제 CREATE 문과 100개 INSERT 데이터는 없음 → 컬럼 형식·데이터 값은 추측해 채우지 않고 실행 흐름·확인 기준만 기록</td></tr>
+    </tbody></table></div>
+      <div class="table-wrap"><table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+      <tr><td><strong>처음 실행한 덤프 명령</strong></td><td>실습에서 먼저 <code>mysqldump -u hong -p testdb &gt; testdb.sql</code> 실행 → PROCESS 권한 오류 표시 → 로그가 tablespace 권한을 가리키므로 아래 수정 명령으로 다시 생성하고 성공 여부 확인</td></tr>
+      </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [mysql8 컨테이너 · mysql · /home/mysql]</span>
+<span class="c"># 원래 실습 명령: MySQL 8.4에서 tablespace 덤프 권한이 없으면 PROCESS 오류 가능</span>
+mysqldump -u hong -p testdb &gt; testdb.sql
+<span class="c"># tablespace 메타데이터가 필요 없는 일반 복구 연습용 수정 명령</span>
+mysqldump --no-tablespaces -u hong -p testdb &gt; testdb.sql
+<span class="c"># 파일 존재·크기 확인 (이 결과만으로 덤프 성공 확정 금지)</span>
+ls -al</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <h3>덤프를 컨테이너 밖으로 보관</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+docker exec -it mysql8 /bin/bash
+<span class="c"># [mysql8 컨테이너 · mysql]</span>
+<span class="c"># 사용자가 쓰기 가능한 경로에서 덤프</span>
+cd /home/mysql
+<span class="c"># PROCESS 권한 오류를 피하고 tablespace 메타데이터를 생략하는 백업</span>
+mysqldump --no-tablespaces -u hong -p testdb &gt; testdb.sql
+<span class="c"># 파일 생성·크기 확인 (성공 판정을 대신하지 않음)</span>
+ls -l testdb.sql
+<span class="c"># 컨테이너 셸에서 나와 호스트로 복귀</span>
+exit
+<span class="c"># [호스트 리눅스 · root · /root/rds]</span>
+<span class="c"># 컨테이너의 덤프를 호스트 백업 디렉터리로 복사</span>
+cd /root/rds
+docker cp mysql8:/home/mysql/testdb.sql testdb.sql
+ls -l /root/rds/testdb.sql</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>백업 위치</strong></td><td>컨테이너 내부 파일은 컨테이너 삭제·스토리지 장애와 함께 소멸 가능 → 호스트·별도 백업 저장소로 내보내고 다시 다른 매체·서버에 보관. 한 서버 안의 복사본만으로는 완전한 재해 복구가 아님</td></tr>
+    <tr><td><strong>PROCESS 오류</strong></td><td><ul><li><code>Access denied; you need (at least one of) the PROCESS privilege(s) ... when trying to dump tablespaces</code> → 파일이 있다는 이유만으로 백업 성공 처리 금지</li><li><code>--no-tablespaces</code>를 지정하지 않으면 PROCESS 권한 필요 → 덤프 옵션·반환 코드·복원 가능성 확인 (출처: <a href="https://dev.mysql.com/doc/refman/8.4/en/mysqldump.html">MySQL 8.4 mysqldump</a>)</li></ul></td></tr>
+    <tr><td><strong>검증 기준</strong></td><td>명령 종료 코드 성공, 로그에 치명 오류 없음, SQL 파일이 비정상적으로 짧지 않음 → 가장 확실한 건 독립된 테스트 DB에 복원해 테이블 수·행 수 검증</td></tr>
+    <tr><td><strong>실습 관찰값</strong></td><td>실습 파일 약 <code>11,992</code>바이트 → 데이터·옵션에 따라 달라지는 관찰값, 고정 기준 아님</td></tr>
+    <tr><td><strong>자동화 메모</strong></td><td>강의 메모: 셸 스크립트 + <code>crontab</code> 하루 1회, 다른 서버로 라이브 싱크해 복수 보관 → 운영은 보존기간·암호화·접근권한·복원 리허설 결정</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">PROCESS 오류가 있는 dump — 파일이 생성돼도 정상 백업 아님. MySQL 8.4는 <code>--no-tablespaces</code>로 PROCESS 오류 회피 → exit code·복원까지 확인. 덤프는 <code>docker cp</code>로 컨테이너 밖에 보관(컨테이너와 함께 잃지 않게)</div>
+    <h3>삭제 사고와 영향 범위</h3>
+<div class="code"><pre><code><span class="c">-- [mysql8 컨테이너 · MySQL 프롬프트 · hong]</span>
+<span class="c">-- 테스트용 데이터베이스 삭제 사고 재현 (운영 데이터에서 실행 금지)</span>
+DROP DATABASE testdb;
+SHOW DATABASES;
+
+<span class="c"># [mysql8 컨테이너 · mysql]</span>
+<span class="c"># 사고 재현용 컨테이너 내부 복사본 삭제 (-rf는 실습 경로를 확인한 경우에만)</span>
+rm -rf testdb.sql
+<span class="c"># 파일 하나만 지울 때는 rm -f로 충분, 재현 대상은 /home/mysql의 testdb.sql만</span>
+<span class="c"># [호스트 리눅스 · root · /root/rds]</span>
+<span class="c"># 호스트에 따로 복사한 백업이 남았는지 확인</span>
+ls -l /root/rds/testdb.sql</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>백업 사본 구분</strong></td><td>위 재현은 컨테이너 안 임시 덤프만 삭제 → 앞 단계에서 호스트 <code>/root/rds/testdb.sql</code>로 복사했다면 별도로 남음 → 이 분리가 컨테이너 장애 복구를 가능하게 함</td></tr>
+    <tr><td><strong>삭제 명령 주의</strong></td><td><code>DROP DATABASE</code>·<code>rm</code>은 복구가 어려운 삭제 → 실습 환경·대상 파일 확인, 기존 <code>mega</code> 계열이나 다른 컨테이너는 건드리지 않음</td></tr>
+    </tbody></table></div>
+    <h3>복구 절차</h3>
+    <ol class="wide-list">
+      <li><strong>백업 확인</strong>: 호스트 <code>head -n 30 /root/rds/testdb.sql</code>로 DB 이름·덤프 내용 확인. 덤프 생성 옵션에 따라 DB 생성문이 없을 수 있음</li>
+      <li><strong>복구 범위 확인</strong>: 고객에게 DB 이름·테이블·컬럼 등 식별에 필요한 정보만 확인, 실제 고객 데이터·비밀번호는 요구하지 않음</li>
+      <li><strong>DB·권한 확인</strong>: MySQL root로 <code>SHOW DATABASES</code>, <code>SHOW GRANTS</code> → 대상 DB·계정 확인. <code>%</code> 원격 계정은 필요한 출발지로 제한</li>
+      <li><strong>접근 보호</strong>: 불필요한 원격 접근 먼저 차단 → 실제 앱 서버 IP만 허용. 임시 비밀번호를 안전하게 전달하고 이후 변경 요청</li>
+      <li><strong>빈 DB 준비</strong>: 필요하면 root로 <code>CREATE DATABASE testdb CHARACTER SET utf8mb4</code>. 기존 DB가 있으면 덮어쓰기 여부·복구 시점 확인</li>
+      <li><strong>덤프 전달</strong>: 호스트에서 <code>docker cp /root/rds/testdb.sql mysql8:/home/mysql/testdb.sql</code> → 컨테이너에서 파일·권한 확인. 일반 mysql 계정은 홈 밖 경로에 못 써서 <code>/home/mysql</code> 사용, 복구는 root로</li>
+      <li><strong>복원</strong>: 컨테이너 셸에서 root 계정으로 <code>mysql -u root -p testdb &lt; /home/mysql/testdb.sql</code> (입력 리다이렉션은 MySQL 클라이언트를 실행하는 셸이 처리)</li>
+      <li><strong>데이터 검증</strong>: <code>SHOW TABLES</code>, <code>SELECT COUNT(*) FROM members</code>로 테이블·행 수 확인 → 실습 데이터 100행이면 100인지 확인 → 담당자에게 복구 결과 검증받음</li>
+    </ol>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 호스트 백업을 컨테이너 안으로 전달</span>
+docker cp /root/rds/testdb.sql mysql8:/home/mysql/testdb.sql
+<span class="c"># [mysql8 컨테이너 · root]</span>
+<span class="c"># 테스트 DB 준비 (복사된 덤프 파일도 확인)</span>
+mysql -u root -p
+<span class="c"># [mysql8 컨테이너 · MySQL 프롬프트 · root]</span>
+CREATE DATABASE testdb CHARACTER SET utf8mb4;
+EXIT;
+<span class="c"># [mysql8 컨테이너 · root]</span>
+<span class="c"># root 권한으로 SQL 덤프를 DB에 재생</span>
+mysql -u root -p testdb &lt; /home/mysql/testdb.sql
+mysql -u root -p testdb
+<span class="c"># [mysql8 컨테이너 · MySQL 프롬프트 · root]</span>
+SHOW TABLES;
+SELECT COUNT(*) FROM members;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">복구 순서 — 덤프 확인 → 대상 DB·접근 범위 확인 → 필요 시 DB 생성 → 컨테이너로 파일 복사 → root로 restore → 테이블·행 수 검증(100행)</div>
+  
+
+  </section>
+
+  <!-- 7 -->
+  <section class="sec" id="image-security">
+    <h2>이미지 배포와 데이터 보안</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 배포 이미지와 데이터는 분리</p><div class="dg-flow"><div class="dg-node"><h4>① 깨끗한 기본 이미지</h4><p class="sub">계정·암호·데이터 없음</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 상태 포함 금지</h4><p class="sub">DB·사용자·덤프 push 금지</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 백업은 별도</h4><p class="sub">덤프·스냅샷·복구 절차</p></div></div></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>배포 기준 이미지</strong></td><td>문제 대응용으로 배포할 이미지는 개인 계정·암호·고객 데이터가 없는 깨끗한 MySQL 기본 상태에서 생성</td></tr>
+    <tr><td><strong>상태가 들어간 컨테이너</strong></td><td>DB·사용자·테이블·덤프가 포함된 컨테이너를 공개 레지스트리에 올리면 데이터·설정 노출 → 운영 데이터를 포함한 이미지 배포 금지</td></tr>
+    <tr><td><strong>암호·토큰</strong></td><td>예시 <code>a1234</code>·<code>hong1234</code>는 연습값 → 실제 비밀번호는 명령 기록·이미지 layer·설정 파일·환경 변수 조회에 노출되지 않게 secret 관리 방식 사용</td></tr>
+    <tr><td><strong>복구 가능성</strong></td><td>이미지 배포는 DB 백업을 대신하지 않음 → 덤프·스냅샷과 복구 절차를 따로 운영</td></tr>
+    <tr><td><strong>이미지화 방법</strong></td><td>컨테이너 → 이미지 <code>docker commit</code>·Docker Hub <code>tag</code>/<code>push</code> 절차는 docker.html 8장</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">배포 보안 — DB·사용자·실제 데이터·암호가 든 컨테이너를 공개 이미지로 push 금지. 초기 이미지와 데이터 백업은 별개</div>
+  
+
+  </section>
+
+  <!-- 8 -->
+  <section class="sec" id="cheatsheet">
+    <h2>통합 명령어 치트시트</h2>
+
+<p>작업 흐름별 모음. 암호·접속 IP·tag는 환경에 맞게 바꾸고 결과를 확인.</p>
+    <div class="table-wrap"><table class="cheat"><thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead><tbody>
+      <tr class="group"><th colspan="2" scope="colgroup">이미지·컨테이너</th></tr>
+      <tr><td><code>docker login dhi.io</code></td><td>DHI 레지스트리 인증, 성공 시 <code>Login Succeeded</code></td></tr>
+      <tr><td><code>docker pull dhi.io/mysql:8</code> / <code>docker images</code></td><td>이미지 받기 / 로컬 이름·tag·크기 확인</td></tr>
+      <tr><td><code>docker run --name mysql8 -e MYSQL_ROOT_PASSWORD=... -p 3306:3306 -d dhi.io/mysql:8</code></td><td>MySQL 컨테이너 생성·기동, 암호는 예시값 금지, 포트 충돌 확인</td></tr>
+      <tr><td><code>docker ps</code> / <code>docker ps -a</code></td><td>실행 중 / 종료 포함 전체 컨테이너 상태</td></tr>
+      <tr><td><code>docker exec -it mysql8 /bin/bash</code> / <code>docker exec -it -u 0 mysql8 /bin/bash</code></td><td>기본 사용자 / UID 0으로 컨테이너 셸 진입</td></tr>
+      <tr><td><code>docker port mysql8</code> / <code>docker logs mysql8</code></td><td>게시 포트 / 서버 시작 오류 확인</td></tr>
+      <tr class="group"><th colspan="2" scope="colgroup">설정·문자셋</th></tr>
+      <tr><td><code>mysql -u root -p</code> / <code>\s</code> / <code>SELECT VERSION()</code></td><td>접속 / 세션·문자셋 / 서버 버전 확인</td></tr>
+      <tr><td><code>find /etc -name my.cnf</code></td><td>설정 파일 위치 확인, 접근 제한 메시지와 파일 부재 구분</td></tr>
+      <tr><td><code>docker cp /root/rds/my.cnf mysql8:/etc/my.cnf</code></td><td>호스트 설정 파일 전달 → 컨테이너 재시작 필요</td></tr>
+      <tr><td><code>docker restart mysql8</code> / <code>docker start mysql8</code></td><td>실행 중 재시작 / 종료된 컨테이너 시작</td></tr>
+      <tr class="group"><th colspan="2" scope="colgroup">계정·데이터</th></tr>
+      <tr><td><code>CREATE DATABASE</code> / <code>CREATE USER</code> / <code>GRANT</code></td><td>DB 생성 → 계정 생성 → 최소 권한 부여, host별 계정은 별도</td></tr>
+      <tr><td><code>SHOW GRANTS FOR 'hong'@'%'</code></td><td>계정 권한 확인, <code>%</code> 범위는 넓으므로 제한</td></tr>
+      <tr><td><code>mysqldump --no-tablespaces -u hong -p testdb &gt; testdb.sql</code></td><td>tablespace 메타데이터 제외 덤프 → exit code·파일·복원으로 검증</td></tr>
+      <tr><td><code>docker cp mysql8:/home/mysql/testdb.sql /root/rds/testdb.sql</code></td><td>컨테이너 덤프를 호스트 백업 경로로 반출</td></tr>
+      <tr><td><code>mysql -u root -p testdb &lt; /home/mysql/testdb.sql</code></td><td>덤프를 지정 DB로 복원, 대상 DB·파일 경로 확인</td></tr>
+      <tr><td><code>SELECT COUNT(*) FROM members</code></td><td>복원한 행 수 확인, 실습 데이터 100행</td></tr>
+      <tr class="group"><th colspan="2" scope="colgroup">MariaDB 연결·설정</th></tr>
+      <tr><td><code>vi my.cnf</code> / <code>docker cp my.cnf mariadb11:/etc/my.cnf</code></td><td>호스트에서 설정 작성·편집 후 MariaDB 컨테이너에 전달 → <code>docker restart mariadb11</code>로 반영</td></tr>
+      <tr><td><code>mariadb -uroot -p</code> / <code>\s</code></td><td>MariaDB CLI 접속 및 세션·문자셋·socket 상태 확인</td></tr>
+      <tr><td><code>select now();</code> / <code>select user(), current_user();</code></td><td>DB 시간대와 접속 사용자·호스트 확인</td></tr>
+      <tr><td><code>select @@max_connections, @@wait_timeout, @@interactive_timeout;</code></td><td>연결 상한과 유휴 timeout 조회 (시간 단위 초)</td></tr>
+      <tr><td><code>select @@sort_buffer_size, @@join_buffer_size, @@read_buffer_size, @@thread_stack;</code></td><td>버퍼·thread stack의 실제 값(바이트) 확인 → 거친 메모리 추산 (<code>select @@sort_buffer_size;</code> 강의 화면 관찰값 <code>2097152</code>)</td></tr>
+    </tbody></table></div>
+  
+
+  </section>
+
+</main>
+</div>
+
+<script>
+(function () {
+  // 코드 복사
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.parentElement.querySelector('pre').innerText;
+      var done = function () {
+        btn.textContent = '복사됨'; btn.classList.add('done');
+        setTimeout(function () { btn.textContent = '복사'; btn.classList.remove('done'); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+      } else { fallback(text); done(); }
+    });
+  });
+  function fallback(t) {
+    var ta = document.createElement('textarea'); ta.value = t;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  // 현재 읽는 섹션을 목차에 표시
+  var links = Array.prototype.slice.call(document.querySelectorAll('.side a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function spy() {
+    var y = window.scrollY + window.innerHeight * 0.3, idx = 0;
+    secs.forEach(function (el, i) { if (el && el.offsetTop <= y) idx = i; });
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) idx = secs.length - 1;
+    links.forEach(function (a, i) { a.classList.toggle('on', i === idx); });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+})();
+</script>
+<script>
+(function () {
+  var r = document.documentElement, b = document.getElementById('themeBtn');
+  function cur() {
+    var t = r.getAttribute('data-theme');
+    if (t) return t;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function apply(t) {
+    r.setAttribute('data-theme', t);
+    b.textContent = t === 'dark' ? '라이트' : '다크';
+  }
+  try { var s = localStorage.getItem('note-theme'); if (s) r.setAttribute('data-theme', s); } catch (e) {}
+  apply(cur());
+  b.addEventListener('click', function () {
+    var n = cur() === 'dark' ? 'light' : 'dark';
+    apply(n);
+    try { localStorage.setItem('note-theme', n); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
