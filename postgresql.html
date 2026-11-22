@@ -2206,7 +2206,7 @@ psql -U hong
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
     <tr><td class="nowrap">extension의 정체</td><td>함수(library) 묶음 — Visual Studio의 확장 기능과 같은 개념으로 vector 라이브러리를 생성해 주는 것</td><td>DB에 로드하는 등록 작업이지 패치가 아님</td></tr>
     <tr><td class="nowrap">적용 후</td><td><code>\dx</code>에 vector가 보이고 <code>create table … embedding vector(1536)</code>이 이번엔 성공</td><td>vector 사용 가능 상태 — 5단계의 에러가 사라지는 지점</td></tr>
-    <tr><td class="nowrap">재접속 이유</td><td>확장 등록은 이미 열린 세션에 즉시 반영되지 않음</td><td>일반 사용자는 세션을 종료하고 새로 접속</td></tr>
+    <tr><td class="nowrap">재접속 이유</td><td>확장 적용 전에 열어 둔 세션에서는 vector가 보이지 않음</td><td>세션이 물린 상태를 피하려고 일반 사용자는 세션을 종료하고 새로 접속 — 이 장 세션 주의 절의 public 생성 사고와 같은 원인</td></tr>
     </tbody></table></div>
 
     <h3>세션 주의</h3>
