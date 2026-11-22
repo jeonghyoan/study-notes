@@ -1665,7 +1665,7 @@ SHOW DATABASES;</code></pre><button class="copy" type="button" aria-label="코�
     <tr><td><strong>실습 조합</strong></td><td><code>was11</code> = Java 11 + Tomcat 8.5.98, 호스트 <code>9800</code> → 컨테이너 <code>8080</code> / <code>was17</code> = Java 17 + Tomcat 10.1.60, 호스트 <code>9801</code> → 컨테이너 <code>8080</code></td></tr>
     <tr><td><strong>Docker 쪽 흐름</strong></td><td><code>hosting.yaml</code>에 두 WAS 서비스 정의 → <code>docker compose -f hosting.yaml up -d</code> → <code>docker ps</code>·<code>docker compose -f hosting.yaml ps</code>로 9800·9801 게시 확인 → <code>docker exec -it was11 /bin/bash</code>로 접속</td></tr>
     <tr><td><strong>포트 원칙</strong></td><td>컨테이너 안쪽 포트는 둘 다 8080 유지, 호스트 포트만 다르게 (4장 포트 매핑 원칙과 같음)</td></tr>
-    <tr><td><strong>자세한 실습</strong></td><td>was.html 1~3장 (Java·Tomcat 설치, 일반 사용자 mz, <code>update-alternatives</code> 버전 전환)</td></tr>
+    <tr><td><strong>자세한 실습</strong></td><td>was.html 7~9장 (Java·Tomcat 설치, 일반 사용자 mz, <code>update-alternatives</code> 버전 전환)</td></tr>
     </tbody></table></div>
 
   

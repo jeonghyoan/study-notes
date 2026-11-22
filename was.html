@@ -594,15 +594,15 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <nav aria-label="목차 (사이드)">
       <p class="side-title">목차</p>
       <ol>
-        <li><a href="#was-setup">1. WAS 컨테이너 구성·버전 조합</a></li>
-        <li><a href="#tomcat-install">2. Java·Tomcat 설치와 기동</a></li>
-        <li><a href="#java-switch">3. Java 버전 전환(update-alternatives)</a></li>
-        <li><a href="#was-install">4. Tomcat(WAS) 설치 — 일반 사용자 설치·디렉터리</a></li>
-        <li><a href="#was-ports">5. Tomcat 포트 (server.xml) — 8005·8080·8443</a></li>
-        <li><a href="#was-webfile">6. 첫 화면 지정 (web.xml · welcome-file-list)</a></li>
-        <li><a href="#was-java">7. Java 설치 — JAVA_HOME 오류와 java-17*</a></li>
-        <li><a href="#was-run">8. Tomcat 가동·정지·포트 확인</a></li>
-        <li><a href="#was-procedure">9. WAS 세팅 절차 정리 (3단계·포트 3개)</a></li>
+        <li><a href="#was-install">1. Tomcat(WAS) 설치 — 일반 사용자 설치·디렉터리</a></li>
+        <li><a href="#was-ports">2. Tomcat 포트 (server.xml) — 8005·8080·8443</a></li>
+        <li><a href="#was-webfile">3. 첫 화면 지정 (web.xml · welcome-file-list)</a></li>
+        <li><a href="#was-java">4. Java 설치 — JAVA_HOME 오류와 java-17*</a></li>
+        <li><a href="#was-run">5. Tomcat 가동·정지·포트 확인</a></li>
+        <li><a href="#was-procedure">6. WAS 세팅 절차 정리 (3단계·포트 3개)</a></li>
+        <li><a href="#was-setup">7. WAS 컨테이너 구성·버전 조합</a></li>
+        <li><a href="#tomcat-install">8. Java·Tomcat 설치와 기동</a></li>
+        <li><a href="#java-switch">9. Java 버전 전환(update-alternatives)</a></li>
         <li><a href="#cheatsheet">10. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
@@ -611,38 +611,309 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>WAS(Tomcat) 통합 학습노트</h1>
-    <p class="deck">WAS 통합 학습노트 · 범위: Java 버전별 Tomcat 컨테이너 구성 → root는 설치만, 일반 사용자로 Tomcat 설치·기동 → 여러 Java 버전 설치 후 update-alternatives로 전환 → 호스트 리눅스 VM에서 Tomcat(WAS) 직접 세팅(Core tar.gz 설치 · <code>server.xml</code> 포트 8005·8080·8443 · <code>web.xml</code> 첫 화면 · Java 설치 · 가동·정지·포트 확인). 컨테이너·Compose 기본: docker.html 4·5장, nginx 프록시로 80 연결: nginx.html 6장, HTTP 502·503·504: httpd.html 10장</p>
+    <p class="deck">WAS 통합 학습노트 · 범위: 호스트 리눅스 VM에서 Tomcat(WAS) 직접 세팅(Core tar.gz 설치 · <code>server.xml</code> 포트 8005·8080·8443 · <code>web.xml</code> 첫 화면 · Java 설치 · 가동·정지·포트 확인) → Java 버전별 Tomcat 컨테이너 구성 → root는 설치만, 일반 사용자로 Tomcat 설치·기동 → 여러 Java 버전 설치 후 update-alternatives로 전환. 컨테이너·Compose 기본: docker.html 4·5장, nginx 프록시로 80 연결: nginx.html 6장, HTTP 502·503·504: httpd.html 10장</p>
 
     <div class="core-strip">
       <div>
         <div class="core-metric">Java ↔ Tomcat 버전</div>
-        <p class="core-desc">Tomcat 8.5는 Java 7 이상, 10.1은 Java 11 이상, Spring Boot 3.x는 Java 17 이상 → 조합을 맞춰 컨테이너 구성 (1장)</p>
+        <p class="core-desc">Tomcat 8.5는 Java 7 이상, 10.1은 Java 11 이상, Spring Boot 3.x는 Java 17 이상 → 조합을 맞춰 컨테이너 구성 (7장)</p>
       </div>
       <div>
         <div class="core-metric">root 설치 · mz 실행</div>
-        <p class="core-desc">Java·wget은 root로 설치, Tomcat 압축 해제·기동은 일반 사용자(<code class="n">mz</code>, 호스트 VM에서는 <code class="n">apink</code>) → root는 설치 때만 (2·4장)</p>
+        <p class="core-desc">Java·wget은 root로 설치, Tomcat 압축 해제·기동은 일반 사용자(<code class="n">mz</code>, 호스트 VM에서는 <code class="n">apink</code>) → root는 설치 때만 (8·1장)</p>
       </div>
       <div>
         <div class="core-metric">update-alternatives</div>
-        <p class="core-desc">버전 변경 요청마다 RPM을 지우지 말고 여러 버전을 설치해 두고 <code class="n">--config java</code>로 선택 전환 (3장)</p>
+        <p class="core-desc">버전 변경 요청마다 RPM을 지우지 말고 여러 버전을 설치해 두고 <code class="n">--config java</code>로 선택 전환 (9장)</p>
       </div>
     </div>
 
     <nav class="toc" aria-label="목차">
-      <a href="#was-setup">1. WAS 컨테이너 구성·버전 조합</a>
-      <a href="#tomcat-install">2. Java·Tomcat 설치와 기동</a>
-      <a href="#java-switch">3. Java 버전 전환(update-alternatives)</a>
-      <a href="#was-install">4. Tomcat(WAS) 설치 — 일반 사용자 설치·디렉터리</a>
-      <a href="#was-ports">5. Tomcat 포트 (server.xml) — 8005·8080·8443</a>
-      <a href="#was-webfile">6. 첫 화면 지정 (web.xml · welcome-file-list)</a>
-      <a href="#was-java">7. Java 설치 — JAVA_HOME 오류와 java-17*</a>
-      <a href="#was-run">8. Tomcat 가동·정지·포트 확인</a>
-      <a href="#was-procedure">9. WAS 세팅 절차 정리 (3단계·포트 3개)</a>
+      <a href="#was-install">1. Tomcat(WAS) 설치 — 일반 사용자 설치·디렉터리</a>
+      <a href="#was-ports">2. Tomcat 포트 (server.xml) — 8005·8080·8443</a>
+      <a href="#was-webfile">3. 첫 화면 지정 (web.xml · welcome-file-list)</a>
+      <a href="#was-java">4. Java 설치 — JAVA_HOME 오류와 java-17*</a>
+      <a href="#was-run">5. Tomcat 가동·정지·포트 확인</a>
+      <a href="#was-procedure">6. WAS 세팅 절차 정리 (3단계·포트 3개)</a>
+      <a href="#was-setup">7. WAS 컨테이너 구성·버전 조합</a>
+      <a href="#tomcat-install">8. Java·Tomcat 설치와 기동</a>
+      <a href="#java-switch">9. Java 버전 전환(update-alternatives)</a>
       <a href="#cheatsheet">10. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
   <!-- 1 -->
+  <section class="sec" id="was-install">
+    <h2>Tomcat(WAS) 설치 — 일반 사용자 설치·디렉터리 구조</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — root가 아니라 apink가 설치·세팅</p><div class="dg-flow"><div class="dg-node"><h4>① 요청 확인</h4><p class="sub">버전(10) · 포트 8080</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② apink 전환</h4><p class="sub">su apink · /home/apink</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ Core tar.gz</h4><p class="sub">wget → tar xf → mv tomcat</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ bin · conf</h4><p class="sub">서버 담당자 몫</p></div></div><p class="dg-foot">WAS ≠ 웹 서버, 압축 해제 방식(dnf 아님)</p></div>
+
+    <h3>WAS 역할과 설치 주체</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">구축 요청</td><td>개발자가 "도메인 치고 8080 치면 이상하다, 연결해 달라"고 요청하는 경우가 있어 WAS 구축 → nginx 결합 필요</td><td>프록시 연결은 nginx.html 6장</td></tr>
+      <tr><td class="nowrap">WAS ≠ 웹 서버</td><td>WAS는 웹 서버와 다른 계층</td><td>패키지명·확장자로 구분 (httpd.html 1장)</td></tr>
+      <tr><td class="nowrap">설치 주체</td><td><strong>WAS는 root가 아니라 일반 사용자(apink)에게 설치·세팅</strong></td><td>root가 관리하면 모든 WAS 포트를 root가 관리해야 해서 힘듦</td></tr>
+      <tr><td class="nowrap">root가 관리하면</td><td>일반 사용자는 정지도 못 하고 계속 root에게 요청해야 함</td><td>개발자가 직접 재배포·정지를 해야 하는 일이 잦음</td></tr>
+      <tr><td class="nowrap">실무</td><td>회사에서도 세팅 비용을 받고 해 주고, WAS 세팅 후 FTP를 열어 주면 개발자가 알아서 파일을 업로드</td><td>인프라는 포트·환경만 열어 주는 역할</td></tr>
+    </tbody></table></div>
+
+    <h3>내려받기·압축 해제 (apink)</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># Tomcat을 설치·실행할 일반 사용자로 전환</span>
+su apink
+
+<span class="c"># [호스트 리눅스 · apink]</span>
+<span class="c"># 작업 위치 확인 (pwd) — 홈에서 받아야 소유자가 apink</span>
+cd /home/apink
+<span class="c"># 브라우저에서 복사한 tar.gz 링크를 Shift+Insert로 붙여넣기 → apache-tomcat-10.1.61.tar.gz</span>
+wget &lt;복사한 tar.gz 링크&gt;
+<span class="c"># 받은 파일 확인</span>
+ls -al
+<span class="c"># 압축 해제 — root가 아니라 apink가 수행</span>
+tar xf apache-tomcat-10.1.61.tar.gz
+<span class="c"># 버전이 붙은 디렉토리명을 tomcat으로 변경 (끝에 / 붙이지 말 것)</span>
+mv apache-tomcat-10.1.61 tomcat</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">버전 선택</td><td>Apache Tomcat 사이트에서 <strong>개발자가 요청한 버전</strong>으로 받음(9·10 등) → 이번에는 <strong>10</strong></td><td>현재 지원 버전은 11.0·10.1·9.0이고 8.5는 2024-03-31 지원 종료(EOL)</td></tr>
+      <tr><td class="nowrap">받는 위치</td><td>다운로드 페이지의 <strong>Binary Distributions → Core → tar.gz</strong> 링크를 우클릭 → 링크 주소 복사</td><td>Deployer·Embedded·Full documentation·Windows service installer는 불필요, 서버는 Core만</td></tr>
+      <tr><td class="nowrap">zip과 tar.gz</td><td>둘 다 서버용 표준 배포 파일</td><td>윈도우 전용은 별도(32/64-bit Windows zip)</td></tr>
+      <tr><td class="nowrap">배포판 성격</td><td>tar.gz는 <strong>바이너리(Core) 배포판</strong></td><td>소스는 별도 <code>src.tar.gz</code> 배포판</td></tr>
+      <tr><td class="nowrap">설치 방식</td><td>dnf(rpm)가 아니라 <strong>압축 해제 방식</strong></td><td>압축을 푼 사용자가 실행·정지 권한을 가짐</td></tr>
+      <tr><td class="nowrap">개발 영역</td><td>서블릿·Jakarta 등은 인프라 담당이 몰라도 됨</td><td>서버는 실행 환경만 준비</td></tr>
+      <tr><td class="nowrap">이 단계</td><td>프록시를 잡지 않고 <code>IP:8080</code>으로 바로 Tomcat 화면을 띄움</td><td>프록시는 nginx.html 6장</td></tr>
+    </tbody></table></div>
+
+    <h3>디렉토리 구조 (<code>/home/apink/tomcat</code>)</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap"><code>ls -l</code></td><td><code>bin</code>, <code>conf</code>, <code>lib</code>, <code>webapps</code> 등 (BUILDING.txt 등 파일도 있음)</td><td></td></tr>
+      <tr><td class="nowrap">서버 담당자 관여</td><td><strong><code>bin</code>(시작·정지 스크립트), <code>conf</code>(환경설정)</strong> 두 개</td><td>나머지 디렉토리는 개발자 몫</td></tr>
+      <tr><td class="nowrap"><code>webapps</code></td><td>개발자가 FTP로 올리는 애플리케이션 위치</td><td>서버 담당자는 내용을 몰라도 됨</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 18강 85:40~86:00</div><p>서버 담당자가 신경 쓰는 디렉토리가 <code>conf</code>와 <code>bin</code> 두 개라는 설명 — 음성에서 "요 놈아랑 요 놈아"로만 들려 디렉토리 이름이 확정되지 않음. Tomcat 공식 문서에 이 구분의 근거는 없으므로 강사에게 확인 필요</p></div>
+
+    <h3><code>conf</code> 주의사항</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">이동</td><td><code>cd /home/apink/tomcat/conf</code>(본인 경로에 맞게) → <code>ls -a</code></td><td>숨김 파일까지 확인</td></tr>
+      <tr><td class="nowrap">서버 담당자가 바꾸는 것</td><td>서버 포트 하나</td><td>2장</td></tr>
+      <tr><td class="nowrap">개발자에게 맡기지 않을 것</td><td><strong><code>server.xml</code>, <code>web.xml</code>은 개발자가 건드리게 두지 않음</strong></td><td>설정 파일은 서버 담당자가 관리</td></tr>
+      <tr><td class="nowrap">사고 사례</td><td>개발자가 유튜브·AI를 보고 <code>server.xml</code>을 마음대로 수정(예: 메모리 이유)해 보내온 것을 넣으면 서버가 죽음</td><td>서버가 죽으면 <strong>복구 비용 청구</strong>, 책임은 개발자 개인</td></tr>
+      <tr><td class="nowrap">미리 권고</td><td>개발자에게 설정 파일은 웬만하면 수정하지 말고 고장 나면 비용이 든다고 미리 말해 둘 것</td><td>학원 환경과 실무 환경은 다름 (실무에서 학원처럼 접근하면 거의 100% 박살남)</td></tr>
+      <tr><td class="nowrap">기준</td><td>자기 혼자 돌리는 서버가 아니라 다른 서버와 함께 돌리는 규정에 맞게 해야 함</td><td>같은 호스트의 포트·자원을 나눠 쓰는 환경</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 18강 87:23~88:30</div><p><code>server.xml</code>을 개발자가 수정해 넣었을 때 서버가 죽고 복구 비용을 청구한 사례 — 강사 현장 경험이라 공식 문서로 확인할 수 없음, 해당 구간을 듣고 상황(어떤 수정이었는지)을 확인할 것</p></div>
+    <div class="dg-bar warn">WAS 설치 주체 — root가 아니라 일반 사용자. Core tar.gz → <code>wget</code> → <code>tar xf</code> → <code>mv … tomcat</code>(dnf 설치 아님). 서버 담당자는 <code>bin</code>·<code>conf</code>만 보고, <code>server.xml</code>·<code>web.xml</code>은 개발자 수정 금지</div>
+
+    <ul class="facts"><li><strong>자세한 실습</strong><div>WAS의 컨테이너 실습(Java 버전별): 7~8장 / FTP로 파일 올리는 방법: vsftpd.html 1~6장 / 사용자 전환·권한: linux.html 7·8장</div></li></ul>
+  </section>
+
+  <!-- 2 -->
+  <section class="sec" id="was-ports">
+    <h2>Tomcat 포트 (server.xml) — 8005 · 8080 · 8443</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 포트 3개를 외운다</p><div class="dg-flow"><div class="dg-node key"><h4>8005</h4><p class="sub">셧다운(정지) 포트 · 22번 줄</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>8080</h4><p class="sub">서비스 포트 · Connector 70번 줄</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>8443</h4><p class="sub">리다이렉트(HTTPS·SSL)</p></div></div><p class="dg-foot">사용자가 여러 명이면 세 포트를 모두 겹치지 않게 배정</p></div>
+
+    <h3>주요 라인</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink]</span>
+<span class="c"># WAS 환경설정 파일 편집 (vi 안에서 :set number 로 줄 번호 표시)</span>
+vi /home/apink/tomcat/conf/server.xml</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>줄</th><th>설정</th><th>의미</th></tr></thead><tbody>
+      <tr><td class="nowrap">22</td><td><code>&lt;Server port="8005" shutdown="SHUTDOWN"&gt;</code></td><td><strong>셧다운(정지) 포트</strong> 8005</td></tr>
+      <tr><td class="nowrap">60</td><td><code>Executor … maxThreads="150" minSpareThreads="4"</code></td><td>Thread Pool</td></tr>
+      <tr><td class="nowrap">70~74</td><td><code>&lt;Connector port="8080" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="8443" /&gt;</code></td><td><strong>서비스 포트 8080</strong> (클라이언트 접속 포트, 웹 접속 시 <code>IP:8080</code>), 리다이렉트 포트 8443</td></tr>
+      <tr><td class="nowrap">75~</td><td><code>&lt;!-- &lt;Connector executor="tomcatThreadPool" port="8080" … redirectPort="8443" /&gt; --&gt;</code></td><td>Thread Pool 사용 Connector (<strong>주석 처리됨</strong>)</td></tr>
+      <tr><td class="nowrap">143~144</td><td><code>&lt;Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true"&gt;</code></td><td>개발자가 건드리는 영역</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>포트</th><th>역할</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">8005</td><td>셧다운(정지) 포트 — 정지시킬 때 쓰는 포트</td><td>서비스 포트와 구분해서 외울 것</td></tr>
+      <tr><td class="nowrap">8080</td><td>서비스(가동) 포트 — 클라이언트가 접속하는 포트</td><td>웹 브라우저에서 <code>IP:8080</code></td></tr>
+      <tr><td class="nowrap">8443</td><td>리다이렉트 포트 = 443(HTTPS) 앞에 8을 붙인 것</td><td>HTTPS·SSL 포트로 공용이라 거의 바꾸지 않음 (강사가 "843번"이라 말한 것은 8443의 말실수)</td></tr>
+    </tbody></table></div>
+    <p>이 화면 <code>server.xml</code>에서 확인되는 포트는 셧다운 8005, HTTP 8080, <code>redirectPort</code> 8443 세 개 — AJP 포트는 화면에 나오지 않고, AJP를 쓸 때는 <code>secret</code> 설정이 필수</p>
+
+    <h3>셧다운 포트 8005 중복</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">정지가 필요한 이유</td><td>개발자가 정지 후 <strong>재배포</strong>하는 경우가 있음</td><td>가동·정지 권한을 일반 사용자에게 주는 이유</td></tr>
+      <tr><td class="nowrap">포트가 겹치면</td><td>같은 포트에는 하나의 프로그램만 대기할 수 있어 나중에 뜨는 인스턴스가 <strong>기동 충돌</strong>을 일으킴</td><td>다른 WAS까지 함께 종료되지는 않음</td></tr>
+      <tr><td class="nowrap">정지가 안 될 때</td><td><code>kill</code>로 강제 종료하는 상황이 생김</td><td>포트가 겹친 상태에서는 정지 명령이 엉뚱한 곳으로 갈 수 있음</td></tr>
+      <tr><td class="nowrap">여러 인스턴스</td><td>한 호스트에서 여러 인스턴스를 띄울 때는 포트를 겹치지 않게 하거나 <code>portOffset</code> 사용</td><td>포트 배정은 엑셀로 정리해 둠 — 포트를 잘못 배정한 사업 단위 사고 사례가 있을 정도로 중요</td></tr>
+    </tbody></table></div>
+
+    <h3>포트 배정 (사용자 여러 명)</h3>
+    <p>사용자(WAS)가 여러 명이면 세 포트를 <strong>각각 다음 번호로 증가</strong>시켜 겹치지 않게 배정. 다음 번호도 이미 사용 중이면 또 다른 번호로 배정 (예: 메가존 사용자 추가 시)</p>
+    <div class="table-wrap"><table><thead><tr><th>사용자 순서</th><th>셧다운 포트</th><th>서비스 포트</th><th>리다이렉트 포트</th></tr></thead><tbody>
+      <tr><td class="nowrap">첫 번째 사용자</td><td>8005</td><td>8080</td><td>8443</td></tr>
+      <tr><td class="nowrap">두 번째 사용자</td><td>8006</td><td>8081</td><td>8444</td></tr>
+      <tr><td class="nowrap">세 번째 사용자</td><td>8007</td><td>8082</td><td>-</td></tr>
+    </tbody></table></div>
+    <p>도메인이 붙으면 URL 뒤 포트 번호 없이 접속됨 — 포트 정렬이 잘못되면 결과가 이상해짐</p>
+
+    <h3>Thread Pool·Host 구간</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">주석 문법</td><td><code>&lt;!-- --&gt;</code>는 <code>#</code>이 아닌 XML 방식 주석</td><td>XML 파일이라 <code>#</code> 주석은 동작하지 않음</td></tr>
+      <tr><td class="nowrap">Executor</td><td>여러 Connector가 함께 쓸 수 있는 <strong>공유 스레드 풀</strong> — 주석을 푼 Connector가 <code>executor="tomcatThreadPool"</code>로 그 풀을 사용</td><td>풀이 가득 찼을 때만 동작하는 구조가 아님</td></tr>
+      <tr><td class="nowrap">누가 쓰나</td><td><strong>개발자가 쓴다고 하면 개발자가 주석을 풀어 사용</strong> → 서버 담당자는 손대지 않음</td><td>Thread Pool 설정은 애플리케이션 특성에 달림</td></tr>
+      <tr><td class="nowrap">포트 변경 시</td><td>8080을 다른 번호(예: 8082)로 바꿀 때는 위 <code>Connector</code>와 아래 주석 상태 <code>Connector</code>의 포트를 같은 번호로 바꿔 둠</td><td>개발자가 주석을 풀면 그 포트로 동작</td></tr>
+      <tr><td class="nowrap">Host 영역</td><td>143~144번 <code>Host</code>(<code>webapps</code> 패키지 등)는 개발자가 자기 문법으로 설정</td><td>서버 담당자는 몰라도 됨</td></tr>
+      <tr><td class="nowrap">이번 실습</td><td><strong>8080 그대로</strong>, <code>server.xml</code>은 수정하지 않고 저장·종료</td><td>포트 변경 시연은 나중에</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">Tomcat 포트 — 셧다운 8005(22번 줄) · 서비스 8080(Connector 70번 줄) · 리다이렉트 8443. 사용자가 여러 명이면 세 포트를 각각 증가시켜 겹치지 않게 배정, 겹치면 나중 인스턴스가 기동 충돌</div>
+
+    <ul class="facts"><li><strong>자세한 실습</strong><div>nginx가 이 8080을 80으로 중계하는 설정: nginx.html 6장 / 포트 점검(<code>netstat</code>): 5장, linux.html 12장 / XML 주석 문법: docker.html 4장</div></li></ul>
+  </section>
+
+  <!-- 3 -->
+  <section class="sec" id="was-webfile">
+    <h2>첫 화면 지정 (web.xml · welcome-file-list)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 위에서부터 순서대로 찾는 대문 페이지</p><div class="dg-flow"><div class="dg-node key"><h4>index.html</h4><p class="sub">1순위</p></div><div class="dg-arrow">없으면</div><div class="dg-node"><h4>index.htm</h4><p class="sub">2순위</p></div><div class="dg-arrow">없으면</div><div class="dg-node"><h4>index.jsp</h4><p class="sub">3순위</p></div></div><p class="dg-foot">개발자 요청에 맞게 파일명·순서를 바꿈</p></div>
+    <p>위치: <code>conf/web.xml</code> 맨 아래 (<code>Shift+G</code>, 약 4777행)</p>
+    <div class="code"><pre><code><span class="c">&lt;!-- [호스트 리눅스 · /home/apink/tomcat/conf/web.xml 파일 안 · apink] --&gt;</span>
+<span class="c">&lt;!-- 도메인 접속 시 위에서부터 순서대로 찾아 출력하는 첫 페이지 목록 --&gt;</span>
+&lt;welcome-file-list&gt;
+    <span class="c">&lt;!-- 1순위 --&gt;</span>
+    &lt;welcome-file&gt;index.html&lt;/welcome-file&gt;
+    <span class="c">&lt;!-- 없으면 2순위 --&gt;</span>
+    &lt;welcome-file&gt;index.htm&lt;/welcome-file&gt;
+    <span class="c">&lt;!-- 없으면 3순위 --&gt;</span>
+    &lt;welcome-file&gt;index.jsp&lt;/welcome-file&gt;
+&lt;/welcome-file-list&gt;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">의미</td><td>도메인 접속 시 <strong>제일 먼저 뜨는 페이지(랜딩 페이지)</strong> 지정 — 위에서부터 순서대로 찾음</td><td>아파치 <code>DirectoryIndex</code>와 같은 역할 (httpd.html 7장)</td></tr>
+      <tr><td class="nowrap">개발자 요청</td><td><code>index.do</code>·<code>main.do</code>가 먼저 떠야 하면 그 파일명으로 변경 (<code>.do</code> 파일이 따로 있음)</td><td>요청 없으면 건드리지 않음</td></tr>
+      <tr><td class="nowrap">확장자 없는 주소</td><td>확장자 없이 index만 쳐도 자동 매핑하는 방식이면 그에 맞춤</td><td>개발 프레임워크 설정과 맞물림</td></tr>
+      <tr><td class="nowrap">이번 실습</td><td>개발자 요청이 없어 수정하지 않음</td><td>기본값 확인만</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">welcome-file-list — 위에서부터 <code>index.html</code> → <code>index.htm</code> → <code>index.jsp</code> 순서로 검사. 접속하자마자 보이는 첫 페이지를 <strong>랜딩 페이지</strong>라 부르므로 용어를 함께 기억</div>
+  </section>
+
+  <!-- 4 -->
+  <section class="sec" id="was-java">
+    <h2>Java 설치 — JAVA_HOME 오류와 java-17*</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — WAS를 돌리려면 Java가 먼저</p><div class="dg-flow"><div class="dg-node"><h4>① 오류 확인</h4><p class="sub">JAVA_HOME · JRE_HOME 미정의</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 버전 협의</h4><p class="sub">Tomcat 10 → Java 17</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ root 설치</h4><p class="sub">dnf install java-17*</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 확인</h4><p class="sub">java -version</p></div></div></div>
+
+    <h3>JAVA_HOME 오류</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink]</span>
+<span class="c"># tomcat/bin으로 이동 — 한 단계 빠져나와 이동해야 함</span>
+cd /home/apink/tomcat/bin
+<span class="c"># .sh = 셸 스크립트, Tomcat 기동 시도</span>
+./startup.sh</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">실행 결과</td><td><code>Neither the JAVA_HOME nor the JRE_HOME environment variable is defined</code></td><td>Java가 없다는 뜻</td></tr>
+      <tr><td class="nowrap">필요 조건</td><td><strong>Tomcat(WAS)을 돌리려면 Java(JDK)가 필요</strong></td><td>WAS는 자바 애플리케이션을 실행하는 컨테이너</td></tr>
+      <tr><td class="nowrap">설치 주체</td><td>Java 설치는 <strong>root</strong></td><td>일반 사용자는 <code>dnf</code>를 못 씀</td></tr>
+      <tr><td class="nowrap">Java가 없으면</td><td>일반 사용자가 <code>startup.sh</code>를 실행해도 작동 자체가 안 됨</td><td>오류 메시지가 원인을 정확히 알려 줌</td></tr>
+    </tbody></table></div>
+
+    <h3>Java 17 설치 (root)</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink]</span>
+<span class="c"># 설치 확인 — 없으면 명령이 없다는 메시지와 함께 java-11/17-openjdk-headless 설치를 제안</span>
+java -version
+
+<span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 설치 가능한 Java 버전 목록 확인 : 1.8, 11, 17, 21, 25</span>
+dnf install java*
+<span class="c"># Java 17 관련 패키지 전체 설치 (java-17-openjdk-17.0.20… 외 총 18개)</span>
+dnf install java-17*
+<span class="c"># 설치 결과 확인 → openjdk 17.0.20.1 LTS 표시 = 설치 성공</span>
+java -version</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">버전 협의</td><td>아무 버전이나 깔지 말고 <strong>개발자와 협의</strong> — Tomcat 10번대 → <strong>Java 17</strong> (백엔드 개발자 확인)</td><td>버전이 어긋나면 WAS가 뜨지 않거나 애플리케이션이 오작동</td></tr>
+      <tr><td class="nowrap">실수</td><td><code>dnf install jdk-17</code>, <code>dnf install jdk*</code>는 패키지를 못 찾음 → <code>java*</code>로 검색</td><td>패키지 이름 체계가 다름</td></tr>
+      <tr><td class="nowrap">설치 체감</td><td>미러 서버 timeout 로그가 나올 정도로 다운로드가 느림</td><td>기다리는 동안 다른 작업을 하거나 메모를 정리</td></tr>
+      <tr><td class="nowrap">성공 확인</td><td><code>java -version</code> → <code>openjdk 17.0.20.1 LTS</code> 표시</td><td>이후 <code>startup.sh</code>가 동작</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">Java — Tomcat 10번대는 Java 17. <code>JAVA_HOME</code>·<code>JRE_HOME</code> 미정의 오류는 Java 미설치가 원인이고, 설치는 root만 가능. 패키지는 <code>java*</code>로 검색하고 <code>java-17*</code>로 설치, 확인은 <code>java -version</code></div>
+
+    <ul class="facts"><li><strong>자세한 실습</strong><div>여러 Java 버전을 설치해 두고 전환(<code>update-alternatives</code>): 9장 / <code>dnf</code> 패키지 검색·설치: linux.html 12장</div></li></ul>
+  </section>
+
+  <!-- 5 -->
+  <section class="sec" id="was-run">
+    <h2>Tomcat 가동·정지·포트 확인과 실행 소유자</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — bin에서 startup·shutdown, 확인은 포트와 화면</p><div class="dg-flow"><div class="dg-node key"><h4>① ./startup.sh</h4><p class="sub">apink · tomcat/bin</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 화면 확인</h4><p class="sub">IP:8080 → Tomcat</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 포트 확인</h4><p class="sub">8080 · 8005 LISTEN</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ ./shutdown.sh</h4><p class="sub">8080만 죽고 nginx는 유지</p></div></div></div>
+
+    <h3>가동 (apink)</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># WAS 실행 사용자로 전환</span>
+su apink
+
+<span class="c"># [호스트 리눅스 · apink]</span>
+<span class="c"># 자기 홈의 tomcat/bin으로 이동 (pwd가 /var/www면 안 됨)</span>
+cd /home/apink/tomcat/bin
+<span class="c"># 가동</span>
+./startup.sh</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">실행 결과</td><td><code>Using CATALINA_BASE/CATALINA_HOME: /home/apink/tomcat</code>, <code>Using JRE_HOME: /usr</code> … <strong><code>Tomcat started.</code></strong></td><td>경로가 자기 홈의 tomcat인지 확인</td></tr>
+      <tr><td class="nowrap">접속 결과</td><td><code>10.2.2.101:8080</code> → <strong>Apache Tomcat/10.1.61</strong> 화면("If you're seeing this, you've successfully installed Tomcat. Congratulations!")</td><td>이 화면이 떠야 WAS 정상, 안 뜨면 WAS에 문제</td></tr>
+      <tr><td class="nowrap">포트 구분</td><td>포트 없이 IP만 치면 웹(nginx) 화면, <strong>WAS는 8080</strong>을 붙여야 들어감</td><td>1차로 이것을 확인</td></tr>
+    </tbody></table></div>
+
+    <h3>정지</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink]</span>
+<span class="c"># 같은 경로(tomcat/bin), 같은 사용자(apink)에서 정지</span>
+./shutdown.sh</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">실행 결과</td><td><code>Using CATALINA_BASE …</code> 출력, 8080 새로고침 시 WAS 화면이 바로 죽음</td><td>정지 스크립트 이름은 <code>shutdown.sh</code></td></tr>
+      <tr><td class="nowrap">같은 시점 웹</td><td>웹(nginx)은 정상 동작 → <strong>웹과 WAS는 별개로 운영 가능</strong></td><td>같은 형태로 생각하지 말 것</td></tr>
+      <tr><td class="nowrap">권한</td><td>가동·정지는 <strong>일반 사용자</strong>가 함</td><td>root가 하면 소유자 문제가 생김</td></tr>
+    </tbody></table></div>
+
+    <h3>포트 확인</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># WAS 서비스 포트 확인</span>
+netstat -ln | grep 8080
+<span class="c"># 셧다운 포트 확인</span>
+netstat -ln | grep 8005</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>상태</th><th>결과</th><th>의미</th></tr></thead><tbody>
+      <tr><td class="nowrap">WAS 정지</td><td>아무것도 안 뜸</td><td>포트가 닫힌 상태</td></tr>
+      <tr><td class="nowrap">가동 후</td><td><code>tcp6 :::8080 … LISTEN</code>, 8005도 <code>LISTEN</code></td><td>두 포트가 모두 LISTEN이면 정상 가동</td></tr>
+      <tr><td class="nowrap">포트 충돌</td><td>같은 IP·포트에는 하나의 프로그램만 대기 → 나중에 뜨는 쪽이 기동 충돌</td><td>모든 서비스가 한꺼번에 죽는 것은 아님</td></tr>
+    </tbody></table></div>
+
+    <h3>root가 가동한 경우 (소유자 문제)</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">실행 결과</td><td>root가 <code>/home/apink/tomcat/bin/</code>에서 <code>./startup.sh</code> → Tomcat 화면 정상, 이후 apink가 <code>./shutdown.sh</code> → 정지도 됨</td><td>압축을 apink가 풀어 <code>bin</code> 안 파일 소유자가 전부 <code>apink apink</code>(<code>startup.sh</code>는 <code>rwxr-x---</code>)</td></tr>
+      <tr><td class="nowrap">root 소유가 되면</td><td><code>startup.sh</code>·<code>shutdown.sh</code>의 소유자·그룹이 root가 되면 apink는 실행·정지에 제약을 받음</td><td><code>shutdown.sh</code>는 <code>server.xml</code>의 셧다운 포트(8005)로 종료 명령을 보내 정지시키는 방식이라 소유자만으로 정지 가능 여부가 갈리지는 않음</td></tr>
+      <tr><td class="nowrap">원칙</td><td>WAS는 일반 사용자가 설치·핸들링, root로 실행하지 않음</td><td>root 실행 시 생성 파일이 root 소유가 되어 개발자가 손댈 수 없게 됨</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">가동·정지 — <code>tomcat/bin</code>에서 <code>./startup.sh</code>·<code>./shutdown.sh</code>, 일반 사용자가 수행. 접속은 <code>IP:8080</code>에서 Apache Tomcat 화면, <code>8080</code>·<code>8005</code>가 LISTEN이면 정상. 웹과 WAS는 별개로 운영 가능</div>
+
+    <ul class="facts"><li><strong>자세한 실습</strong><div>프록시로 8080 감추기: nginx.html 6장 / 접속자·프로세스 확인: linux.html 9·12장</div></li><li><strong>스크립트 문법</strong><div><code>startup.sh</code> 안의 <code>#!/bin/bash</code>·변수·산술과 실행 권한: shell.html 1장 / 조건문·분기·입력: shell.html 2장 / 반복문·배열: shell.html 3장</div></li></ul>
+  </section>
+
+  <!-- 6 -->
+  <section class="sec" id="was-procedure">
+    <h2>WAS 세팅 절차 정리 (서비스 3단계 · 포트 3개)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — Service 3단계 + Java 1단계</p><div class="dg-flow"><div class="dg-node"><h4>[WAS Service]</h4><p class="sub">일반 사용자</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>wget → mv → conf</h4><p class="sub">server.xml · web.xml</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>[WAS Java]</h4><p class="sub">root만</p></div></div><p class="dg-foot">포트 8005 · 8080 · 8443을 함께 확인</p></div>
+    <p>Java 다운로드를 기다리며 Tomcat·Java 설치 내용을 메모장으로 정리한 구성: <code>[WAS Service]</code>(Tomcat 설치·설정)와 <code>[WAS Java]</code>(root가 하는 Java 설치) 두 덩어리</p>
+
+    <h3>WAS Service 3단계</h3>
+    <div class="table-wrap"><table><thead><tr><th>순서</th><th>할 일</th><th>명령·위치</th></tr></thead><tbody>
+      <tr><td class="nowrap">1</td><td>Apache Tomcat 다운로드</td><td><code>wget</code> (<strong>개발자가 요청한 버전</strong>으로, 아무 버전이나 받지 않음)</td></tr>
+      <tr><td class="nowrap">2</td><td>압축 해제 후 디렉토리 이름을 간편하게 변경</td><td><code>mv</code></td></tr>
+      <tr><td class="nowrap">3</td><td>해당 경로(tomcat)로 입장 → <code>conf</code> 디렉토리</td><td><code>server.xml</code>, <code>web.xml</code> 두 파일의 환경설정 확인</td></tr>
+    </tbody></table></div>
+    <p>환경설정은 일반 사용자도 할 수 있지만 서버 담당자가 먼저 세팅해 주고, 그때 중요한 포트들을 함께 확인 — 무엇을 누가 만질지 미리 정해 두는 순서</p>
+
+    <h3>확인할 포트 3개 (<code>server.xml</code>)</h3>
+    <div class="table-wrap"><table><thead><tr><th>포트</th><th>용도</th><th>설명</th></tr></thead><tbody>
+      <tr><td class="nowrap">8005</td><td><strong>셧다운(정지) 포트</strong></td><td>WAS를 정지시키는 포트</td></tr>
+      <tr><td class="nowrap">8080</td><td><strong>WAS 접근 포트</strong></td><td>웹브라우저에서 <code>IP:8080</code>을 치면 WAS 웹페이지가 뜸</td></tr>
+      <tr><td class="nowrap">8443</td><td><strong>WAS HTTPS 포트</strong></td><td>HTTPS = 다른 말로 SSL 포트 (강사는 "843번"이라고 말함, 8443의 말실수)</td></tr>
+    </tbody></table></div>
+    <p>지금은 사용자 1명(WAS 1개)이라 8005 · 8080 · 8443 세 개만 확인하면 됨 — 다른 사용자도 WAS를 쓰면 세 포트를 모두 확인해 서로 겹치지 않게 바꿔야 정상적으로 돌아감 (포트 배정 예시는 2장 참고)</p>
+
+    <h3>WAS Java (root 담당)</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+      <tr><td class="nowrap">필요 조건</td><td>WAS를 가동하려면 <strong>Java(데몬)가 설치돼 있어야 함</strong></td><td>없으면 JAVA_HOME 오류 → 4장</td></tr>
+      <tr><td class="nowrap">설치 주체</td><td>Java 설치는 <strong>root가 함</strong> (유일하게 root가 하는 부분)</td><td>Tomcat 다운로드·설정은 일반 사용자</td></tr>
+      <tr><td class="nowrap">버전</td><td><strong>개발자가 요청한 버전</strong>으로 설치, 아무거나 깔면 안 됨</td><td>Tomcat 10번대 → Java 17</td></tr>
+      <tr><td class="nowrap">명령</td><td><code>dnf install java-&lt;버전&gt;*</code> (예: <code>java-17*</code>, 버전 뒤에 마이너스·별표를 붙여 해당 버전 패키지 전체 설치)</td><td><code>java*</code>는 설치 가능한 버전 목록 확인용</td></tr>
+      <tr><td class="nowrap">확인</td><td>설치가 끝나면 <code>java -version</code> → Java 버전이 뜨면 설치 성공, 이제 가동 가능</td><td>버전 숫자까지 확인</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">WAS 세팅 — Service 3단계(<code>wget</code> → <code>mv</code> → <code>conf</code>의 <code>server.xml</code>·<code>web.xml</code> 확인)는 일반 사용자, Java만 root. 포트는 8005 셧다운 · 8080 접근 · 8443 HTTPS(SSL) 세 개를 사용자마다 겹치지 않게</div>
+
+    <ul class="facts"><li><strong>자세한 실습</strong><div><code>server.xml</code> 포트 배정: 2장 / <code>web.xml</code> 첫 화면: 3장 / Java 설치: 4장 / nginx 프록시로 80 연결: nginx.html 6장</div></li></ul>
+  </section>
+
+  <!-- 7 -->
   <section class="sec" id="was-setup">
     <h2>WAS 컨테이너 구성과 Java·Tomcat 버전 조합</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — 버전이 다른 WAS는 컨테이너를 나눈다</p><div class="dg-flow"><div class="dg-node"><h4>① hosting.yaml</h4><p class="sub">was11 · was17 서비스</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② docker compose up -d</h4><p class="sub">지정 파일로 생성·실행</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 포트 게시 확인</h4><p class="sub">9800 · 9801 → 8080</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 버전 조합</h4><p class="sub">Tomcat 8.5 ↔ Java 11 · 10.1 ↔ 17</p></div></div></div>
@@ -682,7 +953,7 @@ docker compose -f hosting.yaml ps</code></pre><button class="copy" type="button"
 
   <ul class="facts"><li><strong>자세한 실습</strong><div>웹/WAS/Node 구분 기준(패키지명·.war/.jar), 호스팅 vs 클라우드: httpd.html 1장</div></li></ul></section>
 
-  <!-- 2 -->
+  <!-- 8 -->
   <section class="sec" id="tomcat-install">
     <h2>Java·Tomcat 설치와 기동 (root 설치, 일반 사용자 실행)</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — root는 설치만, mz가 Tomcat 실행</p><div class="dg-flow"><div class="dg-node"><h4>① Java 설치</h4><p class="sub">root · dnf install java-11 / 17</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 사용자 mz</h4><p class="sub">useradd · chmod 755</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ Tomcat 받기</h4><p class="sub">wget → tar xfz → mv tomcat</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 기동</h4><p class="sub">./startup.sh · :9800</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>⑤ 종료</h4><p class="sub">./shutdown.sh</p></div></div></div>
@@ -747,7 +1018,7 @@ dnf install java-17
 
   </section>
 
-  <!-- 3 -->
+  <!-- 9 -->
   <section class="sec" id="java-switch">
     <h2>Java 버전 전환 (update-alternatives)</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — 여러 버전을 설치해 두고 전환</p><div class="dg-flow"><div class="dg-node"><h4>① 여러 Java 설치</h4><p class="sub">11 · 17 등</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② --config java</h4><p class="sub">update-alternatives</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 번호 입력</h4><p class="sub">*+ = 현재 선택</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 확인</h4><p class="sub">java -version</p></div></div></div>
@@ -772,277 +1043,6 @@ java -version</code></pre><button class="copy" type="button" aria-label="코드 
 
   </section>
 
-  <!-- 4 -->
-  <section class="sec" id="was-install">
-    <h2>Tomcat(WAS) 설치 — 일반 사용자 설치·디렉터리 구조</h2>
-    <div class="dg"><p class="dg-title">한눈에 보기 — root가 아니라 apink가 설치·세팅</p><div class="dg-flow"><div class="dg-node"><h4>① 요청 확인</h4><p class="sub">버전(10) · 포트 8080</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② apink 전환</h4><p class="sub">su apink · /home/apink</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ Core tar.gz</h4><p class="sub">wget → tar xf → mv tomcat</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ bin · conf</h4><p class="sub">서버 담당자 몫</p></div></div><p class="dg-foot">WAS ≠ 웹 서버, 압축 해제 방식(dnf 아님)</p></div>
-
-    <h3>WAS 역할과 설치 주체</h3>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">구축 요청</td><td>개발자가 "도메인 치고 8080 치면 이상하다, 연결해 달라"고 요청하는 경우가 있어 WAS 구축 → nginx 결합 필요</td><td>프록시 연결은 nginx.html 6장</td></tr>
-      <tr><td class="nowrap">WAS ≠ 웹 서버</td><td>WAS는 웹 서버와 다른 계층</td><td>패키지명·확장자로 구분 (httpd.html 1장)</td></tr>
-      <tr><td class="nowrap">설치 주체</td><td><strong>WAS는 root가 아니라 일반 사용자(apink)에게 설치·세팅</strong></td><td>root가 관리하면 모든 WAS 포트를 root가 관리해야 해서 힘듦</td></tr>
-      <tr><td class="nowrap">root가 관리하면</td><td>일반 사용자는 정지도 못 하고 계속 root에게 요청해야 함</td><td>개발자가 직접 재배포·정지를 해야 하는 일이 잦음</td></tr>
-      <tr><td class="nowrap">실무</td><td>회사에서도 세팅 비용을 받고 해 주고, WAS 세팅 후 FTP를 열어 주면 개발자가 알아서 파일을 업로드</td><td>인프라는 포트·환경만 열어 주는 역할</td></tr>
-    </tbody></table></div>
-
-    <h3>내려받기·압축 해제 (apink)</h3>
-    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># Tomcat을 설치·실행할 일반 사용자로 전환</span>
-su apink
-
-<span class="c"># [호스트 리눅스 · apink]</span>
-<span class="c"># 작업 위치 확인 (pwd) — 홈에서 받아야 소유자가 apink</span>
-cd /home/apink
-<span class="c"># 브라우저에서 복사한 tar.gz 링크를 Shift+Insert로 붙여넣기 → apache-tomcat-10.1.61.tar.gz</span>
-wget &lt;복사한 tar.gz 링크&gt;
-<span class="c"># 받은 파일 확인</span>
-ls -al
-<span class="c"># 압축 해제 — root가 아니라 apink가 수행</span>
-tar xf apache-tomcat-10.1.61.tar.gz
-<span class="c"># 버전이 붙은 디렉토리명을 tomcat으로 변경 (끝에 / 붙이지 말 것)</span>
-mv apache-tomcat-10.1.61 tomcat</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">버전 선택</td><td>Apache Tomcat 사이트에서 <strong>개발자가 요청한 버전</strong>으로 받음(9·10 등) → 이번에는 <strong>10</strong></td><td>현재 지원 버전은 11.0·10.1·9.0이고 8.5는 2024-03-31 지원 종료(EOL)</td></tr>
-      <tr><td class="nowrap">받는 위치</td><td>다운로드 페이지의 <strong>Binary Distributions → Core → tar.gz</strong> 링크를 우클릭 → 링크 주소 복사</td><td>Deployer·Embedded·Full documentation·Windows service installer는 불필요, 서버는 Core만</td></tr>
-      <tr><td class="nowrap">zip과 tar.gz</td><td>둘 다 서버용 표준 배포 파일</td><td>윈도우 전용은 별도(32/64-bit Windows zip)</td></tr>
-      <tr><td class="nowrap">배포판 성격</td><td>tar.gz는 <strong>바이너리(Core) 배포판</strong></td><td>소스는 별도 <code>src.tar.gz</code> 배포판</td></tr>
-      <tr><td class="nowrap">설치 방식</td><td>dnf(rpm)가 아니라 <strong>압축 해제 방식</strong></td><td>압축을 푼 사용자가 실행·정지 권한을 가짐</td></tr>
-      <tr><td class="nowrap">개발 영역</td><td>서블릿·Jakarta 등은 인프라 담당이 몰라도 됨</td><td>서버는 실행 환경만 준비</td></tr>
-      <tr><td class="nowrap">이 단계</td><td>프록시를 잡지 않고 <code>IP:8080</code>으로 바로 Tomcat 화면을 띄움</td><td>프록시는 nginx.html 6장</td></tr>
-    </tbody></table></div>
-
-    <h3>디렉토리 구조 (<code>/home/apink/tomcat</code>)</h3>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap"><code>ls -l</code></td><td><code>bin</code>, <code>conf</code>, <code>lib</code>, <code>webapps</code> 등 (BUILDING.txt 등 파일도 있음)</td><td></td></tr>
-      <tr><td class="nowrap">서버 담당자 관여</td><td><strong><code>bin</code>(시작·정지 스크립트), <code>conf</code>(환경설정)</strong> 두 개</td><td>나머지 디렉토리는 개발자 몫</td></tr>
-      <tr><td class="nowrap"><code>webapps</code></td><td>개발자가 FTP로 올리는 애플리케이션 위치</td><td>서버 담당자는 내용을 몰라도 됨</td></tr>
-    </tbody></table></div>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 18강 85:40~86:00</div><p>서버 담당자가 신경 쓰는 디렉토리가 <code>conf</code>와 <code>bin</code> 두 개라는 설명 — 음성에서 "요 놈아랑 요 놈아"로만 들려 디렉토리 이름이 확정되지 않음. Tomcat 공식 문서에 이 구분의 근거는 없으므로 강사에게 확인 필요</p></div>
-
-    <h3><code>conf</code> 주의사항</h3>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">이동</td><td><code>cd /home/apink/tomcat/conf</code>(본인 경로에 맞게) → <code>ls -a</code></td><td>숨김 파일까지 확인</td></tr>
-      <tr><td class="nowrap">서버 담당자가 바꾸는 것</td><td>서버 포트 하나</td><td>5장</td></tr>
-      <tr><td class="nowrap">개발자에게 맡기지 않을 것</td><td><strong><code>server.xml</code>, <code>web.xml</code>은 개발자가 건드리게 두지 않음</strong></td><td>설정 파일은 서버 담당자가 관리</td></tr>
-      <tr><td class="nowrap">사고 사례</td><td>개발자가 유튜브·AI를 보고 <code>server.xml</code>을 마음대로 수정(예: 메모리 이유)해 보내온 것을 넣으면 서버가 죽음</td><td>서버가 죽으면 <strong>복구 비용 청구</strong>, 책임은 개발자 개인</td></tr>
-      <tr><td class="nowrap">미리 권고</td><td>개발자에게 설정 파일은 웬만하면 수정하지 말고 고장 나면 비용이 든다고 미리 말해 둘 것</td><td>학원 환경과 실무 환경은 다름 (실무에서 학원처럼 접근하면 거의 100% 박살남)</td></tr>
-      <tr><td class="nowrap">기준</td><td>자기 혼자 돌리는 서버가 아니라 다른 서버와 함께 돌리는 규정에 맞게 해야 함</td><td>같은 호스트의 포트·자원을 나눠 쓰는 환경</td></tr>
-    </tbody></table></div>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 18강 87:23~88:30</div><p><code>server.xml</code>을 개발자가 수정해 넣었을 때 서버가 죽고 복구 비용을 청구한 사례 — 강사 현장 경험이라 공식 문서로 확인할 수 없음, 해당 구간을 듣고 상황(어떤 수정이었는지)을 확인할 것</p></div>
-    <div class="dg-bar warn">WAS 설치 주체 — root가 아니라 일반 사용자. Core tar.gz → <code>wget</code> → <code>tar xf</code> → <code>mv … tomcat</code>(dnf 설치 아님). 서버 담당자는 <code>bin</code>·<code>conf</code>만 보고, <code>server.xml</code>·<code>web.xml</code>은 개발자 수정 금지</div>
-
-    <ul class="facts"><li><strong>자세한 실습</strong><div>WAS의 컨테이너 실습(Java 버전별): 1~2장 / FTP로 파일 올리는 방법: vsftpd.html 1~6장 / 사용자 전환·권한: linux.html 7·8장</div></li></ul>
-  </section>
-
-  <!-- 5 -->
-  <section class="sec" id="was-ports">
-    <h2>Tomcat 포트 (server.xml) — 8005 · 8080 · 8443</h2>
-    <div class="dg"><p class="dg-title">한눈에 보기 — 포트 3개를 외운다</p><div class="dg-flow"><div class="dg-node key"><h4>8005</h4><p class="sub">셧다운(정지) 포트 · 22번 줄</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>8080</h4><p class="sub">서비스 포트 · Connector 70번 줄</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>8443</h4><p class="sub">리다이렉트(HTTPS·SSL)</p></div></div><p class="dg-foot">사용자가 여러 명이면 세 포트를 모두 겹치지 않게 배정</p></div>
-
-    <h3>주요 라인</h3>
-    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink]</span>
-<span class="c"># WAS 환경설정 파일 편집 (vi 안에서 :set number 로 줄 번호 표시)</span>
-vi /home/apink/tomcat/conf/server.xml</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table><thead><tr><th>줄</th><th>설정</th><th>의미</th></tr></thead><tbody>
-      <tr><td class="nowrap">22</td><td><code>&lt;Server port="8005" shutdown="SHUTDOWN"&gt;</code></td><td><strong>셧다운(정지) 포트</strong> 8005</td></tr>
-      <tr><td class="nowrap">60</td><td><code>Executor … maxThreads="150" minSpareThreads="4"</code></td><td>Thread Pool</td></tr>
-      <tr><td class="nowrap">70~74</td><td><code>&lt;Connector port="8080" protocol="HTTP/1.1" connectionTimeout="20000" redirectPort="8443" /&gt;</code></td><td><strong>서비스 포트 8080</strong> (클라이언트 접속 포트, 웹 접속 시 <code>IP:8080</code>), 리다이렉트 포트 8443</td></tr>
-      <tr><td class="nowrap">75~</td><td><code>&lt;!-- &lt;Connector executor="tomcatThreadPool" port="8080" … redirectPort="8443" /&gt; --&gt;</code></td><td>Thread Pool 사용 Connector (<strong>주석 처리됨</strong>)</td></tr>
-      <tr><td class="nowrap">143~144</td><td><code>&lt;Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true"&gt;</code></td><td>개발자가 건드리는 영역</td></tr>
-    </tbody></table></div>
-    <div class="table-wrap"><table><thead><tr><th>포트</th><th>역할</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">8005</td><td>셧다운(정지) 포트 — 정지시킬 때 쓰는 포트</td><td>서비스 포트와 구분해서 외울 것</td></tr>
-      <tr><td class="nowrap">8080</td><td>서비스(가동) 포트 — 클라이언트가 접속하는 포트</td><td>웹 브라우저에서 <code>IP:8080</code></td></tr>
-      <tr><td class="nowrap">8443</td><td>리다이렉트 포트 = 443(HTTPS) 앞에 8을 붙인 것</td><td>HTTPS·SSL 포트로 공용이라 거의 바꾸지 않음 (강사가 "843번"이라 말한 것은 8443의 말실수)</td></tr>
-    </tbody></table></div>
-    <p>이 화면 <code>server.xml</code>에서 확인되는 포트는 셧다운 8005, HTTP 8080, <code>redirectPort</code> 8443 세 개 — AJP 포트는 화면에 나오지 않고, AJP를 쓸 때는 <code>secret</code> 설정이 필수</p>
-
-    <h3>셧다운 포트 8005 중복</h3>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">정지가 필요한 이유</td><td>개발자가 정지 후 <strong>재배포</strong>하는 경우가 있음</td><td>가동·정지 권한을 일반 사용자에게 주는 이유</td></tr>
-      <tr><td class="nowrap">포트가 겹치면</td><td>같은 포트에는 하나의 프로그램만 대기할 수 있어 나중에 뜨는 인스턴스가 <strong>기동 충돌</strong>을 일으킴</td><td>다른 WAS까지 함께 종료되지는 않음</td></tr>
-      <tr><td class="nowrap">정지가 안 될 때</td><td><code>kill</code>로 강제 종료하는 상황이 생김</td><td>포트가 겹친 상태에서는 정지 명령이 엉뚱한 곳으로 갈 수 있음</td></tr>
-      <tr><td class="nowrap">여러 인스턴스</td><td>한 호스트에서 여러 인스턴스를 띄울 때는 포트를 겹치지 않게 하거나 <code>portOffset</code> 사용</td><td>포트 배정은 엑셀로 정리해 둠 — 포트를 잘못 배정한 사업 단위 사고 사례가 있을 정도로 중요</td></tr>
-    </tbody></table></div>
-
-    <h3>포트 배정 (사용자 여러 명)</h3>
-    <p>사용자(WAS)가 여러 명이면 세 포트를 <strong>각각 다음 번호로 증가</strong>시켜 겹치지 않게 배정. 다음 번호도 이미 사용 중이면 또 다른 번호로 배정 (예: 메가존 사용자 추가 시)</p>
-    <div class="table-wrap"><table><thead><tr><th>사용자 순서</th><th>셧다운 포트</th><th>서비스 포트</th><th>리다이렉트 포트</th></tr></thead><tbody>
-      <tr><td class="nowrap">첫 번째 사용자</td><td>8005</td><td>8080</td><td>8443</td></tr>
-      <tr><td class="nowrap">두 번째 사용자</td><td>8006</td><td>8081</td><td>8444</td></tr>
-      <tr><td class="nowrap">세 번째 사용자</td><td>8007</td><td>8082</td><td>-</td></tr>
-    </tbody></table></div>
-    <p>도메인이 붙으면 URL 뒤 포트 번호 없이 접속됨 — 포트 정렬이 잘못되면 결과가 이상해짐</p>
-
-    <h3>Thread Pool·Host 구간</h3>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">주석 문법</td><td><code>&lt;!-- --&gt;</code>는 <code>#</code>이 아닌 XML 방식 주석</td><td>XML 파일이라 <code>#</code> 주석은 동작하지 않음</td></tr>
-      <tr><td class="nowrap">Executor</td><td>여러 Connector가 함께 쓸 수 있는 <strong>공유 스레드 풀</strong> — 주석을 푼 Connector가 <code>executor="tomcatThreadPool"</code>로 그 풀을 사용</td><td>풀이 가득 찼을 때만 동작하는 구조가 아님</td></tr>
-      <tr><td class="nowrap">누가 쓰나</td><td><strong>개발자가 쓴다고 하면 개발자가 주석을 풀어 사용</strong> → 서버 담당자는 손대지 않음</td><td>Thread Pool 설정은 애플리케이션 특성에 달림</td></tr>
-      <tr><td class="nowrap">포트 변경 시</td><td>8080을 다른 번호(예: 8082)로 바꿀 때는 위 <code>Connector</code>와 아래 주석 상태 <code>Connector</code>의 포트를 같은 번호로 바꿔 둠</td><td>개발자가 주석을 풀면 그 포트로 동작</td></tr>
-      <tr><td class="nowrap">Host 영역</td><td>143~144번 <code>Host</code>(<code>webapps</code> 패키지 등)는 개발자가 자기 문법으로 설정</td><td>서버 담당자는 몰라도 됨</td></tr>
-      <tr><td class="nowrap">이번 실습</td><td><strong>8080 그대로</strong>, <code>server.xml</code>은 수정하지 않고 저장·종료</td><td>포트 변경 시연은 나중에</td></tr>
-    </tbody></table></div>
-    <div class="dg-bar warn">Tomcat 포트 — 셧다운 8005(22번 줄) · 서비스 8080(Connector 70번 줄) · 리다이렉트 8443. 사용자가 여러 명이면 세 포트를 각각 증가시켜 겹치지 않게 배정, 겹치면 나중 인스턴스가 기동 충돌</div>
-
-    <ul class="facts"><li><strong>자세한 실습</strong><div>nginx가 이 8080을 80으로 중계하는 설정: nginx.html 6장 / 포트 점검(<code>netstat</code>): 8장, linux.html 12장 / XML 주석 문법: docker.html 4장</div></li></ul>
-  </section>
-
-  <!-- 6 -->
-  <section class="sec" id="was-webfile">
-    <h2>첫 화면 지정 (web.xml · welcome-file-list)</h2>
-    <div class="dg"><p class="dg-title">한눈에 보기 — 위에서부터 순서대로 찾는 대문 페이지</p><div class="dg-flow"><div class="dg-node key"><h4>index.html</h4><p class="sub">1순위</p></div><div class="dg-arrow">없으면</div><div class="dg-node"><h4>index.htm</h4><p class="sub">2순위</p></div><div class="dg-arrow">없으면</div><div class="dg-node"><h4>index.jsp</h4><p class="sub">3순위</p></div></div><p class="dg-foot">개발자 요청에 맞게 파일명·순서를 바꿈</p></div>
-    <p>위치: <code>conf/web.xml</code> 맨 아래 (<code>Shift+G</code>, 약 4777행)</p>
-    <div class="code"><pre><code><span class="c">&lt;!-- [호스트 리눅스 · /home/apink/tomcat/conf/web.xml 파일 안 · apink] --&gt;</span>
-<span class="c">&lt;!-- 도메인 접속 시 위에서부터 순서대로 찾아 출력하는 첫 페이지 목록 --&gt;</span>
-&lt;welcome-file-list&gt;
-    <span class="c">&lt;!-- 1순위 --&gt;</span>
-    &lt;welcome-file&gt;index.html&lt;/welcome-file&gt;
-    <span class="c">&lt;!-- 없으면 2순위 --&gt;</span>
-    &lt;welcome-file&gt;index.htm&lt;/welcome-file&gt;
-    <span class="c">&lt;!-- 없으면 3순위 --&gt;</span>
-    &lt;welcome-file&gt;index.jsp&lt;/welcome-file&gt;
-&lt;/welcome-file-list&gt;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">의미</td><td>도메인 접속 시 <strong>제일 먼저 뜨는 페이지(랜딩 페이지)</strong> 지정 — 위에서부터 순서대로 찾음</td><td>아파치 <code>DirectoryIndex</code>와 같은 역할 (httpd.html 7장)</td></tr>
-      <tr><td class="nowrap">개발자 요청</td><td><code>index.do</code>·<code>main.do</code>가 먼저 떠야 하면 그 파일명으로 변경 (<code>.do</code> 파일이 따로 있음)</td><td>요청 없으면 건드리지 않음</td></tr>
-      <tr><td class="nowrap">확장자 없는 주소</td><td>확장자 없이 index만 쳐도 자동 매핑하는 방식이면 그에 맞춤</td><td>개발 프레임워크 설정과 맞물림</td></tr>
-      <tr><td class="nowrap">이번 실습</td><td>개발자 요청이 없어 수정하지 않음</td><td>기본값 확인만</td></tr>
-    </tbody></table></div>
-    <div class="dg-bar warn">welcome-file-list — 위에서부터 <code>index.html</code> → <code>index.htm</code> → <code>index.jsp</code> 순서로 검사. 접속하자마자 보이는 첫 페이지를 <strong>랜딩 페이지</strong>라 부르므로 용어를 함께 기억</div>
-  </section>
-
-  <!-- 7 -->
-  <section class="sec" id="was-java">
-    <h2>Java 설치 — JAVA_HOME 오류와 java-17*</h2>
-    <div class="dg"><p class="dg-title">한눈에 보기 — WAS를 돌리려면 Java가 먼저</p><div class="dg-flow"><div class="dg-node"><h4>① 오류 확인</h4><p class="sub">JAVA_HOME · JRE_HOME 미정의</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 버전 협의</h4><p class="sub">Tomcat 10 → Java 17</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ root 설치</h4><p class="sub">dnf install java-17*</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 확인</h4><p class="sub">java -version</p></div></div></div>
-
-    <h3>JAVA_HOME 오류</h3>
-    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink]</span>
-<span class="c"># tomcat/bin으로 이동 — 한 단계 빠져나와 이동해야 함</span>
-cd /home/apink/tomcat/bin
-<span class="c"># .sh = 셸 스크립트, Tomcat 기동 시도</span>
-./startup.sh</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">실행 결과</td><td><code>Neither the JAVA_HOME nor the JRE_HOME environment variable is defined</code></td><td>Java가 없다는 뜻</td></tr>
-      <tr><td class="nowrap">필요 조건</td><td><strong>Tomcat(WAS)을 돌리려면 Java(JDK)가 필요</strong></td><td>WAS는 자바 애플리케이션을 실행하는 컨테이너</td></tr>
-      <tr><td class="nowrap">설치 주체</td><td>Java 설치는 <strong>root</strong></td><td>일반 사용자는 <code>dnf</code>를 못 씀</td></tr>
-      <tr><td class="nowrap">Java가 없으면</td><td>일반 사용자가 <code>startup.sh</code>를 실행해도 작동 자체가 안 됨</td><td>오류 메시지가 원인을 정확히 알려 줌</td></tr>
-    </tbody></table></div>
-
-    <h3>Java 17 설치 (root)</h3>
-    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink]</span>
-<span class="c"># 설치 확인 — 없으면 명령이 없다는 메시지와 함께 java-11/17-openjdk-headless 설치를 제안</span>
-java -version
-
-<span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># 설치 가능한 Java 버전 목록 확인 : 1.8, 11, 17, 21, 25</span>
-dnf install java*
-<span class="c"># Java 17 관련 패키지 전체 설치 (java-17-openjdk-17.0.20… 외 총 18개)</span>
-dnf install java-17*
-<span class="c"># 설치 결과 확인 → openjdk 17.0.20.1 LTS 표시 = 설치 성공</span>
-java -version</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">버전 협의</td><td>아무 버전이나 깔지 말고 <strong>개발자와 협의</strong> — Tomcat 10번대 → <strong>Java 17</strong> (백엔드 개발자 확인)</td><td>버전이 어긋나면 WAS가 뜨지 않거나 애플리케이션이 오작동</td></tr>
-      <tr><td class="nowrap">실수</td><td><code>dnf install jdk-17</code>, <code>dnf install jdk*</code>는 패키지를 못 찾음 → <code>java*</code>로 검색</td><td>패키지 이름 체계가 다름</td></tr>
-      <tr><td class="nowrap">설치 체감</td><td>미러 서버 timeout 로그가 나올 정도로 다운로드가 느림</td><td>기다리는 동안 다른 작업을 하거나 메모를 정리</td></tr>
-      <tr><td class="nowrap">성공 확인</td><td><code>java -version</code> → <code>openjdk 17.0.20.1 LTS</code> 표시</td><td>이후 <code>startup.sh</code>가 동작</td></tr>
-    </tbody></table></div>
-    <div class="dg-bar warn">Java — Tomcat 10번대는 Java 17. <code>JAVA_HOME</code>·<code>JRE_HOME</code> 미정의 오류는 Java 미설치가 원인이고, 설치는 root만 가능. 패키지는 <code>java*</code>로 검색하고 <code>java-17*</code>로 설치, 확인은 <code>java -version</code></div>
-
-    <ul class="facts"><li><strong>자세한 실습</strong><div>여러 Java 버전을 설치해 두고 전환(<code>update-alternatives</code>): 3장 / <code>dnf</code> 패키지 검색·설치: linux.html 12장</div></li></ul>
-  </section>
-
-  <!-- 8 -->
-  <section class="sec" id="was-run">
-    <h2>Tomcat 가동·정지·포트 확인과 실행 소유자</h2>
-    <div class="dg"><p class="dg-title">한눈에 보기 — bin에서 startup·shutdown, 확인은 포트와 화면</p><div class="dg-flow"><div class="dg-node key"><h4>① ./startup.sh</h4><p class="sub">apink · tomcat/bin</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 화면 확인</h4><p class="sub">IP:8080 → Tomcat</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 포트 확인</h4><p class="sub">8080 · 8005 LISTEN</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ ./shutdown.sh</h4><p class="sub">8080만 죽고 nginx는 유지</p></div></div></div>
-
-    <h3>가동 (apink)</h3>
-    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># WAS 실행 사용자로 전환</span>
-su apink
-
-<span class="c"># [호스트 리눅스 · apink]</span>
-<span class="c"># 자기 홈의 tomcat/bin으로 이동 (pwd가 /var/www면 안 됨)</span>
-cd /home/apink/tomcat/bin
-<span class="c"># 가동</span>
-./startup.sh</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">실행 결과</td><td><code>Using CATALINA_BASE/CATALINA_HOME: /home/apink/tomcat</code>, <code>Using JRE_HOME: /usr</code> … <strong><code>Tomcat started.</code></strong></td><td>경로가 자기 홈의 tomcat인지 확인</td></tr>
-      <tr><td class="nowrap">접속 결과</td><td><code>10.2.2.101:8080</code> → <strong>Apache Tomcat/10.1.61</strong> 화면("If you're seeing this, you've successfully installed Tomcat. Congratulations!")</td><td>이 화면이 떠야 WAS 정상, 안 뜨면 WAS에 문제</td></tr>
-      <tr><td class="nowrap">포트 구분</td><td>포트 없이 IP만 치면 웹(nginx) 화면, <strong>WAS는 8080</strong>을 붙여야 들어감</td><td>1차로 이것을 확인</td></tr>
-    </tbody></table></div>
-
-    <h3>정지</h3>
-    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · apink]</span>
-<span class="c"># 같은 경로(tomcat/bin), 같은 사용자(apink)에서 정지</span>
-./shutdown.sh</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">실행 결과</td><td><code>Using CATALINA_BASE …</code> 출력, 8080 새로고침 시 WAS 화면이 바로 죽음</td><td>정지 스크립트 이름은 <code>shutdown.sh</code></td></tr>
-      <tr><td class="nowrap">같은 시점 웹</td><td>웹(nginx)은 정상 동작 → <strong>웹과 WAS는 별개로 운영 가능</strong></td><td>같은 형태로 생각하지 말 것</td></tr>
-      <tr><td class="nowrap">권한</td><td>가동·정지는 <strong>일반 사용자</strong>가 함</td><td>root가 하면 소유자 문제가 생김</td></tr>
-    </tbody></table></div>
-
-    <h3>포트 확인</h3>
-    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># WAS 서비스 포트 확인</span>
-netstat -ln | grep 8080
-<span class="c"># 셧다운 포트 확인</span>
-netstat -ln | grep 8005</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table><thead><tr><th>상태</th><th>결과</th><th>의미</th></tr></thead><tbody>
-      <tr><td class="nowrap">WAS 정지</td><td>아무것도 안 뜸</td><td>포트가 닫힌 상태</td></tr>
-      <tr><td class="nowrap">가동 후</td><td><code>tcp6 :::8080 … LISTEN</code>, 8005도 <code>LISTEN</code></td><td>두 포트가 모두 LISTEN이면 정상 가동</td></tr>
-      <tr><td class="nowrap">포트 충돌</td><td>같은 IP·포트에는 하나의 프로그램만 대기 → 나중에 뜨는 쪽이 기동 충돌</td><td>모든 서비스가 한꺼번에 죽는 것은 아님</td></tr>
-    </tbody></table></div>
-
-    <h3>root가 가동한 경우 (소유자 문제)</h3>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">실행 결과</td><td>root가 <code>/home/apink/tomcat/bin/</code>에서 <code>./startup.sh</code> → Tomcat 화면 정상, 이후 apink가 <code>./shutdown.sh</code> → 정지도 됨</td><td>압축을 apink가 풀어 <code>bin</code> 안 파일 소유자가 전부 <code>apink apink</code>(<code>startup.sh</code>는 <code>rwxr-x---</code>)</td></tr>
-      <tr><td class="nowrap">root 소유가 되면</td><td><code>startup.sh</code>·<code>shutdown.sh</code>의 소유자·그룹이 root가 되면 apink는 실행·정지에 제약을 받음</td><td><code>shutdown.sh</code>는 <code>server.xml</code>의 셧다운 포트(8005)로 종료 명령을 보내 정지시키는 방식이라 소유자만으로 정지 가능 여부가 갈리지는 않음</td></tr>
-      <tr><td class="nowrap">원칙</td><td>WAS는 일반 사용자가 설치·핸들링, root로 실행하지 않음</td><td>root 실행 시 생성 파일이 root 소유가 되어 개발자가 손댈 수 없게 됨</td></tr>
-    </tbody></table></div>
-    <div class="dg-bar warn">가동·정지 — <code>tomcat/bin</code>에서 <code>./startup.sh</code>·<code>./shutdown.sh</code>, 일반 사용자가 수행. 접속은 <code>IP:8080</code>에서 Apache Tomcat 화면, <code>8080</code>·<code>8005</code>가 LISTEN이면 정상. 웹과 WAS는 별개로 운영 가능</div>
-
-    <ul class="facts"><li><strong>자세한 실습</strong><div>프록시로 8080 감추기: nginx.html 6장 / 접속자·프로세스 확인: linux.html 9·12장</div></li><li><strong>스크립트 문법</strong><div><code>startup.sh</code> 안의 <code>#!/bin/bash</code>·변수·산술과 실행 권한: shell.html 1장 / 조건문·분기·입력: shell.html 2장 / 반복문·배열: shell.html 3장</div></li></ul>
-  </section>
-
-  <!-- 9 -->
-  <section class="sec" id="was-procedure">
-    <h2>WAS 세팅 절차 정리 (서비스 3단계 · 포트 3개)</h2>
-    <div class="dg"><p class="dg-title">한눈에 보기 — Service 3단계 + Java 1단계</p><div class="dg-flow"><div class="dg-node"><h4>[WAS Service]</h4><p class="sub">일반 사용자</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>wget → mv → conf</h4><p class="sub">server.xml · web.xml</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>[WAS Java]</h4><p class="sub">root만</p></div></div><p class="dg-foot">포트 8005 · 8080 · 8443을 함께 확인</p></div>
-    <p>Java 다운로드를 기다리며 Tomcat·Java 설치 내용을 메모장으로 정리한 구성: <code>[WAS Service]</code>(Tomcat 설치·설정)와 <code>[WAS Java]</code>(root가 하는 Java 설치) 두 덩어리</p>
-
-    <h3>WAS Service 3단계</h3>
-    <div class="table-wrap"><table><thead><tr><th>순서</th><th>할 일</th><th>명령·위치</th></tr></thead><tbody>
-      <tr><td class="nowrap">1</td><td>Apache Tomcat 다운로드</td><td><code>wget</code> (<strong>개발자가 요청한 버전</strong>으로, 아무 버전이나 받지 않음)</td></tr>
-      <tr><td class="nowrap">2</td><td>압축 해제 후 디렉토리 이름을 간편하게 변경</td><td><code>mv</code></td></tr>
-      <tr><td class="nowrap">3</td><td>해당 경로(tomcat)로 입장 → <code>conf</code> 디렉토리</td><td><code>server.xml</code>, <code>web.xml</code> 두 파일의 환경설정 확인</td></tr>
-    </tbody></table></div>
-    <p>환경설정은 일반 사용자도 할 수 있지만 서버 담당자가 먼저 세팅해 주고, 그때 중요한 포트들을 함께 확인 — 무엇을 누가 만질지 미리 정해 두는 순서</p>
-
-    <h3>확인할 포트 3개 (<code>server.xml</code>)</h3>
-    <div class="table-wrap"><table><thead><tr><th>포트</th><th>용도</th><th>설명</th></tr></thead><tbody>
-      <tr><td class="nowrap">8005</td><td><strong>셧다운(정지) 포트</strong></td><td>WAS를 정지시키는 포트</td></tr>
-      <tr><td class="nowrap">8080</td><td><strong>WAS 접근 포트</strong></td><td>웹브라우저에서 <code>IP:8080</code>을 치면 WAS 웹페이지가 뜸</td></tr>
-      <tr><td class="nowrap">8443</td><td><strong>WAS HTTPS 포트</strong></td><td>HTTPS = 다른 말로 SSL 포트 (강사는 "843번"이라고 말함, 8443의 말실수)</td></tr>
-    </tbody></table></div>
-    <p>지금은 사용자 1명(WAS 1개)이라 8005 · 8080 · 8443 세 개만 확인하면 됨 — 다른 사용자도 WAS를 쓰면 세 포트를 모두 확인해 서로 겹치지 않게 바꿔야 정상적으로 돌아감 (포트 배정 예시는 5장 참고)</p>
-
-    <h3>WAS Java (root 담당)</h3>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">필요 조건</td><td>WAS를 가동하려면 <strong>Java(데몬)가 설치돼 있어야 함</strong></td><td>없으면 JAVA_HOME 오류 → 7장</td></tr>
-      <tr><td class="nowrap">설치 주체</td><td>Java 설치는 <strong>root가 함</strong> (유일하게 root가 하는 부분)</td><td>Tomcat 다운로드·설정은 일반 사용자</td></tr>
-      <tr><td class="nowrap">버전</td><td><strong>개발자가 요청한 버전</strong>으로 설치, 아무거나 깔면 안 됨</td><td>Tomcat 10번대 → Java 17</td></tr>
-      <tr><td class="nowrap">명령</td><td><code>dnf install java-&lt;버전&gt;*</code> (예: <code>java-17*</code>, 버전 뒤에 마이너스·별표를 붙여 해당 버전 패키지 전체 설치)</td><td><code>java*</code>는 설치 가능한 버전 목록 확인용</td></tr>
-      <tr><td class="nowrap">확인</td><td>설치가 끝나면 <code>java -version</code> → Java 버전이 뜨면 설치 성공, 이제 가동 가능</td><td>버전 숫자까지 확인</td></tr>
-    </tbody></table></div>
-    <div class="dg-bar warn">WAS 세팅 — Service 3단계(<code>wget</code> → <code>mv</code> → <code>conf</code>의 <code>server.xml</code>·<code>web.xml</code> 확인)는 일반 사용자, Java만 root. 포트는 8005 셧다운 · 8080 접근 · 8443 HTTPS(SSL) 세 개를 사용자마다 겹치지 않게</div>
-
-    <ul class="facts"><li><strong>자세한 실습</strong><div><code>server.xml</code> 포트 배정: 5장 / <code>web.xml</code> 첫 화면: 6장 / Java 설치: 7장 / nginx 프록시로 80 연결: nginx.html 6장</div></li></ul>
-  </section>
-
   <!-- 10 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
@@ -1052,6 +1052,13 @@ netstat -ln | grep 8005</code></pre><button class="copy" type="button" aria-labe
       <table class="cheat">
         <thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead>
         <tbody>
+          <tr class="group"><th colspan="2" scope="colgroup">설치·포트 점검</th></tr>
+          <tr><td><code>su apink</code> / <code>cd /home/apink</code></td><td>WAS를 설치·실행할 일반 사용자 전환과 홈 이동</td></tr>
+          <tr><td><code>tar xf apache-tomcat-10.1.61.tar.gz</code> / <code>mv apache-tomcat-10.1.61 tomcat</code></td><td>Core tar.gz 압축 해제와 디렉터리명 단축(끝에 <code>/</code> 없이)</td></tr>
+          <tr><td><code>vi /home/apink/tomcat/conf/server.xml</code></td><td>포트 설정 확인 — 22번 8005, 70번 8080, <code>redirectPort</code> 8443</td></tr>
+          <tr><td><code>vi /home/apink/tomcat/conf/web.xml</code></td><td>맨 아래(약 4777행) <code>welcome-file-list</code> 첫 화면 순서 확인</td></tr>
+          <tr><td><code>netstat -ln | grep 8080</code> / <code>netstat -ln | grep 8005</code></td><td>가동 후 <code>LISTEN</code> 확인, 정지 상태면 아무것도 안 나옴</td></tr>
+          <tr><td><code>kill</code></td><td>정지가 안 되는 WAS 프로세스 강제 종료 — 포트가 겹친 상태에서 사용</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">컨테이너</th></tr>
           <tr><td><code>vi hosting.yaml</code></td><td>Compose 파일 생성·편집, 복사한 설정은 Shift+Insert로 붙여넣기</td></tr>
           <tr><td><code>docker compose -f hosting.yaml up -d</code></td><td>지정 파일의 서비스로 WAS 컨테이너 생성·실행, version 속성 obsolete 경고는 무시 가능</td></tr>
@@ -1068,13 +1075,6 @@ netstat -ln | grep 8005</code></pre><button class="copy" type="button" aria-labe
           <tr><td><code>./startup.sh</code> / <code>./shutdown.sh</code></td><td><code>bin</code> 디렉터리에서 Tomcat 기동·종료, 종료 스크립트는 <code>stop.sh</code>가 아님</td></tr>
           <tr><td><code>update-alternatives --config java</code> / <code>java -version</code></td><td>root에서 설치된 Java 버전 선택 / 변경 결과 확인</td></tr>
           <tr><td><code>dnf install java*</code> / <code>dnf install java-17*</code></td><td>설치 가능한 버전 목록(1.8·11·17·21·25) 확인 / Java 17 패키지 18개 전체 설치(root)</td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">설치·포트 점검</th></tr>
-          <tr><td><code>su apink</code> / <code>cd /home/apink</code></td><td>WAS를 설치·실행할 일반 사용자 전환과 홈 이동</td></tr>
-          <tr><td><code>tar xf apache-tomcat-10.1.61.tar.gz</code> / <code>mv apache-tomcat-10.1.61 tomcat</code></td><td>Core tar.gz 압축 해제와 디렉터리명 단축(끝에 <code>/</code> 없이)</td></tr>
-          <tr><td><code>vi /home/apink/tomcat/conf/server.xml</code></td><td>포트 설정 확인 — 22번 8005, 70번 8080, <code>redirectPort</code> 8443</td></tr>
-          <tr><td><code>vi /home/apink/tomcat/conf/web.xml</code></td><td>맨 아래(약 4777행) <code>welcome-file-list</code> 첫 화면 순서 확인</td></tr>
-          <tr><td><code>netstat -ln | grep 8080</code> / <code>netstat -ln | grep 8005</code></td><td>가동 후 <code>LISTEN</code> 확인, 정지 상태면 아무것도 안 나옴</td></tr>
-          <tr><td><code>kill</code></td><td>정지가 안 되는 WAS 프로세스 강제 종료 — 포트가 겹친 상태에서 사용</td></tr>
         </tbody>
       </table>
     </div>

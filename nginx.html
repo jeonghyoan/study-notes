@@ -608,7 +608,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>nginx 통합 학습노트</h1>
-    <p class="deck">범위: nginx 설치(dnf 모듈 스트림 1.24 · <code>nginx*</code> 44개 패키지) → <code>nginx.conf</code> 줄별 의미(worker_processes · worker_connections · server · listen · root) → 워커 설정 → 웹 루트 변경(<code>/home/apink/www</code>) → 사용자 정의 에러 페이지(<code>/var/www</code> · <code>error_page</code> · <code>internal</code>) → 프록시(<code>proxy_pass</code> 80 → 8080 · X-Real-IP · X-Forwarded-For · Host). 환경: VirtualBox NAT 리눅스 VM(<code>192.168.222.2</code>, 접속 <code>10.2.2.101</code>), 일반 사용자 <code>apink</code>. 아파치 설정은 httpd.html, Tomcat(WAS)은 was.html 4~9장, HTTP 상태 코드는 httpd.html 10장.</p>
+    <p class="deck">범위: nginx 설치(dnf 모듈 스트림 1.24 · <code>nginx*</code> 44개 패키지) → <code>nginx.conf</code> 줄별 의미(worker_processes · worker_connections · server · listen · root) → 워커 설정 → 웹 루트 변경(<code>/home/apink/www</code>) → 사용자 정의 에러 페이지(<code>/var/www</code> · <code>error_page</code> · <code>internal</code>) → 프록시(<code>proxy_pass</code> 80 → 8080 · X-Real-IP · X-Forwarded-For · Host). 환경: VirtualBox NAT 리눅스 VM(<code>192.168.222.2</code>, 접속 <code>10.2.2.101</code>), 일반 사용자 <code>apink</code>. 아파치 설정은 httpd.html, Tomcat(WAS)은 was.html 1~6장, HTTP 상태 코드는 httpd.html 10장.</p>
 
     <div class="core-strip">
       <div>
@@ -997,7 +997,7 @@ server {
     </tbody></table></div>
     <div class="dg-bar warn">프록시 — 80을 8080으로 넘겨 <code>:8080</code>을 숨김. 클라이언트 요청은 WAS가 아니라 웹이 먼저 받음. <code>proxy_pass</code> 포트는 WAS 포트와 일치, 설정 후 restart, server 블록의 <code>root</code>는 하나</div>
 
-    <ul class="facts"><li><strong>자세한 실습</strong><div>Tomcat 설치·포트·가동: was.html 4~8장 / HTTP 502·503·504 원인: httpd.html 10장 / 아파치 프록시·가상 호스트: 9장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div>Tomcat 설치·포트·가동: was.html 1~5장 / HTTP 502·503·504 원인: httpd.html 10장 / 아파치 프록시·가상 호스트: 9장</div></li></ul>
   </section>
 
   <!-- 7 -->
