@@ -599,16 +599,19 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#backup-restore">6. 백업·사고·복구</a></li>
         <li><a href="#image-security">7. 이미지 배포·보안</a></li>
         <li><a href="#sec-install">8. DB 개요 · DBeaver · MySQL 패키지 설치·포트 개방</a></li>
-        <li><a href="#cheatsheet">9. 통합 명령어 치트시트</a></li>
+        <li><a href="#sec-basics">9. 설정 파일·접속·문자셋·기본 조회</a></li>
+        <li><a href="#sec-table-practice">10. DB·테이블·데이터 생성·삭제</a></li>
+        <li><a href="#sec-user-grant">11. 사용자·권한(GRANT)·DBeaver 원격 접속</a></li>
+        <li><a href="#cheatsheet">12. 통합 명령어 치트시트</a></li>
   </ol></nav></aside>
   <main class="main">
   <header>
     <h1>MySQL 통합 학습노트</h1>
-    <p class="deck">MySQL 통합 학습노트 · 범위: Docker Hardened Image 기반 MySQL 컨테이너로 관리형 DB(RDS형)의 접속·문자셋 설정·장애 대응·백업과 복구 흐름 → MariaDB 11.4 연결 수·timeout·메모리 설정 → DB 분류·DBeaver·CentOS 패키지(dnf) 설치와 3306 포트 개방. 화면 값은 실습 관찰값. 컨테이너·Compose 기본: docker.html 4·5장</p>
+    <p class="deck">MySQL 통합 학습노트 · 범위: Docker Hardened Image 기반 MySQL 컨테이너로 관리형 DB(RDS형)의 접속·문자셋 설정·장애 대응·백업과 복구 흐름 → MariaDB 11.4 연결 수·timeout·메모리 설정 → DB 분류·DBeaver·CentOS 패키지(dnf) 설치와 3306 포트 개방 → 로컬 서버 직접 설치본(MySQL 8.0.46)의 my.cnf·문자셋·기본 조회 → DB·테이블·데이터 생성·삭제 → root 패스워드·사용자·호스트·GRANT·DBeaver 원격 접속. 화면 값은 실습 관찰값. 컨테이너·Compose 기본: docker.html 4·5장</p>
     <div class="core-strip">
       <div><div class="core-metric">컨테이너 ≠ RDS</div><p class="core-desc">Docker MySQL 실습 = 관리형 DB의 접속·운영 흐름을 연습하는 모형. 운영 방식·관리 책임은 다름 (1장)</p></div>
       <div><div class="core-metric">로그 → 설정 수정</div><p class="core-desc"><code>docker logs</code>로 원인·오류값 확인 → 호스트에서 설정 수정 → <code>docker cp</code> → <code>docker restart</code> → 접속·상태 검증 (3장)</p></div>
-      <div><div class="core-metric">백업은 컨테이너 밖</div><p class="core-desc"><code>mysqldump</code> 결과를 호스트로 복사해 별도 보관. 오류가 있으면 파일 존재만으로 성공 판정 금지 → 종료 코드·복원으로 확인 (6장) 서버에 직접 설치하는 방식은 <code>dnf search mysql*</code>·<code>dnf info</code>로 <code>mysql-server</code> 유무 확인 → <code>dnf install mysql*</code> → <code>systemctl start mysqld.service</code> → <code>netstat -lnp</code>로 3306 확인 (8장).</p></div>
+      <div><div class="core-metric">백업은 컨테이너 밖</div><p class="core-desc"><code>mysqldump</code> 결과를 호스트로 복사해 별도 보관. 오류가 있으면 파일 존재만으로 성공 판정 금지 → 종료 코드·복원으로 확인 (6장) 서버에 직접 설치하는 방식은 <code>dnf search mysql*</code>·<code>dnf info</code>로 <code>mysql-server</code> 유무 확인 → <code>dnf install mysql*</code> → <code>systemctl start mysqld.service</code> → <code>netstat -lnp</code>로 3306 확인 (8장). 설치 후에는 <code>/etc/my.cnf</code>·문자셋 확인 → <code>ALTER USER</code>로 root 패스워드 → <code>CREATE USER</code>(localhost·%·IP)와 <code>GRANT</code> → DBeaver <code>allowPublicKeyRetrieval=true</code> 순서 (9~11장).</p></div>
     </div>
     <nav class="toc" aria-label="목차">
       <a href="#rds-model">1. RDS형 구성·실습 기준</a>
@@ -619,7 +622,10 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#backup-restore">6. 백업·사고·복구</a>
       <a href="#image-security">7. 이미지 배포·보안</a>
       <a href="#sec-install">8. DB 개요 · DBeaver · MySQL 패키지 설치·포트 개방</a>
-      <a href="#cheatsheet">9. 통합 명령어 치트시트</a>
+      <a href="#sec-basics">9. 설정 파일·접속·문자셋·기본 조회</a>
+      <a href="#sec-table-practice">10. DB·테이블·데이터 생성·삭제</a>
+      <a href="#sec-user-grant">11. 사용자·권한(GRANT)·DBeaver 원격 접속</a>
+      <a href="#cheatsheet">12. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -878,7 +884,7 @@ interactive_timeout = 600</code></pre><button class="copy" type="button" aria-la
     <tr><td><strong>문자셋 설정</strong></td><td>MariaDB 11.4는 server 기본값이 배포판마다 다를 수 있음 → <code>utf8mb4</code>와 유효한 MariaDB collation을 명시하고 실제 상태 조회</td></tr>
     <tr><td><strong>연결 상한</strong></td><td><code>max_connections</code> = 최대 client 연결 수, 값은 하드웨어·메모리 배정에 따라 결정</td></tr>
     <tr><td><strong>연결 수를 정하는 이유</strong></td><td><ul><li>서비스는 메모리 보호를 위해 상한 설정, 혼자 로컬 공부할 때는 필수 아님</li><li>상한 1이면 DBeaver 접속 뒤 다음 연결이 막히는 예</li><li>IntelliJ·Eclipse 등 개발 도구가 약 6개 연결 유지 + DBeaver SQL 편집기가 추가 연결 → 개발자 1명이 7~8개 차지하는 예 (강의 예, 모든 도구의 고정값 아님)</li><li>연결을 안 닫으면 유휴 timeout 후 종료, 다시 작업하면 재연결</li></ul></td></tr>
-    <tr><td><strong>클라이언트별 연결</strong></td><td>IDE·DB 도구는 편집기·탭마다 여러 연결 → pool 크기·idle timeout은 개발팀과 협의, 배포 전 동시 접속 시험</td></tr>
+    <tr><td><strong>클라이언트별 연결</strong></td><td>IDE·DB 도구는 편집기·탭마다 여러 연결 → pool 크기·idle timeout은 개발팀과 협의, 배포 전 동시 접속 테스트</td></tr>
     <tr><td><strong>계산 예와 실측</strong></td><td><ul><li>연습값 <code>sort_buffer_size=1000</code>, <code>join_buffer_size=3000</code>, <code>read_buffer_size=3000</code> → 합 <code>7000</code>, 연결 80개면 <code>560000</code></li><li>InnoDB buffer pool 같은 cache 공간은 별도 고려</li><li>DB 메모리 3GB 가정 → 백업·복구까지 고려해 약 2.5GB에 맞추는 예</li><li>실제 <code>select @@sort_buffer_size;</code> 관찰값 <code>2097152</code></li><li>최초 조회 때 <code>Server has gone away</code> 뒤 자동 재연결된 실습 결과</li></ul></td></tr>
     <tr><td><strong>자원·값 협의</strong></td><td><ul><li>10GB 서버 예: OS·서비스용 3GB 이상 확보 → 약 7GB를 컨테이너·데몬이 나눠 사용</li><li>3GB 아래에서 Docker·crontab·SSH 문제와 <code>out of memory</code> 반복 가능 (강의 기준)</li><li>개발 단계는 연결 약 50개로 제한 → 개발자에게 buffer 값 등을 받아 계산·확정</li><li>F12의 Network·Memory·Application·Performance 탭에서 페이지 할당량 확인</li><li>동시 80명이 필요한데 메모리가 부족하면 연결 수를 줄이기보다 메모리 증설, timeout은 개발팀과 협의</li></ul></td></tr>
     <tr><td><strong>timeout 적용</strong></td><td><ul><li>게시판에서 SELECT 후 브라우저를 두는 경우 = 웹앱 연결 → <code>wait_timeout</code></li><li>너무 길면 연결 수 부족, 너무 짧으면 데이터가 오가는 중 끊겨 데이터 유실·timed out → 두 값을 함께 조정. 끊긴 뒤 다시 작업하면 재연결될 수 있음</li></ul></td></tr>
@@ -1288,7 +1294,7 @@ netstat -lnp   <span class="c"># 기동 후 3306·33060 포트, mysql.sock 확�
 <div>DB를 올리기 전 남은 메모리(<code>free -h</code>)와 커널 버전(<code>uname -r</code>·<code>/etc/os-release</code>): linux.html 12장</div>
 </li>
 <li><strong>계정·권한·접속</strong>
-<div>DB 계정 생성과 <code>GRANT</code>·DBeaver 연결: 이 파일 5장</div>
+<div>DB 계정 생성과 <code>GRANT</code>·DBeaver 연결: 이 파일 5장, 11장</div>
 </li>
 <li><strong>컨테이너로 설치</strong>
 <div>서버에 직접 설치하지 않고 Docker 이미지로 MySQL을 올리는 방식: 이 파일 2장, docker.html 5장</div>
@@ -1296,8 +1302,605 @@ netstat -lnp   <span class="c"># 기동 후 3306·33060 포트, mysql.sock 확�
 </ul>
 </section>
 
-
   <!-- 9 -->
+  <section class="sec" id="sec-basics">
+    <h2>설정 파일 · 접속 · 문자셋 · 기본 조회</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 설정 파일 확인에서 기본 조회까지</p><div class="dg-flow">
+      <div class="dg-node"><h4>① /etc/my.cnf</h4><p class="sub">설정 디렉터리 포함 · 튜닝 지점</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>② mysql -u root -p</h4><p class="sub">DB root ≠ 리눅스 root</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>③ \s</h4><p class="sub">버전 · 문자셋 4개 · Uptime</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>④ 조회 3단계</h4><p class="sub">show databases → use → show tables</p></div></div></div>
+
+    <h3>실습 환경과 이 장의 범위</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>서버</strong></td><td>VirtualBox 리눅스에 <code>MySQL 8.0.46</code>(Source distribution) 설치 완료. 접속 계정 <code>korea</code>(일반)·<code>root</code></td></tr>
+    <tr><td><strong>이번 범위</strong></td><td>① 설정 파일·문자셋 이해 ② 기본 SQL 명령 ③ 루트 패스워드 설정 ④ 일반 사용자 생성·권한 부여 ⑤ DBeaver 외부 접속 ⑥ 짝꿍 서버 접속 실습</td></tr>
+    <tr><td><strong>이 파일의 배치</strong></td><td>설정 파일·문자셋·기본 조회(9장) → DB·테이블·데이터 실습(10장) → 루트 패스워드·사용자·권한·DBeaver 원격 접속(11장)</td></tr>
+    <tr><td><strong>윈도우 설치와 차이</strong></td><td>윈도우용 MySQL은 <b>Next만 눌러</b> 설치하지만 리눅스는 <b>설정 파일을 직접 수정</b> → 데이터베이스 인프라 영역</td></tr>
+    <tr><td><strong>인프라 담당 범위</strong></td><td>개발자 영역(테이블 설계·commit/rollback)은 몰라도 되고, <b>개발자가 요구하는 대로 DB 인프라를 세팅</b></td></tr>
+    <tr><td><strong>학습 목적</strong></td><td>명령어 암기보다 "무슨 뜻인지" 이해 — 면접에서 이유를 묻는 질문에 답하는 수준</td></tr>
+    </tbody></table></div>
+
+    <h3>설정 파일 /etc/my.cnf</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+cd /etc       <span class="c"># 설정 파일 위치로 이동</span>
+vi my.cnf     <span class="c"># MySQL 환경설정 파일 열기 (11줄, 202바이트)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/my.cnf 파일 안 · root]</span>
+<span class="c"># my.cnf.d 디렉터리 안의 설정 파일을 전부 포함해 읽음 → 파일 하나에 다 쓰지 않고 나눠 관리</span>
+!includedir /etc/my.cnf.d</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">파일 크기</td><td>11줄, 202바이트</td><td>주석 줄을 지우면 총 <b>9줄</b>만 남음</td></tr>
+    <tr><td class="nowrap">이번 실습</td><td>수정하지 않고 나옴 (주석 줄만 지운 상태로 확인)</td><td>실제 DB 작동을 먼저 확인하는 순서 — 설정을 바꾸면 원인 파악이 어려워짐</td></tr>
+    <tr><td class="nowrap">버전 차이</td><td>8.4번대도 화면이 거의 같고 8번대는 웬만하면 동일. <b>9번대로 메이저 버전이 바뀌면 크게 달라짐</b></td><td>인터넷 예제와 화면이 다를 수 있음 → 버전을 먼저 확인</td></tr>
+    <tr><td class="nowrap">튜닝 업무</td><td>이 파일을 수정해 DB를 최적화하는 것이 <b>데이터베이스 경량화(튜닝)</b></td><td>채용 공고에 "데이터베이스 경량화 가능자 우대"(검색어: 데이터베이스 경량화)</td></tr>
+    </tbody></table></div>
+
+    <h3>MySQL과 MariaDB를 한 서버에 함께 두지 못하는 이유</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>공유 파일</strong></td><td>두 DB 모두 <code>/etc/my.cnf</code>를 사용</td></tr>
+    <tr><td><strong>공유 포트</strong></td><td>둘 다 <code>3306</code> — 포트가 같은 것도 충돌 원인</td></tr>
+    <tr><td><strong>설치 충돌</strong></td><td>MySQL을 세팅한 서버에 MariaDB를 설치하면 my.cnf를 <b>덮어써 초기화</b> → MariaDB는 작동하고 MySQL은 튕겨 나감</td></tr>
+    <tr><td><strong>결론</strong></td><td>한 서버에는 <b>둘 중 하나만</b></td></tr>
+    <tr><td><strong>분리 방법</strong></td><td>클라우드 서버로 전환하거나 <b>컨테이너</b>로 올리면 둘 다 별도로 설치 가능</td></tr>
+    <tr><td><strong>구분 기준</strong></td><td>지금 실습은 <b>로컬(단독) 서버</b> — 단독 서버와 클라우드 서버를 구분할 줄 알아야 함</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">my.cnf 공유 — 같은 설정 파일에 같은 3306 포트라 한 서버에 MySQL과 MariaDB를 함께 두면 한쪽만 뜸(설치한 쪽이 my.cnf를 덮어씀). 둘 다 필요하면 컨테이너·클라우드로 서버를 분리</div>
+
+    <h3>DB 접속과 root 계정</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+mysql -u root -p   <span class="c"># -u 사용자 / -p 패스워드 (두 옵션 앞은 칸을 띄우고, -p 뒤에 값을 붙이지 않음 → 입력 창에서 받음)</span>
+mysql              <span class="c"># 루트 패스워드가 없는 초기 상태에서는 이 명령만으로 접속</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">DB root</td><td><b>데이터베이스의 root</b>이며 <b>리눅스 root와 별개</b> 계정</td><td>DB 쪽에 패스워드가 따로 있음 — 리눅스 root 패스워드와 다름</td></tr>
+    <tr><td class="nowrap">초기 상태</td><td>루트 패스워드가 없어 <code>mysql</code>만 쳐도, 엔터만 쳐도 접속</td><td>패스워드 없이 방치하면 다 뚫림 → 이후 반드시 설정 (11장)</td></tr>
+    <tr><td class="nowrap">패스워드 입력</td><td>리눅스 패스워드는 입력해도 별표(<code>*</code>)조차 안 찍힘</td><td>입력이 안 되는 것이 아니라 화면에만 안 보이는 상태 — 그대로 치고 Enter</td></tr>
+    <tr><td class="nowrap">개발자에게 root</td><td><b>root 권한은 절대 주지 않음</b> — "root를 달라"고 하면 이유를 묻고 사용자를 만들어 줌</td><td>개발자가 묻는 것은 <b>아이디 계정, 패스워드, 데이터베이스 명, 포트 번호</b> 4가지뿐, 나머지 세팅은 인프라 담당자 몫</td></tr>
+    <tr><td class="nowrap">root 외부 접속</td><td>root는 <code>localhost</code>만 — 외부에서 접속하게 열지 않음</td><td>DDoS·인젝션 공격에 노출되는 통로가 됨</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">root 보호 — DB root는 리눅스 root와 별개이고 초기에는 패스워드가 없어 엔터만으로 접속됨. 개발자에게 root를 주지 않고 계정만 발급하고, root는 localhost 전용으로 둠</div>
+
+    <h3>상태 확인과 종료</h3>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 서버 상태 출력 (버전·문자셋·소켓·Uptime)</span>
+\s
+<span class="c">-- \s와 동일한 결과</span>
+status</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>\s 출력 항목</th><th>실습 화면 값</th><th>의미</th></tr></thead><tbody>
+    <tr><td class="nowrap">Server version</td><td><code>8.0.46 Source distribution</code></td><td>설치한 버전과 배포 형태</td></tr>
+    <tr><td class="nowrap">character set 4개</td><td>Server / Db / Client / Conn. 모두 <code>utf8mb4</code></td><td>서버·DB·클라이언트·연결의 문자셋 — 개발에 쓰는 언어셋, 버전마다 조금씩 다름</td></tr>
+    <tr><td class="nowrap">접속 방식</td><td><code>Localhost via UNIX socket</code>, 소켓 <code>/var/lib/mysql/mysql.sock</code></td><td>리눅스 내부에서 소켓으로 붙은 상태 (외부 접속은 TCP 3306)</td></tr>
+    <tr><td class="nowrap">Uptime</td><td><code>2 hours 7 min 41 sec</code></td><td>서버를 한 번 껐다 켜면 <b>초기화</b> — 2시간 7분 동안 DB 서버가 꺼진 적 없다는 뜻</td></tr>
+    </tbody></table></div>
+
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- mysql 클라이언트 종료 → 리눅스 쉘 프롬프트로 복귀</span>
+exit
+<span class="c">-- 위와 동일</span>
+quit
+<span class="c">-- 위와 동일</span>
+\q</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts">
+    <li><strong>종료 명령 3종</strong><div><code>exit</code>·<code>quit</code>·<code>\q</code> 모두 mysql 클라이언트만 종료하고 리눅스 쉘로 돌아옴 — <code>exit</code>도 정상 동작</div></li>
+    </ul>
+
+    <h3>언어셋 종류</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>언어셋</th><th>용도</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>utf8</code></td><td><b>기본(국제 표준) 언어셋</b>, 이 수업의 기본 베이스</td><td>인프라 담당자는 <code>utf8</code>이라는 단어를 씀 (개발자가 코드에 쓰는 표기와 구분)</td></tr>
+    <tr><td class="nowrap"><code>euckr</code>(EUC-KR)</td><td>한국어 전용</td><td>예전 방식 — 거의 끝났으나 아직 쓰는 곳 있음</td></tr>
+    <tr><td class="nowrap"><code>eucjp</code>(EUC-JP)</td><td>일본어 전용</td><td></td></tr>
+    <tr><td class="nowrap"><code>utf16</code>, <code>utf32</code></td><td>16bit / 32bit 언어셋</td><td>아주 특이한 케이스에만 사용</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>존재 범위</strong><div>"UTF-8만 있다"고 하면 안 됨 — UTF-16·UTF-32도 실제 존재</div></li>
+    <li><strong>한국어 깨짐</strong><div>외국 IP로 한국 사이트에 접속할 때 한국어가 깨지는 경우 = UTF-8이 아닌 EUC-KR 등으로 세팅한 사이트</div></li>
+    <li><strong>요즘 기준</strong><div>거의 UTF-8 사용 — 문자셋을 바꾸는 설정 방법은 이 파일 3장(<code>charset-config</code>)</div></li>
+    </ul>
+
+    <h3>utf8과 utf8mb4</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>MySQL 5.1</strong></td><td><code>mb4</code> 없음 — 무조건 <code>utf8</code>만 있음</td></tr>
+    <tr><td><strong>MySQL 5.5부터</strong></td><td><code>utf8mb4</code> 생김 (그 전에는 <code>mb3</code>가 있었고, mb3에서 발전한 것이 mb4)</td></tr>
+    <tr><td><strong>차이</strong></td><td>게시판·카톡의 <b>동그란 아이콘(이모지)</b>을 쓰려면 <code>utf8mb4</code>여야 이미지로 뜸 — <code>utf8</code>만 쓰면 글자로 뜸</td></tr>
+    <tr><td><strong>적용 예</strong></td><td>게시판 제작 시 브라우저 아이콘(이모지) 사용 → <code>utf8mb4</code></td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>utf8mb3의 한계</strong><div><code>utf8mb3</code>(mb3)는 3바이트 BMP 문자만 지원 → 이모지(보충 문자)를 저장할 수 없음</div></li>
+    <li><strong>이모지 필수 조건</strong><div>이모지는 반드시 <code>utf8mb4</code> — 4바이트 영역까지 담는 문자셋</div></li>
+    <li><strong>난이도</strong><div><code>mb3</code>는 쉬운 편이고 <code>mb4</code>는 종류(콜레이션)가 많아 어려움</div></li>
+    </ul>
+    <div class="dg-bar warn">이모지 저장 — BMP 3바이트까지는 utf8mb3, 이모지는 보충 문자라 utf8mb4 필수. 5.1에는 mb4가 없어 이모지를 넣을 수 없고, 게시판에 아이콘을 쓸 계획이면 처음부터 utf8mb4</div>
+
+    <h3>콜레이션 — 문자셋 뒤에 붙는 이름</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>이름 구조</strong></td><td><code>utf8mb4</code> 뒤에 <code>_</code>가 붙은 이름 — <code>utf8mb4_unicode_ci</code>, <code>utf8mb4_uca1400_ai</code>(<code>ai_ci</code> 형태), 유니코드(Unicode) 계열, <code>general</code> 계열</td></tr>
+    <tr><td><strong>요지</strong></td><td>유니코드 표준 정렬 규칙</td></tr>
+    <tr><td><strong><code>ci</code></strong></td><td>대소문자 구분 안 함 (A와 a 동일)</td></tr>
+    <tr><td><strong><code>ai</code></strong></td><td>악센트 구분 안 함</td></tr>
+    <tr><td><strong>인프라 담당</strong></td><td><b>외우지 않고</b> 개발자가 요청한 언어셋 그대로 세팅 — <code>utf8mb4</code> 요청이면 지금 세팅 그대로 두고, <code>unicode_ci</code> 등 요청이면 검색해서 해당 언어셋으로 변경</td></tr>
+    </tbody></table></div>
+
+    <h3>SQL 명령어 분류 (DDL · DML · DCL · TCL)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>분류</th><th>명령어</th><th>용도</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><b>DDL</b>(구조 정의)</td><td><code>CREATE</code>, <code>ALTER</code>, <code>DROP</code></td><td>테이블·DB <b>전체 구조</b>를 다룰 때</td><td>이 3개만 알면 됨 (<code>RENAME</code> 등 더 있으나 몰라도 됨)</td></tr>
+    <tr><td class="nowrap"><b>DML</b>(데이터 조작)</td><td><code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></td><td>개인정보 등 <b>데이터 자체</b>를 다룰 때</td><td>데이터를 다루는 명령은 이 4개뿐</td></tr>
+    <tr><td class="nowrap"><b>DCL</b>(권한 제어)</td><td><code>GRANT</code>, <code>REVOKE</code></td><td>사용자 권한 부여·회수</td><td>인프라 담당자가 <b>써야 함</b></td></tr>
+    <tr><td class="nowrap"><b>TCL</b>(트랜잭션)</td><td><code>ROLLBACK</code>, <code>COMMIT</code></td><td>작업의 확정·취소</td><td><b>개발 영역</b>이라 인프라는 몰라도 됨</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>알아야 할 개수</strong><div>DDL 3 + DML 4 + DCL 2 = <b>총 9개</b></div></li>
+    <li><strong>구조와 데이터의 경계</strong><div>테이블·DB의 구조를 정의하는 것은 DDL(CREATE/ALTER/DROP), 데이터를 조작하는 것이 DML(SELECT/INSERT/UPDATE/DELETE)</div></li>
+    <li><strong>조회</strong><div>데이터베이스나 테이블에서 값을 가져올 때(조회)는 <code>SELECT</code>로 간단히 해결</div></li>
+    <li><strong>다른 DB</strong><div>거의 같은 방식으로 씀 — 외우기보다 DDL/DML의 뜻을 알아 둘 것</div></li>
+    <li><strong>세미콜론</strong><div>문장 끝에 반드시 <code>;</code> — 띄어쓰기 없이 붙이고, 안 붙이면 줄만 내려가며 계속 입력 대기. 리눅스 명령은 세미콜론 불필요</div></li>
+    <li><strong>자동완성</strong><div>mysql 프롬프트 안에서는 <b>Tab 자동완성이 안 됨</b> → 수동으로 다 입력 (리눅스 쉘에서는 됨)</div></li>
+    <li><strong>권한 부여 실습</strong><div><code>GRANT</code>·<code>REVOKE</code>의 실제 사용과 호스트별 계정: 이 파일 11장</div></li>
+    </ul>
+    <div class="dg-bar warn">SQL 분류 — 구조는 DDL(CREATE·ALTER·DROP), 데이터는 DML(SELECT·INSERT·UPDATE·DELETE), 권한은 DCL(GRANT·REVOKE). <code>;</code>가 없으면 명령이 끝나지 않고 입력 대기로 넘어감</div>
+
+    <h3>기본 조회 명령</h3>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+select now();             <span class="c">-- DB의 현재 시간</span>
+show databases;           <span class="c">-- 등록된 DB 목록 (복수라 s 필수)</span>
+use mysql;                <span class="c">-- mysql DB를 사용하겠다 (성공 시 Database changed)</span>
+show tables;              <span class="c">-- 현재 DB 안 테이블 목록 (mysql DB는 37개)</span>
+show tables from mysql;   <span class="c">-- use 없이 DB를 지정해 같은 목록 조회</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>명령</th><th>실행 결과</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>select now();</code></td><td><code>2026-10-13 14:24:13</code>, <code>1 row in set (0.00 sec)</code></td></tr>
+    <tr><td class="nowrap"><code>show databases;</code></td><td><code>information_schema</code>, <code>mysql</code>, <code>performance_schema</code>, <code>sys</code></td></tr>
+    <tr><td class="nowrap"><code>use mysql;</code></td><td><code>Database changed</code></td></tr>
+    <tr><td class="nowrap"><code>show tables;</code></td><td>mysql DB에서 <b>37 rows</b></td></tr>
+    <tr><td class="nowrap"><code>show tables from mysql;</code></td><td>use 없이 같은 37개 목록</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>use 없는 조회</strong><div><code>show tables</code>는 <code>show tables from &lt;DB명&gt;;</code>으로 use 없이도 조회 가능 — DB를 선택하지 않고 FROM도 없이 쓸 때만 오류</div></li>
+    <li><strong>명령의 정체</strong><div>이 명령들은 리눅스 명령이 아니라 <b>MySQL(데이터베이스) 명령어</b></div></li>
+    </ul>
+
+    <h3>DB 시간 확인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">가장 먼저</td><td><code>select now();</code>로 <b>DB 시간</b> 확인</td><td>동기화 = 시간 — 설치 직후 첫 점검 항목</td></tr>
+    <tr><td class="nowrap">클라우드 서버</td><td>AWS·GCP 서버는 DB 시간이 <b>미국 시간</b>으로 잡혀 있는 경우가 있음</td><td>안 맞으면 <b>한국 시간으로 변경</b>해 핸들링 (변경 방법은 추후)</td></tr>
+    <tr><td class="nowrap">안 바꾸면</td><td>결제를 오후 2시에 했는데 오전 7시로 기록되는 식의 문제</td><td>주문·로그·정산 시각이 전부 어긋남</td></tr>
+    <tr><td class="nowrap">호환</td><td><code>now</code>는 <b>오라클을 제외한</b> 웬만한 DB가 사용</td><td>MariaDB와 동일한 방식</td></tr>
+    </tbody></table></div>
+
+    <h3>시스템 데이터베이스</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>DB</th><th>설명</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>information_schema</code>, <code>performance_schema</code></td><td>별 의미 없어 보이지만 지우면 안 되는 DB — 서버가 관리하는 시스템 스키마로, root도 삭제·변경 시 <code>Access denied</code></td></tr>
+    <tr><td class="nowrap"><code>mysql</code></td><td><b>사용자 계정·권한 정보</b>가 담긴 핵심 DB (리눅스의 <code>useradd</code>·<code>passwd</code>·홈 디렉터리 정책 정보와 같은 역할). <b>루트만 볼 수 있음</b></td></tr>
+    <tr><td class="nowrap"><code>sys</code></td><td>시스템 DB (일반 사용자에게 안 보임)</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>재설치 조건</strong><div>통째 재설치가 필요한 것은 사용자·권한 정보를 담은 <code>mysql</code> DB 손상 때 — information_schema·performance_schema는 지울 수 없어 손상 자체가 어려움</div></li>
+    <li><strong>root 상실</strong><div>MySQL root를 뺏기면 DB가 통째로 날아감 → 리눅스 root도, 데이터베이스 root도 뺏기면 안 됨 (가장 중요)</div></li>
+    <li><strong>mysql DB 들여다보기</strong><div>user·db 테이블 구조와 루트 패스워드 설정: 이 파일 11장</div></li>
+    </ul>
+    <div class="dg-bar warn">시스템 DB — information_schema·performance_schema는 root도 지울 수 없고(Access denied), mysql DB가 손상되면 재설치·전체 재세팅. root 탈취는 DB 전체 상실이라 권한 관리가 인프라의 핵심</div>
+
+    <h3>DB 구조 — 데이터베이스 &gt; 테이블 &gt; 데이터</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단위</th><th>내용</th><th>예</th></tr></thead><tbody>
+    <tr><td class="nowrap">데이터</td><td>테이블의 한 행 (엑셀의 행)</td><td><code>member</code> 테이블의 홍길동·김·장 …</td></tr>
+    <tr><td class="nowrap">테이블</td><td>한 DB 안의 표</td><td><code>mall</code> → <code>member</code>, <code>product</code> / <code>cms</code> → <code>member</code> / <code>erp</code> → <code>text</code></td></tr>
+    <tr><td class="nowrap">데이터베이스</td><td>여러 테이블을 담는 단위</td><td><code>mall</code>(쇼핑몰) · <code>cms</code>(CMS) · <code>erp</code>(ERP) 3개</td></tr>
+    <tr><td class="nowrap">데몬(서버)</td><td>데이터베이스를 담는 MySQL 서버</td><td>한 서버 안에 여러 데이터베이스</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>정리</strong><div>한 줄 한 줄이 데이터, 표 전체가 테이블, 바깥 전체가 데이터베이스 — 단위는 <code>데이터 &lt; 테이블 &lt; 데이터베이스 &lt; 데몬(서버)</code></div></li>
+    <li><strong>실제 위치</strong><div>사용자 정보는 <code>cms</code> DB의 <code>member</code> 테이블에 있음 — 모든 데이터베이스가 이 구조이고 AI가 기억·저장하는 방식도 같은 구조</div></li>
+    <li><strong>개발자 요청</strong><div>"테이블만 복제", "데이터만 복제", "DB 통째로 복제" → 구조를 알아야 대응 가능</div></li>
+    </ul>
+
+    <h3>삭제는 복구 불가</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>상황</th><th>결과</th></tr></thead><tbody>
+    <tr><td class="nowrap">테이블 삭제</td><td>명령을 잘못 쳐 테이블을 지우면 그 안의 데이터도 전부 소실 — <b>복구 안 됨</b></td></tr>
+    <tr><td class="nowrap">DB 삭제</td><td><code>mall</code>을 지우면 그 안의 테이블·데이터가 <b>싹 다</b> 사라지며 백업이 없으면 복구 방법 없음</td></tr>
+    <tr><td class="nowrap">부분 복구</td><td>데이터 몇 건 삭제는 찾아서 복구할 수 있으나, <b>DB 통째로</b> 날리면 테이블 구조는 개발자가 다시 만들 수 있어도 <b>데이터는 복구 불가</b></td></tr>
+    <tr><td class="nowrap">삭제 속도</td><td>삭제는 빠름 — <b>6만 개 데이터 삭제도 1초</b></td></tr>
+    </tbody></table></div>
+    <div class="note-verify">
+    <div class="tag">🔍 직접 확인 · 12강 35:20~35:30</div>
+    <p>삭제 속도 "6만 개 1초"와 "0.0이 좋대"로 들린 구간 — 음성이 불명확해 세 차례 재전사에도 수치 확정 불가. 영상 35분 15초 전후를 직접 듣고 확인</p>
+    </div>
+
+    <h3>백업</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>필요성</strong></td><td>해커(랜섬)가 "백업해 놨으니 돈을 주면 복구해 주겠다"고 협박하는 사례 → 백업이 인프라 담당자의 핵심 업무인 이유</td></tr>
+    <tr><td><strong>게임 회사 사례</strong></td><td>서버 문제로 <b>롤백</b>했으나 <b>3일 전 데이터까지만 복구</b>되고 나머지는 상실 (3일에 한 번 백업했는데 백업 2일 뒤 공격·실수로 손실)</td></tr>
+    <tr><td><strong>매일 백업의 부담</strong></td><td>백업이 돌 때마다 <b>메모리를 과하게 먹어</b> 문제가 생김 → 보통 <b>새벽, 사용자가 없을 때</b> 일괄 백업</td></tr>
+    <tr><td><strong>보관 비용</strong></td><td>매일 백업 + 장기간 보관 → 하드디스크 용량이 빠르게 참</td></tr>
+    <tr><td><strong>클라우드·호스팅</strong></td><td>DB <b>약정</b>으로 서비스 신청 — <b>백업 주기</b>와 <b>보관 기간</b>을 신청자(개발자)가 선택 (매일 백업은 비쌈)</td></tr>
+    <tr><td><strong>백업·복구 명령</strong></td><td><code>mysqldump</code>로 덤프하고 복원으로 검증하는 절차: 이 파일 6장</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">drop과 백업 — drop은 엔터 순간 되돌릴 수 없고 백업이 유일한 복구 수단. 백업은 새벽에 몰아서 돌리고, 주기·보관 기간은 약정으로 정해 비용과 복구 범위를 맞춤</div>
+
+    <h3>빅데이터와 도로명 주소</h3>
+    <ul class="facts">
+    <li><strong>빅데이터</strong><div>정의는 따로 있음 — 잘 안 쓰는 이유는 인프라 구축 방법을 잘 모르고, 개발자는 API로 갖다 쓰기 바쁘기 때문</div></li>
+    <li><strong>실습 예</strong><div>도로명 주소 — 서울 것만 메모장 파일 하나가 <b>50MB가 넘고 약 45만 개</b></div></li>
+    <li><strong>입력</strong><div>DB에 쏟아 넣어야 하며 입력 중 한참 기다려야 함 (나중에 실습)</div></li>
+    </ul>
+
+  </section>
+
+  <!-- 10 -->
+  <section class="sec" id="sec-table-practice">
+    <h2>DB · 테이블 · 데이터 생성과 삭제 실습</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 방(DB)부터 만들고 데이터까지</p><div class="dg-flow">
+      <div class="dg-node"><h4>① CREATE DATABASE</h4><p class="sub">mall · erp</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② USE · CREATE TABLE</h4><p class="sub">member — AI가 만든 문장</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ INSERT</h4><p class="sub">가상 데이터 30건</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ SELECT</h4><p class="sub">30 rows in set</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ DROP</h4><p class="sub">복구 불가 · 백업 전제</p></div></div></div>
+
+    <h3>만드는 순서와 DB 생성</h3>
+    <ul class="facts">
+    <li><strong>순서</strong><div><b>DB(방) 먼저 → 테이블 → 데이터 입력</b> — 테이블은 DB 안에만 만들 수 있음</div></li>
+    <li><strong>create의 용도</strong><div>개발자에게 줄 DB를 만들 때 쓰므로 인프라 구축에서 자주 씀</div></li>
+    </ul>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+create database mall;   <span class="c">-- mall DB 생성</span>
+create database erp;    <span class="c">-- erp DB 생성</span>
+show databases;         <span class="c">-- 목록 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>명령</th><th>실행 결과</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>create database mall;</code></td><td><code>Query OK, 1 row affected (0.37 sec)</code></td></tr>
+    <tr><td class="nowrap"><code>show databases;</code></td><td>목록에 <code>mall</code>, <code>erp</code> 표시</td></tr>
+    </tbody></table></div>
+
+    <h3>테이블 만들기 (AI 활용)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">작성 주체</td><td>테이블은 원래 <b>개발자가 만듦</b> — 여기서는 AI(<code>ChatGPT</code>/<code>Gemini</code>/<code>Claude</code>)로 만들어 그대로 복사해 붙임</td><td>실무 인프라 담당자도 이렇게 해도 됨</td></tr>
+    <tr><td class="nowrap">요청 시 명시</td><td><b>어떤 DB(MySQL)용 어떤 테이블</b>인지 정확히 쓸 것</td><td>안 쓰면 NoSQL이나 MS SQL용 테이블이 나올 수 있음</td></tr>
+    <tr><td class="nowrap">프롬프트 예</td><td>"MySQL <code>member</code> 테이블을 만들 거야. id, password, 이메일, 연락처, 성별 … 형태로 생성해 주세요"</td><td>컬럼 이름·타입을 미리 정해 두면 그대로 씀</td></tr>
+    <tr><td class="nowrap">붙여넣기</td><td>리눅스 터미널에 <b>Shift+Insert</b>, 마지막에 <code>;</code> 후 Enter</td><td>마지막 <code>)</code> 뒤 <code>;</code>가 빠지면 입력 대기로 남음</td></tr>
+    </tbody></table></div>
+
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+use mall;      <span class="c">-- mall DB로 들어감 (테이블을 만들 DB 선택)</span>
+show tables;   <span class="c">-- 테이블 확인 → Empty set (아직 없음)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- AI에게 받은 member 테이블 생성문: CREATE TABLE부터 마지막 ) 까지만 복사</span>
+CREATE TABLE member (
+    <span class="c">-- 로그인 아이디: 기본키로 행을 구분</span>
+    id VARCHAR(50),
+    <span class="c">-- 비밀번호: 해시 문자열이 들어가므로 길게 (255)</span>
+    password VARCHAR(255),
+    <span class="c">-- 이메일: UNIQUE KEY로 중복 금지</span>
+    email VARCHAR(100),
+    <span class="c">-- 연락처</span>
+    phone VARCHAR(20),
+    <span class="c">-- 성별: M·F·OTHER 중 하나만</span>
+    gender ENUM('M','F','OTHER'),
+    <span class="c">-- 가입 시각: 값을 넣지 않으면 현재 시간 자동 입력</span>
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    <span class="c">-- 기본키: 개발자용 — 인프라는 만들어졌는지만 확인</span>
+    PRIMARY KEY (id),
+    <span class="c">-- 이메일 중복 방지</span>
+    UNIQUE KEY uk_email (email)
+);</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">복사 범위</td><td><code>CREATE TABLE</code>부터 마지막 <code>)</code>까지</td><td>뒤의 <code>charset</code>·<code>utf8mb4_unicode_ci</code>·<code>ENGINE=InnoDB</code> 등은 <b>자동으로 붙으므로 불필요</b> → 빼고 복사</td></tr>
+    <tr><td class="nowrap">컬럼 선택</td><td>id, password, 이메일, 연락처, 성별로 정함</td><td>나이·주소·연령은 제외 — 테이블이 달라도 되고 <b>만들어지는지가 중요</b></td></tr>
+    <tr><td class="nowrap">결과 확인</td><td><code>show tables;</code> → <code>member</code> 표시</td><td>테이블 생성 확인이 이 실습의 목적</td></tr>
+    <tr><td class="nowrap">프롬프트의 현재 DB</td><td>MySQL도 <code>prompt \d</code> 설정으로 현재 DB명을 표시할 수 있음</td><td>MariaDB 클라이언트의 기본 프롬프트가 다른 것은 클라이언트 기본값 차이이며 오라클 인수와 무관</td></tr>
+    </tbody></table></div>
+
+    <h3>가상 데이터 넣기 (INSERT)</h3>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 같은 AI에게 "해당 테이블을 이용해 가상 사용자 정보를 insert 쿼리문으로 30개 생성" 요청 → 받은 문장을 붙여넣기</span>
+<span class="c">-- 표준 예시: 값은 AI가 만든 가상 데이터, 비밀번호 자리는 해시 문자열</span>
+insert into member (id, password, email, phone, gender) values
+('user01', '해시문자열1', 'user01@example.com', '010-0000-0001', 'M'),
+('user02', '해시문자열2', 'user02@example.com', '010-0000-0002', 'F');
+<span class="c">-- 테이블 전체 조회 (* = 모든 컬럼, from 뒤에 테이블명)</span>
+select * from member;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts">
+    <li><strong>받는 형태</strong><div>엑셀 대신 INSERT 쿼리문으로 받음 (비밀번호는 해시 문자열) → 코드 복사 → Shift+Insert → Enter</div></li>
+    <li><strong>결과</strong><div><code>30 rows in set</code> (30명) — 이름 컬럼은 만들지 않았음</div></li>
+    <li><strong>select의 역할</strong><div>검색·게시판 목록 출력 등 <b>출력 담당</b></div></li>
+    </ul>
+
+    <h3>삭제 (DROP)</h3>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+drop table member;     <span class="c">-- 테이블 삭제 (안의 데이터도 함께 사라짐)</span>
+drop database mall;    <span class="c">-- DB 삭제 (DB면 database, 테이블이면 table)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>명령</th><th>실행 결과</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>drop table member;</code></td><td><code>Query OK, 0 rows affected (0.39 sec)</code> → 이후 <code>show tables</code>는 비어 있음</td></tr>
+    <tr><td class="nowrap"><code>drop database mall;</code></td><td>DB와 그 안의 테이블·데이터가 전부 사라짐</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>되돌릴 수 없음</strong><div><b>엔터 치는 순간 돌아올 수 없음</b> — 10만 개 데이터도 명령 한 방에 사라짐</div></li>
+    <li><strong>create와 drop</strong><div><code>create</code>는 생각만 하면 되지만 <code>drop</code>은 <b>가장 무서운 명령</b></div></li>
+    <li><strong>치는 주체</strong><div>이런 명령은 AI가 아니라 <b>사람이 직접</b> 치고, 실수할 수 있으므로 <b>항상 백업해 놓고 작업</b> (잘못되면 백업으로 다시 작업)</div></li>
+    <li><strong>복구 실습</strong><div>테이블 <code>create</code>를 <b>먼저</b> 다시 하고(뒤쪽 <code>varchar</code> 등은 개발 쪽이라 몰라도 됨) → INSERT 30개 코드 붙여넣기 → 복구됨 (가짜 데이터라서)</div></li>
+    <li><strong>현재 상태</strong><div><code>erp</code>, <code>mall</code> DB, <code>mall</code> 안 <code>member</code> 테이블, 그 안 30건 데이터 → <b>이 상태 그대로 둘 것</b> (삭제 실습은 나중에)</div></li>
+    </ul>
+    <div class="dg-bar warn">drop — 엔터 한 번에 테이블·데이터가 사라지고 복구 불가. 사람이 직접 치고, 치기 전 백업이 유일한 안전장치. 복구는 create로 구조부터 다시 만든 뒤 데이터 입력</div>
+    <div class="dg-bar warn">AI로 테이블 만들기 — 요청에 MySQL·테이블명을 명시하고, 붙여넣을 때는 CREATE TABLE부터 마지막 <code>)</code>까지만. charset·ENGINE은 서버가 자동으로 붙임</div>
+    <ul class="facts">
+    <li><strong>계정·권한·원격 접속</strong><div>만든 DB를 사용자에게 열어 주는 절차: 이 파일 11장</div></li>
+    <li><strong>문자셋·콜레이션</strong><div>테이블 문자셋이 자동으로 붙는 기준(<code>utf8mb4</code>): 이 파일 9장, 3장</div></li>
+    </ul>
+
+  </section>
+
+  <!-- 11 -->
+  <section class="sec" id="sec-user-grant">
+    <h2>사용자 · 호스트 · 권한(GRANT) · DBeaver 원격 접속</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 시스템 DB 확인에서 외부 접속까지</p><div class="dg-flow">
+      <div class="dg-node"><h4>① mysql DB</h4><p class="sub">37개 테이블 · root 전용</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② ALTER USER</h4><p class="sub">root 패스워드 설정</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ CREATE USER</h4><p class="sub">localhost · % · IP 별도 계정</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ GRANT</h4><p class="sub">erp.* — 호스트마다 각각</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ DBeaver</h4><p class="sub">외부 접속 · allowPublicKeyRetrieval</p></div></div></div>
+
+    <h3>mysql DB 들여다보기</h3>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+use mysql;      <span class="c">-- 시스템 DB로 이동 (일반 사용자에게는 보이지 않음)</span>
+show tables;    <span class="c">-- 테이블 목록 37개</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>테이블</th><th>설명</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>db</code></td><td><b>DB 권한</b>(어떤 사용자에게 어떤 DB를 줄지) 정보 — 중요 테이블</td></tr>
+    <tr><td class="nowrap"><code>user</code></td><td>사용자 계정 정보 — 굉장히 중요</td></tr>
+    <tr><td class="nowrap"><code>time_zone</code> 계열</td><td>DB의 <b>시간 세팅</b>과 관련</td></tr>
+    <tr><td class="nowrap">복제 관련(<code>slave_*</code> 계열 이름)</td><td>master/slave(복제) 관련 — 지금 쓰는 서버는 <b>마스터 서버</b>이고 나중에 슬레이브(워커) 서버를 세팅해 적용</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>용어 변경</strong><div><code>master</code>/<code>slave</code> 용어는 MySQL 8.0.22부터 <code>source</code>/<code>replica</code>로 변경</div></li>
+    <li><strong>복제 테이블</strong><div>복제 정보 저장용이며, 복제를 설정해야 마스터·복제(워커) 서버 구성이 됨 — 지금은 몰라도 됨</div></li>
+    </ul>
+
+    <h3>user 테이블로 root 확인</h3>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+select * from user;   <span class="c">-- 계정 목록: 길게 출력되므로 스크롤해 root 행을 찾음</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>확인 항목</th><th>값</th><th>의미</th></tr></thead><tbody>
+    <tr><td class="nowrap">User · Host</td><td><code>root</code> + <code>localhost</code></td><td><code>localhost</code> = 내부망(자기 자신)에서만 접속 가능한 계정</td></tr>
+    <tr><td class="nowrap">인증 플러그인</td><td><code>caching_sha2_password</code></td><td>8.0 기본 인증 방식</td></tr>
+    <tr><td class="nowrap">authentication_string</td><td><b>NULL/비어 있음</b></td><td>패스워드 없이 접속된 이유</td></tr>
+    <tr><td class="nowrap">Host 칸의 값</td><td><code>localhost</code>, IP, <code>%</code></td><td>같은 이름이라도 <b>서로 다른 계정으로 취급</b> → 호스트와 계정을 같이 봐야 함</td></tr>
+    </tbody></table></div>
+
+    <h3>루트 패스워드 설정 (ALTER USER)</h3>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 연습값: root가 localhost로 접속할 때 쓸 패스워드 등록</span>
+alter user 'root'@'localhost' identified by 'apink1004';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구성 요소</th><th>의미</th><th>주의</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>alter user</code></td><td>계정 변경 명령</td><td>사용자 생성은 <code>create user</code></td></tr>
+    <tr><td class="nowrap"><code>'사용자'</code></td><td>계정 이름</td><td><b>작은따옴표 필수</b>, 오타 금지</td></tr>
+    <tr><td class="nowrap"><code>@</code></td><td>user와 host를 구분</td><td></td></tr>
+    <tr><td class="nowrap"><code>'호스트'</code></td><td><code>localhost</code> / IP / <code>%</code></td><td>같은 root라도 <b>호스트별로 패스워드를 다르게</b> 등록 가능</td></tr>
+    <tr><td class="nowrap"><code>identified by</code></td><td>패스워드 지정</td><td><code>identified</code> 철자 주의, 마지막 <code>;</code> 필수</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>실행 결과</strong><div><code>Query OK, 0 rows affected</code></div></li>
+    <li><strong>의미</strong><div>"이 root가 <code>localhost</code>로 접속할 때 패스워드가 무엇인지" 등록 — 지금은 localhost용만 설정했고 외부용은 추후 별개로 설정</div></li>
+    <li><strong>패스워드 선택</strong><div><b>알고 있는 패스워드</b>를 넣을 것 — 이상한 값을 넣으면 못 찾음. 분실 시 초기화 방법이 있으나 <b>매우 어렵고</b> 루트를 가진 인프라 담당자가 해야 할 일</div></li>
+    <li><strong>버전별 명령</strong><div><code>ALTER USER</code>로 비밀번호를 지정하는 방식은 MySQL 5.7.6에서 확장됨 — 5.5에서는 쓸 수 없고 5.1과 마찬가지로 <code>SET PASSWORD</code> 등을 사용</div></li>
+    </ul>
+
+    <h3>변경 적용 — mysqladmin reload와 flush privileges</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · korea · 프롬프트 $]</span>
+<span class="c"># exit로 mysql을 나온 뒤 실행, 설정한 패스워드(apink1004) 입력</span>
+mysqladmin -u root -p reload</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+flush privileges;   <span class="c">-- mysql 안에서 권한 테이블 다시 읽기 (Query OK, 0 rows affected)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">공통 동작</td><td>두 명령 모두 <b>grant(권한) 테이블만 다시 읽는</b> 명령</td><td><b>서버를 껐다 켜는(재시작) 것이 아님</b> — 세션·데이터는 그대로</td></tr>
+    <tr><td class="nowrap"><code>reload</code></td><td>리눅스 쉘에서 실행 — 다시 읽어들임</td><td>패스워드를 입력하며 실행</td></tr>
+    <tr><td class="nowrap"><code>flush privileges</code></td><td>mysql 안에서 실행 — 루트 패스워드를 다시 바꾸거나 새로 등록한 패스워드를 적용할 때</td><td>임시용·즉시 적용. 철자 주의(<code>FLUSH</code>, <code>PRIVILEGES</code>)</td></tr>
+    <tr><td class="nowrap">확인 시점</td><td><code>flush privileges</code>는 DB 안에서 적용되어 결과를 확인하려면 나갔다가 다시 접속해야 함</td><td>오타를 모른 채 적용될 수 있음</td></tr>
+    <tr><td class="nowrap">명령 구분</td><td><code>mysql -u root -p</code>(접속) / <code>mysqladmin … reload</code>(서버 관리 명령)</td><td><code>mysql</code> 명령과 다른 프로그램</td></tr>
+    </tbody></table></div>
+
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · korea · 프롬프트 $]</span>
+mysql -u root -p   <span class="c"># 패스워드 없이 엔터만 → Access denied (패스워드 불일치)</span>
+<span class="c"># ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)</span>
+mysql -u root -p   <span class="c"># 설정한 패스워드 입력 → 접속 성공 = 이제 root는 패스워드 없이 접속 불가</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">reload·flush — 서버 재시작이 아니라 grant 테이블 재로드. 패스워드 설정 후에는 <code>mysql -u root -p</code>에 엔터만 쳐서 <code>ERROR 1045 (28000) … (using password: NO)</code>가 나와야 정상 적용</div>
+
+    <h3>일반 사용자 생성 (CREATE USER)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">실습 목표</td><td><b>일반 사용자와 연결하는 것</b>까지 진행 → 마지막 시간에 <b>짝꿍(옆 사람)</b>끼리 정보를 주고 연결 확인</td><td>자기 서버에서 상대방용 사용자를 만들어 주고, 상대가 접속해 <b>DB 서버에 계정이 정확히 부여되었는지</b> 검증</td></tr>
+    <tr><td class="nowrap">권한</td><td>사용자 등록은 <b>루트만</b> 가능 (일반 사용자 불가)</td><td><code>mysql -u root -p</code>로 들어가 <code>use mysql;</code>에서 실행</td></tr>
+    <tr><td class="nowrap">리눅스 계정과 별개</td><td>리눅스에 <code>apink</code>가 있고 DB에 <code>blue</code>를 만들었다면 리눅스에 <code>blue</code>가 없어도 DB 접근 가능</td><td>DB 계정은 리눅스 계정과 <b>따로따로</b> 구분 — 같은 이름이어도 되고 같게 할 필요 없음</td></tr>
+    <tr><td class="nowrap">실습 아이디</td><td>일부러 <b>리눅스에 없는 아이디</b>(<code>blue</code>)로 만듦</td><td>두 계정이 별개라는 것을 확인하는 실습</td></tr>
+    </tbody></table></div>
+
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+use mysql;   <span class="c">-- 계정·권한 테이블이 있는 DB로 이동</span>
+<span class="c">-- 연습값: blue 계정을 자기 서버(localhost) 접속용으로 생성</span>
+create user 'blue'@'localhost' identified by 'blue01';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts">
+    <li><strong>작은따옴표</strong><div><b>작은따옴표 필수</b> — 없으면 에러, 오타 주의</div></li>
+    <li><strong>구성</strong><div><code>blue</code> 뒤에 <code>@</code>, <code>localhost</code> = <b>자기 자신의 서버</b>, <code>identified by '패스워드'</code></div></li>
+    </ul>
+
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · korea · 프롬프트 $]</span>
+<span class="c"># 리눅스 일반 계정에서 실행, 패스워드 blue01</span>
+mysql -u blue -p</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · blue]</span>
+show databases;   <span class="c">-- information_schema·performance_schema만 보임 (mysql·sys는 루트 전용)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>확인 항목</th><th>결과</th><th>의미</th></tr></thead><tbody>
+    <tr><td class="nowrap">접속</td><td>접속됨 — 틀린 패스워드로는 접속 안 됨</td><td>계정·패스워드가 정상 등록</td></tr>
+    <tr><td class="nowrap">show databases</td><td><code>information_schema</code>, <code>performance_schema</code>만 보임</td><td><code>mysql</code>, <code>sys</code>는 안 보임(루트만) → 일반 사용자가 쓸 수 있는 DB 없음</td></tr>
+    <tr><td class="nowrap">권한 없는 사용자</td><td>아무것도 못 함 (데이터 입력·테이블 생성 불가)</td><td>로그인만 가능 — DB를 하나도 할당받지 못한 상태</td></tr>
+    <tr><td class="nowrap">적용 규칙</td><td><b>사용자만 추가</b>하는 것은 껐다 켤 필요 없이 바로 적용</td><td><code>CREATE USER</code>·<code>GRANT</code> 같은 계정 관리 문장은 서버가 즉시 권한 테이블을 다시 로드 → reload/flush 불필요</td></tr>
+    <tr><td class="nowrap">DB 권한 반영</td><td>DB 권한은 클라이언트가 다음 <code>USE</code>를 실행할 때 반영</td><td>flush는 grant 테이블을 직접 수정했을 때만 필요</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">DB 계정 ≠ 리눅스 계정 — 리눅스에 없는 아이디도 DB 계정으로 만들 수 있음. 사용자 생성 직후에는 쓸 DB가 없어 로그인만 되고, <code>GRANT</code>로 DB를 줘야 테이블·데이터를 다룰 수 있음</div>
+
+    <h3>DBeaver로 접속하기 — localhost의 한계</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>내용</th><th>결과·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">첫 시도</td><td>[윈도우 · DBeaver] 새 데이터베이스 연결 → <b>MariaDB용 연결</b>로 시도 (서버가 MySQL이어도 접속 가능함을 보이기 위함)<br>Host <code>localhost</code>, Port <code>3306</code>, User <code>blue</code>, Password <code>blue01</code>, Database 비움</td><td>받은 DB가 없어 Database는 비움 — MariaDB도 포트 <code>3306</code>으로 같음</td></tr>
+    <tr><td class="nowrap">드라이버</td><td>DBeaver는 <b>Java로 만든 프로그램</b> → <b>JDBC 드라이버 다운로드</b> 필요 (그냥 다운로드)</td><td><code>get socket</code> 류 안내 문구는 무시해도 됨</td></tr>
+    <tr><td class="nowrap">실패</td><td>socket/connection 오류로 접속 불가</td><td><b>MySQL과 MariaDB가 달라서가 아니라 세팅이 잘못되어서</b> 발생</td></tr>
+    <tr><td class="nowrap">원인</td><td>리눅스 콘솔(푸티)에서 <code>mysql</code>로 들어간 것 = <b>localhost</b>, DBeaver(윈도우 프로그램)로 접속하는 것 = <b>외부 접속</b></td><td>브라우저로 접속하면 "게스트"인 것과 같은 위치. <code>localhost</code>가 되려면 윈도우용 MySQL을 깔고 접속해야 함</td></tr>
+    <tr><td class="nowrap">등록 상태</td><td>VirtualBox 리눅스 안 MySQL은 포트·IP가 살아 있지만 <b>등록을 <code>localhost</code>로만</b> 해 둠</td><td>외부 IP에서 온 접속과 매칭되는 계정이 없어 거부</td></tr>
+    </tbody></table></div>
+
+    <h3>% 계정 추가</h3>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- blue를 외부(윈도우의 DBeaver)에서도 접속할 수 있게 등록</span>
+create user 'blue'@'%' identified by 'blue01';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts">
+    <li><strong>%의 뜻</strong><div><code>localhost</code> 대신 <code>%</code> = 내부망만이 아니라 <b>외부도 쓰겠다</b>는 뜻</div></li>
+    <li><strong>두 계정 등록</strong><div><code>blue</code>@<code>localhost</code>(푸티 접속용)와 <code>blue</code>@<code>%</code>(IDE 접속용)를 <b>둘 다 등록</b> — 관례상 localhost 계정은 따로 둠</div></li>
+    <li><strong>%의 범위</strong><div>계정 호스트 <code>%</code>는 문서상 모든 호스트와 매칭 → <code>%</code>만 만들면 localhost 연결이 불가능하다고 단정할 수 없음. 이 실습의 실패 원인은 <code>localhost</code> 계정만 있어 외부 IP 접속이 매칭되지 않은 것</div></li>
+    </ul>
+
+    <h3>DBeaver 연결 수정</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>작업</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>연결 우클릭 → <b>편집</b>(Edit Connection)</td><td>연결 정보를 고치기 위해</td></tr>
+    <tr><td class="nowrap">2</td><td>호스트 = <b>리눅스 서버 IP</b>(실습 <code>192.168.222.2</code>), 포트 <code>3306</code>, 데이터베이스는 줄 DB가 없어 비움 → 확인</td><td><code>localhost</code>가 아니라 서버 IP로 접속해야 외부 접속</td></tr>
+    <tr><td class="nowrap">3</td><td><code>RSA public key is not available client side (option serverRsaPublicKeyFile not set)</code> 오류로 바뀜</td><td>아까는 연결 자체 불가 → 이제 키 문제. RSA 공개키 = 보안 관련 — 버전이 올라가며 MySQL이 키 방식을 쓰는데 이 서버는 <b>RSA 키·보안 세팅을 안 했음</b>(루트 패스워드만 설정) → 보안을 일단 풀어서 접속</td></tr>
+    <tr><td class="nowrap">4</td><td><b>Driver properties</b>(고급 → 드라이버 속성)에서 <code>allowPublicKeyRetrieval</code>(public key 관련 항목 3개 중 세 번째)을 <b>false → true</b></td><td><code>serverRsaPublicKeyFile</code> 미설정 시 클라이언트가 RSA 서버 공개키를 가져오도록 허용. <code>useSSL</code> 항목은 이번에는 없음</td></tr>
+    <tr><td class="nowrap">5</td><td>확인 → 다시 연결 → <b>접속됨</b>. 데이터베이스를 눌러 보면 <b>아무것도 없음</b></td><td>DB 권한을 아직 안 줬기 때문 — 보안은 나중에 따로 배움 (기초 시기라 일단 풀어 둠)</td></tr>
+    </tbody></table></div>
+
+    <h3>MySQL ↔ MariaDB 호환</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>연결</strong></td><td>서버에 MySQL을 깔아도 <b>MariaDB용 연결로 접속 가능</b> (같은 포트, 같은 명령어, 거의 <b>95% 동일</b>) — "MySQL 서버면 MySQL로만 연결해야 한다"는 것은 <b>잘못된 상식</b>, 실무에서는 그렇게 안 함</td></tr>
+    <tr><td><strong>반대 방향</strong></td><td>MariaDB 서버에 <b>MySQL로 연결</b>도 가능 — "인프라가 MariaDB니까 무조건 MariaDB로"라는 규칙 없음 (오라클은 오라클로 해야 함)</td></tr>
+    <tr><td><strong>백업·복구</strong></td><td>MariaDB 백업을 MySQL로, MySQL 백업을 MariaDB로 복구 가능. 단 MySQL·MariaDB 백업을 <b>MSSQL로는 복구 불가</b>(구조가 완전히 다름)</td></tr>
+    <tr><td><strong>제한</strong></td><td>호환은 버전에 따라 제한이 있음(뷰 알고리즘 차이, MySQL 5.7 JSON 등) — 서로의 백업을 <b>항상 복구할 수 있는 것은 아님</b></td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">엔진 호환 — MySQL·MariaDB는 포트·명령이 같아 클라이언트를 바꿔 연결 가능하지만, 백업 복구는 버전·기능 차이로 실패할 수 있음. MSSQL은 구조가 달라 불가</div>
+
+    <h3>계정 호스트 종류와 IP 제한</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>등록</th><th>용도</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>'계정'@'localhost'</code></td><td><b>기본으로 항상 먼저 세팅</b></td></tr>
+    <tr><td class="nowrap"><code>'계정'@'%'</code></td><td><b>IDE</b>(개발자 도구, 예: 비주얼 스튜디오 코드·DBeaver)로 <b>외부에서 연결</b>할 때</td></tr>
+    <tr><td class="nowrap"><code>'계정'@'IP'</code></td><td><b>특정 IP만</b> 접속 허용 (실무에서 사용)</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>%의 위험</strong><div><code>%</code>는 <b>아무나(누구나) 접속</b>할 수 있어 <b>실무에서는 잘 안 씀</b> (시연용)</div></li>
+    <li><strong>IP 제한</strong><div>계정 호스트에 특정 IP를 넣으면 그 IP에서만 연결되고, 다른 사람은 패스워드를 알아도 접속 불가</div></li>
+    </ul>
+
+    <h3>짝꿍 접속 실습 (IP 제한)</h3>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 연습값: 짝꿍 접속용 계정 red / red01</span>
+create user 'red'@'localhost' identified by 'red01';          <span class="c">-- localhost용</span>
+create user 'red'@'10.2.2.73' identified by 'red01';          <span class="c">-- 상대 윈도우 IP 전용 (IP를 물어 입력, 서버 IP 아님)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>작업</th><th>값·결과</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>옆 짝꿍에게 <b>윈도우 IP</b>를 물어 계정 생성</td><td>서버 IP가 아니라 접속해 올 쪽 PC IP</td></tr>
+    <tr><td class="nowrap">2</td><td>[윈도우 · DBeaver] <b>새 연결 → MySQL 선택</b> → 버전 선택창</td><td>MySQL 버전마다 달라 자동 설정되어 있는 것</td></tr>
+    <tr><td class="nowrap">3</td><td>호스트 = <b>상대 서버로 접속할 IP</b>(실습 윈도우 IP <code>10.2.2.101</code>), 데이터베이스 비움, 사용자 <code>red</code>, 패스워드 <code>red01</code> → 완료 → 연결</td><td>줄 DB가 없어 데이터베이스는 비움</td></tr>
+    <tr><td class="nowrap">4</td><td>결과 확인</td><td>허용한 IP(<code>10.2.2.73</code>)는 접속됨, 다른 IP는 연결 안 됨</td></tr>
+    </tbody></table></div>
+
+    <h3>권한 부여 (GRANT)</h3>
+    <ul class="facts">
+    <li><strong>필요성</strong><div><code>blue</code>로 접속은 되지만 DB가 없어 아무것도 못 함 → <b>DB 권한</b>을 줘야 함</div></li>
+    </ul>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+use mysql;                        <span class="c">-- 권한 테이블이 있는 시스템 DB로 이동</span>
+show tables;                      <span class="c">-- db 테이블 확인</span>
+select host, db, user from db;    <span class="c">-- 현재 DB 권한 확인 (select * from db; 도 가능)</span>
+desc db;                          <span class="c">-- db 테이블의 컬럼 구조</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>확인 항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">부여 전 조회</td><td><code>sys</code>/<code>mysql.sys</code> 계정 행 외에 없음 (= <b>권한을 하나도 안 줌</b>)</td></tr>
+    <tr><td class="nowrap">테이블 형식</td><td><code>host</code> · <code>db</code> · <code>user</code> 순서로 값이 들어감 — <code>host</code>는 <code>localhost</code>·<code>%</code>·IP 모두, <code>db</code>는 데이터베이스 이름, <code>user</code>는 방금 만든 사용자(<code>blue</code>)</td></tr>
+    <tr><td class="nowrap">순서</td><td>사용자를 <b>먼저 만들어야</b> 여기서 권한을 줄 수 있음</td></tr>
+    <tr><td class="nowrap"><code>desc db</code></td><td><code>Alter_routine_priv</code>, <code>Execute_priv</code>, <code>Event_priv</code>, <code>Trigger_priv</code> 등 <code>enum('N','Y')</code> 권한 컬럼이 쭉 나옴 — select·insert·update·delete·create·drop·grant·references·alter …</td></tr>
+    <tr><td class="nowrap"><code>N</code>과 <code>Y</code></td><td><code>N</code>이면 그 명령 <b>못 씀</b>(테이블·데이터 생성 불가), <code>Y</code>로 줘야 사용 가능</td></tr>
+    </tbody></table></div>
+
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+<span class="c">-- erp DB의 모든 테이블에 모든 명령 허용 (erp는 루트가 미리 생성)</span>
+grant all privileges on erp.* to 'blue'@'localhost';
+<span class="c">-- 사용자 만든 호스트마다 각각 실행 (% 계정용)</span>
+grant all privileges on erp.* to 'blue'@'%';
+<span class="c">-- 권한 부여 현황 확인 → 4 rows in set</span>
+select host, db, user from db;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구성 요소</th><th>의미</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>all privileges</code></td><td>모든 명령 사용 허용</td></tr>
+    <tr><td class="nowrap"><code>on DB명.*</code></td><td>그 DB의 <b>모든 테이블</b> (다른 지정 방식도 있으며 나중에 설명)</td></tr>
+    <tr><td class="nowrap"><code>to '사용자'@'호스트'</code></td><td>권한을 받을 계정</td></tr>
+    <tr><td class="nowrap"><code>localhost</code>·<code>%</code></td><td><b>각각 한 번씩</b> 실행 (사용자 만든 것과 같은 방식)</td></tr>
+    <tr><td class="nowrap">선행 조건</td><td><code>erp</code>는 <b>루트가 먼저 만들어 놓아야</b> 함</td></tr>
+    <tr><td class="nowrap">회수</td><td><code>revoke</code> = <code>grant</code>의 반대 명령 — 같은 방식으로 <code>revoke all privileges on erp.* from 'blue'@'%';</code></td></tr>
+    <tr><td class="nowrap">철자</td><td><code>grant</code>, <code>privileges</code>(P-R-I-V-I-L-E-G-E-S), <code>on</code>, <code>erp.*</code>, <code>to</code></td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>실수 사례</strong><div>사용자를 <code>localhost</code>만 만들었는데 grant에서 <code>%</code>를 쓰면 <b>에러</b> — 사용자 생성도 grant도 <code>localhost</code> 한 번 + <code>%</code>(또는 IP) 한 번 <b>따로</b> 해야 함 (<code>red</code>를 <code>localhost</code>와 IP로 만들었다면 grant도 각각)</div></li>
+    <li><strong>실행 결과</strong><div><code>select host, db, user from db;</code> → <code>4 rows in set</code> (이전 2행 + <code>erp</code>/<code>%</code>/<code>blue</code>, <code>erp</code>/<code>localhost</code>/<code>blue</code>). DBeaver 연결을 새로고침하면 <b><code>erp</code> 데이터베이스가 보임</b></div></li>
+    <li><strong>flush 불필요</strong><div><code>grant</code> 직후 서버가 즉시 반영 → <code>flush privileges</code>·<code>mysqladmin … reload</code>가 필요 없음. 필요한 경우는 grant 테이블을 직접 수정했을 때뿐</div></li>
+    </ul>
+    <div class="dg-bar warn">GRANT — 사용자를 만든 호스트(<code>localhost</code>·<code>%</code>·IP)마다 한 번씩 따로 실행. 없는 호스트로 grant하면 에러, GRANT는 서버가 즉시 반영하므로 flush는 grant 테이블 직접 수정 때만</div>
+
+    <h3>일반 사용자 DB 연결 순서</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>순서</th><th>작업</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td><b>root가 DB를 먼저 생성</b>(<code>mall</code>, <code>erp</code> 등 신규 DB)</td></tr>
+    <tr><td class="nowrap">2</td><td><code>use mysql;</code>로 이동</td></tr>
+    <tr><td class="nowrap">3</td><td><code>create user '아이디'@'localhost' identified by '패스워드';</code> (+ <code>%</code>/IP용을 한 번 더)</td></tr>
+    <tr><td class="nowrap">4</td><td><code>grant all privileges on &lt;DB명&gt;.* to '아이디'@'localhost';</code> (+ <code>%</code>/IP용을 한 번 더)</td></tr>
+    <tr><td class="nowrap">5</td><td><code>flush privileges;</code> (또는 <code>mysqladmin … reload</code>) → 반영 확인용</td></tr>
+    <tr><td class="nowrap">확인</td><td><b>DBeaver로 연결했을 때 DB가 보이면</b> 잘한 것 — 이렇게 하는 것이 <b>DB 호스팅</b></td></tr>
+    </tbody></table></div>
+
+    <h3>응용 문제 · DBeaver SQL 편집기</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>상황</strong></td><td>수강생 = <b>인프라 구축 담당자</b>, 의뢰자 = <b>개발자</b> — 서로 짝 서버에 로컬(<code>localhost</code>)용 계정부터 만들어 주고, 개발자가 연결 정보를 받아 접속</td></tr>
+    <tr><td><strong>외부 접속 조건</strong></td><td>외부 프로그램(DBeaver)으로 접속하려면 <code>localhost</code> 계정만으로는 안 되고 <b><code>%</code> 또는 해당 IP로 만든 계정</b>이 필요</td></tr>
+    <tr><td><strong>합격 조건</strong></td><td>앞서 <b>AI로 만든 테이블과 데이터</b>가 <b>DBeaver에 나와야 함</b> — 데이터가 안 보이면 직접 입력해 확인</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>[윈도우 · DBeaver] 작업</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>연결(예: 서버 <code>localhost</code> 연결) → <code>erp</code> DB 선택 → <b>SQL 편집기</b> → 새 스크립트 열기</td></tr>
+    <tr><td class="nowrap">2</td><td>AI(<code>Gemini</code> 등)가 만든 <b>CREATE TABLE 문</b>을 복사해 붙여넣고 끝에 <code>;</code></td></tr>
+    <tr><td class="nowrap">3</td><td>그 아래에 <b>INSERT 코드</b>를 복사해 붙여넣음 (CREATE 문 + INSERT 문이 모두 들어간 상태)</td></tr>
+    <tr><td class="nowrap">4</td><td><b>실행</b> — 실행(Play) 버튼 또는 <b>Ctrl+Enter</b>. 커서를 두고 CREATE 부분 → INSERT 부분을 <b>순서대로 각각</b> 실행 (영역 지정 후 Ctrl+Enter)</td></tr>
+    <tr><td class="nowrap">5</td><td>테이블 목록 <b>새로고침(F5)</b> → <code>member</code> 테이블 더블클릭 → <b>데이터 탭</b>에서 <b>30건</b> 확인 (실행 통계에서 CREATE TABLE/INSERT가 각각 실행됨)</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>의의</strong><div><code>erp</code> DB가 DBeaver에서 그대로 보임 → 개발자가 외부(DBeaver)로 접속해 데이터를 확인할 수 있는 상태</div></li>
+    <li><strong>계정·권한 기초</strong><div><code>CREATE USER</code>·<code>GRANT</code>의 기본 형태와 host별 계정: 이 파일 5장(<code>accounts-client</code>)</div></li>
+    <li><strong>서버 설치</strong><div>dnf 설치·기동·3306 포트 개방: 이 파일 8장(<code>sec-install</code>)</div></li>
+    </ul>
+
+  </section>
+
+  <!-- 12 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -1335,6 +1938,28 @@ netstat -lnp   <span class="c"># 기동 후 3306·33060 포트, mysql.sock 확�
       <tr><td><code>netstat -lnp</code></td><td>열린 포트 확인. 기동 전 631·9022·80·9021·5353만, 기동 후 3306·33060·<code>mysql.sock</code></td></tr>
       <tr><td><code>ntsysv</code></td><td>부팅 시 자동 시작 — <code>mysqld.service</code>를 Space로 체크</td></tr>
       <tr><td><code>systemctl start mysqld.service</code></td><td>MySQL 기동. 초기화 때문에 시간이 걸림 — 설치만 하면 3306이 없음</td></tr>
+      <tr class="group"><th colspan="2" scope="colgroup">로컬 서버 접속·설정</th></tr>
+      <tr><td><code>cd /etc</code> / <code>vi my.cnf</code></td><td>MySQL 설정 파일(11줄·202바이트). <code>!includedir /etc/my.cnf.d</code>로 디렉터리 포함 — 설정 파일과 3306 포트를 MariaDB와 공유해 한 서버에 둘 중 하나만</td></tr>
+      <tr><td><code>mysql -u root -p</code> / <code>mysql</code></td><td>root 접속 / 초기(무패스워드)에는 엔터만으로 접속 — DB root는 리눅스 root와 별개</td></tr>
+      <tr><td><code>\s</code> / <code>status</code></td><td>버전·문자셋 4개(<code>utf8mb4</code>)·소켓·Uptime 확인, 재시작하면 Uptime 초기화</td></tr>
+      <tr><td><code>exit</code> / <code>quit</code> / <code>\q</code></td><td>셋 다 mysql 클라이언트만 종료 → 리눅스 쉘 복귀</td></tr>
+      <tr><td><code>select now();</code></td><td>DB 현재 시간 — 클라우드는 미국 시간일 수 있어 한국 시간으로 변경</td></tr>
+      <tr><td><code>show databases;</code> / <code>show tables;</code> / <code>show tables from mysql;</code></td><td>DB 목록 / 현재 DB 테이블(mysql 37개) / <code>use</code> 없이 조회</td></tr>
+      <tr><td><code>use mysql;</code> / <code>select * from member;</code></td><td>DB 선택(<code>Database changed</code>) / 테이블 전체 조회(<code>*</code> = 모든 컬럼)</td></tr>
+      <tr class="group"><th colspan="2" scope="colgroup">DB·테이블·데이터</th></tr>
+      <tr><td><code>create database mall;</code></td><td>DB 생성 — <code>Query OK, 1 row affected</code>, 순서는 DB → 테이블 → 데이터</td></tr>
+      <tr><td><code>CREATE TABLE member (...)</code></td><td>AI가 만든 문장에서 <code>CREATE TABLE</code>부터 마지막 <code>)</code>까지만 복사 — charset·ENGINE은 서버가 자동 부착</td></tr>
+      <tr><td><code>insert into member (...) values ...;</code></td><td>가상 데이터 30건 입력 → <code>select * from member;</code>로 <code>30 rows in set</code> 확인</td></tr>
+      <tr><td><code>drop table member;</code> / <code>drop database mall;</code></td><td>복구 불가 — 사람이 직접 치고 사전 백업 필수</td></tr>
+      <tr class="group"><th colspan="2" scope="colgroup">사용자·권한·원격 접속</th></tr>
+      <tr><td><code>alter user 'root'@'localhost' identified by '...';</code></td><td>root 패스워드 설정 — 호스트별 별개 계정, MySQL 5.7.6 이상</td></tr>
+      <tr><td><code>create user 'blue'@'localhost' identified by '...';</code></td><td>기본 계정 생성 — 리눅스 계정과 별개, 루트만 실행 가능</td></tr>
+      <tr><td><code>create user 'blue'@'%' identified by '...';</code></td><td>외부(IDE·DBeaver) 접속용 — <code>%</code>는 범위가 넓어 실무는 IP 제한</td></tr>
+      <tr><td><code>grant all privileges on erp.* to 'blue'@'%';</code></td><td>DB 권한 부여 — 호스트마다 각각 실행, GRANT 후 서버가 즉시 반영</td></tr>
+      <tr><td><code>flush privileges;</code> / <code>mysqladmin -u root -p reload</code></td><td>권한 테이블 재로드(서버 재시작 아님) — grant 테이블 직접 수정 때만 필요</td></tr>
+      <tr><td><code>desc db;</code> / <code>select host, db, user from db;</code></td><td>권한 컬럼(<code>enum('N','Y')</code>) 구조 / DB 권한 부여 현황</td></tr>
+      <tr><td>DBeaver <code>allowPublicKeyRetrieval=true</code></td><td><code>RSA public key is not available...</code> 오류 시 Driver properties에서 설정, 보안을 푸는 임시 조치</td></tr>
+      <tr><td><code>ERROR 1045 (28000): Access denied ... (using password: NO)</code></td><td>패스워드 설정 후 무패스워드 접속 시 나와야 하는 정상 오류</td></tr>
     </tbody></table></div>
   
 
