@@ -1071,6 +1071,8 @@ docker ps -a                         <span class="c"># 삭제 후에는 목록�
     <tr><td><strong>이후 관리</strong></td><td><code class="n">docker start</code> / <code class="n">stop</code> / <code class="n">exec</code> / <code class="n">rename</code> / <code class="n">rm</code></td></tr>
     <tr><td><strong>생성 후 변경 불가</strong></td><td><strong>포트(<code class="n">-p</code>)와 PID 1</strong> → 필요한 포트(웹 80, WAS 8080, DB 3306, SSH, FTP 등)를 처음부터 한 줄에 전부 지정</td></tr>
     <tr><td><strong>호스트 포트</strong></td><td>서버가 IP를 하나만 받았으므로 컨테이너마다 호스트 포트를 서로 다르게 줘야 함 (같은 호스트 포트를 두 컨테이너가 쓰면 충돌 → 둘째는 다른 포트, 예: 9022·3306·9021)</td></tr>
+    <tr><td><strong>자원 옵션 없이 만든 컨테이너</strong></td><td>CPU·메모리·디스크 <strong>무제한</strong> = <strong>연습용 기본 환경</strong> (실무에서는 이렇게 쓰지 않음). 옵션을 주면 그 한도 안에서만 사용 — 미제한 컨테이너가 로컬 자원을 다 끌어쓰면 호스트가 버벅대고 PuTTY 접속도 안 됨</td></tr>
+    <tr><td><strong>클라우드와 같은 개념</strong></td><td>GCP·AWS 신청 화면에서 고르는 코어·메모리·디스크가 곧 이 옵션 — AWS 콘솔에서 마우스로 고르는 값도 내부적으로 이렇게 자원을 제한 (즉 클라우드 인스턴스 사양 선택을 직접 하는 셈)</td></tr>
     <tr><td><strong>정상 확인</strong></td><td><code class="n">docker ps</code>에 Up으로 뜨고, 컨테이너 안에서 <code class="n">systemctl</code> 입력 시 목록이 뜨면 성공 (start/stop 관리 가능). 컨테이너가 하나도 없으면 출력이 비어 있음(컨테이너 ID 열도 없음). 컨테이너 ID는 사람마다 다르므로 <code class="n">NAMES</code> 열의 이름을 씀 (<code class="n">rm</code>·<code class="n">exec</code> 모두 이름 가능, 탭키 자동완성)</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">포트 매핑 원칙 — <code class="n">-p 호스트:컨테이너</code> (앞 호스트, 뒤 컨테이너). <strong>생성 후 변경 불가</strong>. 컨테이너마다 호스트 포트를 다르게 해야 충돌 없음</div>
@@ -1083,9 +1085,16 @@ docker run -it -d --privileged -p 9022:22 -p 80:80 -p 9021:21 --name megaweb roc
 <span class="c">#    웹이 9022·9021을 쓰므로 DB는 SSH 10022 · DB 3306 · FTP 10021 (DB는 80 불필요, FTP는 백업용)</span>
 docker run -it -d --privileged -p 10022:22 -p 3306:3306 -p 10021:21 --name megadb cs:9 /sbin/init
 
-<span class="c"># 3) 실무 방식: CPU·메모리·디스크 자원 제한 적용 (연습 후 stop → rm)</span>
-free -m &amp;&amp; lscpu   <span class="c"># 호스트 총 메모리·CPU 코어 먼저 확인</span>
-docker run -it -d --privileged --cpus="1.5" --memory="2g" --storage-opt size=8G -p 8080:8080 --name test rocky:9 /sbin/init</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<span class="c"># 3) 실무 방식: CPU·메모리·디스크 자원 제한 적용. 나머지 옵션은 앞의 run과 같고, 연습용이라 포트는 8080 하나만</span>
+<span class="c"># 연습 전 호스트 자원 확인: 이 서버는 free -m total 10477MB(약 10GB), swap 5431MB</span>
+free -m                            <span class="c"># 메모리 사용량(MB) 확인</span>
+lscpu                              <span class="c"># CPU 노드·L2·L3 캐시·코어 수. 이 화면은 On-line CPU 0-3 (4개)</span>
+<span class="c"># 연습용 컨테이너는 만들어 확인하고 바로 지움</span>
+docker run -it -d --privileged --cpus="1.5" --memory="2g" --storage-opt size=8G -p 8080:8080 --name test rocky:9 /sbin/init
+docker ps -a                       <span class="c"># PORTS 열에서 8080:8080 매핑 확인</span>
+<span class="c"># 정지 → 삭제 (systemd 컨테이너는 서비스 종료 때문에 stop에 시간이 꽤 걸림)</span>
+docker stop test
+docker rm test</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
 
     <div class="table-wrap">
       <table class="opts">
@@ -1149,7 +1158,7 @@ docker run -it -d --privileged --cpus="1.5" --memory="2g" --storage-opt size=8G 
           </tr>
           <tr>
             <td class="nowrap"><code class="n">--cpus="1.5"</code></td>
-            <td>최대 CPU 코어 수 제한 (<code class="n">"0.5"</code>, <code class="n">"1"</code> 등)</td>
+            <td>최대 CPU 코어 수 제한 (<code class="n">"0.5"</code>, <code class="n">"1"</code>, <code class="n">"1.5"</code> = 0.5·1·1.5코어. EC2·GCP 인스턴스의 0.5·0.8코어 선택이 같은 개념)</td>
             <td><ul>
               <li>한도를 넘어도 죽지 않고 <strong>속도 제한(throttling)</strong></li>
               <li>호스트가 24코어여도 2코어 정도는 호스트용으로 남김</li>
@@ -1170,14 +1179,14 @@ docker run -it -d --privileged --cpus="1.5" --memory="2g" --storage-opt size=8G 
             <td><ul>
               <li>한도 초과 시 쓰기 오류(<code class="n">No space left</code>)</li>
               <li>앞 옵션과 한 칸 띄어쓰기</li>
-              <li>실무에서는 로그 기록 용량에도 별도 limit 설정</li>
+              <li>로그 기록 용량에도 원래 limit을 걸지만 이번 연습은 디스크만 8G로 잡음</li>
               <li>호스트가 overlay2 + xfs(pquota 마운트)가 아니면 <code>--storage-opt is supported only for overlay over xfs with 'pquota' mount option</code> 에러가 날 수 있음 (보충 · 표준 동작)</li>
             </ul></td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div class="dg-bar warn">자원 할당 3종 — <code class="n">--cpus</code>(코어) · <code class="n">--memory</code>(메모리) · <code class="n">--storage-opt size</code>(디스크, xfs pquota 필요). 안 걸면 호스트 자원 전부 소진</div>
+    <div class="dg-bar warn">자원 할당 3종 — <code class="n">--cpus</code>(코어) · <code class="n">--memory</code>(메모리) · <code class="n">--storage-opt size</code>(디스크, xfs pquota 필요). 안 걸면 호스트 자원 전부 소진 → 자원 관리 없이 쓰다 로컬 디스크가 꽉 차 서버 정지</div>
     <div class="dg-bar warn">-p 변경 불가의 실제 — 컨테이너 안 sshd 포트를 3022로 바꿔도 접속 안 됨(매핑은 22 기준) → 바꾸려면 <code class="n">-p 9922:22</code>처럼 컨테이너를 새로 생성. 서비스 포트(<code class="n">3306</code> 등)를 안 열면 설치해도 서비스 불가</div>
 
     <h3>실무 자원 배분 감각 (강사 경험 예시 · 실제 서비스 부하에 맞춰 조정)</h3>
@@ -1193,11 +1202,15 @@ docker run -it -d --privileged --cpus="1.5" --memory="2g" --storage-opt size=8G 
       </table>
     </div>
     <div class="dg-bar warn">DB vs 웹 할당 감각 — 강사 예시: DB는 디스크 크게(예 10GB)·연산 자원 적게(512MB, 0.5코어), 웹은 연산 자원 많이 (실무 워크로드별 확인 필요)</div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 33강 11:05~12:39</div>
+      <p>DB 10GB·메모리 512MB·0.5코어, DB는 연산 자원을 적게 준다는 배분은 강사 경험 예시 — 워크로드마다 달라 표준 권장값이 없음. 실제 서비스 값은 부하를 재서 결정</p>
+    </div>
 
     <h3>이름 변경, 삭제, 관리자 강제 정지</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>이름 변경</strong></td><td><code>docker rename megaweb mweb</code>. 접속 중 변경하면 연결이 끊길 수 있음 → <strong>정지 상태에서 변경</strong></td></tr>
+    <tr><td><strong>이름 변경</strong></td><td><code>docker rename megaweb mweb</code> → <code>docker ps</code>에서 바뀐 이름 확인 → <code>docker rename mweb megaweb</code>로 원래 이름으로 되돌림(되돌린 뒤 정상 작동 확인). 접속 중 변경하면 연결이 끊길 수 있음 → <strong>정지 상태에서 변경</strong></td></tr>
     <tr><td><strong>삭제</strong></td><td><ul>
           <li>실행 중 <code class="n">docker rm</code> → <code>stop the container before removing</code> 에러 → <code class="n">docker stop</code> 후 <code class="n">rm</code></li>
           <li><strong>삭제 시 내부 데이터 영구 소실(복구 불가)</strong> → 백업 완료 반드시 확인</li>
@@ -1672,7 +1685,7 @@ chmod 755 /home/mega               <span class="c"># 700이면 웹 접속 불가
     <h3>DB 컨테이너(<code class="n">megadb</code>): MySQL 8.0.46 설치와 DBeaver 연결</h3>
 <div class="code"><pre><code><span class="c"># [megadb 컨테이너 · root]</span>
 <span class="c"># DB 컨테이너 안(root)에서 작업. 이 컨테이너에는 웹(httpd) 없이 MySQL만 둠</span>
-dnf info mysql             <span class="c"># 버전 확인: 8.0.46 (Release 1.el9)</span>
+dnf info mysql             <span class="c"># 버전 확인: 8.0.46 (Release 1.el9). dnf search mysql로도 찾을 수 있음</span>
 dnf install mysql          <span class="c"># 클라이언트</span>
 <span class="c"># 서버. 안 깔면 작동 안 함 → 클라이언트와 둘 다 설치 필수. python 등 의존 패키지가 같이 깔림(python으로 DB 핸들링 가능)</span>
 dnf install mysql-server
@@ -1694,10 +1707,14 @@ FLUSH PRIVILEGES;
 <span class="c">-- [megadb 컨테이너 · MySQL 프롬프트 · mega]  ← 셸에서 mysql -u mega -p로 다시 접속한 뒤</span>
 <span class="c">-- mega DB가 보이면 정상</span>
 SHOW DATABASES;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 33강 24:39~25:12</div>
+      <p>사용자 <code>mega</code>·비밀번호 <code>A1234</code>를 만들 때 실행한 SQL 문 전체 — 붙여넣은 뒤 화면이 지워져 영상에 남지 않음. 위 블록은 표준 예시이므로 실제 문장은 직접 실행해 확인</p>
+    </div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>DB·사용자</strong></td><td>DB <code class="n">mega</code>, 사용자 <code class="n">mega</code> (위 표준 예시) → <code class="n">mysql -u mega -p</code> → <code class="n">show databases;</code>로 확인</td></tr>
-    <tr><td><strong>포트포워딩</strong></td><td><strong>[윈도우 · VirtualBox]</strong> VirtualBox에 <code class="n">Mysql-C</code>(TCP, <code class="n">3306</code>→<code class="n">3306</code>) 추가. 이름의 C = 클라우드, 기존 SSH용 규칙 옆에 추가</td></tr>
+    <tr><td><strong>포트포워딩</strong></td><td><strong>[윈도우 · VirtualBox]</strong> VirtualBox NAT에 <code class="n">Mysql-C</code> 규칙 추가 — 프로토콜 TCP, 호스트 윈도우 IP <code class="n">3306</code> → 게스트 리눅스 IP <code class="n">3306</code>. 이름의 C = 클라우드, 기존 SSH용 규칙 옆에 추가 (기존 규칙 이름·포트는 1장 접속 표)</td></tr>
     <tr><td><strong>DBeaver</strong></td><td><strong>[윈도우 · DBeaver]</strong> 기존 연결을 Edit Connection → IP는 그대로 두고 포트만 <code class="n">3306</code> (DB <code class="n">mega</code>, 사용자 <code class="n">mega</code>) → Test Connection 정상(MySQL 8.0.46). 테이블은 아직 없음 → <strong>컨테이너에서 도는 DB</strong></td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">MySQL 설치 — <code class="n">dnf install mysql</code>(클라이언트) + <code class="n">mysql-server</code>(서버) <strong>둘 다 설치</strong> → <code class="n">systemctl start mysqld</code></div>
@@ -1751,26 +1768,29 @@ SHOW DATABASES;</code></pre><button class="copy" type="button" aria-label="코�
         <div class="dg-arrow"></div>
         <div class="dg-node"><h4><span class="num">2</span>CI</h4><ul><li>GitHub Actions</li><li>python 환경 설정</li><li>단위 테스트</li></ul></div>
         <div class="dg-arrow"></div>
-        <div class="dg-node"><h4><span class="num">3</span>Build</h4><ul><li>이미지 빌드</li><li>단일·멀티아키</li></ul></div>
+        <div class="dg-node"><h4><span class="num">3</span>Build</h4><ul><li>이미지 빌드</li><li>단일·멀티아키(multi-architecture)</li></ul></div>
         <div class="dg-arrow"></div>
         <div class="dg-node key"><h4><span class="num">4</span>Registry</h4><ul><li>Docker Hub</li><li>버전 관리(Private)</li></ul></div>
         <div class="dg-arrow"></div>
         <div class="dg-node accent"><h4><span class="num">5</span>CD</h4><ul><li>대상 서버 SSH</li><li>docker pull 배포</li></ul></div>
       </div>
-      <p class="dg-foot"><strong>레포지토리</strong>(이미지를 올릴 장소) ≠ <strong>레지스트리</strong>(저장소 서비스 전체) / 현재 실습은 4~5단계(CD)까지 완료 / 추후 GitHub Actions(YML 워크플로우)를 연동하면 1~5단계 전체 자동화 → 포트폴리오에서 파이프라인 경험을 증명할 핵심 자료</p>
+      <p class="dg-foot"><strong>레포지토리</strong>(이미지를 올릴 장소) ≠ <strong>레지스트리</strong>(저장소 서비스 전체) / Docker Hub 화면에는 레지스트리라는 항목이 따로 없음 / 1단계의 Main Branch 개념은 뒤에서 다룸 / 현재 실습은 4~5단계(CD)까지 완료 / 추후 GitHub Actions(YML 워크플로우)를 연동하면 1~5단계 전체 자동화 → 포트폴리오에서 파이프라인 경험을 증명할 핵심 자료</p>
     </div>
     <div class="dg-bar warn">CI/CD와 용어 구분 — 코드(GitHub) → CI(GitHub Actions 단위 테스트·빌드) → 레지스트리(Docker Hub) push → CD(대상 서버 SSH <code class="n">docker pull</code> 배포). <strong>레포(올릴 장소) ≠ 레지스트리(저장소 서비스)</strong></div>
 
     <h3>1. 컨테이너 → 이미지화 (<code class="n">docker commit</code>)</h3>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># 데이터 손실 방지 및 속도를 위해 정지 후 commit 권장</span>
+<span class="c"># OS 확인 → Rocky Linux release 9.8 (Blue Onyx). 이미지 이름·버전은 이 값을 보고 정함 (rocky, 9)</span>
+cat /etc/redhat-release
+<span class="c"># 데이터 손실 방지 및 속도를 위해 정지 후 commit 권장. 설치한 것이 많아 압축하며 만들느라 시간이 한참 걸림</span>
 docker stop megaweb
 docker commit -a "apink" -m "" megaweb apink_rocky:9
 docker images   <span class="c"># 1.55GB (content size 447MB)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>-a / -m</strong></td><td><code class="n">-a</code>: 제작자 / <code class="n">-m</code>: 메모 (한글은 깨지므로 비워 둬도 무방)</td></tr>
-    <tr><td><strong>원리</strong></td><td>AWS·GCP의 유료 백업 이미지 기능과 같음</td></tr>
+    <tr><td><strong>형식</strong></td><td><code>docker commit -a "제작자" -m "메모" 컨테이너명 이미지명:버전</code> — 컨테이너명은 실제 가동 중인 이름(<code class="n">megaweb</code>), 이미지명은 <code class="n">이름:버전</code> 관례</td></tr>
+    <tr><td><strong>원리</strong></td><td>AWS·GCP의 유료 백업 이미지 기능과 같음. 만든 이미지에 httpd·ftp 환경설정까지 담겨 컨테이너로 만들면 그대로 복원</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">컨테이너 이미지화 — <code>docker commit -a "제작자" -m "메모" 컨테이너명 이미지:버전</code> (정지 후 실행 권장)</div>
 
@@ -1811,9 +1831,10 @@ docker info   <span class="c"># Username 확인</span></code></pre><button class
           <li>Webhooks: <code class="n">skip guide</code></li>
           <li>Settings에 느낌표가 뜨면 설정이 필요한 상태 → 안 하고 push하면 에러 (Continue로 활성화해도 됨). 생성 직후 레포는 비어 있음</li>
         </ul></td></tr>
-    <tr><td><strong>push 에러</strong></td><td>Docker Hub 안내(<code class="n">docker push 레포:tagname</code>) 그대로 치면 레포명 불일치로 실패 → <code class="n">docker tag</code>로 <strong>이미지 이름을 레포 이름과 일치</strong>시킨 뒤 push</td></tr>
+    <tr><td><strong>push 에러</strong></td><td>Docker Hub 안내(<code class="n">docker push 레포:tagname</code>, 화면 문구 To push a new tag to this repository) 그대로 치면 레포명 불일치로 실패 → <code class="n">docker tag</code>로 <strong>이미지 이름을 레포 이름과 일치</strong>시킨 뒤 push</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># tag는 이미지 복사가 아니라 같은 이미지에 이름(별칭)을 더하는 것 → docker images에 같은 IMAGE ID(영상 화면 0034c2377319)로 두 줄이 생기고 원본 이름도 남음</span>
 <span class="c"># 레포 이름에 맞춰 tag → push. 1) 연습용 임시 태그(tagname)로 먼저 올려 허브에서 태그 생성 확인</span>
 docker tag apink_rocky:9 mzleejh/apink_rocky:tagname
 docker push mzleejh/apink_rocky:tagname
@@ -1837,12 +1858,26 @@ docker run -it -d --privileged -p 9022:22 -p 80:80 -p 9021:21 --name megaweb2 mz
 docker rename megaweb2 megaweb</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>push 대상</strong></td><td>올리는 것은 <strong>이미지</strong>이지 컨테이너가 아님. 처음부터 레포 이름으로 이미지를 만들었다면 tag 없이 바로 push 가능. 이번에는 웹(로키)만 올리고 DB는 아직 안 올림</td></tr>
+    <tr><td><strong>push 대상</strong></td><td>올리는 것은 <strong>이미지</strong>이지 컨테이너가 아님. 처음부터 레포 이름으로 이미지를 만들었다면 tag 없이 바로 push 가능. push가 끝나면 tag로 만든 이름과 원본 이미지는 지워도 됨(허브에 올라간 이미지는 그대로). 이번에는 웹(로키)만 올리고 DB는 아직 안 올림</td></tr>
     <tr><td><strong>버전 관리</strong></td><td>레포 이름에 맞춰 tag → push하는 것이 <strong>버전 관리 = 파이프라인 구조</strong> (Git과 비슷). 허브 태그 상세에는 레이어·run·container 설정, 총 용량, Linux AMD64, pull 명령이 표시되고 Upgrade는 유료</td></tr>
     <tr><td><strong>복원 확인</strong></td><td>브라우저 접속 시 기존에 만든 <code class="n">mega</code> 웹 페이지까지 그대로 복원. 같은 이미지를 집(로키 + docker)에서 pull → run 하면 여기 환경이 그대로 재현됨 = 실무 <strong>배포 방식</strong></td></tr>
-    <tr><td><strong>허브 레포 화면</strong></td><td>레이어·용량·Linux AMD64·Pulls(다운로드 횟수) 표시</td></tr>
+    <tr><td><strong>허브 레포 화면</strong></td><td>레이어·용량·Linux AMD64·Pulls(다운로드 횟수) 표시. public 레포는 주소만 알면 누구나 pull — 아마존 같은 클라우드가 내부 구성을 외부에 보여주지 않는 것과 반대. 이번 실습 범위는 배포(push) → 받아서 설치(pull + run)까지</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">tag → push → pull 복원 — 허브 안내 그대로 push하면 에러 → <code class="n">docker tag</code>로 이미지 이름을 레포 이름과 일치 → <code class="n">push</code>(배포) → <code class="n">pull</code> + <code class="n">run</code>(복원). Settings의 Tag mutability는 기본 Mutable 유지, 회사는 무조건 <strong>Private + 그룹</strong></div>
+
+    <h3>배포 후 정리 — 컨테이너 먼저, 이미지 나중</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>순서</strong></td><td><code class="n">docker ps -a</code>로 정지된 컨테이너까지 확인 → 필요 없는 컨테이너 <code class="n">docker rm</code> → 안 쓰는 이미지 <code class="n">docker rmi</code></td></tr>
+    <tr><td><strong>확인 기준</strong></td><td><code class="n">docker images</code>의 EXTRA 열 <code class="n">U</code>(In Use)가 빠지면 그 이미지를 쓰는 컨테이너가 없음 → 삭제 가능</td></tr>
+    <tr><td><strong>판단</strong></td><td>이미지를 지우기 전에 필요한 이미지인지, 연결된 컨테이너가 있는지 확인. 컨테이너가 쓰는 이미지는 <code class="n">docker rmi</code>가 거부하고, <code class="n">-f</code>로 지워도 태그만 해제되어 이미 만든 컨테이너는 유지</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 복원 검증이 끝난 뒤 정리 — 정지해 둔 예전 웹 컨테이너를 지우면 docker images의 U 표시가 빠짐</span>
+docker ps -a                       <span class="c"># ps는 돌고 있는 것만, -a는 정지된 megaweb까지</span>
+docker rm megaweb                  <span class="c"># 실행 중이면 stop 먼저 (stop the container before removing)</span>
+docker rmi rocky:9                 <span class="c"># 용량 정리를 위해 안 쓰는 기본 이미지 삭제</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">삭제 순서 — 컨테이너(<code class="n">rm</code>) → 이미지(<code class="n">rmi</code>). 컨테이너 삭제는 내부 데이터까지 영구 소실이므로 백업·필요 여부를 먼저 확인</div>
 
     <h3>실무 배포 사례</h3>
     <ol class="wide-list">
@@ -2317,7 +2352,7 @@ systemctl stop docker docker.socket                    <span class="c"># 데몬�
             <td>chroot·passive 설정(줄 끝 주석 금지) / chroot 예외 목록 파일(mega 등록, 이름 자유) / 사용자별 웹(17번 <code class="n">UserDir www</code>, 31번 Directory 경로)</td>
           </tr>
           <tr>
-            <td><code class="n">dnf info mysql</code> / <code class="n">dnf install mysql</code> / <code class="n">dnf install mysql-server</code></td>
+            <td><code class="n">dnf search mysql</code> / <code class="n">dnf info mysql</code> / <code class="n">dnf install mysql</code> / <code class="n">dnf install mysql-server</code></td>
             <td>버전 확인(8.0.46) / 클라이언트·서버 <strong>둘 다</strong> 설치 → <code class="n">systemctl start mysqld</code></td>
           </tr>
           <tr>
