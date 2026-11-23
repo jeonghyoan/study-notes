@@ -608,7 +608,9 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#cors">12. CORS — 교차 출처 차단과 허용</a></li>
         <li><a href="#upload">13. 파일 업로드 API — multipart</a></li>
         <li><a href="#mysql-link">14. MySQL 연동 — db_info·SELECT·DELETE</a></li>
-        <li><a href="#cheatsheet">15. 통합 명령어 치트시트</a></li>
+        <li><a href="#fa-travel-api">15. DB를 API로 노출 — travel_api.py</a></li>
+        <li><a href="#fa-api-path">16. 경로 파라미터로 조회 건수 받기</a></li>
+        <li><a href="#cheatsheet">17. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -616,12 +618,12 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>FastAPI 통합 학습노트</h1>
-    <p class="deck">FastAPI 통합 학습노트 · 범위: API 개념(HTTP 메서드 GET·POST·PUT·DELETE → 백엔드 DB 처리 → JSON/XML 응답) → 뷰 테이블(가상 테이블·Materialized View) → 응답 형식 JSON·XML·CSV → REST·RESTful·FastAPI 정의와 프레임워크 계보 → 활용 3분야(모델 서빙·클러스터 브리지·파이프라인 대시보드) → <code class="n">pip3</code> 설치(<code class="n">fastapi</code>·<code class="n">uvicorn</code>·<code class="n">nest_asyncio</code>, 마스터·워커) → 기본 코드(앱 객체·데코레이터·경로 파라미터) → Jupyter 가동(<code class="n">uvicorn.Config</code>·<code class="n">Server</code>·<code class="n">asyncio.create_task</code>) → <code class="n">.py</code> 파일 가동(<code class="n">uvicorn main:app --host --port</code>·<code class="n">reload</code>) → 경로 파라미터 접근 제어 → <code class="n">file_api.py</code>의 POST·GET 라우트 → httpd에 HTML 올려 API 연동(바이브 코딩·전송 URL에 포트까지) → CORS(<code class="n">CORSMiddleware</code>·허용 목록·<code class="n">"*"</code>+credentials 함정) → 파일 업로드(<code class="n">python-multipart</code>·<code class="n">UploadFile</code>·<code class="n">File</code>·<code class="n">Path</code>·<code class="n">UPLOAD_DIR</code>) → MySQL 연동(<code class="n">db_info.py</code> 접속 정보 분리·<code class="n">pymysql</code>·<code class="n">DictCursor</code>·SELECT <code class="n">fetchall</code>·DELETE <code class="n">commit</code>). 연결 파일: spark.html(마스터·워커 포트), pyspark.html(PySpark·JupyterLab), mysql.html(조회·뷰), was.html(Java WAS와 API 서버의 차이)</p>
+    <p class="deck">FastAPI 통합 학습노트 · 범위: API 개념(HTTP 메서드 GET·POST·PUT·DELETE → 백엔드 DB 처리 → JSON/XML 응답) → 뷰 테이블(가상 테이블·Materialized View) → 응답 형식 JSON·XML·CSV → REST·RESTful·FastAPI 정의와 프레임워크 계보 → 활용 3분야(모델 서빙·클러스터 브리지·파이프라인 대시보드) → <code class="n">pip3</code> 설치(<code class="n">fastapi</code>·<code class="n">uvicorn</code>·<code class="n">nest_asyncio</code>, 마스터·워커) → 기본 코드(앱 객체·데코레이터·경로 파라미터) → Jupyter 가동(<code class="n">uvicorn.Config</code>·<code class="n">Server</code>·<code class="n">asyncio.create_task</code>) → <code class="n">.py</code> 파일 가동(<code class="n">uvicorn main:app --host --port</code>·<code class="n">reload</code>) → 경로 파라미터 접근 제어 → <code class="n">file_api.py</code>의 POST·GET 라우트 → httpd에 HTML 올려 API 연동(바이브 코딩·전송 URL에 포트까지) → CORS(<code class="n">CORSMiddleware</code>·허용 목록·<code class="n">"*"</code>+credentials 함정) → 파일 업로드(<code class="n">python-multipart</code>·<code class="n">UploadFile</code>·<code class="n">File</code>·<code class="n">Path</code>·<code class="n">UPLOAD_DIR</code>) → MySQL 연동(<code class="n">db_info.py</code> 접속 정보 분리·<code class="n">pymysql</code>·<code class="n">DictCursor</code>·SELECT <code class="n">fetchall</code>·DELETE <code class="n">commit</code>) → travel_payment 테이블을 API로 노출(<code class="n">travel_api.py</code>·<code class="n">uvicorn</code> 11111) → 경로 파라미터로 조회 건수 제한(<code class="n">/travel/{ea}</code>·<code class="n">limit 0, %s</code>)까지(15~16장). 연결 파일: spark.html(마스터·워커 포트), pyspark.html(PySpark·JupyterLab), mysql.html(조회·뷰), was.html(Java WAS와 API 서버의 차이)</p>
 
     <div class="core-strip">
       <div>
         <div class="core-metric">GET · POST · PUT · DELETE</div>
-        <p class="core-desc">API는 <strong>통신 창구</strong> — 요청 4개를 받아 백엔드가 DB를 조회하고 JSON·XML로 돌려줌. 응답을 받으려면 <strong>포트가 열려</strong> 있어야 하고, 포트 충돌이 나면 기동 실패. 개방은 인프라 담당자와 협의 (1·3장)</p>
+        <p class="core-desc">API는 <strong>통신 창구</strong> — 요청 4개를 받아 백엔드가 DB를 조회하고 JSON·XML로 돌려줌. DB 테이블(travel_payment)을 그대로 노출하는 <code class="n">travel_api.py</code>도 이 창구의 한 예(15~16장). 응답을 받으려면 <strong>포트가 열려</strong> 있어야 하고, 포트 충돌이 나면 기동 실패. 개방은 인프라 담당자와 협의 (1·3장)</p>
       </div>
       <div>
         <div class="core-metric">uvicorn main:app</div>
@@ -648,10 +650,11 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#cors">12. CORS — 교차 출처 차단과 허용</a>
       <a href="#upload">13. 파일 업로드 API — multipart</a>
       <a href="#mysql-link">14. MySQL 연동 — db_info·SELECT·DELETE</a>
-      <a href="#cheatsheet">15. 통합 명령어 치트시트</a>
+      <a href="#fa-travel-api">15. DB를 API로 노출 — travel_api.py</a>
+      <a href="#fa-api-path">16. 경로 파라미터로 조회 건수 받기</a>
+      <a href="#cheatsheet">17. 통합 명령어 치트시트</a>
     </nav>
   </header>
-
   <!-- 1 -->
   <section class="sec" id="api-concept">
     <h2>API 개념과 HTTP 메서드</h2>
@@ -693,7 +696,6 @@ SELECT a.mid, a.user, b.money FROM member a JOIN point b WHERE a.mid = b.mid;</c
 
     <div class="dg-bar warn">API = 통신 — 요청 규약은 <code>GET</code>·<code>POST</code>·<code>PUT</code>·<code>DELETE</code> 4개. 요청을 받은 백엔드가 DB를 조회해 JSON/XML로 응답하고, 그 창구는 포트로 열려 있음. 뷰는 속도를 위한 저장이 아니라 조인문을 묶어 두는 편의 장치 — 결과 저장은 Materialized View</div>
   </section>
-
   <!-- 2 -->
   <section class="sec" id="data-formats">
     <h2>응답 형식 — JSON·XML·CSV</h2>
@@ -724,7 +726,6 @@ SELECT a.mid, a.user, b.money FROM member a JOIN point b WHERE a.mid = b.mid;</c
 
     <div class="dg-bar warn">데이터 형식 — JSON은 AI가 선호하고 <b>객체 + 배열</b> 구조(RFC 8259), XML은 <b>태그</b>로 표현하며 태그 이름은 보통 컬럼명, SGML 파생. CSV는 XML/JSON 생성이 번거로울 때 쓰는 표 형식으로 갱신 불가</div>
   </section>
-
   <!-- 3 -->
   <section class="sec" id="rest-fastapi">
     <h2>REST·RESTful과 FastAPI</h2>
@@ -753,7 +754,6 @@ SELECT a.mid, a.user, b.money FROM member a JOIN point b WHERE a.mid = b.mid;</c
     <div class="dg-bar warn">REST·RESTful 구분 — REST는 자원을 URI로 가져오는 <b>아키텍처 스타일</b>, RESTful은 그 원칙(URI·메서드·무상태)을 지킨 API. 쿼리 파라미터를 쓰는지로 갈리지 않음. 면접에서는 두 용어에 더해 <b>포트 개방·인프라 협의</b>까지 답해야 완성</div>
     <div class="dg-bar warn">FastAPI의 자리 — 파이썬 전용 프레임워크(자바·닷넷에서는 거의 못 씀). 같은 역할의 자바 계보는 Spring → Spring Boot, 파이썬은 Django·Flask 이후 FastAPI. 이 환경의 핵심 조합은 FastAPI + Spark</div>
   </section>
-
   <!-- 4 -->
   <section class="sec" id="use-cases">
     <h2>FastAPI 활용 분야 3가지</h2>
@@ -768,7 +768,6 @@ SELECT a.mid, a.user, b.money FROM member a JOIN point b WHERE a.mid = b.mid;</c
 
     <div class="dg-bar warn">활용 3분야 — ① 실시간 모델 서빙(MLlib·PySpark) ② 분산 클러스터와 외부를 잇는 브리지(Spark 결과·파일 접근 창구) ③ 파이프라인 모니터링·제어 대시보드의 REST API 백엔드</div>
   </section>
-
   <!-- 5 -->
   <section class="sec" id="install">
     <h2>설치 — fastapi·uvicorn·nest_asyncio</h2>
@@ -792,7 +791,6 @@ pip3 install nest_asyncio      <span class="c"># 주피터용 — 주피터가 �
 
     <div class="dg-bar warn">실행기 이름 — <code>uvicorn</code>("유니콘" 아님). 배포는 멀티프로세스 <code>--workers N</code>(워커 3개 → <code>--workers 3</code>). 주피터용 <code>nest_asyncio</code>는 <b>마스터에만</b>, <code>fastapi</code>·<code>uvicorn</code>은 마스터·워커 둘 다</div>
   </section>
-
   <!-- 6 -->
   <section class="sec" id="first-app">
     <h2>앱 객체·라우트 — 기본 코드</h2>
@@ -832,7 +830,6 @@ def read_item(id: str):                  <span class="c"># int=숫자만, str=�
 
     <div class="dg-bar warn">파일 이름 — <code>fastapi.py</code>는 라이브러리와 이름이 겹쳐 에러. <code>test_api.py</code>·<code>main.py</code>처럼 다른 이름. 라우트는 <code>@app.get("/경로")</code> 데코레이터로 붙이고, 함수가 돌려준 dict가 JSON 응답이 됨</div>
   </section>
-
   <!-- 7 -->
   <section class="sec" id="jupyter-run">
     <h2>Jupyter에서 가동 (문제 많음)</h2>
@@ -865,7 +862,6 @@ print("FastAPI 서버가 background로 구동되었습니다.")</code></pre><but
 
     <div class="dg-bar warn">주피터 가동 — 이벤트 루프가 이미 도는 환경이라 <code>uvicorn.run()</code>은 충돌. <code>nest_asyncio.apply()</code> + <code>uvicorn.Config(app, ...)</code> + <code>uvicorn.Server</code> + <code>asyncio.create_task(server.serve())</code>로 띄우고, 가동 전 <b>기존 서버·앱을 kill</b>해 포트 충돌을 없앰</div>
   </section>
-
   <!-- 8 -->
   <section class="sec" id="py-run">
     <h2>.py 파일로 가동 (권장)</h2>
@@ -909,7 +905,6 @@ uvicorn main:app --host 192.168.222.2 --port 9999 <span class="c"># 서버 가�
 
     <div class="dg-bar warn">실행과 확인 — <code>uvicorn main:app --host IP --port 9999</code>의 인자는 <b>파일명:변수명</b>. <code>netstat -lntpu</code>에 <b>9999 LISTEN·프로세스 python</b>이면 가동, <code>200 OK</code>가 통신 정상. <code>reload=True</code>는 소스 변경 자동 반영이지만 새 라우트는 재시작이 안전</div>
   </section>
-
   <!-- 9 -->
   <section class="sec" id="routes">
     <h2>라우트 추가와 접근 제어</h2>
@@ -931,7 +926,6 @@ def login(id: str):
 
     <ul class="facts"><li><strong>관련 파일</strong><div>WAS(Tomcat)와 API 서버의 차이·포트 개방: was.html 1~2장 / Spark 마스터·워커 포트: spark.html 2장 / Jupyter: pyspark.html 4장 / MySQL 조회·뷰: mysql.html 2장 / AWS 서버리스(Lambda)의 이벤트 JSON·응답 헤더: aws.html 1·7장 / API Gateway 연결과 S3 CORS 허용: aws.html 26~27장</div></li></ul>
   </section>
-
   <!-- 10 -->
   <section class="sec" id="post-get">
     <h2>POST·GET 라우트 — 두 통로를 가진 API 파일</h2>
@@ -1000,7 +994,6 @@ uvicorn file_api:app --host 192.168.22.2 --port 9999   <span class="c"># 파일�
 
     <div class="dg-bar warn">메서드 일치 — 통신 방식은 데코레이터(<code>@app.post</code>·<code>@app.get</code>)가 정하고, 데코레이터와 요청 메서드가 다르면 <code>405</code> 계열. <code>200</code>은 정상, <code>500</code>번대는 서버·인프라 문제</div>
   </section>
-
   <!-- 11 -->
   <section class="sec" id="html-link">
     <h2>웹 페이지와 API 연동 — 바이브 코딩</h2>
@@ -1061,7 +1054,6 @@ function send() {
 
     <div class="dg-bar warn">전송 주소 — 화면(80)에서 보내는 곳은 API(9999)의 <b>전체 주소</b>. 경로만 쓰면 같은 웹 서버로 가서 API에 닿지 않고, 입력 필드 이름은 서버 인자 이름과 맞춰야 값이 전달됨</div>
   </section>
-
   <!-- 12 -->
   <section class="sec" id="cors">
     <h2>CORS — 출처가 다른 요청의 차단과 허용</h2>
@@ -1129,7 +1121,6 @@ app.add_middleware(CORSMiddleware, allow_origins=se)   <span class="c"># 메서�
 
     <ul class="facts"><li><strong>관련 파일</strong><div>사용자 웹 디렉터리·<code>UserDir</code>·403 해결: httpd.html 6·9장 / 상태 코드 대역: httpd.html 10장 / 포트 개방·방화벽: was.html 2장</div></li></ul>
   </section>
-
   <!-- 13 -->
   <section class="sec" id="upload">
     <h2>파일 업로드 API — multipart와 저장 경로</h2>
@@ -1194,7 +1185,6 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)</code></pre><button class="copy" t
     <div class="dg-bar warn">파일 전송 — 본문(body)이 있어야 하므로 <code>GET</code> 불가. <code>POST</code>(<code>multipart/form-data</code>)가 기본이고 <code>PUT</code>도 가능. <code>python-multipart</code>가 없으면 <code>UploadFile</code>·<code>File</code> 사용 불가</div>
     <div class="dg-bar warn">웹 디렉터리 — <code>html</code> 안에는 HTML·CSS·JS만. 소스(<code>file_api.py</code>)·DB 접속 파일(<code>db_info.py</code>)을 넣으면 브라우저로 열려 소스와 계정이 그대로 노출됨</div>
   </section>
-
   <!-- 14 -->
   <section class="sec" id="mysql-link">
     <h2>MySQL 연동 — 접속 정보 분리·SELECT·DELETE</h2>
@@ -1297,11 +1287,150 @@ def del_movie(id: str):
     <ul class="facts">
       <li><strong>쿼리 학습법</strong><div>AI에게 <code>MySQL Select Insert Update Delete 기초 쿼리문을 가르쳐줘</code> → 이어서 <code>해당 쿼리문을 작동시키기 위한 테이블을 작성해줘</code>로 테이블부터 만들고 → INSERT → SELECT → UPDATE → DELETE 순서로 실습</div></li>
       <li><strong>범위</strong><div>JOIN·PK·LEFT/RIGHT JOIN 같은 중급은 개발 쪽 영역이라 지금은 불필요 — API가 로우 데이터를 서비스 형태로 만드는 정도까지만</div></li>
-      <li><strong>관련 파일</strong><div>기본 조회 문법·문자셋: mysql.html 2장 / 테이블·데이터 생성: mysql.html 3장 / <code>DailyBoxOffice</code> 적재: spark.html 10장 / JDBC 조회: spark.html 11장 / API 포트 추가(<code>11111</code>)와 경로 파라미터·Spark 의 API 호출: spark.html 19장·pyspark.html 26~28장</div></li>
+      <li><strong>관련 파일</strong><div>기본 조회 문법·문자셋: mysql.html 2장 / 테이블·데이터 생성: mysql.html 3장 / <code>DailyBoxOffice</code> 적재: spark.html 10장 / JDBC 조회: spark.html 11장 / API 포트 추가(<code>11111</code>)와 경로 파라미터·Spark 의 API 호출: spark.html 19장·이 파일 15장·pyspark.html 22장</div></li>
     </ul>
   </section>
-
   <!-- 15 -->
+  <section class="sec" id="fa-travel-api">
+    <h2>DB를 API로 노출 — travel_api.py</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 파이썬 파일 하나가 DB 조회 창구가 됨</p><div class="dg-flow"><div class="dg-node"><h4>① 파이썬 파일</h4><p class="sub">travel_api.py · data 폴더</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② db_config</h4><p class="sub">dict · DictCursor</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ @app.get</h4><p class="sub">/travel 라우트</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ uvicorn</h4><p class="sub">--port 11111</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ JSON 응답</h4><p class="sub">/travel → 행 목록</p></div></div><p class="dg-foot">Spark 가 아니라 컨테이너 안 파이썬이 DB 에 붙어 결과를 JSON 으로 내보내는 구조 — 워커는 이 과정에 참여하지 않음</p></div>
+
+    <h3>파일 만들기</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">만드는 법</td><td>[spark-master 컨테이너 · JupyterLab] <b>Python 파일</b>(노트북 아님) 생성 → <code>F2</code> 로 이름 변경 <code>travel_api.py</code></td><td>노트북이 아니라 <code>.py</code> 파일이라야 uvicorn 이 모듈로 읽음</td></tr>
+    <tr><td class="nowrap">저장 위치</td><td>주피터 <code>data</code> 폴더 = 컨테이너 <code>/opt/spark/data</code> = 호스트 <code>/home/spark-data</code> 마운트 지점</td><td>호스트에서도 같은 파일을 볼 수 있음(spark.html 14장)</td></tr>
+    <tr><td class="nowrap">필요 패키지</td><td><code>uvicorn</code>·<code>pymysql</code>·<code>fastapi</code></td><td>오전에 미리 설치 — 설치 여부만 확인하고 다시 설치하지 않음</td></tr>
+    </tbody></table></div>
+
+    <h3>코드 — 조회 라우트 하나</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · /opt/spark/data/travel_api.py 파일 안 · root]</span>
+<span class="c"># FastAPI: 앱 객체와 라우트 선언을 담당 / pymysql: MariaDB·MySQL 접속</span>
+from fastapi import FastAPI
+import pymysql
+<span class="c"># HTMLResponse: 응답을 HTML 화면 형태로 만들 때 쓰는 클래스 — 요청은 request, 응답은 response</span>
+from fastapi.responses import HTMLResponse
+
+<span class="c"># DB 접속 정보를 dict 하나로 모음 — 키 이름은 pymysql.connect 의 인자 이름과 같아야 함</span>
+db_config = {
+    "host": "192.168.222.5",                        <span class="c"># DB 서버 IP — 실습 환경마다 다름</span>
+    "port": 3309,                                   <span class="c"># 호스트에 게시된 DB 포트</span>
+    "user": "mg",                                   <span class="c"># 실습 계정</span>
+    "password": "...",                              <span class="c"># 실습 계정 비밀번호 — 노트·Git 에 적지 않음</span>
+    "database": "mg",
+    "charset": "utf8mb4",                           <span class="c"># 한글 깨짐 방지 — DB 와 같은 문자셋</span>
+    "cursorclass": pymysql.cursors.DictCursor       <span class="c"># 결과를 dict(컬럼명: 값)로 받음</span>
+}
+
+<span class="c"># API 앱 객체 — uvicorn 의 파일명:객체명 에서 이 이름을 씀, 처음이라 version 1.0</span>
+app = FastAPI(title="Travel Data", version="1.0")
+
+<span class="c"># /travel GET 요청이 오면 아래 함수 실행 — 경로와 메서드를 데코레이터로 묶음</span>
+@app.get("/travel")
+def get_travel():                                   <span class="c"># 이름의 언더바를 빠뜨리면 NameError</span>
+    con = pymysql.connect(&#42;&#42;db_config)              <span class="c"># dict 를 키워드 인자로 풀어 연결</span>
+    with con.cursor() as cursor:                    <span class="c"># 쿼리 실행·결과 처리를 담당하는 커서</span>
+        sql = """
+        select * from travel_payment order by date desc
+        """                                         <span class="c"># date 형식이 문자열이라 desc 로 최신이 위로</span>
+        cursor.execute(sql)                         <span class="c"># 쿼리 실행</span>
+        result = cursor.fetchall()                  <span class="c"># 결과 전부를 리스트로</span>
+    con.close()                                     <span class="c"># 접속 종료 — 무조건 닫음</span>
+    return result                                   <span class="c"># return 값은 FastAPI 가 JSON 으로 직렬화</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">실행 주체</td><td><code>cursor.execute</code> 는 Spark 가 아니라 컨테이너 안 파이썬이 단일 코어로 실행</td><td>이 요청에 워커는 작동하지 않음 — Spark 분산은 pyspark.html 22장에서 시작</td></tr>
+    <tr><td class="nowrap">HTMLResponse</td><td>응답을 HTML 화면처럼 만들 때 사용 — 영화진흥위원회 Open API 화면 같은 형태</td><td>이 실습은 JSON 응답이라 import 만 두고 쓰지 않음</td></tr>
+    <tr><td class="nowrap">쿼리 오류</td><td>쿼리 문법을 잘못 쓰면 결과가 엉망</td><td><code>try / except</code> 예외 처리는 이 실습에서 생략 — 오류는 500 과 로그로 확인</td></tr>
+    <tr><td class="nowrap">접속 정보 위치</td><td>API 파일에 직접 쓰거나 기존 <code>db_config</code> 파일을 import (선택)</td><td>기존 파일을 쓰는 다른 코드와 충돌해 에러가 날 수 있어 FastAPI 용을 따로 만드는 경우가 있음(pyspark.html 21장·mysql.html 25장)</td></tr>
+    <tr><td class="nowrap">보안</td><td>IP·비밀번호는 별도 처리 필요 — 실습에서는 생략</td><td><b>Git 에 올릴 때 DB 접속 정보는 빼고 올림</b></td></tr>
+    </tbody></table></div>
+
+    <h3>DictCursor · <code>&#42;&#42;</code> 언패킹 · fetch</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>DictCursor</code></td><td>결과를 dictionary(<code>{컬럼명: 값}</code>)로 반환 — 키가 컬럼명, 값이 데이터</td><td>컬럼명이 한글이면 깨질 수 있음</td></tr>
+    <tr><td class="nowrap">dictionary 란</td><td>key 와 value 를 쌍으로 저장하는 자료구조 — 키가 있는 배열</td><td>list(키가 없는 배열)와 완전히 다른 형태</td></tr>
+    <tr><td class="nowrap">JSON 출력</td><td><code>return</code> 한 결과는 DictCursor 유무와 관계없이 FastAPI 가 JSON 으로 출력</td><td>DictCursor 가 없으면 컬럼명 없이 값만 든 리스트로 나올 뿐(<a href="https://pymysql.readthedocs.io/en/latest/modules/cursors.html">PyMySQL cursors</a>, <a href="https://fastapi.tiangolo.com/tutorial/encoder/">FastAPI encoder</a>)</td></tr>
+    <tr><td class="nowrap">쓰는 범위</td><td><code>DictCursor</code> 는 FastAPI 전용이 아니라 PyMySQL 의 일반 커서 클래스</td><td>결과를 dict 로 받고 싶은 어떤 파이썬 코드에서도 사용</td></tr>
+    <tr><td class="nowrap"><code>&#42;&#42;db_config</code></td><td>언패킹 연산자 — dict 의 키·값을 키워드 인자로 풀어 함수에 전달</td><td>dict 를 통째로 넘기면 <code>connect(host=…)</code> 자리에 dict 가 들어가 에러</td></tr>
+    <tr><td class="nowrap">언패킹 없이</td><td><code>pymysql.connect(host=…, user=…, port=…)</code> 처럼 하나씩 써도 동작</td><td>접속 정보가 늘면 dict 한 곳에 모으는 편이 안전</td></tr>
+    <tr><td class="nowrap"><code>fetchall</code>·<code>fetchone</code></td><td><code>fetchall()</code> 은 전부, <code>fetchone()</code> 은 한 건만</td><td>SQL 에 <code>limit</code> 을 걸면 그 개수까지만 담김</td></tr>
+    <tr><td class="nowrap"><code>fetchall</code> 용도</td><td>select 전용 — insert·delete·update 에는 쓰지 않음</td><td>값을 바꾸는 쿼리는 <code>execute</code> 반환값과 <code>commit</code> 으로 처리(이 파일 14장)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">접속 dict 는 <code>&#42;&#42;</code> 로 풀어 넘김 — <code>connect(db_config)</code> 로 통째로 넘기면 인자 자리에 dict 가 들어가 에러. <code>return</code> 값은 DictCursor 와 무관하게 FastAPI 가 JSON 으로 내보냄</div>
+    <div class="dg-bar warn"><code>fetchall</code> 은 select 전용, 값을 바꾸는 쿼리는 <code>commit</code>. 쿼리 실행 뒤 <code>con.close()</code> 는 무조건</div>
+
+    <h3>실행 — uvicorn</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+cd /opt/spark/data                                             <span class="c"># 코드 폴더 — travel_api.py 가 있는 곳</span>
+ls -a                                                          <span class="c"># travel_api.py 확인</span>
+uvicorn travel_api:app --host 0.0.0.0 --port 11111 --reload    <span class="c"># FastAPI 실행, 정지는 Ctrl+C</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>옵션</th><th>의미</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>travel_api:app</code></td><td>파이썬 파일명 : 파일 안의 FastAPI 객체 이름</td><td>객체 이름이 다르면 <code>app not found</code></td></tr>
+    <tr><td class="nowrap"><code>--host 0.0.0.0</code></td><td>모든 주소의 접속 허용</td><td>127.0.0.1 로 두면 다른 PC·브라우저에서 접속 불가</td></tr>
+    <tr><td class="nowrap"><code>--port 11111</code></td><td>spark.html 19장에서 연 포트</td><td>게시되지 않은 포트면 서버가 떠도 브라우저에서 안 열림</td></tr>
+    <tr><td class="nowrap"><code>--reload</code></td><td>코드 수정 시 자동 재시작</td><td>함수·경로를 새로 추가할 때는 <code>Ctrl+C</code> 로 끄고 다시 실행하는 편이 안정적(이 파일 8장)</td></tr>
+    <tr><td class="nowrap">정상 출력</td><td><code>Uvicorn running on http://0.0.0.0:11111</code>, <code>Started reloader process</code>(StatReload)</td><td>이 두 줄이 보이면 서버 기동 완료</td></tr>
+    <tr><td class="nowrap">접속 주소</td><td><code>http://리눅스서버IP:11111/travel</code> — IP:포트/경로</td><td>경로를 빼면 <code>Not Found</code></td></tr>
+    <tr><td class="nowrap">종료</td><td>서버를 <code>Ctrl+C</code> 로 끄면 브라우저도 응답 없음</td><td>화면이 안 뜨면 서버가 살아 있는지부터 확인</td></tr>
+    </tbody></table></div>
+
+    <h3>에러 해결</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>app not found</code></td><td><code>app = FastAPI(...)</code> 객체 누락</td><td>객체 추가 후 저장 → <code>Ctrl+C</code> 정지 → 다시 실행</td></tr>
+    <tr><td class="nowrap">브라우저 <code>500 Internal Server Error</code></td><td>서버(우리 코드) 내부 오류 — 함께 뜨는 <code>favicon</code> 404 는 무관</td><td>에러 로그(트레이스백)의 줄 번호로 코드 확인</td></tr>
+    <tr><td class="nowrap">로그 19번 줄(<code>get_travel</code> 안) 오류</td><td>변수명 언더바 누락 — <code>dbconfig</code> ≠ 정의된 <code>db_config</code></td><td>이름을 <code>db_config</code> 로 통일</td></tr>
+    <tr><td class="nowrap">새로고침 시 28번 줄(커넥션) 오류</td><td><code>pymysql.connect(db_config)</code> 로 dict 를 통째로 전달</td><td><code>pymysql.connect(&#42;&#42;db_config)</code> 로 언패킹</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">에러가 늦게 나는 이유</td><td>서버 시작 로그가 정상(complete)이어도 DB 접속은 <b>요청 시점</b>에 일어남</td><td>브라우저로 접속할 때 에러가 남 — 기동 성공이 DB 연결 성공을 뜻하지 않음</td></tr>
+    <tr><td class="nowrap">수정 후</td><td>새로고침 → JSON 데이터 출력</td><td>행 목록이 그대로 보이면 API 완성</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">FastAPI 구성 순서 — <code>FastAPI()</code> 객체 → <code>@app.get</code> 경로 → 함수 → <code>pymysql</code> 연결 → <code>return</code>. 접속 정보는 Git 에 올릴 때 빼고 올림</div>
+    <div class="dg-bar warn"><code>app not found</code> = FastAPI 객체 누락, <code>500</code> = 서버 코드 오류(<code>favicon</code> 404 는 무관). 기동 로그가 정상이어도 DB 연결은 요청 시점에 검사 — 브라우저에서 처음 드러남</div>
+    <div class="dg-bar warn">이 실습의 대표 에러 두 개 — <code>dbconfig</code> ≠ <code>db_config</code>(이름), <code>connect(db_config)</code> → <code>connect(&#42;&#42;db_config)</code>(언패킹). 트레이스백 줄 번호가 어느 쪽인지 알려 줌</div>
+
+    <ul class="facts"><li><strong>포트</strong><div>11111 게시 절차: spark.html 19장</div></li><li><strong>접속 코드 재사용</strong><div><code>db_config.py</code> 와 <code>get_con</code>: mysql.html 25장, 변수 하나씩 넘기는 connect: pyspark.html 21장</div></li><li><strong>FastAPI 기본기</strong><div>앱 객체·라우트·<code>.py</code> 가동: 이 파일 6·8장, SELECT·<code>commit</code>: 이 파일 14장</div></li><li><strong>다음 단계</strong><div>URL 값으로 건수 제한, Spark 에서 호출: 이 파일 16장·pyspark.html 22장</div></li></ul>
+  </section>
+  <!-- 16 -->
+  <section class="sec" id="fa-api-path">
+    <h2>경로 파라미터로 조회 건수 받기</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — URL 뒤 숫자가 SQL 의 개수가 됨</p><div class="dg-flow"><div class="dg-node"><h4>① 경로 선언</h4><p class="sub">/travel/{ea}</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 타입 지정</h4><p class="sub">ea: int</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ SQL 자리</h4><p class="sub">limit 0, %s</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 바인딩</h4><p class="sub">execute(sql, (ea))</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 결과</h4><p class="sub">/travel/5 → 5건</p></div></div><p class="dg-foot">주소에 값을 넣어 호출하는 방식 — 값은 SQL 문자열에 이어 붙이지 않고 자리표시자로 넘겨 인젝션을 막음</p></div>
+
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · /opt/spark/data/travel_api.py 파일 안 · root]</span>
+<span class="c"># 경로의 {ea} 자리에 들어온 값을 함수 인자로 받음</span>
+@app.get("/travel/{ea}")
+def get_travel2(ea: int):                 <span class="c"># int 로 선언 — 숫자가 아니면 FastAPI 가 422 로 거절</span>
+    con = pymysql.connect(&#42;&#42;db_config)
+    with con.cursor() as cursor:
+        sql = """
+        select * from travel_payment order by date desc limit 0, %s
+        """                               <span class="c"># 0 = 시작 위치(고정), %s = 개수 자리</span>
+        cursor.execute(sql, (ea))         <span class="c"># ea 값을 %s 자리에 바인딩 — 문자열로 이어 붙이지 않음</span>
+        result = cursor.fetchall()
+    con.close()
+    return result</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">목적</td><td>URL 뒤 값으로 개수 제한 — <code>/travel/15</code> → 15건, <code>/travel/20</code> → 20건</td><td>사용자가 주소로 값을 직접 입력하는 방식</td></tr>
+    <tr><td class="nowrap">변수 이름</td><td><code>ea</code>(개수)는 자유 — <code>aa</code>·<code>bb</code> 로 바꿔도 동작</td><td>경로의 <code>{ }</code> 안 이름과 함수 인자 이름이 같아야 함</td></tr>
+    <tr><td class="nowrap"><code>%s</code> 의 의미</td><td>PyMySQL 의 <code>%s</code> 는 타입과 무관한 매개변수 자리표시자(플레이스홀더)</td><td>드라이버가 값을 이스케이프해 넣음 — 숫자·문자열 모두 <code>%s</code> 사용(<a href="https://pymysql.readthedocs.io/en/latest/modules/cursors.html">PyMySQL cursors</a>)</td></tr>
+    <tr><td class="nowrap">자료형</td><td>정수 <code>int</code>, 소수 <code>float</code>, 문자열 <code>str</code></td><td>문자열은 홑따옴표가 자동으로 붙어 들어감</td></tr>
+    <tr><td class="nowrap">범위 밖 값</td><td><code>/travel/abc</code> 처럼 숫자가 아니면 422 응답</td><td><code>ea: int</code> 선언이 막아 줌 — 500 이 아니라 요청 오류로 돌아옴</td></tr>
+    <tr><td class="nowrap">시작 위치</td><td><code>15,</code> <code>30,</code> 처럼 시작 위치도 변수로 만들 수 있으나 이 실습은 0 고정</td><td>페이징까지 하려면 자리표시자를 두 개로</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td><code>http://서버IP:11111/travel/5</code> → 5건, 기존 <code>/travel</code> 전체 조회도 정상</td><td>두 라우트가 같은 파일에 함께 등록됨</td></tr>
+    <tr><td class="nowrap">함수 이름</td><td>앞 라우트와 같은 이름을 쓰기도 하지만 구분이 어려우므로 <code>get_travel2</code> 처럼 다르게 지정</td><td>같은 이름으로 다시 정의해도 앞 라우트는 등록 당시 함수 객체를 그대로 가리켜 동작 — 읽는 사람이 헷갈리는 것이 문제</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 43강(PySpark3)</div><p><code>execute(sql, (ea))</code> 의 괄호는 값 하나를 감싼 것일 뿐 튜플이 아님. PyMySQL 은 튜플·리스트가 아닌 단일 값도 이스케이프해 넣으므로 동작하지만, 값이 하나일 때 <code>(ea,)</code> 처럼 콤마를 붙이는 표기가 일반적 — 화면에 콤마가 있는지 직접 확인</p></div>
+    <div class="dg-bar warn">경로 파라미터 — <code>@app.get("/travel/{ea}")</code> + <code>ea: int</code> + <code>limit 0, %s</code> + <code>execute(sql, (ea))</code>. <code>%s</code> 는 타입 무관 플레이스홀더이고 값은 이스케이프돼 들어가 SQL 인젝션을 막음</div>
+
+    <ul class="facts"><li><strong>앞 장 코드</strong><div>전체 조회 라우트와 <code>db_config</code>: 이 파일 15장</div></li><li><strong>LIMIT 문법</strong><div>시작 위치·개수 의미: mysql.html 23장</div></li><li><strong>같은 패턴</strong><div><code>/del/{id}</code> 경로 파라미터와 <code>%s</code> 바인딩: 이 파일 14장</div></li><li><strong>다음 단계</strong><div>이 API 를 Spark 가 읽기: pyspark.html 22장</div></li></ul>
+  </section>
+  <!-- 17 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
     <p>영역별 모음. 모든 명령의 실행 위치·주체는 코드 블록 첫 줄 표기(<code class="n">마스터</code>·<code class="n">워커</code>, <code class="n">spark</code>) 기준.</p>
@@ -1365,7 +1494,15 @@ def del_movie(id: str):
           <tr><td><code>SELECT * FROM DailyBoxOffice LIMIT 0,10;</code></td><td>LIMIT 시작 위치(0부터), 개수 — 코드에서는 <code>%s</code>로 받아 URL 숫자로 조정</td></tr>
           <tr><td><code>cur.execute("DELETE FROM DailyBoxOffice WHERE id = %s", (id,))</code> → <code>con.commit()</code></td><td>삭제 후 commit 필수. 결과 1=삭제, 0=대상 없음 — <code>%s</code> 바인딩으로 SQL 인젝션 차단</td></tr>
           <tr><td><code>finally</code>의 <code>close()</code> 제거</td><td>요청 한 번에 연결이 닫히면 이후 요청이 계속 에러 — 실습에서는 삭제</td></tr>
-        </tbody>
+        <tr class="group"><th colspan="2" scope="colgroup">DB를 API로 노출·경로 파라미터 (15~16장)</th></tr>
+          <tr><td><code>docker exec -it spark-master bash</code> → <code>pyspark</code></td><td>마스터 진입·주피터 기동 — PuTTY 2개, 주피터 창은 다른 명령 불가</td></tr>
+          <tr><td><code>uvicorn travel_api:app --host 0.0.0.0 --port 11111 --reload</code></td><td>파일명:객체명, 확인 주소 <code>http://서버IP:11111/travel</code>, 정지 <code>Ctrl+C</code></td></tr>
+          <tr><td><code>db_config = {…, "cursorclass": pymysql.cursors.DictCursor}</code> / <code>pymysql.connect(&#42;&#42;db_config)</code></td><td>dict 언패킹 — 통째로 넘기면 28번 줄 에러, 변수명 <code>dbconfig</code> 오타는 19번 줄 에러</td></tr>
+          <tr><td><code>cursor.execute(sql)</code> → <code>fetchall()</code> → <code>con.close()</code> → <code>return result</code></td><td>조회 3종 세트 — <code>return</code> 값은 FastAPI 가 JSON 출력, <code>fetchall</code> 은 select 전용</td></tr>
+          <tr><td><code>app not found</code> / <code>500 Internal Server Error</code></td><td>FastAPI 객체 누락 / 서버 코드 오류(트레이스백 줄 번호) — <code>favicon</code> 404 는 무관</td></tr>
+          <tr><td><code>@app.get("/travel/{ea}")</code> + <code>def get_travel2(ea: int)</code></td><td>경로 파라미터 — 숫자가 아니면 422, <code>limit 0, %s</code> + <code>execute(sql, (ea))</code></td></tr>
+          <tr><td><code>/travel/5</code> → 5건</td><td>URL 값으로 개수 제한 — <code>%s</code> 는 타입 무관 플레이스홀더, 값은 이스케이프</td></tr>
+</tbody>
       </table>
     </div>
   </section>

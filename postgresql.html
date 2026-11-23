@@ -607,7 +607,13 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#pg-run">11. 공식 이미지·볼륨·컨테이너 실행</a></li>
         <li><a href="#pg-auth">12. psql 접속과 pg_hba 인증</a></li>
         <li><a href="#pg-config">13. postgresql.conf 설정·로그·재시작</a></li>
-        <li><a href="#cheatsheet">14. 통합 명령어 치트시트</a></li>
+        <li><a href="#pg-user-db">14. 컨테이너 사용자·DB·권한</a></li>
+        <li><a href="#pg-encoding">15. 인코딩 확인·설정 시점</a></li>
+        <li><a href="#pg-search-path">16. 스키마·search_path</a></li>
+        <li><a href="#pg-dbeaver-load">17. DBeaver 연결·테이블 적재</a></li>
+        <li><a href="#pg-select-syntax">18. SELECT 문법 차이 (ILIKE·OFFSET)</a></li>
+        <li><a href="#pg-revoke">19. REVOKE·접속 전환</a></li>
+        <li><a href="#cheatsheet">20. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -615,7 +621,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>PostgreSQL 통합 학습노트</h1>
-    <p class="deck">PostgreSQL 통합 학습노트 · 범위: 로컬 서버의 설치 방식(소스·RPM)·버전 선택(dnf module)·초기화·pg_hba 접속 허용·postgresql.conf 수신 주소와 psql 로컬·원격 접속(peer 인증) → 운영: 인증 전환(trust→md5)·psql 메타 명령·사용자·DB·소유자·권한·스키마 우선순위(search_path)·백업과 복구(pg_dump·psql -f)·DBeaver 접속 → Docker: 공식 이미지 <code class="n">postgres:14.24</code>·이름 있는 볼륨 <code class="n">pgdata</code>·컨테이너 실행·psql 접속·pg_hba.conf 인증·postgresql.conf 메모리·로그 설정과 재시작 검증. 서버 10.2.2.101 · PostgreSQL 16.8 · 컨테이너 PostgreSQL 14.24 · 서비스 postgresql.service · 14장 통합 명령어 치트시트. Docker·Compose 기본 명령은 docker.html 4·5장. VectorDB·임베딩·pgvector·CLIP 이미지 검색은 <strong>vectordb.html</strong>로 분리</p>
+    <p class="deck">PostgreSQL 통합 학습노트 · 범위: 로컬 서버의 설치 방식(소스·RPM)·버전 선택(dnf module)·초기화·pg_hba 접속 허용·postgresql.conf 수신 주소와 psql 로컬·원격 접속(peer 인증) → 운영: 인증 전환(trust→md5)·psql 메타 명령·사용자·DB·소유자·권한·스키마 우선순위(search_path)·백업과 복구(pg_dump·psql -f)·DBeaver 접속 → Docker: 공식 이미지 <code class="n">postgres:14.24</code>·이름 있는 볼륨 <code class="n">pgdata</code>·컨테이너 실행·psql 접속·pg_hba.conf 인증·postgresql.conf 메모리·로그 설정과 재시작 검증 → 컨테이너 실습: 사용자·DB·권한(<code class="n">create user</code>·<code class="n">owner</code>·<code class="n">grant</code>) → 인코딩 확인(UTF8·<code class="n">pg_encoding_to_char</code>) → 스키마·<code class="n">search_path</code>(<code class="n">set</code>·<code class="n">alter user</code>) → DBeaver 적재·컬럼명 11개 → SELECT 문법 차이(<code class="n">ilike</code>·<code class="n">limit offset</code>·<code class="n">concat</code>·<code class="n">concat_ws</code>·<code class="n">replace</code>) → <code class="n">REVOKE</code>·<code class="n">\c</code> 전환(14~19장). 서버 10.2.2.101 · PostgreSQL 16.8 · 컨테이너 PostgreSQL 14.24 · 서비스 postgresql.service · 20장 통합 명령어 치트시트. Docker·Compose 기본 명령은 docker.html 4·5장. VectorDB·임베딩·pgvector·CLIP 이미지 검색은 <strong>vectordb.html</strong>로 분리</p>
 
     <div class="core-strip">
       <div>
@@ -646,10 +652,15 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#pg-run">11. 공식 이미지·볼륨·컨테이너 실행</a>
       <a href="#pg-auth">12. psql 접속과 pg_hba 인증</a>
       <a href="#pg-config">13. postgresql.conf 설정·로그·재시작</a>
-      <a href="#cheatsheet">14. 통합 명령어 치트시트</a>
+      <a href="#pg-user-db">14. 컨테이너 사용자·DB·권한</a>
+      <a href="#pg-encoding">15. 인코딩 확인·설정 시점</a>
+      <a href="#pg-search-path">16. 스키마·search_path</a>
+      <a href="#pg-dbeaver-load">17. DBeaver 연결·테이블 적재</a>
+      <a href="#pg-select-syntax">18. SELECT 문법 차이 (ILIKE·OFFSET)</a>
+      <a href="#pg-revoke">19. REVOKE·접속 전환</a>
+      <a href="#cheatsheet">20. 통합 명령어 치트시트</a>
     </nav>
   </header>
-
   <!-- 1 -->
   <section class="sec" id="pg-install">
     <h2>설치 방식과 버전 선택 (소스·RPM·dnf module)</h2>
@@ -756,7 +767,6 @@ systemctl enable postgresql.service</code></pre><button class="copy" type="butto
     <li><strong>패키지 검색·삭제</strong><div><code>rpm -qa | grep</code>·<code>rpm -e</code>·<code>dpkg -l</code>: linux.html 13장</div></li>
     </ul>
   </section>
-
   <!-- 2 -->
   <section class="sec" id="pg-init">
     <h2>초기화 · 설치 경로 · 설정 파일</h2>
@@ -821,7 +831,6 @@ ls -a</code></pre><button class="copy" type="button" aria-label="코드 복사">
     </tbody></table></div>
     <div class="dg-bar warn">initdb 필수 — 초기화를 건너뛰면 기동 불가. 설정 파일은 /etc가 아니라 <code>/var/lib/pgsql/data</code> 아래이고, 설치 후 보안을 잡지 않으면 하루 만에 뚫릴 수 있음</div>
   </section>
-
   <!-- 3 -->
   <section class="sec" id="pg-hba">
     <h2>접속 허용(pg_hba.conf)과 데몬 설정(postgresql.conf)</h2>
@@ -960,7 +969,6 @@ psql -U jiyoung -h 10.2.2.73
 
     <div class="dg-bar warn">외부 접속 최소 설정 — <code>pg_hba.conf</code>의 <code>host all all 0.0.0.0/0 md5</code>와 <code>postgresql.conf</code>의 <code>listen_addresses = '*'</code>가 둘 다 필요. 하나만 하면 접속 불가</div>
   </section>
-
   <!-- 4 -->
   <section class="sec" id="pg-account">
     <h2>psql 접속과 관리자 계정 (peer 인증)</h2>
@@ -1039,7 +1047,6 @@ runuser -l postgres -c "psql"</code></pre><button class="copy" type="button" ari
     <li><strong>su·sudo·wheel</strong><div>일반 사용자의 sudo 조건과 세컨드 루트 권한: linux.html 7장</div></li>
     </ul>
   </section>
-
   <!-- 5 -->
   <section class="sec" id="pg-path">
     <h2>데이터·설정 위치와 인증 전환 (trust → md5)</h2>
@@ -1125,7 +1132,6 @@ psql -U postgres</code></pre><button class="copy" type="button" aria-label="코�
     </tbody></table></div>
     <div class="dg-bar warn">인증 전환 순서 — <code>md5</code>를 먼저 걸면 비밀번호가 없어 접속 불가 → local 줄을 <code>trust</code>로 열어 비밀번호를 설정하고 <b>반드시 <code>md5</code>로 복귀</b>. 설정 변경 뒤에는 무조건 restart, 응답 없이 멈추면 실패</div>
   </section>
-
   <!-- 6 -->
   <section class="sec" id="pg-psql">
     <h2>psql 기본 사용과 메타 명령</h2>
@@ -1201,11 +1207,10 @@ psql -U postgres
     </tbody></table></div>
     <div class="dg-bar warn">메타 명령 — <code>\l</code> DB · <code>\du</code> 사용자 · <code>\dn</code> 스키마 · <code>\?</code> 도움말 · <code>\q</code> 종료. <code>#</code>이 붙으면 슈퍼유저, <code>&gt;</code>면 일반 사용자. UTF8은 이모티콘까지 저장</div>
     <ul class="facts">
-    <li><strong>DB 전환·권한 목록</strong><div><code>\c DB명 사용자</code>로 접속을 바꾸고 <code>\dp</code>로 권한을 보는 절차: spark.html 27장</div></li>
+    <li><strong>DB 전환·권한 목록</strong><div><code>\c DB명 사용자</code>로 접속을 바꾸고 <code>\dp</code>로 권한을 보는 절차: 이 파일 19장</div></li>
     <li><strong>컨테이너 psql 접속</strong><div><code>psql -U postgres</code>·<code>\l</code>·<code>\du</code>로 RDS형 컨테이너를 다루는 실습: spark.html 20장</div></li>
     </ul>
   </section>
-
   <!-- 7 -->
   <section class="sec" id="pg-roles">
     <h2>사용자·DB·소유자·권한</h2>
@@ -1279,11 +1284,10 @@ grant all privileges on database apink to apink;
     </tbody></table></div>
     <div class="dg-bar warn">PostgreSQL 규격 — 사용자·DB·비밀번호 <b>세 가지 일치</b>, 이름이 다르면 <code>-d</code> 필수. DB 생성 뒤 <b>소유자 매칭</b>과 <b>권한 부여(grant)</b>까지가 한 세트</div>
     <ul class="facts">
-    <li><strong>권한 회수</strong><div><code>REVOKE … from</code>·CONNECT 를 PUBLIC 에서 회수하는 절차: spark.html 27장</div></li>
-    <li><strong>스파크 연동 계정</strong><div><code>create user</code> → <code>create database … owner</code> → <code>grant</code> 순서: spark.html 22장</div></li>
+    <li><strong>권한 회수</strong><div><code>REVOKE … from</code>·CONNECT 를 PUBLIC 에서 회수하는 절차: 이 파일 19장</div></li>
+    <li><strong>스파크 연동 계정</strong><div><code>create user</code> → <code>create database … owner</code> → <code>grant</code> 순서: 이 파일 14장</div></li>
     </ul>
   </section>
-
   <!-- 8 -->
   <section class="sec" id="pg-schema">
     <h2>스키마와 public</h2>
@@ -1417,12 +1421,11 @@ drop schema 스키마명 cascade;
 
     <div class="dg-bar warn">스키마 — DB 아래 한 단계 더. <code>public</code>은 기본 제공이지만 서비스 데이터는 전용 스키마에 넣고 public은 지우지 않음. <code>drop schema</code>는 기본이 객체가 있으면 거부(RESTRICT), 삭제하려면 CASCADE</div>
     <ul class="facts">
-    <li><strong>검색 경로</strong><div><code>set search_path</code>·<code>alter user … set search_path</code> 차이: spark.html 24장</div></li>
-    <li><strong>연결 시 스키마 지정</strong><div>psycopg2 <code>options</code> 의 <code>-c search_path=</code>: pyspark.html 29장</div></li>
-    <li><strong>SQLAlchemy 엔진</strong><div><code>create_engine</code>·<code>dispose</code>·<code>with connect</code> 로 조회: pyspark.html 30장</div></li>
+    <li><strong>검색 경로</strong><div><code>set search_path</code>·<code>alter user … set search_path</code> 차이: 이 파일 16장</div></li>
+    <li><strong>연결 시 스키마 지정</strong><div>psycopg2 <code>options</code> 의 <code>-c search_path=</code>: pyspark.html 23장</div></li>
+    <li><strong>SQLAlchemy 엔진</strong><div><code>create_engine</code>·<code>dispose</code>·<code>with connect</code> 로 조회: pyspark.html 24장</div></li>
     </ul>
   </section>
-
   <!-- 9 -->
   <section class="sec" id="pg-backup">
     <h2>백업과 복구 (pg_dump · DROP DATABASE · psql -f)</h2>
@@ -1540,7 +1543,6 @@ drop schema sample_schema cascade;</code></pre><button class="copy" type="button
     </ul>
     <div class="dg-bar warn">관리자 복구의 함정 — <code>-U</code>는 실행 주체, <code>-d</code>는 복구 대상. <code>-d</code>를 빼면 접속한 기본 DB(postgres)로 복구되어 엉뚱한 DB에 데이터가 들어감</div>
   </section>
-
   <!-- 10 -->
   <section class="sec" id="pg-dbeaver">
     <h2>DBeaver 원격 접속</h2>
@@ -1572,11 +1574,10 @@ drop schema sample_schema cascade;</code></pre><button class="copy" type="button
     <li><strong>GUI 작업</strong><div>[윈도우 · DBeaver] 새 연결 → PostgreSQL(코끼리) → Host·Port·Database·Authentication·Username 입력 → Test Connection</div></li>
     <li><strong>연결 뒤</strong><div>DB 아래 Schemas를 펼쳐야 테이블이 보임: 8장</div></li>
     <li><strong>원격 접속 점검</strong><div><code>psql -U 사용자 -h 서버IP</code>로 같은 경로 확인: 3장</div></li>
-    <li><strong>스파크 연동용 적재</strong><div>CSV 데이터 가져오기·컬럼명 정리·권한 탭 확인: spark.html 25장</div></li>
+    <li><strong>스파크 연동용 적재</strong><div>CSV 데이터 가져오기·컬럼명 정리·권한 탭 확인: 이 파일 17장</div></li>
     </ul>
     <div class="dg-bar warn">원격 접속은 서버 IP로 — Host 10.2.2.101 · Port 5432 · Database apink · Username apink. <code>localhost</code> 입력과 <code>pg_hba.conf</code> host 줄 미개방이 대표 실패 원인</div>
   </section>
-
   <!-- 11 -->
   <section class="sec" id="pg-run">
     <h2>공식 이미지·이름 있는 볼륨과 컨테이너 실행</h2>
@@ -1633,7 +1634,6 @@ volumes:
     <li><strong>이 컨테이너에 확장 넣기</strong><div>Debian 계열이라 <code>apt-get</code>으로 pgvector를 설치하고 스키마를 지정해 등록: vectordb.html 4장</div></li>
     </ul>
   </section>
-
   <!-- 12 -->
   <section class="sec" id="pg-auth">
     <h2>psql 접속과 pg_hba.conf 인증</h2>
@@ -1673,7 +1673,6 @@ host    all   all   all            scram-sha-256</code></pre><button class="copy
   
 
   </section>
-
   <!-- 13 -->
   <section class="sec" id="pg-config">
     <h2>postgresql.conf 설정·로그와 재시작 검증</h2>
@@ -1733,8 +1732,378 @@ log_rotation_size = 10MB
   
 
   </section>
-
   <!-- 14 -->
+  <section class="sec" id="pg-user-db">
+    <h2>사용자·DB·권한 생성</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — role 이 먼저, 그 role 을 소유자로 DB 생성</p><div class="dg-flow"><div class="dg-node"><h4>① create user</h4><p class="sub">mg · a1234</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② create database</h4><p class="sub">owner mg</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ grant</h4><p class="sub">on database mg to mg</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 확인</h4><p class="sub">\du · \l</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ role 속성</h4><p class="sub">superuser·createdb 미부여</p></div></div><p class="dg-foot">MySQL 의 <code>create user</code> → <code>grant</code> 와 같은 순서지만, PostgreSQL 은 DB 소유자(<code>owner</code>)를 따로 지정하는 점이 다름</p></div>
+
+    <h3>생성 순서</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- role(사용자) 먼저 생성 — DB 소유자로 지목하려면 role 이 존재해야 함. 이름은 Tab 자동완성</span>
+create user mg with encrypted password 'a1234';
+<span class="c">-- DB 생성 + 소유자 지정: 소유자는 owner 절이 정하고 DB 이름과는 무관</span>
+create database mg owner mg;
+<span class="c">-- DB 권한 부여 — grant 는 on 대상 to 사용자 순서</span>
+grant all privileges on database mg to mg;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">소유자 결정</td><td>DB 소유자는 <code>owner</code> 절로 정해짐 — DB 이름을 소유자 이름과 같게 만들 필요 없음</td><td>이름이 달라도 <code>owner mg</code> 면 mg 가 소유자(<a href="https://www.postgresql.org/docs/current/sql-createdatabase.html">CREATE DATABASE</a>)</td></tr>
+    <tr><td class="nowrap">생성 확인</td><td><code>\du</code> 로 role 생성, <code>\l</code> 로 DB 목록·소유자·권한 확인</td><td><code>\l</code> 의 Owner 칸이 mg 인지가 핵심</td></tr>
+    <tr><td class="nowrap">패스워드</td><td><code>a1234</code> 는 실습값</td><td>실무·AWS 같은 외부 노출 환경에서는 절대 쓰지 않는 값 — 비밀번호 관리 도구로 분리</td></tr>
+    <tr><td class="nowrap">grant 의 뜻</td><td>DB 에 붙을 수 있는 권한을 mg 에게 부여</td><td><code>all privileges</code> 는 DB 범위 — 안쪽 스키마·테이블 권한은 따로(19장)</td></tr>
+    </tbody></table></div>
+
+    <h3>role 속성 — 주지 않는 것이 기본</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>속성</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">superuser</td><td>부여하지 않음</td><td>DB 서버 전체를 다루는 최고 권한 — 매우 위험하므로 앱 계정에는 주지 않는 것이 원칙</td></tr>
+    <tr><td class="nowrap">replication</td><td>복제(레플리카)를 구성할 때만 부여</td><td>이 속성이 있어야 원본 변경을 복제 서버로 동기화할 수 있음</td></tr>
+    <tr><td class="nowrap">createdb</td><td>DB 생성 권한도 불필요</td><td>앱 계정이 DB 를 마구 만들면 서버가 지저분해짐</td></tr>
+    <tr><td class="nowrap">기본값</td><td>로그인만 되는 기본 role</td><td>필요한 권한만 나중에 추가하는 최소 권한 방식(19장)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">DB 소유자는 이름이 아니라 <code>owner</code> 절이 정함 — mg DB 를 mg 가 소유하는 이유는 <code>owner mg</code>. superuser·createdb 는 주지 않는 것이 기본, replication 은 복제 구성 때만</div>
+
+    <ul class="facts"><li><strong>권한 체계 원리</strong><div>role·소유자·DB 권한의 구조: 이 파일 7장</div></li><li><strong>인증 설정</strong><div>원격 접속 허용과 <code>pg_hba.conf</code>: 이 파일 3장</div></li><li><strong>다음 단계</strong><div>인코딩 확인과 DB별 조회: 이 파일 15장</div></li><li><strong>권한 회수</strong><div><code>REVOKE</code> 로 DB·스키마·테이블 권한 빼기: 이 파일 19장</div></li></ul>
+  </section>
+  <!-- 15 -->
+  <section class="sec" id="pg-encoding">
+    <h2>인코딩 확인과 설정 시점</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 서버·클라이언트 인코딩을 먼저 확인</p><div class="dg-flow"><div class="dg-node"><h4>① show</h4><p class="sub">server · client</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② UTF8 확인</h4><p class="sub">둘 다 UTF8</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ DB별 조회</h4><p class="sub">pg_database</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 생성 전 지정</h4><p class="sub">create database 때</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ mb4 비교</h4><p class="sub">기본 UTF-8 = 4바이트</p></div></div><p class="dg-foot">인코딩은 DB 를 만들 때 정해지므로, 만들기 전에 확인하고 다른 문자셋이 필요하면 그때 지정</p></div>
+
+    <h3>확인 명령</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 서버가 저장에 쓰는 문자셋과 클라이언트가 주고받는 문자셋을 각각 확인. 세미콜론 필수</span>
+show server_encoding;
+show client_encoding;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td>server_encoding·client_encoding 둘 다 <b>UTF8</b></td><td>두 값이 다르면 한글·이모지가 깨질 수 있음</td></tr>
+    <tr><td class="nowrap">개념</td><td>인코딩(언어셋) = MySQL 의 캐릭터셋과 같은 개념</td><td>DB 가 문자를 저장·교환하는 방식(mysql.html 2장·11장)</td></tr>
+    <tr><td class="nowrap">실수 사례</td><td>세미콜론 누락 → 다음 줄 프롬프트가 <code>postgres-#</code>(연속 입력) → <code>ERROR: syntax error at or near "show"</code></td><td>에러는 앞 문장이 끝나지 않아 다음 문장이 이어 붙은 결과 — <code>;</code> 를 먼저 확인</td></tr>
+    <tr><td class="nowrap">권한</td><td><code>show</code> 는 조회 전용 값이라 일반 사용자 mg 도 실행 가능</td><td>postgres 전용 명령이 아님(<a href="https://www.postgresql.org/docs/current/sql-show.html">SHOW</a>)</td></tr>
+    <tr><td class="nowrap">mg 접속</td><td><code>\q</code> 로 나온 뒤 <code>psql -U mg</code></td><td>패스워드 오타 시 <code>password authentication failed</code></td></tr>
+    </tbody></table></div>
+
+    <h3>변경 시점</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">지정 시점</td><td>DB 를 만들기 <b>전</b>(<code>create database</code> 때)에 지정해 새로 만듦</td><td>인코딩은 DB 단위 속성이라 생성 시점에 정해짐</td></tr>
+    <tr><td class="nowrap">중간 변경</td><td>쓰던 DB 의 인코딩을 중간에 강제로 바꾸면 문제가 생길 수 있음</td><td>기존 문자가 잘못 해석되는 사고로 이어짐</td></tr>
+    <tr><td class="nowrap">대안</td><td>원하는 인코딩으로 새 DB 를 만들어 데이터를 옮기는 방식</td><td>운영 중 DB 는 이 방식으로 분리</td></tr>
+    </tbody></table></div>
+
+    <h3>DB별 인코딩 조회</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- pg_database 카탈로그의 인코딩 숫자를 이름으로 변환해 mg DB 값 확인</span>
+select pg_encoding_to_char(encoding) from pg_database where datname='mg';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td>UTF8</td><td>DB 목록 전체는 <code>\l</code> 의 Encoding 칸으로도 확인</td></tr>
+    <tr><td class="nowrap">실수 사례</td><td><code>from</code> 을 <code>form</code> 으로 오타 → syntax error</td><td><code>from</code>·<code>form</code> 은 눈으로 잘 넘어가는 대표 오타</td></tr>
+    <tr><td class="nowrap">\l 출력</td><td>Encoding·Collate·Ctype 칸이 함께 나옴</td><td>Collate·Ctype 는 정렬·비교 규칙 — 한글 정렬 확인 때 필요</td></tr>
+    </tbody></table></div>
+
+    <h3>MySQL utf8mb4와 비교</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">기본값</td><td>PostgreSQL 기본 UTF-8 이 mb4 범위(4바이트)를 포함</td><td>MySQL 처럼 <code>utf8mb4</code> 를 따로 지정할 필요 없음</td></tr>
+    <tr><td class="nowrap">변경 조건</td><td>EUC-KR 등 다른 문자셋을 쓸 때만 변경</td><td>기존 시스템과 맞춰야 하는 경우에만 손댐</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>MySQL 은 캐릭터셋·콜레이션을 DB·컬럼 단위로 지정</td><td>문자셋 설정 방식 차이: mysql.html 11장</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">인코딩은 DB 생성 시점에 정해짐 — 만든 뒤 중간 변경은 위험. PostgreSQL 기본 UTF-8 은 MySQL <code>utf8mb4</code> 와 같은 4바이트 범위라 별도 지정 불필요</div>
+
+    <ul class="facts"><li><strong>문자셋 설정</strong><div>MySQL 캐릭터셋·콜레이션과 오류 복구: mysql.html 11장</div></li><li><strong>DB 생성</strong><div><code>create database</code>·owner 지정: 이 파일 14장</div></li><li><strong>설정 파일</strong><div>컨테이너 <code>postgresql.conf</code> 설정·재시작 검증: 이 파일 13장</div></li><li><strong>다음 단계</strong><div>스키마 분리와 <code>search_path</code>: 이 파일 16장</div></li></ul>
+  </section>
+  <!-- 16 -->
+  <section class="sec" id="pg-search-path">
+    <h2>스키마와 search_path</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 테이블을 담을 스키마를 만들고 경로에 넣기</p><div class="dg-flow"><div class="dg-node"><h4>① public 기본</h4><p class="sub">누구나 쓰는 공용</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② create schema</h4><p class="sub">mg_schema</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ set</h4><p class="sub">세션용</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ alter user</h4><p class="sub">롤에 저장</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 스키마.테이블</h4><p class="sub">경로 밖은 이름 붙여 조회</p></div></div><p class="dg-foot">MySQL 에는 없는 구조 — PostgreSQL 은 DB 안에 스키마가 한 겹 더 있고, 테이블 이름을 스키마명 없이 쓰려면 검색 경로에 넣어야 함</p></div>
+
+    <h3>스키마 생성</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 기본 public 은 모든 role 이 쓰는 공용 공간이라 업무용 테이블은 별도 스키마로 분리</span>
+create schema mg_schema;
+<span class="c">-- 스키마 목록 확인: mg_schema(owner mg), public(owner postgres)</span>
+\dn</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">public 의 성격</td><td>기본 스키마 <code>public</code> 은 열려 있는 상태</td><td>보안상 업무 테이블은 별도 스키마에 두고 권한을 따로 관리(19장)</td></tr>
+    <tr><td class="nowrap">정상 결과</td><td><code>\dn</code> 에 <code>mg_schema</code>(owner mg)와 <code>public</code>(owner postgres)</td><td>소유자가 생성한 role 인지 함께 확인</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>MySQL 은 DB 안에 스키마 계층이 없음</td><td>PostgreSQL 은 DB → 스키마 → 테이블 3단계라 이름 해석 규칙이 하나 더 있음</td></tr>
+    </tbody></table></div>
+
+    <h3>검색 경로(search_path)</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 현재 세션에만 적용 — 접속을 끊으면 사라지는 임시 설정</span>
+set search_path to mg_schema, public;
+<span class="c">-- 롤에 저장해 다시 접속해도 유지 (ALTER ROLE 의 다른 이름)</span>
+alter user mg set search_path to mg_schema, public;
+<span class="c">-- 설정 후 스키마 목록이 정상 표시되는지 확인</span>
+\dn</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">기본 경로</td><td>기본 <code>search_path</code> 는 <code>"$user", public</code></td><td>새로 만든 mg_schema 는 경로에 아예 없음 — 우선순위가 낮은 것이 아니라 <b>없는</b> 상태(<a href="https://www.postgresql.org/docs/current/ddl-schemas.html">Schemas</a>)</td></tr>
+    <tr><td class="nowrap">경로에 추가</td><td>조회할 스키마를 경로에 넣어야 스키마명 없이 테이블 이름 사용</td><td><code>"$user"</code> 는 사용자 이름과 같은 스키마를 찾는 자리 — mg 로 접속하면 mg 스키마를 먼저 봄</td></tr>
+    <tr><td class="nowrap">set 과 alter</td><td><code>set</code> 은 세션용, <code>alter user ... set search_path</code> 는 롤에 저장</td><td><code>alter user</code> 설정은 컨테이너를 껐다 켜도 유지(<a href="https://www.postgresql.org/docs/current/sql-set.html">SET</a>)</td></tr>
+    <tr><td class="nowrap">초기화 원인</td><td><code>set</code> 의 효과는 세션이 끝나면 사라짐</td><td>컨테이너 재시작 때문이 아니라 <code>\q</code>·재접속으로 세션이 끊긴 결과</td></tr>
+    <tr><td class="nowrap">적용 범위</td><td>도커 컨테이너인지와 무관하게 세션·롤 설정 규칙을 따름</td><td>온프레미스와 결과가 갈리는 것은 이 규칙이 아니라 접속 계정·세션 상태 차이</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">새 스키마는 기본 경로(<code>"$user", public</code>)에 없음 — <code>set</code> 은 세션용, <code>alter user ... set search_path</code> 는 롤에 저장. 초기화 원인은 컨테이너 재시작이 아니라 세션 종료</div>
+
+    <ul class="facts"><li><strong>스키마와 public</strong><div>스키마 구조·public 권한의 원리: 이 파일 8장</div></li><li><strong>스키마 권한</strong><div>스키마 단위 grant·revoke: 이 파일 19장</div></li><li><strong>DBeaver 우선 스키마</strong><div>접속 후 스키마가 public 으로 잡히는지 확인: 이 파일 17장</div></li><li><strong>연결 시 경로 지정</strong><div>psycopg2 <code>options</code> 의 <code>-c search_path</code>: pyspark.html 23장</div></li></ul>
+  </section>
+  <!-- 17 -->
+  <section class="sec" id="pg-dbeaver-load">
+    <h2>DBeaver 연결과 테이블 적재</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 연결 → CSV 적재 → 컬럼명 정리</p><div class="dg-flow"><div class="dg-node"><h4>① 새 연결</h4><p class="sub">PostgreSQL</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 접속 정보</h4><p class="sub">5432 · mg</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ Test Connection</h4><p class="sub">성공 확인</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 데이터 가져오기</h4><p class="sub">CSV · utf-8</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 컬럼명 정리</h4><p class="sub">11개 · money int4</p></div></div><p class="dg-foot">MariaDB 때와 같은 DBeaver 절차 — 다른 점은 포트 5432 와 우선 스키마(mg_schema) 확인</p></div>
+
+    <h3>연결 설정</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>설정</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>새 연결 → PostgreSQL → Next</td><td>DB 종류를 먼저 고르면 포트 기본값(5432)이 자동 입력</td></tr>
+    <tr><td class="nowrap">2</td><td>Host <code>192.168.222.5</code>, Port <code>5432</code>, Database <code>mg</code>, 사용자 <code>mg</code> / 비밀번호 <code>a1234</code></td><td>5432 는 공식 포트라 변경 불필요 — 호스트에서 다른 프로세스가 쓰는지만 확인(spark.html 20장)</td></tr>
+    <tr><td class="nowrap">3</td><td><b>Test Connection</b> 성공 확인 → 완료</td><td>연결 항목(RDS·GCP 같은 클라우드에서 쓰는 값)은 이 화면 구조를 알아 두면 그대로 대응</td></tr>
+    <tr><td class="nowrap">4</td><td>연결 후 열린 창은 닫고 DB(mg) 더블클릭 → <b>우선 스키마</b> 확인</td><td>public 으로 잡히면 안 됨 — mg_schema 가 우선이어야 테이블이 바로 보임(16장)</td></tr>
+    </tbody></table></div>
+
+    <h3>CSV 가져오기 — travel_payment</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>동작</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>스키마(mg_schema) 또는 DB 에서 마우스 오른쪽 → <b>데이터 가져오기</b></td><td>가져올 위치를 스키마로 잡으면 테이블이 그 스키마에 생성</td></tr>
+    <tr><td class="nowrap">2</td><td>소스 : 이전 강의의 <code>travel_payment</code> CSV(CSV 형식, 인코딩 utf-8)</td><td>인코딩을 utf-8 로 맞추지 않으면 한글 고객명·상품명이 깨짐</td></tr>
+    <tr><td class="nowrap">3</td><td>테이블 매핑 확인 → 다음 → 진행</td><td>컬럼 매핑 화면에서 타입이 자동 추정되므로 뒤에서 이름·타입을 정리</td></tr>
+    <tr><td class="nowrap">4</td><td><code>travel_payment</code> 더블클릭 → 데이터 탭에서 데이터 확인</td><td>행 수와 금액 컬럼이 보이면 적재 성공(mysql.html 25장)</td></tr>
+    </tbody></table></div>
+
+    <h3>컬럼명 변경 — 영문 단순화</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>번호</th><th>의미</th><th>변경 컬럼명</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>결제번호</td><td><code>pycode</code></td></tr>
+    <tr><td class="nowrap">2</td><td>결제일시</td><td><code>date</code></td></tr>
+    <tr><td class="nowrap">3</td><td>고객명</td><td><code>custormer</code> (오타 그대로 사용)</td></tr>
+    <tr><td class="nowrap">4</td><td>고객 ID</td><td><code>id</code></td></tr>
+    <tr><td class="nowrap">5</td><td>상품명</td><td><code>product</code></td></tr>
+    <tr><td class="nowrap">6</td><td>상품 유형</td><td><code>product_type</code></td></tr>
+    <tr><td class="nowrap">7</td><td>여행지</td><td><code>travel</code></td></tr>
+    <tr><td class="nowrap">8</td><td>결제금액</td><td><code>money</code>(<code>int4</code>)</td></tr>
+    <tr><td class="nowrap">9</td><td>결제수단</td><td><code>paytype</code></td></tr>
+    <tr><td class="nowrap">10</td><td>결제사</td><td><code>cardcorp</code></td></tr>
+    <tr><td class="nowrap">11</td><td>결제 상태</td><td><code>paystate</code></td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">타입</td><td>나머지 컬럼은 <code>varchar(50)</code>, <code>money</code> 만 <code>int4</code></td><td>금액을 문자로 두면 <code>sum</code>·비교가 되지 않음</td></tr>
+    <tr><td class="nowrap">이름 규칙</td><td>언더바(<code>product_type</code>) 사용을 권장</td><td>단어 경계가 보여 이후 쿼리에서 컬럼명 오타가 줄어듦</td></tr>
+    <tr><td class="nowrap">변경 범위</td><td>컬럼명은 가능하면 적게 바꾸는 쪽이 편함</td><td>이미 작성된 쿼리·API 코드가 함께 깨지기 때문</td></tr>
+    <tr><td class="nowrap">저장</td><td>변경 후 <b>저장</b></td><td>저장하지 않으면 테이블 정의가 그대로 남음</td></tr>
+    </tbody></table></div>
+
+    <h3>권한 탭 확인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">Execute 권한</td><td>함수·프로시저를 실행할 수 있는 권한</td><td>테이블 권한이 아님 — 테이블을 조회하려면 <code>SELECT</code> 권한이 필요(<a href="https://www.postgresql.org/docs/current/ddl-priv.html">GRANT</a>)</td></tr>
+    <tr><td class="nowrap">데이터 핸들링</td><td>권한이 있어야 스파크·파이썬이 이 테이블을 읽고 쓸 수 있음</td><td>권한이 없으면 <code>permission denied for table travel_payment</code></td></tr>
+    <tr><td class="nowrap">회수·재부여</td><td>권한을 빼고 다시 주는 절차는 REVOKE 장에서</td><td>DB·스키마·테이블 단위 회수: 이 파일 19장</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">권한 탭의 <code>Execute</code> 는 함수·프로시저 실행 권한 — 테이블 조회는 <code>SELECT</code> 권한. 적재 뒤에는 우선 스키마가 mg_schema 인지, <code>money</code> 가 <code>int4</code> 인지 확인</div>
+
+    <ul class="facts"><li><strong>DBeaver 원격 접속</strong><div>연결 화면·인증 설정의 원리: 이 파일 10장</div></li><li><strong>travel_payment 표</strong><div>MySQL 판 컬럼·문제 풀이: mysql.html 25장</div></li><li><strong>스키마 경로</strong><div>mg_schema 를 경로에 넣는 설정: 이 파일 16장</div></li><li><strong>다음 단계</strong><div>적재한 표를 PostgreSQL 문법으로 조회: 이 파일 18장</div></li></ul>
+  </section>
+  <!-- 18 -->
+  <section class="sec" id="pg-select-syntax">
+    <h2>PostgreSQL SELECT 문법 — MySQL과 다른 지점</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 같은 표를 다른 문법으로 조회</p><div class="dg-flow"><div class="dg-node"><h4>① like·ilike</h4><p class="sub">대소문자</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② limit offset</h4><p class="sub">쉼표 없음</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ concat</h4><p class="sub">컬럼 합치기</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ concat_ws</h4><p class="sub">구분자 삽입</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ replace</h4><p class="sub">변경·삭제</p></div></div><p class="dg-foot">where·and·or·group by·order by 는 MySQL 과 거의 같고, 문자열 비교·행 제한·문자열 함수에서 차이가 갈림</p></div>
+
+    <h3>공통점과 실습 위치</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">그대로 쓰는 문법</td><td><code>where</code> 의 <code>and</code>·<code>or</code>, <code>group by</code>, <code>order by</code></td><td>MariaDB 에서 맞춘 쿼리는 이 절들이 그대로 동작(mysql.html 26장)</td></tr>
+    <tr><td class="nowrap">차이</td><td>DB 마다 문법이 조금씩 다름(오라클도 다름)</td><td>차이를 외워야 데이터 추출·분석이 가능</td></tr>
+    <tr><td class="nowrap">실습 위치</td><td>DBeaver 의 SQL 스크립트 편집기</td><td>결과를 눈으로 보며 한 줄씩 확인(mysql.html 26장)</td></tr>
+    </tbody></table></div>
+
+    <h3>LIKE와 ILIKE — 대소문자 구분</h3>
+    <div class="code"><pre><code><span class="c">-- [윈도우 · DBeaver SQL 스크립트 편집기 · mg]</span>
+<span class="c">-- id 값은 이메일(user_번호@...) 형태 — like 는 대소문자를 구분</span>
+select * from travel_payment where id like 'user_467%';     <span class="c">-- 조회됨</span>
+select * from travel_payment where id like 'User_467%';     <span class="c">-- 대문자 U → 안 찾아짐</span>
+<span class="c">-- ilike 는 대소문자 구분 없이 비교 — PostgreSQL 전용 문법</span>
+select * from travel_payment where id ilike 'User_467%';    <span class="c">-- 찾아짐</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>MySQL·MariaDB</th><th>PostgreSQL</th></tr></thead><tbody>
+    <tr><td class="nowrap">기본 like</td><td>대소문자 구분 없이 조회</td><td>대소문자 구분</td></tr>
+    <tr><td class="nowrap">대소문자 무시</td><td>따로 필요 없음</td><td><code>ilike</code></td></tr>
+    <tr><td class="nowrap">ilike 지원</td><td>없음</td><td>있음 — PostgreSQL 전용(<a href="https://www.postgresql.org/docs/current/functions-matching.html">Pattern Matching</a>)</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">검색 권장</td><td>값에 대문자가 섞일 수 있으므로 <code>ilike</code> 가 가장 안정적</td><td><code>like</code> 로 쓰면 소문자만 맞아 결과가 조용히 비어 버림</td></tr>
+    <tr><td class="nowrap">% 위치</td><td>앞뒤 <code>%</code> 의 의미는 MySQL 과 같음</td><td>앞에 붙이면 포함, 뒤에만 붙이면 시작 일치(mysql.html 24장)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">PostgreSQL 의 <code>like</code> 는 대소문자 구분 — 대문자가 섞이는 값은 <code>ilike</code>. <code>ilike</code> 는 MySQL·MariaDB 에 없는 PostgreSQL 전용 문법</div>
+
+    <h3>LIMIT과 OFFSET — 쉼표 없음</h3>
+    <div class="code"><pre><code><span class="c">-- [윈도우 · DBeaver SQL 스크립트 편집기 · mg]</span>
+<span class="c">-- limit 개수 offset 건너뛸 행 수 — MySQL 의 limit 시작,개수 와 순서·형식이 다름</span>
+select * from travel_payment limit 10 offset 0;    <span class="c">-- 처음 10개 (최지훈 님~황수아 님)</span>
+select * from travel_payment limit 10 offset 10;   <span class="c">-- 11번째(장상헌 님)부터 10개</span>
+select * from travel_payment limit 20 offset 10;   <span class="c">-- 11번째부터 20개</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">문법</td><td><code>limit 개수 offset 건너뛸 행 수</code> — 쉼표 없음</td><td>MySQL 식 <code>limit 0,10</code>(시작,개수)은 PostgreSQL 에서 <b>쉼표 문법 오류</b></td></tr>
+    <tr><td class="nowrap">Spark 쪽</td><td>Spark SQL 도 콤마형 limit 을 인식하지 못함</td><td>같은 실수를 Spark 에서 반복하기 쉬움(mysql.html 23장·pyspark.html 22장)</td></tr>
+    <tr><td class="nowrap">용도</td><td>페이지 나누기·상위 N개 확인</td><td>정렬이 없으면 행 순서가 보장되지 않음 — 상위 N개는 <code>order by</code> 와 함께</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn"><code>limit 개수 offset 건너뛸 행 수</code> — PostgreSQL·Spark SQL 모두 콤마형 <code>limit 0,10</code> 은 문법 오류. 개수 제한은 콤마 없이</div>
+
+    <h3>CONCAT — 컬럼 합치기</h3>
+    <div class="code"><pre><code><span class="c">-- [윈도우 · DBeaver SQL 스크립트 편집기 · mg]</span>
+<span class="c">-- 두 컬럼 값을 합쳐 한 컬럼으로 출력. as 는 결과 컬럼 별칭</span>
+select concat(custormer, id) from travel_payment;
+select concat(custormer, id) as nm from travel_payment;
+<span class="c">-- concat 안에는 문자열도 넣을 수 있음 — 아이디와 @도메인을 나눠 둔 경우</span>
+select concat(id, '@example.com') from travel_payment;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td><code>user_754@example.com</code> 형태로 두 값이 붙어 출력</td><td>컬럼 별칭을 주지 않으면 결과 헤더가 <code>concat</code> 으로 나옴</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>MySQL 에도 같은 함수가 있음</td><td>양쪽 DB 에서 같은 이름으로 쓸 수 있는 대표 함수</td></tr>
+    <tr><td class="nowrap">쓰는 경우</td><td>개발자마다 컬럼 설계가 달라 나눠 저장된 값을 한 번에 보거나, 합친 값으로 <code>like</code> 검색할 때</td><td>주소(우편번호·도로명·상세주소), 전화번호(국가번호·지역번호·앞자리·뒷자리(<code>tel</code>)), 이메일(아이디·<code>@도메인</code>)</td></tr>
+    <tr><td class="nowrap">전화번호 설계</td><td>지역번호를 따로 두면 지역을 그 값으로 찾을 수 있어 나누기도 함</td><td>문자 발송·분석 때는 한 번에 봐야 하므로 <code>concat</code> 으로 합침</td></tr>
+    <tr><td class="nowrap">주석 기호</td><td>PostgreSQL <code>--</code>, MySQL <code>#</code></td><td>같은 파일을 두 DB 에 붙여 넣을 때 주석이 에러가 되는 지점</td></tr>
+    <tr><td class="nowrap">pycode</td><td>결제코드는 화면 예시용</td><td>값 자체를 외우지 말고 함수 쓰임으로 기억</td></tr>
+    </tbody></table></div>
+
+    <h3>CONCAT에 문자 붙이기</h3>
+    <div class="code"><pre><code><span class="c">-- [윈도우 · DBeaver SQL 스크립트 편집기 · mg]</span>
+<span class="c">-- 첫 인자로 준 문자열이 값 앞에 붙음</span>
+select concat('-', pycode) from travel_payment;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td><code>PAY-2026-00001</code> 앞에 <code>-</code> 가 붙어 출력</td><td>문자열 인자도 컬럼과 같은 방식으로 합쳐짐</td></tr>
+    <tr><td class="nowrap">실무 사례</td><td>전화번호를 <code>010-2345-6789</code> 처럼 하이픈 포함해 저장하면 SMS 가 숫자로 발송되지 않음</td><td>문자로 인식돼 휴대폰 번호 오류로 발송 실패 — 하이픈을 빼야 함(<code>replace</code>)</td></tr>
+    </tbody></table></div>
+
+    <h3>CONCAT_WS — 값 사이에 구분자</h3>
+    <div class="code"><pre><code><span class="c">-- [윈도우 · DBeaver SQL 스크립트 편집기 · mg]</span>
+<span class="c">-- 첫 인자가 구분자 — 값과 값 사이에 들어감 (앞에 붙는 concat('-', ...) 과 결과가 완전히 다름)</span>
+select concat_ws('-', custormer, id) as nm from travel_payment;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td>고객명과 id 사이에 <code>-</code> 가 들어가 출력</td><td>값이 3개면 구분자가 2번 들어감</td></tr>
+    <tr><td class="nowrap">첫 인자</td><td>구분자(separator) 문자열</td><td><code>_ws</code> 는 구분자를 넣는 함수라는 표시 — word space 전용이 아님(<a href="https://www.postgresql.org/docs/current/functions-string.html">String Functions</a>)</td></tr>
+    <tr><td class="nowrap">NULL 처리</td><td>NULL 인자는 건너뛰고 나머지를 구분자로 연결</td><td>값이 비어 있을 때 구분자가 겹쳐 보이는 문제를 피함</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>컬럼명을 넣는 방식은 MySQL 과 동일</td><td>함수 이름·인자 순서도 같음</td></tr>
+    </tbody></table></div>
+
+    <h3>REPLACE — 단어 변경·삭제</h3>
+    <div class="code"><pre><code><span class="c">-- [윈도우 · DBeaver SQL 스크립트 편집기 · mg]</span>
+<span class="c">-- replace(컬럼, 찾을 단어, 바꿀 단어) — 세 번째 인자가 빈 문자열이면 삭제</span>
+select replace(pycode, '-', '') from travel_payment;    <span class="c">-- PAY-2026-00001 → PAY202600001</span>
+select replace(pycode, '-', '/') from travel_payment;   <span class="c">-- 하이픈을 슬래시로 변경</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">두 기능</td><td>바꿀 단어가 <code>''</code> 이면 삭제, 다른 문자면 변경</td><td>함수 하나로 지우기·치환을 모두 처리</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>MySQL 에도 같은 함수가 있음</td><td>DB 이동 시 그대로 사용 가능</td></tr>
+    <tr><td class="nowrap">주의</td><td>SELECT 안에서 쓰면 결과만 바뀌고 저장 값은 그대로</td><td>값을 실제로 고치려면 <code>update</code> — 조회와 갱신을 구분</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn"><code>concat</code> 은 값 앞에, <code>concat_ws</code> 는 값 사이에 구분자를 넣음 — 결과가 완전히 다름. <code>replace</code> 의 세 번째 인자가 <code>''</code> 이면 삭제</div>
+
+    <ul class="facts"><li><strong>LIMIT 함정</strong><div>적용 위치·빈 결과·집계와의 조합: mysql.html 23장</div></li><li><strong>LIKE <code>%</code> 위치</strong><div>앞뒤 <code>%</code> 별 결과 차이: mysql.html 24장</div></li><li><strong>표 구조</strong><div><code>travel_payment</code> 컬럼·값: mysql.html 25장·이 파일 17장</div></li><li><strong>MySQL 문법</strong><div><code>select</code>·집계·<code>group by</code> 기본: mysql.html 2장</div></li></ul>
+  </section>
+  <!-- 19 -->
+  <section class="sec" id="pg-revoke">
+    <h2>권한 회수(REVOKE)와 접속 전환</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 준 권한을 단계별로 회수하고 확인</p><div class="dg-flow"><div class="dg-node"><h4>① DB 권한</h4><p class="sub">revoke … from mg</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 접속 차단</h4><p class="sub">connect from public</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 스키마</h4><p class="sub">on schema</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 테이블</h4><p class="sub">all tables in schema</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ \c 전환</h4><p class="sub">DB·사용자 지정</p></div></div><p class="dg-foot">grant 의 반대 방향 — 회수는 <code>from</code>, 부여는 <code>to</code>. 범위는 테이블 &lt; 스키마 &lt; DB 순서로 넓어짐</p></div>
+
+    <h3>DB 권한 — GRANT ↔ REVOKE</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 준 권한을 회수 — grant 의 반대, 대상은 to 가 아니라 from</span>
+revoke all privileges on database mg from mg;
+<span class="c">-- 다시 부여 — 순서는 on 데이터베이스명 to 사용자명</span>
+grant all privileges on database mg to mg;
+<span class="c">-- Access privileges 칸의 변화 확인</span>
+\l
+<span class="c">-- 접속 자체를 막으려면 CONNECT 권한을 PUBLIC 에서도 회수해야 함</span>
+revoke connect on database mg from public;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">방향</td><td>GRANT 는 <code>to 사용자</code>, REVOKE 는 <b><code>from 사용자</code></b></td><td>방향을 틀리면 문법 오류 — 순서는 대상(DB명) → 사용자명</td></tr>
+    <tr><td class="nowrap">확인</td><td><code>\l</code> 의 Access privileges 칸 변화</td><td>변경 전후를 함께 보고 권한이 실제로 바뀌었는지 비교</td></tr>
+    <tr><td class="nowrap">접속 차단</td><td>DB 의 CONNECT 권한은 기본으로 PUBLIC(모든 롤)에도 있음</td><td>mg 에서만 회수하면 접속이 계속될 수 있음 → <code>revoke connect on database mg from public;</code> 까지 필요(<a href="https://www.postgresql.org/docs/current/ddl-priv.html">GRANT</a>)</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>MySQL 도 revoke·grant 구조는 같음</td><td>권한 테이블·호스트 단위 구분이 추가로 있는 차이(mysql.html 5장)</td></tr>
+    </tbody></table></div>
+
+    <h3>스키마 권한</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 스키마 단위로 부여</span>
+grant all privileges on schema mg_schema to mg;
+<span class="c">-- 회수하면 그 스키마 안의 객체를 사용할 수 없음</span>
+revoke all privileges on schema mg_schema from mg;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">범위</td><td>스키마가 여러 개면 스키마별로 부여·회수</td><td>업무 영역별 스키마를 나누면 권한을 그 단위로 통제(16장)</td></tr>
+    <tr><td class="nowrap">USAGE</td><td>스키마를 쓰려면 <code>USAGE</code>, 객체를 만들려면 <code>CREATE</code></td><td><code>all privileges</code> 는 둘을 함께 준 상태</td></tr>
+    </tbody></table></div>
+
+    <h3>테이블 권한</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 스키마 안 모든 테이블의 권한을 한 번에 회수</span>
+revoke all privileges on all tables in schema mg_schema from mg;
+<span class="c">-- 특정 테이블만 회수할 때는 테이블 이름을 지정</span>
+revoke all privileges on travel_payment from mg;</code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td>회수 뒤 데이터 수정 등 아무것도 못 함</td><td><code>select</code> 조회도 <code>SELECT</code> 권한이 있어야 가능</td></tr>
+    <tr><td class="nowrap">권한 범위</td><td>테이블 &lt; 스키마 &lt; 데이터베이스</td><td>어느 단위로도 REVOKE 가능 — 이 권한 체계가 PostgreSQL 운영의 핵심</td></tr>
+    <tr><td class="nowrap">root 권한</td><td>postgres 는 최고 권한 role</td><td>postgres 의 권한을 빼앗기면 DB 를 관리할 수 없는 큰 문제 — root 계정은 회수 대상에서 제외</td></tr>
+    <tr><td class="nowrap">일반 사용자</td><td>권한이 없으면 다른 DB·스키마의 테이블을 볼 수 없음</td><td>PostgreSQL 은 사용자가 권한을 직접 핸들링하는 DB — 부여를 빠뜨리면 <code>permission denied</code></td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">권한 회수는 <code>from</code> — DB 권한만 빼도 접속은 계속될 수 있으니 CONNECT 를 PUBLIC 에서도 회수. 범위는 테이블 &lt; 스키마 &lt; DB, root 계정은 회수 대상 아님</div>
+
+    <h3>접속 전환 — \c</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 사용자를 생략하면 현재 사용자(postgres)로 DB 만 전환</span>
+\c mg
+<span class="c">-- postgres 는 public 기준이라 mg_schema 테이블이 보이지 않음</span>
+\dt
+<span class="c">-- 사용자까지 지정 — 해당 사용자 패스워드 입력 후 접속</span>
+\c mg mg
+<span class="c">-- psql 완전 종료 (세션 종료)</span>
+\q</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">\c mg 결과</td><td><code>You are now connected to database "mg" as user "postgres"</code></td><td>사용자 표기가 postgres 인지 확인 — 권한이 다른 계정과 헷갈리기 쉬움</td></tr>
+    <tr><td class="nowrap">\dt 결과</td><td><code>Did not find any relations</code></td><td>postgres 의 검색 경로가 public 기준이라 mg_schema 테이블이 안 보임(16장)</td></tr>
+    <tr><td class="nowrap">패스워드</td><td><code>\c mg mg</code> 는 해당 사용자 패스워드 입력 필요</td><td>모르면 postgres 로 접속해 처리</td></tr>
+    <tr><td class="nowrap">백업 단위</td><td>DB 전체가 아니라 특정 테이블 단위로 들어가 처리하는 경우가 있음</td><td>백업·복구 시연은 없음 — 절차는 이 파일 9장</td></tr>
+    </tbody></table></div>
+
+    <h3>root로 mg 스키마 확인 — 임시 설정</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- alter user 는 롤에 저장돼 다른 사용자 설정까지 바뀌므로, 확인용은 set 으로</span>
+set search_path to mg_schema, public;
+<span class="c">-- 경로에 있으면 스키마명 생략 가능</span>
+select * from travel_payment;
+<span class="c">-- 경로에 없으면 스키마명.테이블명 (Tab 자동완성)</span>
+select * from mg_schema.travel_payment;
+<span class="c">-- 설정 후에는 스키마·테이블·권한 목록이 함께 보임</span>
+\dn
+\dt
+\dp</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">set vs alter</td><td>root 확인은 <code>set</code></td><td><code>alter user ... set search_path</code> 는 영구 변경이라 일반 사용자가 쓰던 설정이 바뀜(16장)</td></tr>
+    <tr><td class="nowrap">스키마 분리</td><td>스키마를 따로 만들면 경로를 잡아야 테이블이 보임</td><td>public 만 쓰는 경우·MySQL 과 다른 구조(17장)</td></tr>
+    <tr><td class="nowrap">\dp</td><td>스키마·테이블 권한(Access privileges) 목록</td><td>스키마별 테이블도 함께 표시</td></tr>
+    <tr><td class="nowrap">소유자</td><td>객체의 소유자는 한 명의 롤, <code>ALTER ... OWNER TO</code> 로 변경</td><td>소유자를 여러 명 둘 수 없음(<a href="https://www.postgresql.org/docs/current/sql-altertable.html">ALTER TABLE</a>)</td></tr>
+    <tr><td class="nowrap">root 접근</td><td>소유자가 mg 여도 postgres 는 접근 가능</td><td>최고 권한 role 이라 소유자와 무관하게 조회·수정 가능</td></tr>
+    <tr><td class="nowrap">빈 Access privileges</td><td>기본 권한(소유자 전권) 상태라는 표시</td><td>DB 소유만으로 그 안의 모든 객체가 자동으로 자기 것이 되는 것은 아님(<a href="https://www.postgresql.org/docs/current/ddl-priv.html">GRANT</a>)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn"><code>\dp</code> 의 Access privileges 가 빈 칸은 기본 권한(소유자 전권) 상태 — DB 소유와 스키마·테이블 소유는 별개. 객체 소유자는 한 명의 롤</div>
+
+    <ul class="facts"><li><strong>권한 원리</strong><div>role·소유자·ACL 구조: 이 파일 7장</div></li><li><strong>스키마 경로</strong><div><code>set</code>·<code>alter user</code> 차이: 이 파일 16장</div></li><li><strong>psql 메타 명령</strong><div><code>\c</code>·<code>\dt</code>·<code>\dp</code> 사용법: 이 파일 6장</div></li><li><strong>다음 단계</strong><div>파이썬에서 이 DB 에 붙는 드라이버: spark.html 22장</div></li></ul>
+  </section>
+  <!-- 20 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -1797,7 +2166,38 @@ log_rotation_size = 10MB
           <tr><td><code>docker cp postgresql.conf rds_psql:/var/lib/postgresql/data/</code></td><td>수정본을 PGDATA로 되돌림</td></tr>
           <tr><td><code>docker restart rds_psql</code> / <code>docker ps -a</code> / <code>docker logs rds_psql</code></td><td>설정 반영 / 기동 상태 / 실패 원인 확인</td></tr>
           <tr><td><code>docker stop rds_psql</code></td><td>실습 컨테이너를 지우지 않고 보존</td></tr>
-    </tbody>
+    <tr class="group"><th colspan="2" scope="colgroup">컨테이너 사용자·DB·권한 (14장)</th></tr>
+          <tr><td><code>create user mg with encrypted password 'a1234';</code></td><td>role 먼저 생성 — Tab 자동완성. superuser·createdb 는 주지 않고, replication 은 복제 구성 때만</td></tr>
+          <tr><td><code>create database mg owner mg;</code></td><td>소유자는 <code>owner</code> 절이 결정 — DB 이름과 같게 만들 필요 없음</td></tr>
+          <tr><td><code>grant all privileges on database mg to mg;</code></td><td>DB 범위 부여 — 안쪽 스키마·테이블 권한은 따로(19장). <code>\l</code> Owner 칸 확인</td></tr>
+<tr class="group"><th colspan="2" scope="colgroup">컨테이너 인코딩 (15장)</th></tr>
+          <tr><td><code>show server_encoding;</code> / <code>show client_encoding;</code></td><td>둘 다 UTF8. <code>;</code> 누락 시 프롬프트가 <code>postgres-#</code> 로 바뀌고 <code>ERROR: syntax error at or near "show"</code></td></tr>
+          <tr><td><code>select pg_encoding_to_char(encoding) from pg_database where datname='mg';</code></td><td>DB별 인코딩 조회 — <code>from</code> 을 <code>form</code> 으로 쓰면 syntax error</td></tr>
+          <tr><td>인코딩 지정</td><td>DB 생성 <b>전</b>에 지정, 중간 변경은 위험. 기본 UTF-8 이 MySQL <code>utf8mb4</code> 범위라 별도 설정 불필요</td></tr>
+<tr class="group"><th colspan="2" scope="colgroup">컨테이너 스키마·search_path (16장)</th></tr>
+          <tr><td><code>create schema mg_schema;</code> → <code>\dn</code></td><td>public 은 공용이라 업무용은 별도 스키마 — <code>mg_schema</code>(owner mg)·<code>public</code>(owner postgres)</td></tr>
+          <tr><td><code>set search_path to mg_schema, public;</code></td><td>현재 세션에만 적용 — 접속을 끊으면 사라짐(컨테이너 재시작 때문이 아님)</td></tr>
+          <tr><td><code>alter user mg set search_path to mg_schema, public;</code></td><td>롤에 저장되는 영구 설정(ALTER ROLE) — 기본 경로 <code>"$user", public</code> 에는 mg_schema 가 없음</td></tr>
+<tr class="group"><th colspan="2" scope="colgroup">DBeaver 적재·컬럼명 (17장)</th></tr>
+          <tr><td>새 연결 → PostgreSQL → Host <code>192.168.222.5</code> · Port <code>5432</code> · Database <code>mg</code> · <code>mg</code>/<code>a1234</code> → Test Connection</td><td>공식 포트라 변경 불필요. 연결 후 DB 더블클릭해 <b>우선 스키마</b>가 public 이 아닌지 확인</td></tr>
+          <tr><td>스키마 우클릭 → 데이터 가져오기 → CSV(utf-8) → 테이블 매핑</td><td><code>travel_payment</code> 적재 — 인코딩이 utf-8 이 아니면 한글 값이 깨짐</td></tr>
+          <tr><td>컬럼명 11개</td><td><code>pycode</code>·<code>date</code>·<code>custormer</code>(오타 유지)·<code>id</code>·<code>product</code>·<code>product_type</code>·<code>travel</code>·<code>money</code>(<code>int4</code>)·<code>paytype</code>·<code>cardcorp</code>·<code>paystate</code>, 나머지 <code>varchar(50)</code></td></tr>
+          <tr><td>권한 탭 <code>Execute</code></td><td>함수·프로시저 실행 권한 — 테이블 조회는 <code>SELECT</code> 권한</td></tr>
+<tr class="group"><th colspan="2" scope="colgroup">SELECT 문법 차이 (18장)</th></tr>
+          <tr><td><code>where id like 'user_467%'</code> / <code>like 'User_467%'</code> / <code>ilike 'User_467%'</code></td><td>PostgreSQL <code>like</code> 는 대소문자 구분 → <code>ilike</code>. <code>ilike</code> 는 MySQL·MariaDB 에 없음</td></tr>
+          <tr><td><code>limit 10 offset 10</code> / <code>limit 20 offset 10</code></td><td><code>limit 개수 offset 건너뛸 행 수</code> — MySQL 식 <code>limit 0,10</code> 은 문법 오류(Spark SQL 도 동일)</td></tr>
+          <tr><td><code>concat(custormer, id) as nm</code> / <code>concat('-', pycode)</code></td><td>값을 붙여 출력, 문자열 인자도 가능. 전화번호 하이픈은 SMS 발송 실패 원인 → <code>replace</code> 로 제거</td></tr>
+          <tr><td><code>concat_ws('-', custormer, id) as nm</code></td><td>첫 인자가 구분자로 값 <b>사이</b>에 들어감, NULL 인자는 무시 — <code>concat('-', …)</code> 와 결과가 다름</td></tr>
+          <tr><td><code>replace(pycode, '-', '')</code> / <code>replace(pycode, '-', '/')</code></td><td>세 번째 인자가 <code>''</code> 이면 삭제, 다른 문자면 치환. 주석은 <code>--</code>(MySQL <code>#</code>)</td></tr>
+<tr class="group"><th colspan="2" scope="colgroup">REVOKE·접속 전환 (19장)</th></tr>
+          <tr><td><code>revoke all privileges on database mg from mg;</code> / <code>grant all privileges on database mg to mg;</code></td><td>REVOKE 는 <code>from</code> — 회수 후 <code>\l</code> 로 확인. DB 소유만으로 안쪽 객체가 자기 것이 되지는 않음</td></tr>
+          <tr><td><code>revoke connect on database mg from public;</code></td><td>CONNECT 는 기본으로 PUBLIC 에도 있어 mg 에서만 회수하면 접속이 유지됨</td></tr>
+          <tr><td><code>grant/revoke all privileges on schema mg_schema to/from mg;</code></td><td>스키마 단위 부여·회수 — 스키마가 여러 개면 스키마별로</td></tr>
+          <tr><td><code>revoke all privileges on all tables in schema mg_schema from mg;</code></td><td>테이블 권한 일괄 회수 — 범위는 테이블 &lt; 스키마 &lt; DB, root 는 대상 아님</td></tr>
+          <tr><td><code>\c mg</code> / <code>\c mg mg</code> / <code>\q</code></td><td>사용자 생략 시 현재 사용자, 사용자 지정 시 패스워드 입력. <code>\dt</code> 는 <code>Did not find any relations</code></td></tr>
+          <tr><td><code>set search_path to mg_schema, public;</code> (root 확인용)</td><td><code>alter user</code> 는 일반 사용자 설정까지 바뀌므로 임시 확인은 <code>set</code>, 경로 밖은 <code>mg_schema.travel_payment</code></td></tr>
+          <tr><td><code>\dp</code> 의 빈 Access privileges</td><td>기본 권한(소유자 전권) 상태라는 표시 — 객체 소유자는 한 명(<code>ALTER … OWNER TO</code>)</td></tr>
+</tbody>
       </table>
     </div>
 
