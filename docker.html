@@ -1232,10 +1232,11 @@ docker rm test</code></pre><button class="copy" type="button" aria-label="코드
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>개념</strong></td><td><ul><li>여러 컨테이너를 파일 하나(<code>compose.yaml</code>)로 정의 → 한 번에 생성·관리. <code>docker run</code>의 옵션을 파일 속성으로 옮긴 형태 → compose 파일을 여러 개 만들어 두고 필요할 때 실행</li><li>파일이 잘못돼도 파일 하나를 고쳐 다시 올리면 되므로 되돌리기 쉬움</li><li>실무에서 매우 많이 쓰는 방식 → 서비스 묶음과 포트·환경변수를 파일로 관리</li></ul></td></tr>
     <tr><td><strong>파일명</strong></td><td><ul><li><code>compose.yaml</code> = 기본·권장 파일명</li><li>기본 탐색 대상: <code>compose.yaml</code>, <code>compose.yml</code>, <code>docker-compose.yaml</code>, <code>docker-compose.yml</code> / 다른 이름은 <code>-f</code> 옵션으로 지정</li><li>composerize 안내가 <code>compose.yml</code>이어도 실습은 <code>compose.yaml</code>로 통일 — 확장자 오타 주의</li></ul></td></tr>
+    <tr><td><strong>명령 형식</strong></td><td><ul><li>입력은 <code>docker compose</code> — 플러그인 방식이라 <b>하이픈 없이</b> 띄어 씀 (옛 단독 실행 파일 <code>docker-compose</code>와 구분)</li><li>설치 확인 명령 <code>rpm -qa | grep docker</code>의 목록에 <code>docker-compose-plugin</code>이 있으면 이 방식</li></ul></td></tr>
     <tr><td><strong>YAML</strong></td><td><ul><li>"YAML Ain't Markup Language"(초기 명칭 "Yet Another Markup Language")의 재귀 약어 → 마크업이 아니라 데이터 직렬화 형식</li><li>들여쓰기는 탭 금지, 스페이스만 (탭이 있으면 실행 시 라인 에러)</li><li>같은 레벨은 칸 수를 똑같이 맞춤 → 한 단계 들어갈 때마다 한 칸씩 늘리고, 속성은 서비스명보다 한 칸, 속성 안 항목은 또 한 칸 (칸 수 자체는 자유, 정리본의 4칸은 보기 좋게 단순화한 예)</li><li>목록 항목은 <code>-</code>(하이픈)으로 시작</li></ul></td></tr>
-    <tr><td><strong>version 속성</strong></td><td><ul><li>최상위 <code>version</code>은 obsolete → Compose v2가 무시하므로 생략 권장</li><li>실습의 <code>version: 'cloud Server 1.1'</code>은 Compose 실행 버전 설정이 아니며 GitHub pipeline과도 무관 (아무 값이나 가능, <code>3.8</code> 같은 버전 형식도 무시됨)</li></ul></td></tr>
+    <tr><td><strong>version 속성</strong></td><td><ul><li>최상위 <code>version</code>은 obsolete → Compose v2가 무시하므로 생략 권장. 실습 파일은 첫 줄을 <code>#</code> 주석으로 두고 진행 (그대로 둬도 경고만 나오고 실행은 됨)</li><li>실습의 <code>version: 'cloud Server 1.1'</code>은 Compose 실행 버전 설정이 아니며 GitHub pipeline과도 무관 (아무 값이나 가능, <code>3.8</code> 같은 버전 형식도 무시됨)</li></ul></td></tr>
     <tr><td><strong>서비스·속성</strong></td><td><code>services:</code> 아래에 자유로운 서비스명 → 그 아래 <code>image</code>, <code>ports</code>, <code>container_name</code>, <code>environment</code>, <code>tty</code>, <code>stdin_open</code>, <code>privileged</code>, <code>command</code> 등을 들여 씀. 서비스 사이는 빈 줄로 구분, 항목을 끄려면 <code>#</code> 주석</td></tr>
-    <tr><td><strong>작성 도구</strong></td><td><ul><li>서버의 vi는 주석·한글 입력이 불편 → VS Code로 작성 후 서버에 올리거나 붙여넣기</li><li>파일명이 <code>compose.yaml</code>이면 VS Code가 도커(고래) 아이콘으로 인식 → 어떤 파일인지 바로 구분</li><li>주석은 <code>#</code></li></ul></td></tr>
+    <tr><td><strong>작성 도구</strong></td><td><ul><li>서버의 vi는 주석·한글 입력이 불편 → VS Code로 작성 후 서버에 올리거나 붙여넣기</li><li>파일명이 <code>compose.yaml</code>이면 VS Code가 도커(고래) 아이콘으로 인식 → 어떤 파일인지 바로 구분</li><li>주석은 <code>#</code></li><li>윈도우 메모장으로 작성해 붙여넣는 방법도 씀 — 들여쓰기 칸을 눈으로 맞추기 쉬움</li></ul></td></tr>
     <tr><td><strong>자동완성</strong></td><td>편집기 자동완성 제안을 그대로 믿으면 틀림 — <code>command</code> 제안값이 <code>/sbin/init</code>이 아니어서 직접 고침. 제안은 후보일 뿐 실제 값은 이미지·<code>docker run</code> 검증 결과로 확정</td></tr>
     <tr><td><strong>직접 검증 후 Compose</strong></td><td>이미지·포트·실행 명령을 먼저 <code>docker run</code>으로 한 항목씩 확인 → 같은 옵션으로 Compose 작성. 하드웨어·이미지를 모르는 AI에 통째로 맡기지 않음 (실무 원칙)</td></tr>
     <tr><td><strong>AI 사용 주의</strong></td><td>AI는 내 하드웨어·이미지 정보를 몰라 컨테이너 환경에서 에러가 반복되고, 결국 보안을 다 풀어 작동시키는 사고로 이어짐 → 강사 회사는 이 영역에 AI를 쓰지 않음</td></tr>
@@ -1253,6 +1254,7 @@ docker ps
 cd /root
 mkdir yaml
 cd yaml
+<span class="c"># 한 줄 삭제는 vi 명령 모드에서 dd (계속 누르면 아래 줄도 연속 삭제)</span>
 <span class="c"># i로 입력 모드 → Shift+Insert로 composerize 변환 결과 붙여넣기 → 이름 수정 → :wq 저장</span>
 vi compose.yaml
 
@@ -1312,6 +1314,7 @@ services:
       <p><strong>환경변수 공백 표기</strong>강사 화면은 <code>MYSQL_ROOT_PASSWORD = a1234</code>처럼 <code>=</code> 양옆에 공백을 넣었음. 목록 형식에서 이대로 올리면 이름 끝에 공백이 붙어 <code>declared with trailing space</code> 오류로 이어질 수 있으므로 공백 없는 <code>MYSQL_ROOT_PASSWORD=a1234</code>로 올린 뒤 <code>docker exec</code>로 root 접속되는지 실행해 확인</p>
     </div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · /root/yaml]</span>
+<span class="c"># 옵션 없이 up → 설치 과정이 화면을 가득 채워 그동안 다른 작업 불가 (보통 -d)</span>
 <span class="c"># compose.yaml의 서비스와 기본 네트워크를 백그라운드에서 생성·시작</span>
 docker compose up -d
 docker ps
@@ -1320,10 +1323,10 @@ docker compose down
 docker images</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>정상 결과</strong></td><td><ul><li><code>up -d</code> → <code>Network gcp_rds_default Created</code>, <code>Container testdb Started</code></li><li><code>down</code> → <code>Container testdb Removed</code>, <code>Network gcp_rds_default Removed</code>, <code>docker ps -a</code>에서도 컨테이너 사라짐</li><li><code>docker images</code>에는 <code>cs:9</code>, <code>dhi.io/mysql:8</code>, <code>mariadb:11.4-ubi9</code>, <code>mzleejh/apink_rocky:9</code> 등이 남을 수 있음</li></ul></td></tr>
+    <tr><td><strong>정상 결과</strong></td><td><ul><li><code>up -d</code> → <code>Network gcp_rds_default Created</code>, <code>Container testdb Started</code></li><li><code>docker ps</code> → <code>testmdb</code>의 PORTS가 <code>0.0.0.0:7306-&gt;3306/tcp</code>로 보임</li><li><code>docker compose start mariadb</code> → <code>Container testmdb started</code> (정지했던 것을 그대로 재가동)</li><li><code>down</code> → <code>Container testdb Removed</code>, <code>Network gcp_rds_default Removed</code>, <code>docker ps -a</code>에서도 컨테이너 사라짐</li><li><code>docker images</code>에는 <code>cs:9</code>, <code>dhi.io/mysql:8</code>, <code>mariadb:11.4-ubi9</code>, <code>mzleejh/apink_rocky:9</code> 등이 남을 수 있음</li></ul></td></tr>
     <tr><td><strong>포트 추가</strong></td><td>Compose 파일에서 열린 포트 확인 → 필요한 포트 추가 → 재실행. 다른 컨테이너가 실행 중이면 포트·컨테이너 이름 충돌 가능</td></tr>
     <tr><td><strong>version 경고</strong></td><td><code>WARN ... the attribute version is obsolete, it will be ignored</code> → Compose v2가 최상위 <code>version</code>을 무시한다는 경고일 뿐, 실행 실패 원인 아님</td></tr>
-    <tr><td><strong>환경변수 오류</strong></td><td><code>MYSQL_ROOT_PASSWORD is declared with trailing space</code> → 환경변수 선언 끝에 공백. <code>MYSQL_ROOT_PASSWORD=a1234</code>처럼 <code>=</code> 앞뒤 공백 제거 → <code>docker compose logs</code>로 원인 확인</td></tr>
+    <tr><td><strong>환경변수 오류</strong></td><td><code>decoding failed ... environment variable MYSQL_ROOT_PASSWORD is declared with trailing space</code> → 환경변수 선언 끝에 공백. <code>MYSQL_ROOT_PASSWORD=a1234</code>처럼 <code>=</code> 앞뒤 공백 제거 → <code>docker compose logs</code>로 원인 확인</td></tr>
     <tr><td><strong>YAML 구문 오류</strong></td><td><code>mapping values are not allowed in this context</code> → 따옴표·콜론·들여쓰기(탭 아닌 공백) 확인</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">Compose 오류 구분 — <code>version is obsolete</code>는 경고(무시 가능), <code>declared with trailing space</code>는 실제 오류(<code>=</code> 앞뒤 공백 제거), <code>mapping values are not allowed</code>는 YAML 들여쓰기·콜론 오류</div>
@@ -1332,24 +1335,72 @@ docker images</code></pre><button class="copy" type="button" aria-label="코드 
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>서비스명 vs 컨테이너명</strong></td><td>Compose 명령 뒤에는 YAML의 서비스 키(예: <code>webserver</code>, <code>mariadb</code>) 사용 → <code>container_name</code>(예: <code>tomcatserver</code>, <code>testmdb</code>)을 넣으면 <code>no such service</code></td></tr>
-    <tr><td><strong>목록 범위</strong></td><td><code>docker compose ps</code> = 현재 선택된 Compose 프로젝트의 서비스만 / <code>docker ps -a</code> = Compose와 <code>docker run</code>으로 만든 컨테이너 전부</td></tr>
-    <tr><td><strong>명령의 영향 범위</strong></td><td><ul><li><code>up -d &lt;서비스명&gt;</code> = 지정 서비스만 시작</li><li><code>stop [서비스명]</code> = 정지만, 데이터·컨테이너 삭제 안 함 (인자 없으면 파일의 전체 서비스)</li><li><code>start [서비스명]</code> = 정지된 서비스 재시작</li><li><code>down</code> = Compose 프로젝트의 컨테이너·네트워크 제거 → 실행 전 파일·프로젝트 확인</li></ul></td></tr>
+    <tr><td><strong>목록 범위</strong></td><td><ul><li><code>docker compose ps</code> = 현재 선택된 Compose 프로젝트의 서비스만 / <code>docker ps -a</code> = Compose와 <code>docker run</code>으로 만든 컨테이너 전부</li><li>직접 만든 <code>mariadb11</code>을 <code>docker start</code>해도 <code>docker compose ps</code>에는 <code>testmdb</code>만 보임 (SERVICE 열 기준이라 yml 밖 컨테이너는 빠짐)</li></ul></td></tr>
+    <tr><td><strong>명령의 영향 범위</strong></td><td><ul><li><code>up -d &lt;서비스명&gt;</code> = 지정 서비스만 시작</li><li><code>stop [서비스명]</code> = 정지만, 데이터·컨테이너 삭제 안 함 (인자 없으면 파일의 전체 서비스)</li><li><code>start [서비스명]</code> = 정지된 서비스 재시작</li><li><code>down [서비스명]</code> = 그 서비스만 삭제(복구 불가), <b>서비스명 없이 치면 파일의 서비스 전부 삭제</b></li><li><code>down</code> = Compose 프로젝트의 컨테이너·네트워크 제거 → 실행 전 파일·프로젝트 확인</li><li><code>docker stop &lt;컨테이너명&gt;</code>처럼 docker 명령으로 직접 정지해도 문제없음 (다음 compose 명령이 상태를 다시 읽음)</li></ul></td></tr>
+    <tr><td><strong>클라우드 대응</strong></td><td>AWS 콘솔의 EC2 <b>중지</b>가 compose <code>stop</code>, <b>종료(삭제)</b>가 <code>down</code>과 같은 개념 → 콘솔에서 인스턴스를 내리듯 파일 단위로 서비스를 내리고 올림</td></tr>
     <tr><td><strong>볼륨과 down</strong></td><td><ul><li><code>down</code> → 컨테이너 안에만 저장한 데이터는 컨테이너와 함께 소멸, 이름 있는 볼륨은 기본적으로 남음</li><li><code>down -v</code> → 선언된 볼륨도 제거 대상 → 데이터 보존이 필요하면 사용 금지</li><li>외부(external) 볼륨은 Compose가 생성·삭제하지 않음</li></ul></td></tr>
     <tr><td><strong>다른 YAML 파일</strong></td><td><ul><li>기본 파일 = <code>compose.yaml</code>, 다른 파일은 <code>-f &lt;파일&gt;</code></li><li><code>up</code>한 파일과 같은 <code>-f</code> 값으로 <code>ps</code>·<code>logs</code>·<code>down</code> 실행 → 파일을 생략하면 기본 파일이 선택돼 엉뚱한 프로젝트를 내릴 수 있음</li></ul></td></tr>
     <tr><td><strong>파일 분리</strong></td><td><ul><li>서비스가 많으면 서비스별 YAML 파일을 두고 <code>-f</code>로 선택 (예: <code>cp compose.yaml cloud_compose.yaml</code> 후 필요한 부분만 관리)</li><li>기본 파일명을 바꿔 두면(<code>compose___.yaml</code>) 인자 없는 compose 명령이 실패 → 기본 선택에 따른 실수 감소. 단 파일명 변경만으로 접근 권한·비밀값이 보호되지는 않음</li></ul></td></tr>
-    <tr><td><strong>비밀값</strong></td><td>YAML에 평문 비밀번호가 있으면 GitHub 공개 저장소는 물론, 계정 탈취 위험이 있는 비공개 저장소에도 올리지 않음 → 실습 파일은 root 권한으로 관리, GitHub 계정에는 MFA</td></tr>
+    <tr><td><strong>비밀값</strong></td><td><ul><li>YAML에 평문 비밀번호가 있으면 GitHub 공개 저장소는 물론, 계정 탈취 위험이 있는 비공개 저장소에도 올리지 않음 → 실습 파일은 root 권한으로 관리, GitHub 계정에는 MFA</li><li>일반 사용자 홈에 두고 작업하다 yml이 웹 루트로 노출된 사례가 있음 — 파일 안에 DB 주소·계정·패스워드가 다 들어 있어 그대로 유출됨</li></ul></td></tr>
     <tr><td><strong>실습 전제</strong></td><td><ul><li>Compose 폴더 <code>~/yaml</code>, 설정 파일 폴더 <code>~/rds</code></li><li>직접 만든 <code>mariadb11</code>(<code>mariadb:11.4-ubi9</code>, <code>3309→3306</code>)과 <code>mysql8</code>(<code>dhi.io/mysql:8</code>)은 Compose 서비스 목록과 별개 → 자세한 실습: mysql.html 10~12장</li></ul></td></tr>
     <tr><td><strong>실습 화면의 서비스 값</strong></td><td>별도 MariaDB 예: 서비스 <code>mariadb</code>, 컨테이너 <code>testmdb</code>, 이미지 <code>mariadb:11.4-ubi9</code>, <code>7306:3306</code>, 연습 비밀번호 <code>MYSQL_ROOT_PASSWORD=a1234</code> (webserver 값은 위 compose.yaml 블록 참고)</td></tr>
     </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>사고가 가장 많은 명령</strong></td><td><code>docker compose down</code>을 잘못 치면 yml에 적힌 서비스가 전부 정지·삭제 → 실무 사고를 가장 많이 내는 명령. 위험을 알고 아예 쓰지 않는 사람도 있음 → 정리는 서비스명이나 <code>-f</code>로 범위를 좁혀 실행</td></tr>
+    <tr><td><strong>docker rm과 차이</strong></td><td>직접 <code>docker rm</code>은 <code>docker ps</code>로 목록을 보며 하나씩 지우지만, compose는 파일 정의를 읽어 <b>한꺼번에</b> 처리 → 지금 돌고 있는 서비스까지 함께 내려갈 수 있음</td></tr>
+    <tr><td><strong>운영에서의 마무리</strong></td><td>결국 compose를 <b>bash shell script</b>로 감싸 호출 → 사람이 직접 치는 명령을 줄이고 실행 순서·대상을 고정</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">compose down — 파일 하나로 서비스 전부가 내려가는 것이 편의이자 위험. 실행 전 <code>docker compose ps</code>·현재 폴더·<code>-f</code> 대상 확인, 데이터가 있으면 <code>-v</code> 금지</div>
     <div class="note-verify">
-      <div class="tag">🔍 확인 필요 · Docker Hub 발언</div>
-      <p>자료에서 RDS 계열 DB 이미지를 가리킨 단어가 "프리비에스드/프리베이스디"로 들렸다고 기록돼 있으나 정확한 표현은 미확인 → 의미를 임의로 확정하지 않음</p>
+      <div class="tag">🔍 직접 확인 · 37강 36:12~36:40</div>
+      <p>자료에서 이미지 설명 직후 RDS 쪽 DB 형태를 가리킨 말이 "프리비에스드/프리베이스디"로 들렸다고 기록돼 있으나 정확한 표현은 미확인 (RDS 계열 DB 이미지에 대한 발언) → 의미를 임의로 확정하지 않음. 해당 구간 음성을 다시 들어 정리 (자세한 실습: postgresql.html 16장)</p>
     </div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>분리 파일</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>postgre.yaml</strong></td><td><code>compose.yaml</code>에서 PostgreSQL 서비스 블록만 복사해 별도 파일로 만듦 → <code>-f postgre.yaml</code>로 이 서비스만 올리고 내림. <code>container_name</code>은 기존 <code>rds_psql</code>과 겹치지 않게 <code>psql_test</code>로 바꿈</td></tr>
+    <tr><td><strong>version 값</strong></td><td>파일 최상위 <code>version: '1.02'</code>는 DB 버전·Compose 실행 버전과 무관한 임의 값 (obsolete 속성이라 무시됨)</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · /root/yaml/postgre.yaml 파일 안]</span>
+<span class="c"># 최상위 version은 obsolete → 값은 임의 (DB 버전과 무관)</span>
+version: '1.02'
+<span class="c"># 서비스 묶음</span>
+services:
+<span class="c">  # 서비스 키 (compose 명령 인자로 쓰는 이름)</span>
+  postgres:
+<span class="c">    # docker ps에 보이는 컨테이너 이름 — 기존 rds_psql과 겹치지 않게 변경</span>
+    container_name: psql_test
+<span class="c">    # 환경변수 (-e와 같음)</span>
+    environment:
+<span class="c">      # 초기 슈퍼유저(postgres) 비밀번호, 연습값</span>
+      - POSTGRES_PASSWORD=a1234
+<span class="c">    # 데이터를 호스트 볼륨에 보존</span>
+    volumes:
+<span class="c">      # 이름 있는 볼륨 pgdata → PGDATA 경로</span>
+      - pgdata:/var/lib/postgresql/data
+<span class="c">    # 포트 게시</span>
+    ports:
+<span class="c">      # PostgreSQL 기본 포트</span>
+      - "5432:5432"
+<span class="c">    # 이미지 이름:버전 그대로</span>
+    image: postgres:14.24
+<span class="c"># 최상위 볼륨 선언</span>
+volumes:
+<span class="c">  # 서비스에서 참조한 볼륨 이름</span>
+  pgdata:
+<span class="c">    # 이미 만들어 둔 볼륨을 사용 → compose가 생성·삭제하지 않음</span>
+    external: true
+<span class="c">    # 실제 도커 볼륨 이름</span>
+    name: pgdata</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · ~/yaml]</span>
 <span class="c"># 파일을 지정해 시작 → 로그 확인 → 목록 확인 → 정리 (실행과 정리에 같은 파일 사용)</span>
+<span class="c"># 파일을 생략하면 기본 파일(compose.yaml)이 선택됨 → 웹 서버가 index.html을 기본으로 집는 것과 같은 원리</span>
+<span class="c"># 앞 -f = 파일 지정, 뒤 -f = 로그 follow (실행 결과: SERVICE postgres, psql_test, image postgres:14.24, Up)</span>
 docker compose -f postgre.yaml up -d
 docker compose -f postgre.yaml logs -f
 docker compose -f postgre.yaml ps
+<span class="c"># 같은 파일로 삭제하면 psql_test 컨테이너와 폴더 이름에서 온 yaml_default 네트워크가 함께 Removed</span>
+<span class="c"># -f 없이 down을 치면 기본 compose.yaml의 서비스가 지워지는 사고 → YAML 문법 오류는 go-yaml load error in scanner / mapping values are not allowed in this context로 나옴</span>
 docker compose -f postgre.yaml down
 <span class="c"># 서비스 하나만 시작·정지·재시작 → 인자는 컨테이너명이 아니라 서비스명</span>
 docker compose up -d webserver
@@ -1370,15 +1421,15 @@ docker compose -f postgre.yaml down</code></pre><button class="copy" type="butto
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>privileged</strong></td><td>컨테이너 권한·장치 접근을 크게 넓힘 → 호스트에 위험. root를 컨테이너 안에 가두는 보안 경계가 아님 → 꼭 필요한 실습에서만, 운영 서비스에는 원칙적으로 부여 안 함</td></tr>
-    <tr><td><strong>cgroup namespace</strong></td><td><ul><li><code>cgroup: private</code> = <code>docker run --cgroupns=private</code> → 컨테이너가 보는 cgroup 계층 격리</li><li>유효한 값은 <code>host</code> 또는 <code>private</code> (<code>public</code> 없음), 생략하면 Docker 데몬 기본값</li><li>cgroup 격리가 privileged 권한을 무력화하거나 호스트 root 접근을 막지는 않음</li></ul></td></tr>
-    <tr><td><strong>systemd용 tmpfs</strong></td><td><ul><li>PID 1을 <code>/sbin/init</code>(systemd)으로 쓰는 실습에서 <code>/run</code>·<code>/run/lock</code>을 임시 파일시스템으로 제공 가능</li><li><code>/run/lock</code> = 프로세스 잠금 파일 경로</li><li>필수 설정 아님, tmpfs가 하위 경로 읽기를 막는다는 뜻도 아님</li></ul></td></tr>
+    <tr><td><strong>cgroup namespace</strong></td><td><ul><li>cgroup = control group — 프로세스 묶음의 자원(CPU·메모리)을 관리하는 커널 기능, 기준은 호스트 전체</li><li><code>cgroup: private</code> = <code>docker run --cgroupns=private</code> → 컨테이너가 보는 cgroup 계층 격리</li><li>유효한 값은 <code>host</code> 또는 <code>private</code> (<code>public</code> 없음), 생략하면 Docker 데몬 기본값</li><li>cgroup 격리가 privileged 권한을 무력화하거나 호스트 root 접근을 막지는 않음</li></ul></td></tr>
+    <tr><td><strong>systemd용 tmpfs</strong></td><td><ul><li>PID 1을 <code>/sbin/init</code>(systemd)으로 쓰는 실습에서 <code>/run</code>·<code>/run/lock</code>을 임시 파일시스템으로 제공 가능</li><li><code>/run/lock</code> = 프로세스가 잠금 파일(lock)을 만드는 경로 → 같은 서비스의 중복 실행을 막음 (예: nginx가 80을 쓰는 중에 apache를 포트만 바꿔 또 띄우는 식의 중복 기동)</li><li>필수 설정 아님, tmpfs가 하위 경로 읽기를 막는다는 뜻도 아님</li></ul></td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · /root/yaml/compose.yaml 파일 안 · webserver 서비스]</span>
 <span class="c"># 장치·커널 기능 접근 확대 (실습 전용, 보안 경계 아님)</span>
     privileged: true
 <span class="c"># cgroup 계층 격리 (= --cgroupns=private). 값은 host 또는 private</span>
     cgroup: private
-<span class="c"># systemd가 쓰는 /run, /run/lock을 메모리 기반 임시 파일시스템으로 제공</span>
+<span class="c"># systemd가 쓰는 /run, /run/lock을 메모리 기반 임시 파일시스템으로 제공 (에디터가 init 줄을 제안해도 쓰지 않음)</span>
     tmpfs:
       - /run
       - /run/lock
@@ -1391,7 +1442,7 @@ docker compose -f postgre.yaml down</code></pre><button class="copy" type="butto
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>요약</strong></td><td>DB 데이터 경로를 이름 있는 볼륨(<code>pgdata</code>)에 연결 → 컨테이너를 지우고 다시 만들어도 데이터 유지(컨테이너 교체와 데이터 생명주기 분리)</td></tr>
     <tr><td><strong>Docker 쪽 명령</strong></td><td><code>docker volume create pgdata</code> → <code>docker run ... -v pgdata:/var/lib/postgresql/data ...</code> → Compose에서는 <code>volumes:</code>에 <code>external: true</code>로 선언 (외부 볼륨은 미리 존재해야 함)</td></tr>
-    <tr><td><strong>설정 파일 왕복</strong></td><td><code>docker cp 컨테이너:파일 호스트경로</code>로 꺼내 수정 → <code>docker cp</code>로 되돌림 → <code>docker restart</code>로 반영</td></tr>
+    <tr><td><strong>설정 파일 왕복</strong></td><td><ul><li><code>docker cp 컨테이너:파일 호스트경로</code>로 꺼내 수정 → <code>docker cp</code>로 되돌림 → <code>docker restart</code>로 반영</li><li>PostgreSQL의 인증(pg_hba.conf)·성능(postgresql.conf) 설정은 compose 속성으로 해결되지 않음 → 컨테이너 안 파일을 직접 고쳐야 함 (postgresql.html 17~18장)</li></ul></td></tr>
     <tr><td><strong>자세한 실습</strong></td><td>postgresql.html 16~18장 (이미지·볼륨·접속·인증·설정 파일)</td></tr>
     </tbody></table></div>
 
@@ -2505,10 +2556,11 @@ systemctl stop docker docker.socket                    <span class="c"># 데몬�
           <tr><td><code>rpm -qa | grep docker</code></td><td><code>docker-compose-plugin</code> 등 설치 여부 확인</td></tr>
           <tr><td><code>docker stop mariadb11</code></td><td>compose 실습 전 기존 컨테이너를 삭제하지 않고 정지</td></tr>
           <tr><td><code>mkdir yaml</code> / <code>vi compose.yaml</code></td><td>Compose 전용 경로·파일 준비</td></tr>
-          <tr><td><code>docker compose up -d</code> / <code>docker compose down</code></td><td>서비스·네트워크 생성 및 시작 / Compose 리소스 제거</td></tr>
-          <tr><td><code>docker compose up -d &lt;서비스&gt;</code> / <code>stop &lt;서비스&gt;</code> / <code>start &lt;서비스&gt;</code></td><td>서비스명 기준으로 선택 시작·정지·재가동; 정지는 컨테이너 삭제가 아님</td></tr>
-          <tr><td><code>docker compose ps</code> / <code>docker compose logs</code> / <code>logs -f</code></td><td>Compose 서비스 목록 / 오류 로그 / 실시간 로그 추적</td></tr>
-          <tr><td><code>docker compose -f &lt;파일&gt; up -d</code> / <code>down</code></td><td>지정 YAML 프로젝트 실행·정리; 올린 파일과 같은 파일을 지정</td></tr>
+          <tr><td><code>docker compose up -d</code> / <code>docker compose down</code></td><td>서비스·네트워크 생성 및 시작 / Compose 리소스 제거. 옵션 없는 <code>up</code>은 설치 과정이 화면을 가득 채움</td></tr>
+          <tr><td><code>docker compose up -d &lt;서비스&gt;</code> / <code>stop &lt;서비스&gt;</code> / <code>start &lt;서비스&gt;</code> / <code>stop</code></td><td>서비스명 기준으로 선택 시작·정지·재가동; 정지는 컨테이너 삭제가 아님. <code>stop</code>에 서비스명을 빼면 전체 정지</td></tr>
+          <tr><td><code>docker compose down &lt;서비스&gt;</code></td><td>해당 서비스만 정지·삭제(복구 불가). 서비스명을 빠뜨리면 파일의 전체 서비스가 내려감</td></tr>
+          <tr><td><code>docker compose ps</code> / <code>docker compose logs</code> / <code>logs -f</code></td><td>Compose 서비스 목록(yml 밖에서 <code>docker run</code>한 컨테이너는 빠짐) / 오류 로그 / 실시간 로그 추적</td></tr>
+          <tr><td><code>docker compose -f &lt;파일&gt; up -d</code> / <code>logs -f</code> / <code>ps</code> / <code>down</code></td><td>지정 YAML 프로젝트 실행·로그·목록·정리; 올린 파일과 같은 파일을 지정 (<code>-f</code> 생략 시 기본 compose.yaml)</td></tr>
           <tr><td><code>docker cp &lt;컨테이너&gt;:&lt;파일&gt; &lt;호스트&gt;</code> / <code>docker cp &lt;호스트 파일&gt; &lt;컨테이너&gt;:&lt;디렉터리&gt;/</code></td><td>설정 파일을 호스트로 꺼내고 수정본을 PGDATA로 되돌림</td></tr>
           <tr><td><code>docker volume create pgdata</code> / <code>-v pgdata:/var/lib/postgresql/data</code></td><td>이름 있는 볼륨 생성 / 컨테이너 데이터 경로에 연결 → 컨테이너를 지워도 데이터 유지 (자세한 실습: postgresql.html 16장)</td></tr>
           <tr><td><code>docker cp &lt;컨테이너&gt;:&lt;파일&gt; &lt;호스트&gt;</code> / <code>docker cp &lt;호스트 파일&gt; &lt;컨테이너&gt;:&lt;디렉터리&gt;/</code></td><td>컨테이너 설정 파일을 호스트로 꺼내 수정 → 되돌린 뒤 <code>docker restart</code>로 반영</td></tr>

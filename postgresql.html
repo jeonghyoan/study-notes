@@ -1343,7 +1343,7 @@ show search_path;</code></pre><button class="copy" type="button" aria-label="코
     <tr><td class="nowrap">순서</td><td>프롬프트로 <code>CREATE TABLE</code>·<code>INSERT</code> 받기 → <code>CREATE</code> 실행 → <code>INSERT</code> 실행</td><td>테이블이 먼저 있어야 데이터 입력이 됨</td></tr>
     <tr><td class="nowrap">확인</td><td><code>sample_schema</code> 안에 <code>attendance_records</code> 테이블과 데이터 30건</td><td>DBeaver에서 스키마를 펼쳐 테이블·행 확인 — public에 생기면 우선순위 미적용</td></tr>
     </tbody></table></div>
-<div class="code"><pre><code><span class="c">[윈도우 · AI 채팅 — Gemini·ChatGPT]</span>
+<div class="code"><pre><code><span class="c"># [윈도우 · AI 채팅 — Gemini·ChatGPT] 아래 문장을 그대로 붙여 넣기</span>
 PostgreSQL에 출근 기록 관련 테이블을 생성하고, 출근 기록 데이터 30개도 같이 생성. 컬럼은 사원번호·사원명·출근시간·퇴근시간. 간단하게.</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
 
     <h3>우선순위 미설정 사고 사례</h3>
@@ -1820,7 +1820,7 @@ limit 3;</code></pre><button class="copy" type="button" aria-label="코드 복�
     <div class="dg-bar warn">유사도 — 저장된 배열은 임베딩 값이고, 유사도는 질문 벡터와의 거리 연산 결과. 가까운 순서(<code>ORDER BY … LIMIT</code>)로 가져오는 구조이지 단어별 검색이 아님</div>
 
     <h3>실습 — 3차원 벡터 회원 테이블</h3>
-<div class="code"><pre><code><span class="c">[윈도우 · AI 채팅 — Gemini·ChatGPT]</span>
+<div class="code"><pre><code><span class="c"># [윈도우 · AI 채팅 — Gemini·ChatGPT] 아래 문장을 그대로 붙여 넣기</span>
 3차원 벡터를 저장하는 회원가입 테이블 생성 및 데이터 20개만 넣어 주세요.</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
 <div class="code"><pre><code><span class="c">-- [vector_db · psql 프롬프트 · postgres]</span>
 <span class="c">-- AI가 준 CREATE TABLE — vector_db 에서 실행</span>
@@ -2091,23 +2091,27 @@ drop table 테이블명;</code></pre><button class="copy" type="button" aria-lab
 
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>이미지</strong></td><td><ul><li>Docker Hub에서 Official Image로 표시된 <code>postgres</code> 확인 → 태그 <code>14.24</code> 사용</li><li>태그 접미사 없는 기본 이미지도 Debian 기반일 수 있음. <code>trixie</code> = Debian 13 코드명 (Ubuntu·CentOS 계열 아님)</li></ul></td></tr>
-    <tr><td><strong>용량</strong></td><td>다운로드 전 <code>df -m</code>으로 디스크 여유 확인. 화면의 <code>postgres:14.24</code> 크기 약 624MB</td></tr>
+    <tr><td><strong>이미지</strong></td><td><ul><li>[윈도우 · 웹 브라우저] hub.docker.com에서 <code>postgres</code> 검색 → 왼쪽 필터의 <b>Docker Official Image</b> 체크 → 공식 이미지로 표시된 페이지만 골라 들어감 (다른 DB도 항상 공식 이미지)</li><li><b>Tags</b> 탭에서 <code>14.24</code> 선택 → 표시되는 <code>docker pull</code> 명령을 그대로 복사</li><li>이미지는 데비안 기반 풀 배포판(깡통 이미지 아님)이지만 패키지는 최소 → <code>vi</code>·설치 도구가 없는 이유는 18장 참고</li><li>태그 접미사 없는 기본 이미지도 Debian 기반일 수 있음. <code>trixie</code> = Debian 13 코드명 (Ubuntu·CentOS 계열 아님)</li></ul></td></tr>
+    <tr><td><strong>용량</strong></td><td><ul><li>다운로드 전 <code>df -m</code>으로 디스크 여유 확인. 화면의 <code>postgres:14.24</code> 크기 약 624MB</li><li>이미지는 버전을 받을수록 용량이 금방 차오름 → 사용률이 100%에 가까워지면 컨테이너 안에 파일도 만들지 못함</li></ul></td></tr>
+    <tr><td><strong>Docker Hub 접근</strong></td><td>회사망은 트래픽·업로드 통제로 Docker Hub 포트를 막아 둔 곳도 있음 → 사내에서 <code>docker pull</code>이 실패하면 네트워크 담당에 포트 개방 여부 확인. 수업 환경은 열려 있음</td></tr>
     <tr><td><strong>슈퍼유저</strong></td><td>MariaDB의 <code>root</code> 대신 <code>postgres</code></td></tr>
     <tr><td><strong>환경변수·포트·경로</strong></td><td><code>POSTGRES_PASSWORD</code> = 초기 비밀번호 설정용 / 기본 포트 <code>5432</code> / 데이터 경로 <code>/var/lib/postgresql/data</code></td></tr>
-    <tr><td><strong>이름 있는 볼륨</strong></td><td><code>pgdata</code> 볼륨에 저장 → 컨테이너 교체와 데이터 생명주기 분리. 비밀번호 <code>a1234</code>는 연습값</td></tr>
-    <tr><td><strong>docker run에서 먼저 확인</strong></td><td><ul><li>Compose로 옮기기 전에 같은 이미지·환경변수·포트·볼륨으로 직접 실행해 정상 기동 확인</li><li>이미 초기화한 실습 데이터가 있으면 볼륨 경로와 재사용 대상 확인</li><li>외부 볼륨으로 선언하면 <code>pgdata</code>가 미리 존재해야 함</li></ul></td></tr>
+    <tr><td><strong>이름 있는 볼륨</strong></td><td><code>pgdata</code> 볼륨에 저장 → 컨테이너 교체와 데이터 생명주기 분리. 사용자·DB·백업이 모두 이 경로 아래에 쌓임. 비밀번호 <code>a1234</code>는 연습값</td></tr>
+    <tr><td><strong>docker run에서 먼저 확인</strong></td><td><ul><li>Compose로 옮기기 전에 같은 이미지·환경변수·포트·볼륨으로 직접 실행해 정상 기동 확인</li><li>이전 PostgreSQL 실습에서 initdb로 데이터를 만든 과정을 다시 보면 <code>-v</code> 데이터 경로가 무엇을 덮는지 이해에 도움</li><li>이미 초기화한 실습 데이터가 있으면 볼륨 경로와 재사용 대상 확인</li><li>외부 볼륨으로 선언하면 <code>pgdata</code>가 미리 존재해야 함</li></ul></td></tr>
+    <tr><td><strong>composerize 변환</strong></td><td><ul><li>composerize.com에 <code>docker run</code> 문장을 붙여 넣어 YAML로 변환</li><li>결과에서 <b>서비스 이름 줄부터 끝까지</b> 복사 — <code>services:</code>처럼 한 번만 쓰는 줄은 빼고, <code>compose.yaml</code>의 mariadb 아래에 들여쓰기를 맞춰 붙임</li><li>서비스명(<code>postgres</code>)은 원하는 이름으로 바꿔도 됨 (자세한 규칙: docker.html 5장)</li></ul></td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># 호스트 여유 공간(MB) 확인 후 공식 이미지 다운로드</span>
+<span class="c"># 호스트 여유 공간(MB) 확인 후 공식 이미지 다운로드 — 화면 결과 예: /dev/mapper/rlm-root 19% 사용</span>
 df -m
 docker pull postgres:14.24
 docker images
 <span class="c"># 이름 있는 볼륨 생성 → DB 파일을 컨테이너 밖에 보존</span>
 docker volume create pgdata
+<span class="c"># --name rds_psql = 컨테이너 이름 (언더바까지 그대로 사용)</span>
 <span class="c"># -e 초기 비밀번호(연습값) / -v 볼륨:데이터경로 / -p 호스트:컨테이너 / -d 백그라운드</span>
 docker run --name rds_psql -e POSTGRES_PASSWORD=a1234 \
   -v pgdata:/var/lib/postgresql/data -p 5432:5432 -d postgres:14.24
+<span class="c"># PORTS가 0.0.0.0:5432-&gt;5432/tcp로 보여야 정상 (컨테이너가 올라온 것)</span>
 docker ps
 
 <span class="c"># [호스트 리눅스 · /root/yaml/compose.yaml 파일 안]</span>
@@ -2142,12 +2146,12 @@ volumes:
 
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>접속 경로</strong></td><td><ul><li><code>docker exec -it rds_psql /bin/bash</code>로 컨테이너 셸 → <code>psql -U postgres</code></li><li>한 줄 접속: <code>docker exec ... env PGPASSWORD=... psql</code> → 비밀번호를 명령행 환경변수에 넣는 건 실습용 (셸 기록·프로세스 환경 노출 주의)</li><li>SQL 프롬프트 종료 <code>\q</code></li></ul></td></tr>
+    <tr><td><strong>접속 경로</strong></td><td><ul><li><code>docker exec -it rds_psql /bin/bash</code>로 컨테이너 셸 → <code>psql -U postgres</code></li><li>컨테이너 셸은 처음부터 root → 프롬프트 <code>root@컨테이너ID:/#</code>, psql 프롬프트는 <code>postgres=#</code></li><li>한 줄 접속: <code>docker exec ... env PGPASSWORD=... psql</code> → 비밀번호를 명령행 환경변수에 넣는 건 실습용 (셸 기록·프로세스 환경 노출 주의)</li><li>비밀번호를 넣는 방식은 여러 가지 — 로컬 소켓으로 바로 접속하는 방법도 있음</li><li>SQL 프롬프트 종료 <code>\q</code> 또는 <code>exit</code></li></ul></td></tr>
     <tr><td><strong>trust의 범위</strong></td><td><ul><li><code>psql -U postgres -W</code>가 비밀번호를 물어도, 컨테이너 안 Unix 소켓 접속이 기본 <code>pg_hba.conf</code>의 <code>trust</code> 규칙에 걸리면 비밀번호를 검증하지 않을 수 있음</li><li>모든 외부 TCP 연결이 무인증이라는 뜻은 아님 → 실습 화면의 <code>host all all all scram-sha-256</code> 규칙은 TCP 연결에 비밀번호 인증 요구</li></ul></td></tr>
     <tr><td><strong>규칙 순서</strong></td><td>위에서부터 먼저 일치하는 항목 적용</td></tr>
     <tr><td><strong>규칙 열 의미</strong></td><td><code>local</code> = Unix socket / <code>host</code> = TCP / 주소 = 허용할 클라이언트 범위</td></tr>
-    <tr><td><strong>주소 범위</strong></td><td><ul><li><code>0.0.0.0/0</code> = 모든 IPv4 → 외부 노출 범위가 넓으므로 실습 외에는 접속 원본 제한</li><li>IPv6 loopback <code>::1/128</code>도 별도 규칙 → 외부 IPv6 허용 여부도 따로 검토</li></ul></td></tr>
-    <tr><td><strong>md5와 실제 확인</strong></td><td><ul><li>실습에서 로컬·TCP 규칙의 <code>trust</code> → <code>md5</code>로 바꿔 비밀번호 인증 확인</li><li>저장된 비밀번호 형식·서버 설정에 따라 SCRAM 인증이 협상될 수 있음 → 실제 동작은 결과로 확인: 틀린 비밀번호 → <code>FATAL: password authentication failed for user "postgres"</code>, 맞는 비밀번호 → 접속</li></ul></td></tr>
+    <tr><td><strong>주소 범위</strong></td><td><ul><li><code>0.0.0.0/0</code> = 모든 IPv4 → 외부 노출 범위가 넓으므로 실습 외에는 접속 원본 제한</li><li>IPv6 loopback <code>::1/128</code>도 별도 규칙 → 외부 IPv6로 들어오는 공격이 있어 IPv6 허용 여부도 따로 검토</li></ul></td></tr>
+    <tr><td><strong>md5와 실제 확인</strong></td><td><ul><li>실습에서 로컬·TCP 규칙의 <code>trust</code> → <code>md5</code>로 바꿔 비밀번호 인증 확인</li><li>SHA-256 등 더 강한 방식도 있지만 이번 실습은 MD5까지 (운영에서는 scram-sha-256 이상 권장)</li><li>trust를 남긴 채 그대로 배포하면 안 됨 — 접속 규칙을 좁힐 때까지는 배포 금지</li><li>저장된 비밀번호 형식·서버 설정에 따라 SCRAM 인증이 협상될 수 있음 → 실제 동작은 결과로 확인: 틀린 비밀번호 → <code>FATAL: password authentication failed for user "postgres"</code>, 맞는 비밀번호 → 접속</li></ul></td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># 컨테이너 셸 진입</span>
@@ -2182,7 +2186,9 @@ host    all   all   all            scram-sha-256</code></pre><button class="copy
 
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>편집 위치</strong></td><td><ul><li>실습의 최소 Debian 기반 이미지에는 <code>vi</code>가 없을 수 있음, 패키지 관리자도 <code>dnf</code>가 아니라 <code>apt</code>/<code>apt-get</code> 계열</li><li>설정 파일은 컨테이너 <code>/var/lib/postgresql/data/</code> 아래 → 호스트 <code>/root/rds</code>로 꺼내 수정한 뒤 되돌림</li></ul></td></tr>
+    <tr><td><strong>편집 위치</strong></td><td><ul><li>실습의 최소 Debian 기반 이미지에는 <code>vi</code>가 없을 수 있음, 패키지 관리자도 <code>dnf</code>가 아니라 <code>apt</code>/<code>apt-get</code> 계열</li><li>설정 파일은 컨테이너 <code>/var/lib/postgresql/data/</code> 아래 → 호스트 <code>/root/rds</code>로 꺼내 수정한 뒤 되돌림</li><li>이 폴더에 <code>postgresql.conf</code>, <code>pg_hba.conf</code>, <code>pg_ident.conf</code>와 <code>base/</code>·<code>global/</code> 같은 데이터 폴더가 함께 있음 → 꺼내고 넣을 경로를 메모해 두고 엉뚱한 곳에 넣지 않음</li><li>고칠 파일은 두 개(<code>postgresql.conf</code>·<code>pg_hba.conf</code>) — 설정용과 인증용</li></ul></td></tr>
+    <tr><td><strong>vi로 찾는 순서</strong></td><td><code>:set number</code>로 줄 번호 표시 → <code>/max_connections</code>처럼 단어로 검색 → <code>:439</code>처럼 줄 번호로 바로 이동 → <code>Esc</code> → <code>:wq</code> 저장·종료 (키 표: linux.html vi 편집기 장)</td></tr>
+    <tr><td><strong>compose와의 경계</strong></td><td>인증·성능·로그 설정은 compose 속성으로 해결되지 않음 → 컨테이너 안 설정 파일을 직접 고쳐야 함</td></tr>
     <tr><td><strong>반영 조건</strong></td><td>설정 변경은 컨테이너에 복사한 뒤 재시작해야 반영</td></tr>
     <tr><td><strong>실패 시</strong></td><td>오타·잘못된 값 → 재시작 실패나 컨테이너 종료 가능 → <code>docker ps -a</code>와 로그 확인 → 수정본 다시 복사</td></tr>
     <tr><td><strong>정리</strong></td><td>비밀번호 실패·성공 결과를 각각 확인한 뒤 실습 컨테이너는 삭제 대신 <code>docker stop</code>으로 보존</td></tr>
@@ -2193,38 +2199,41 @@ mkdir -p /root/rds
 cd /root/rds
 docker cp rds_psql:/var/lib/postgresql/data/postgresql.conf postgresql.conf
 docker cp rds_psql:/var/lib/postgresql/data/pg_hba.conf pg_hba.conf
+<span class="c"># vi: :set number로 줄 번호 → /max_connections 검색 → :439로 줄 이동 → Esc → :wq</span>
 vi postgresql.conf
 vi pg_hba.conf
 <span class="c"># 편집본을 PGDATA 디렉터리에 되돌리고 재시작해 설정 반영</span>
 docker cp postgresql.conf rds_psql:/var/lib/postgresql/data/
 docker cp pg_hba.conf rds_psql:/var/lib/postgresql/data/
 docker restart rds_psql
-<span class="c"># Up 상태 확인 → 실패하면 로그에서 오류 줄 확인</span>
+<span class="c"># Up 상태 확인 → 실패하면 로그에서 오류 줄 확인 (오타가 있으면 컨테이너가 죽음 → 고쳐서 cp·restart 반복)</span>
 docker ps -a
 docker logs rds_psql
+<span class="c"># 재접속: psql -U postgres → Password for user postgres: 를 물으면 a1234 입력 (틀리면 FATAL)</span>
 <span class="c"># 실습 후 삭제하지 않고 정지로 보존</span>
 docker stop rds_psql
 
 <span class="c"># [호스트 리눅스 · /root/rds/postgresql.conf 파일 안]</span>
-<span class="c"># 60행: 모든 컨테이너 인터페이스에서 수신 (네트워크·pg_hba 규칙과 함께 제한)</span>
+<span class="c"># 60행: 모든 인터페이스에서 수신 — 풀 이미지라 이미 '*', dnf 설치본이었다면 localhost (네트워크·pg_hba 규칙과 함께 제한)</span>
 listen_addresses = '*'
 <span class="c"># 64행: 서버 TCP 포트</span>
 port = 5432
 <span class="c"># 65행: 최대 연결 수. 기본 100 → 30으로 줄여 메모리 사용 제한 (기본값이 틀려서 고치는 게 아니라 선택)</span>
 max_connections = 30
-<span class="c"># 127행: DB 캐시 메모리. 화면 기본값 128MB. 메모리의 약 25%는 흔한 시작점일 뿐 고정 규칙 아님</span>
+<span class="c"># 127행: DB 캐시 메모리. 화면 기본값 128MB. 벡터·FastAPI로 데이터를 많이 다루면 버퍼 부족 → 1GB 정도면 웬만큼 소화. 메모리의 약 25%는 흔한 시작점일 뿐 고정 규칙 아님</span>
 shared_buffers = 1024MB
 <span class="c"># 138행: 정렬·해시 연산 하나당 메모리 상한. 주석 상태여도 기본 4MB 적용</span>
 work_mem = 4MB
-<span class="c"># 439행: stderr 로그를 파일로 수집</span>
+<span class="c"># 439행: stderr 로그를 파일로 수집 (보안팀이 로그 보관을 요구할 때 켜는 항목)</span>
 logging_collector = on
 <span class="c"># 445행: 로그 폴더 (PGDATA 기준 상대 경로)</span>
 log_directory = 'log'
 <span class="c"># 447행: 날짜·시간이 들어간 로그 파일명. 기본은 텍스트 로그 (CSV는 log_destination='csvlog' 별도 지정)</span>
 log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
-<span class="c"># 449행: log_file_mode는 화면의 기본 퍼미션 값 그대로 둠</span>
+<span class="c"># 449행: log_file_mode는 화면의 기본 퍼미션 값 그대로 둠 — 주석을 풀지 않음</span>
 <span class="c"># 453행: 이 크기를 넘으면 새 파일로 회전. 오래된 로그 삭제가 아님 (덮어쓰기는 기본 off인 log_truncate_on_rotation에 따름)</span>
-log_rotation_size = 10MB</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+log_rotation_size = 10MB
+<span class="c"># 그 아래 logical decoding 등 나머지 항목은 건드리지 않고 넘어감</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="dg-bar warn">postgresql.conf 메모리·로그 — <code>max_connections</code> 100→30은 메모리 절약 선택. <code>shared_buffers</code>=캐시(25%는 시작점일 뿐), <code>work_mem</code>=정렬·해시 연산당 상한. <code>log_rotation_size</code>는 새 파일 회전 기준이지 삭제가 아님. 설정은 복사 후 재시작해야 반영</div>
   
 
@@ -2300,9 +2309,9 @@ log_rotation_size = 10MB</code></pre><button class="copy" type="button" aria-lab
     
           <tr class="group"><th colspan="2" scope="colgroup">이미지·컨테이너</th></tr>
           <tr><td><code>df -m</code></td><td>디스크 여유(MB) 확인 → 이미지(약 624MB) 받기 전</td></tr>
-          <tr><td><code>docker pull postgres:14.24</code> / <code>docker volume create pgdata</code></td><td>PostgreSQL 공식 이미지 받기 / 데이터 보존용 이름 있는 볼륨 준비</td></tr>
+          <tr><td><code>docker pull postgres:14.24</code> / <code>docker volume create pgdata</code></td><td>PostgreSQL 공식 이미지 받기 / 데이터 보존용 이름 있는 볼륨 준비. 허브는 Official Image 필터 → Tags에서 14.24 선택</td></tr>
           <tr><td><code>docker run --name rds_psql -e POSTGRES_PASSWORD=... -v pgdata:/var/lib/postgresql/data -p 5432:5432 -d postgres:14.24</code></td><td>연습용 PostgreSQL 컨테이너 생성: 비밀번호·볼륨·호스트 포트 지정</td></tr>
-          <tr><td><code>docker compose -f postgre.yaml up -d</code> / <code>down</code></td><td>PostgreSQL Compose 파일로 실행·정리 (같은 파일 지정)</td></tr>
+          <tr><td><code>docker compose -f postgre.yaml up -d</code> / <code>logs -f</code> / <code>ps</code> / <code>down</code></td><td>PostgreSQL Compose 파일로 실행·로그·목록·정리 (같은 파일 지정, <code>-f</code> 생략 시 기본 compose.yaml)</td></tr>
     
           <tr class="group"><th colspan="2" scope="colgroup">접속·인증</th></tr>
           <tr><td><code>docker exec -it rds_psql /bin/bash</code> / <code>psql -U postgres</code></td><td>컨테이너 셸 접속 / 슈퍼유저로 psql 접속 (<code>\q</code> 종료)</td></tr>
@@ -2310,7 +2319,7 @@ log_rotation_size = 10MB</code></pre><button class="copy" type="button" aria-lab
           <tr><td><code>psql -U postgres -W</code></td><td>비밀번호 입력을 요청해 인증 동작 점검 (trust 규칙이면 검증 안 될 수 있음)</td></tr>
     
           <tr class="group"><th colspan="2" scope="colgroup">설정 파일</th></tr>
-          <tr><td><code>docker cp rds_psql:/var/lib/postgresql/data/postgresql.conf postgresql.conf</code></td><td>설정 파일을 호스트로 꺼냄 (<code>pg_hba.conf</code>도 같은 방식)</td></tr>
+          <tr><td><code>docker cp rds_psql:/var/lib/postgresql/data/postgresql.conf postgresql.conf</code></td><td>설정 파일을 호스트로 꺼냄 (<code>pg_hba.conf</code>도 같은 방식). vi에서 <code>:set number</code> → <code>/단어</code> → <code>:439</code> 줄 이동</td></tr>
           <tr><td><code>docker cp postgresql.conf rds_psql:/var/lib/postgresql/data/</code></td><td>수정본을 PGDATA로 되돌림</td></tr>
           <tr><td><code>docker restart rds_psql</code> / <code>docker ps -a</code> / <code>docker logs rds_psql</code></td><td>설정 반영 / 기동 상태 / 실패 원인 확인</td></tr>
           <tr><td><code>docker stop rds_psql</code></td><td>실습 컨테이너를 지우지 않고 보존</td></tr>
