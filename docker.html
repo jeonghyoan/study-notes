@@ -2265,7 +2265,7 @@ chrome.exe --explicitly-allowed-ports=10080</code></pre><button class="copy" typ
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>현재 상태</strong></td><td><code>docker network ls</code> → <code>bridge</code>·<code>host</code>·<code>none</code>·Compose의 <code>yml_default</code>만 있고 Spark 네트워크는 없음</td></tr>
     <tr><td><strong>이름 기반 통신</strong></td><td><ul><li>마스터·워커·Jupyter를 같은 네트워크에 연결(<code>--network</code>)</li><li>기본 bridge에서도 IP 통신은 가능하지만 컨테이너 이름 DNS 조회는 사용자 정의 네트워크에서 지원 → <code>spark-master</code> 이름으로 찾으려면 전용 네트워크 필요 (출처: Docker bridge 네트워크 문서)</li></ul></td></tr>
-    <tr><td><strong>네트워크 선행 이유</strong></td><td>컨테이너를 먼저 만들고 연결 구성이 빠진 걸 발견하면 연결 방식에 맞춰 재구성해야 함 → AWS/GCP도 서버보다 VPC·서브넷을 먼저 계획, 서브넷으로 트래픽 흐름 확인</td></tr>
+    <tr><td><strong>네트워크 선행 이유</strong></td><td>컨테이너를 먼저 만들고 연결 구성이 빠진 걸 발견하면 연결 방식에 맞춰 재구성해야 함 — 실행 중인 컨테이너의 네트워크는 바꿀 수 없어 전부 삭제 후 처음부터 다시. AWS/GCP도 서버보다 VPC·서브넷을 먼저 계획, 빠트리면 전부 삭제 후 재구축이고 콘솔은 화면 클릭으로 하나씩 해야 하므로 훨씬 번거로움. 서브넷으로 트래픽 흐름 확인</td></tr>
     <tr><td><strong>네트워크 저장소</strong></td><td><code>/var/lib/docker/network/files/local-kv.db</code> = libnetwork가 쓰는 BoltDB 키-값(key-value) 저장소 (배열 형태 아님) → 지우면 네트워크 관리 손상 가능, 직접 삭제 금지. 실습 화면 크기 131072바이트 (출처: <code>libnetwork datastore.go</code>)</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
@@ -2277,6 +2277,7 @@ docker network rm spark-net             <span class="c"># 미사용 네트워크
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>정상 확인</strong></td><td><ul><li>생성 시 64자 ID 출력 → <code>docker network ls</code>에 <code>spark-net</code> 표시</li><li>컨테이너 연결 뒤 <code>inspect</code> JSON의 Containers에 연결·IP 상태 표시</li><li>삭제 뒤 목록에서 사라지는지 확인 → 실습에서는 다시 생성</li></ul></td></tr>
+    <tr><td><strong>내부 브릿지</strong></td><td>네트워크를 만들면 그 안에 내부 브릿지가 생겨 컨테이너 주소·연결을 그 브릿지로 핸들링 → <code>ls</code>에 이름이 보이면 1차 성공이고, 그 이름을 이후 <code>docker run --network</code>에 그대로 씀</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">사용자 정의 네트워크 — 기본 bridge는 IP 통신만, 컨테이너 이름 DNS는 사용자 정의 네트워크에서 지원 → 클러스터는 네트워크를 먼저 만들고 <code>--network</code>로 연결. <code>local-kv.db</code>는 직접 삭제 금지</div>
   

@@ -879,7 +879,8 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>포트 충돌</strong></td><td>로컬 서버가 같은 호스트 포트를 쓰고 있으면 컨테이너 시작·게시 실패 → 실행 전 점유 확인. 포트 기본값은 설정으로 변경 가능</td></tr>
     <tr><td><strong>CPU·메모리 제한</strong></td><td>무제한 컨테이너가 호스트 자원을 소진하면 호스트·서비스 정지 가능 → 코어·메모리 지정. 4코어 서버 예: 호스트 OS 몫을 남기고 워커당 1–2코어 고려, 마스터에도 메모리 배분</td></tr>
-    <tr><td><strong>구성안</strong></td><td>A 워커 1개 / B 워커 2개(각 CPU 2코어·메모리 2GB, 합계 4코어·8GB) / C 워커 3개 / D 워커 4개(각 1코어·1GB) → 부하·비용을 바탕으로 아키텍트가 설계, 실습자는 정해진 구성대로 구축</td></tr>
+    <tr><td><strong>구성안</strong></td><td>A 워커 1개 / B 워커 2개(각 CPU 2코어·메모리 2GB, 합계 4코어·8GB) / C 워커 3개 / D 워커 4개(각 1코어·1GB, 3개로 돌려 보니 버벅여 4개로 바꾼 사례) → 부하·비용을 바탕으로 아키텍트가 설계, 실습자는 정해진 구성대로 구축. 아키텍트가 없는 회사(비용 절감)는 본인이 설계</td></tr>
+    <tr><td><strong>실무 워커 수</strong></td><td>우주·생명과학처럼 대규모 분석을 하는 곳은 워커가 많을수록 유리하지만, 워커 1~2개만 돌려도 규모 있는 회사가 많음 → 비용과 부하를 보고 정함</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">Spark 포트 — 7077=마스터 통신(막히면 워커 연결 실패), 8080=마스터 UI, 8081=워커 UI, 8888=Jupyter. 워커 자원은 호스트 OS 몫을 남기고 코어·메모리를 지정</div>
   
@@ -2256,6 +2257,7 @@ spark-submit test_table.py   <span class="c"># JDBC 읽기 실행 — show(5) �
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>선행 작업</strong></td><td>마스터·워커·Jupyter가 이름으로 통신할 사용자 정의 네트워크 <code>spark-net</code>을 먼저 생성 → 자세한 실습: docker.html 9장</td></tr>
+    <tr><td><strong>구축 순서</strong></td><td><ul><li>① 전용 네트워크 생성 → ② Dockerfile 작성·이미지 빌드·검증 → ③ 마스터 컨테이너 기동·확인 → ④ 워커 2개 추가</li><li>컨테이너 3개 구성(마스터 1 + 워커 2), 마스터를 먼저 올려야 워커를 붙일 수 있음</li></ul></td></tr>
     <tr><td><strong>실습 환경</strong></td><td><ul><li>Rocky 9 VM 호스트 전용 IP <code>192.168.222.5</code>, PuTTY 접속, 작업 경로 <code>/root/docker</code></li><li>강사 빌드 베이스 <code>mzleejh/apink_rocky:9</code>, 수강생은 각자 만든 Rocky 9 이미지 사용</li></ul></td></tr>
     <tr><td><strong>기존 파일</strong></td><td>이전 용도의 Dockerfile → <code>Dockerfile_backup</code>으로 이름 변경 후 새 <code>Dockerfile</code> 작성. 기본 파일명 오타는 빌드를 막음</td></tr>
     <tr><td><strong>베이스 점검 결과</strong></td><td><ul><li><code>java -version</code> → Java 없음이 정상 (Java 11이 있어도 17 설치)</li><li><code>/etc/ssh/sshd_config</code> 있음 → SSH 추가 설치 불필요</li><li><code>/etc/vsftpd</code> 유지, httpd 설치됨, nginx·MySQL 등 DB 없음</li></ul></td></tr>
@@ -2269,14 +2271,14 @@ docker run --rm -it mzleejh/apink_rocky:9 /bin/bash  <span class="c"># 임시 �
 exit                                                 <span class="c"># 점검 후 임시 컨테이너 종료·삭제</span>
 
 <span class="c"># [호스트 리눅스 · /root/docker/Dockerfile 파일 안]</span>
-<span class="c"># 기반 OS 이미지 (각자 만든 Rocky 9 이미지)</span>
+<span class="c"># 기반 OS 이미지 (각자 만든 Rocky 9 이미지) — 이미지명은 복사해 붙여넣어 오타 방지</span>
 FROM mzleejh/apink_rocky:9
 <span class="c"># -y 자동 승인 / --allowerasing: 의존성 충돌 시 기존 패키지 제거·교체 허용 (Rocky 9의 curl-minimal ↔ curl 충돌 사례)</span>
 <span class="c"># java-17-openjdk-devel: Java 17 + 개발 도구 javac / curl·tar: 다운로드·압축 해제 / python3·python3-pip: PySpark·Jupyter용</span>
 <span class="c"># 여러 줄은 역슬래시로 연결, &amp;&amp; 앞뒤 공백 / dnf clean all: 캐시 정리로 이미지 크기 감소</span>
 RUN dnf install -y --allowerasing java-17-openjdk-devel \
  curl tar python3 python3-pip &amp;&amp; dnf clean all
-<span class="c"># Java 설치 경로</span>
+<span class="c"># Java 설치 경로 (설치 후 /usr/lib/jvm 아래에서 찾아 확인하는 값)</span>
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 <span class="c"># 받을 배포본 선택값 (버전을 바꿀 때는 이 값만 바꿔 URL 관리)</span>
 ENV SPARK_VERSION=3.5.3
@@ -2293,6 +2295,9 @@ WORKDIR $SPARK_HOME</code></pre><button class="copy" type="button" aria-label="�
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>Java 버전</strong></td><td>Spark 3.5.3은 Java 8·11·17 지원 → Java 11이 반드시 오류를 내는 것은 아님, 이 구성은 17 선택 (출처: Spark 3.5.3 문서)</td></tr>
+    <tr><td><strong>패키지 설치 옵션</strong></td><td><ul><li><code>--allowerasing</code>: 충돌하는 기존 패키지를 제거·교체하고 필요한 의존 패키지까지 함께 설치 — 게임 실행 전 Visual C++ 런타임처럼 선행 프로그램이 없으면 설치가 에러로 멈추는 상황을 Docker가 대신 정리</li><li><code>curl</code>·<code>tar</code>는 이미 있으면 삭제 없이 업그레이드됨</li></ul></td></tr>
+    <tr><td><strong>javac 포함</strong></td><td><code>java-17-openjdk-devel</code> = JDK 전체(컴파일러 <code>javac</code> 포함). <code>java-17-openjdk</code>(JRE)만 넣으면 <code>javac</code>가 없어 검증 단계에서 실패 → 패키지명은 <code>dnf search java-17</code>로 찾아 기입</td></tr>
+    <tr><td><strong>ENV 작성</strong></td><td><ul><li><code>SPARK_VERSION</code>은 Spark 배포판에 실제로 있는 버전만 — 다운로드 사이트에서 확인 후 기입</li><li><code>SPARK_HOME</code>은 홈 디렉터리 아래도 가능하지만 선택 패키지 공간 <code>/opt</code>에 고정</li><li>변수 이름은 알아볼 수 있게 짧게 써도 되고 값이 중요, <code>이름=값</code> 사이 공백 금지</li></ul></td></tr>
     <tr><td><strong>아카이브 URL 찾기</strong></td><td>Spark 다운로드 페이지 → Archived releases → 3.5.3 선택 (최신 목록의 더 높은 버전과 구분) → 버전 폴더의 <code>spark-3.5.3-bin-hadoop3.tgz</code> 링크로 URL 작성 → 버전 숫자는 <code>${SPARK_VERSION}</code>·<code>${HADOOP_VERSION}</code>으로 치환. 버전·철자를 정확히 맞춤</td></tr>
     <tr><td><strong>작성 요령</strong></td><td><code>vi</code>에서 <code>set number</code>로 행 번호 표시, 터미널 붙여넣기는 Shift+Insert</td></tr>
     </tbody></table></div>
@@ -2305,10 +2310,12 @@ docker run --rm spark-rocky9:3.5.3 javac -version    <span class="c"># 컴파일
 docker run --rm spark-rocky9:3.5.3 python3 --version <span class="c"># Python 3 확인 (python -V는 실행 파일이 없어 오류)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>빌드 진행</strong></td><td>빌드 중에는 다른 작업을 하지 않고 결과를 기다림 → 진행 중 Dockerfile 오타를 발견하면 수정 후 다시 빌드, 이미지 목록에 결과가 없으면 빌드 실패</td></tr>
     <tr><td><strong>태그·크기</strong></td><td><ul><li><code>-t</code> 태그 = 이미지명 <code>spark-rocky9</code> + Spark 버전 <code>3.5.3</code></li><li>실습 결과 약 2.73GB (CONTENT SIZE 932MB), 베이스는 1.55GB</li><li>이미지가 안 보이면 빌드 실패 확인</li></ul></td></tr>
-    <tr><td><strong>정상 출력</strong></td><td><ul><li>Java <code>openjdk 17.0.21</code>, javac <code>17.0.21</code>, Python <code>3.9.25</code> (실습 출력값)</li><li><code>python -V</code>는 실행 파일이 없어 오류 → <code>python3</code>으로 확인</li></ul></td></tr>
-    <tr><td><strong>검증 실패 시</strong></td><td>컨테이너에서 반복 설치하지 않음 → Dockerfile 수정 → 실패 이미지 제거 후 재빌드</td></tr>
+    <tr><td><strong>정상 출력</strong></td><td><ul><li>Java <code>openjdk 17.0.21</code>, javac <code>17.0.21</code>(javac의 c = compiler), Python <code>3.9.25</code> (실습 출력값)</li><li><code>python -V</code>는 실행 파일이 없어 오류 → <code>python3</code>으로 확인</li></ul></td></tr>
+    <tr><td><strong>검증 실패 시</strong></td><td>컨테이너에서 반복 설치하지 않음 → Dockerfile 수정 → 실패 이미지 제거 후 재빌드. 세팅을 전부 마친 이미지를 검증한 뒤에 컨테이너에 들어가야 반복 작업이 줄어듬</td></tr>
     </tbody></table></div>
+    <div class="dg-bar warn">Dockerfile 구성 순서 — <code>FROM</code> → <code>RUN dnf install</code> → <code>ENV</code> → <code>RUN curl | tar</code> + <code>mv</code> → <code>WORKDIR</code>. 빌드 후 <code>java -version</code>·<code>javac -version</code>·<code>python3 --version</code> 세 가지 검증이 필수, 실패하면 컨테이너에서 재설치하지 않고 이미지 삭제 후 리빌딩</div>
     <ul class="facts"><li><strong>다른 설치 방식</strong><div>서버 2대에 tarball로 직접 설치(<code>sparkuser</code>·SSH 키·hosts·<code>/opt</code>·<code>.bashrc</code>·<code>spark-env.sh</code>): 이 파일 3~7장</div></li></ul>
   
 
@@ -2321,8 +2328,9 @@ docker run --rm spark-rocky9:3.5.3 python3 --version <span class="c"># Python 3 
 
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 docker ps                                            <span class="c"># 기존 이름·포트 점유 확인</span>
-<span class="c"># 순서: Docker 옵션 → 이미지명 → 실행 명령</span>
+<span class="c"># 순서: Docker 옵션 → 이미지명 → 실행 명령 (이미지명을 빼면 그 자리를 실행 명령으로 읽어 에러)</span>
 <span class="c"># -d 백그라운드 / --name 컨테이너 이름 / --hostname 컨테이너 내부 호스트명 / --network 사용자 정의 네트워크 연결 / -p 호스트:컨테이너</span>
+<span class="c"># -p 8888은 주피터(PySpark)가 쓸 포트라 마스터 기동 때 함께 게시</span>
 <span class="c"># spark-class가 JVM으로 Master 클래스를 실행 (전체 경로·대문자 Master 정확히)</span>
 <span class="c"># --host: 이름 DNS로 찾을 주소 (--ip는 deprecated) / --port 7077: 기본값이라 생략 가능하지만 명시 / --webui-port 8080: UI 포트</span>
 docker run -d --name spark-master --hostname spark-master --network spark-net \
@@ -2335,10 +2343,13 @@ docker stop spark-master                             <span class="c"># 자동 �
 docker start spark-master                            <span class="c"># 시작 명령으로 지정된 마스터가 자동 기동</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>임시 실행</strong></td><td>이번 실행은 CPU·메모리 옵션을 넣기 전 연습 → 완료본 아님. 같은 이름 컨테이너가 있으면 <code>docker run</code>이 이름 충돌로 실패 → 기존 것 먼저 삭제</td></tr>
-    <tr><td><strong>시작 명령</strong></td><td><code>spark-class ... Master</code>를 컨테이너 시작 명령으로 지정 → <code>docker start</code> 때 마스터 자동 기동</td></tr>
+    <tr><td><strong>임시 실행</strong></td><td>이번 실행은 CPU·메모리 옵션을 넣기 전 연습 → 완료본 아님. 같은 이름 컨테이너가 있으면 <code>docker run</code>이 이름 충돌로 실패 → 기존 것 먼저 삭제. 생성은 몇 초(약 5초) 안에 끝나 지웠다 만들었다 반복해도 부담이 없음</td></tr>
+    <tr><td><strong>시작 명령</strong></td><td><code>spark-class ... Master</code>를 컨테이너 시작 명령으로 지정 → <code>docker start</code> 때 마스터 자동 기동. 넣지 않으면 컨테이너에 들어가 <code>./start-master.sh</code>를 매번 직접 실행해야 함 — 클라우드 구성과 온프레미스 수동 기동이 직접 실행 여부로 갈리는 지점</td></tr>
+    <tr><td><strong>spark-class</strong></td><td><ul><li>Spark는 항상 JVM이 자바 클래스를 실행하는 구조 → 기동할 클래스를 직접 지정</li><li>설치 경로가 <code>/opt/spark</code>라 전체 경로로 써야 인식, 클래스 이름 <code>Master</code>는 대문자 M까지 정확히</li><li>자바 클래스 = <code>public class Master</code> 아래에 메서드가 있는 그 클래스 → 파이썬에서 <code>import</code>로 라이브러리를 불러 쓰는 것과 같은 개념</li></ul></td></tr>
     <tr><td><strong>마스터 주소</strong></td><td>사용자 정의 네트워크 DNS에서 <code>spark-master</code>로 찾음 → 화면 주소 <code>spark://spark-master:7077</code> (출처: Spark Standalone 문서)</td></tr>
-    <tr><td><strong>정상 확인</strong></td><td><ul><li><code>docker ps</code>에서 <code>spark-master</code> Up + 7077·8080·8888 게시</li><li><code>http://192.168.222.5:8080</code> → Spark Master, 버전 3.5.3, Status ALIVE, Workers 0·Alive Workers 0이면 성공</li><li><code>stop</code> 뒤 UI 접속 불가, <code>start</code> 뒤 자동 복구 확인. 컨테이너 생성은 수 초 내 완료</li></ul></td></tr>
+    <tr><td><strong>주소 표기</strong></td><td><code>--host</code>에 호스트 이름을 넣으면 UI 제목이 <code>spark://spark-master:7077</code>로 표시 → IP로 보이게 하려면 <code>--host</code>에 IP를 넣거나 컨테이너 <code>/etc/hosts</code>를 수정, 바꾸는 데 오래 걸리지 않는 변경</td></tr>
+    <tr><td><strong>공식 문서</strong></td><td>Standalone 모드 문서(<code>spark-standalone.html</code>)에 실행 모드·API·보안·워커 실행 방법이 정리 — <code>https://spark.apache.org/docs/3.5.3/spark-standalone.html</code></td></tr>
+    <tr><td><strong>정상 확인</strong></td><td><ul><li><code>docker ps</code>에서 <code>spark-master</code> Up + 7077·8080·8888 게시</li><li><code>http://192.168.222.5:8080</code> → Spark Master, 버전 3.5.3, Status ALIVE, Workers 0·Alive Workers 0이면 성공</li><li><code>stop</code> 뒤 UI 접속 불가, <code>start</code> 뒤 자동 복구 확인. 컨테이너 생성은 수 초 내 완료</li><li><code>docker start</code>만으로 마스터가 다시 뜨는 것이 수동 <code>start-master.sh</code>와 같은 동작 → 이 방식으로 클라우드 환경 구성이 완성됨</li></ul></td></tr>
     <tr><td><strong>AWS 비교</strong></td><td><ul><li>수강생 계정은 VPC·서브넷이 없는 상태 → AWS 실습은 하지 않고, 운영 계정의 VPC·서브넷·flow 구성은 필요한 구축 범위를 확인하는 화면 시연</li><li>MFA 로그인 설정의 MFA 기기·설정은 삭제 금지 (관리자가 설정, 삭제하면 계정 접속 불가)</li></ul></td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">마스터 기동 — <code>docker run</code> 옵션 → 이미지 → 실행 명령 순서. <code>--ip</code>는 deprecated라 <code>--host spark-master</code>, 주소는 <code>spark://spark-master:7077</code>. 정상 = UI에서 Status ALIVE, 버전 3.5.3</div>
@@ -3642,7 +3653,9 @@ ea,money</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ �
           <tr><td><code>docker network inspect spark-net</code> / <code>docker network rm spark-net</code></td><td>서브넷·게이트웨이·컨테이너 IP 확인 / 미사용 네트워크 삭제</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">이미지 (21장)</th></tr>
           <tr><td><code>mv Dockerfile Dockerfile_backup</code></td><td>이전 Dockerfile을 보존하고 새 Spark Dockerfile 작성 준비</td></tr>
+          <tr><td><code>docker run --rm -it mzleejh/apink_rocky:9 /bin/bash</code></td><td>베이스 이미지에 임시 진입해 설치 상태 점검 — <code>--rm</code>은 나오면 삭제, <code>exit</code>로 종료</td></tr>
           <tr><td><code>docker build -t spark-rocky9:3.5.3 .</code></td><td>현재 폴더 Dockerfile로 Spark 3.5.3 이미지 빌드</td></tr>
+          <tr><td><code>docker images</code></td><td>빌드 결과·크기 확인 — 약 2.73GB(CONTENT SIZE 932MB), 목록에 없으면 빌드 실패</td></tr>
           <tr><td><code>docker run --rm spark-rocky9:3.5.3 java -version</code> / <code>javac -version</code> / <code>python3 --version</code></td><td>이미지 내부 Java·컴파일러·Python 설치 검증, <code>python</code> 대신 <code>python3</code></td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">마스터 (22장)</th></tr>
           <tr><td><code>docker run -d --name spark-master --hostname spark-master --network spark-net -p 8080:8080 -p 7077:7077 -p 8888:8888 spark-rocky9:3.5.3 /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --host spark-master --port 7077 --webui-port 8080</code></td><td>마스터 실행 (전체 옵션 설명은 22장). 자원 제한 전 연습 상태, 완료본 아님</td></tr>
