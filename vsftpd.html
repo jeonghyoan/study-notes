@@ -938,6 +938,25 @@ journalctl -u vsftpd.service -n 50 --no-pager   <span class="c"># 몇 번째 라
 <tr><td class="nowrap"><code>passive</code></td><td><b><code>true</code></b></td><td><code>autoDownload</code> 아래에 직접 추가. <code>pa</code> 입력 후 Tab 하면 오른쪽 AI(Copilot)가 자동완성</td></tr>
 </tbody></table></div>
 <ul class="facts"><li><strong>확인</strong><div>저장 → 아래 <b>Output</b>에 <code>Connected</code>, <code>list</code>가 뜨면 성공</div></li><li><strong>오류</strong><div><code>username field must be string</code>는 값 수정 중에 뜨는 것 — 값이 문자열로 들어가면 사라짐</div></li></ul>
+<div class="code">
+<pre><code><span class="c">// [윈도우 · VS Code · .vscode/ftp-kr.json 파일 안]</span>
+{
+  <span class="c">// 서버 주소 — VM 외부 IP</span>
+  "host": "&lt;VM 외부 IP&gt;",
+  <span class="c">// FTP 계정 아이디 — MySQL 사용자와 같은 이름이지만 다른 계정</span>
+  "username": "megazone",
+  <span class="c">// 리눅스 계정 비밀번호 — 모르면 서버에서 passwd megazone</span>
+  "password": "&lt;리눅스 비밀번호&gt;",
+  <span class="c">// 동기화할 서버 경로 — 슬래시만</span>
+  "remotePath": "/",
+  <span class="c">// 일반 FTP</span>
+  "protocol": "ftp",
+  <span class="c">// 서버에서 바꿔 열어 둔 FTP 포트 — 숫자, 따옴표 없음</span>
+  "port": 7722,
+  <span class="c">// autoDownload 아래에 직접 추가 — 없으면 파일 목록이 안 뜸</span>
+  "passive": true
+}
+</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
 <div class="dg-bar warn">패시브 모드 — <code>passive: true</code>가 없으면 접속돼도 파일 목록이 안 뜸. FileZilla로는 되는데 VS Code만 안 되면 이 값부터 확인</div>
 
 <h3>AI로 사이트 생성</h3>
