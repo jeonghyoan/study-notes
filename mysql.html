@@ -2951,7 +2951,7 @@ docker restart mysql8</code></pre><button class="copy" type="button" aria-label=
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>재시작 방식</strong></td><td>실습 컨테이너는 systemd 서비스 관리 환경이 아님 → 호스트에서 <code>docker restart mysql8</code>로 프로세스 재기동. <code>docker cp</code>는 컨테이너가 정지된 상태에서도 파일 전달 가능</td></tr>
-    <tr><td><strong>정상 확인</strong></td><td><code>docker ps</code> Running → 컨테이너 안 <code>mysql -u root -p</code> → <code>\s</code>에서 Client character set <code>utf8mb4</code></td></tr>
+    <tr><td><strong>정상 확인</strong></td><td><code>docker ps</code> Running → 컨테이너 안 <code>ls -al /etc</code>에 <code>my.cnf</code> 존재 → <code>mysql -u root -p</code> → <code>\s</code>에서 Client character set <code>utf8mb4</code></td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">문자셋·collation — <code>utf8mb4</code>는 문자셋, <code>utf8mb4_0900_ai_ci</code>는 MySQL 8.4 기본 collation. <code>[client]</code>·<code>[mysql]</code>은 CLI용이라 DBeaver에는 자동 적용 안 됨</div>
     <h3>docker cp 양방향과 전달 조건</h3>
@@ -3219,7 +3219,7 @@ ls -l /root/rds/testdb.sql</code></pre><button class="copy" type="button" aria-l
       <li><strong>접근 보호</strong>: 불필요한 원격 접근 먼저 차단 → 실제 앱 서버 IP만 허용. 임시 비밀번호를 안전하게 전달하고 이후 변경 요청</li>
       <li><strong>빈 DB 준비</strong>: 필요하면 root로 <code>CREATE DATABASE testdb CHARACTER SET utf8mb4</code>. 기존 DB가 있으면 덮어쓰기 여부·복구 시점 확인</li>
       <li><strong>덤프 전달</strong>: 호스트에서 <code>docker cp /root/rds/testdb.sql mysql8:/home/mysql/testdb.sql</code> → 컨테이너에서 <code>ls -a</code>로 파일·권한 확인. 일반 mysql 계정은 홈 밖 경로에 못 써서 <code>/home/mysql</code> 사용, 복구는 root로</li>
-      <li><strong>복원</strong>: 컨테이너 셸에서 root 계정으로 <code>mysql -u root -p testdb &lt; /home/mysql/testdb.sql</code> (입력 리다이렉션은 MySQL 클라이언트를 실행하는 셸이 처리)</li>
+      <li><strong>복원</strong>: 컨테이너 셸에서 root 계정으로 <code>mysql -u root -p testdb &lt; /home/mysql/testdb.sql</code> — 고객 계정(hong) 암호를 모를 수 있어 root로 실행 (입력 리다이렉션은 MySQL 클라이언트를 실행하는 셸이 처리)</li>
       <li><strong>데이터 검증</strong>: <code>SHOW TABLES</code>, <code>SELECT COUNT(*) FROM members</code>로 테이블·행 수 확인 → 실습 데이터 100행이면 100인지 확인 → 담당자에게 복구 결과 검증받음</li>
     </ol>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
@@ -3251,7 +3251,7 @@ SELECT COUNT(*) FROM members;</code></pre><button class="copy" type="button" ari
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>배포 기준 이미지</strong></td><td>문제 대응용으로 배포할 이미지는 개인 계정·암호·고객 데이터가 없는 깨끗한 MySQL 기본 상태에서 생성</td></tr>
-    <tr><td><strong>상태가 들어간 컨테이너</strong></td><td>DB·사용자·테이블·덤프가 포함된 컨테이너를 공개 레지스트리에 올리면 데이터·설정 노출 → 운영 데이터를 포함한 이미지 배포 금지</td></tr>
+    <tr><td><strong>상태가 들어간 컨테이너</strong></td><td>DB·사용자·테이블·덤프가 포함된 컨테이너를 공개 레지스트리에 올리면 데이터·설정 노출, 유출 시 책임 문제 → 운영 데이터를 포함한 이미지 배포 금지</td></tr>
     <tr><td><strong>root 암호 미상</strong></td><td>지금 <code>mysql8</code> 컨테이너를 그대로 이미지로 올리면 서비스는 뜨지만 root 암호를 아는 사람만 접속 가능 → 배포한 본인 환경에서만 쓸 수 있는 이미지</td></tr>
     <tr><td><strong>깨끗한 이미지의 용도</strong></td><td>DB·사용자를 만들기 전 MySQL만 설치된 상태를 올려 두면 사고 때 같은 구조를 즉시 다시 띄우는 복구용 기준 이미지로 사용</td></tr>
     <tr><td><strong>암호·토큰</strong></td><td>예시 <code>a1234</code>·<code>hong1234</code>는 연습값 → 실제 비밀번호는 명령 기록·이미지 layer·설정 파일·환경 변수 조회에 노출되지 않게 secret 관리 방식 사용</td></tr>
