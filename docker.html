@@ -1421,7 +1421,7 @@ docker compose -f postgre.yaml down</code></pre><button class="copy" type="butto
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>privileged</strong></td><td>컨테이너 권한·장치 접근을 크게 넓힘 → 호스트에 위험. root를 컨테이너 안에 가두는 보안 경계가 아님 → 꼭 필요한 실습에서만, 운영 서비스에는 원칙적으로 부여 안 함</td></tr>
-    <tr><td><strong>cgroup namespace</strong></td><td><ul><li>cgroup = control group — 프로세스 묶음의 자원(CPU·메모리)을 관리하는 커널 기능, 기준은 호스트 전체</li><li><code>cgroup: private</code> = <code>docker run --cgroupns=private</code> → 컨테이너가 보는 cgroup 계층 격리</li><li>유효한 값은 <code>host</code> 또는 <code>private</code> (<code>public</code> 없음), 생략하면 Docker 데몬 기본값</li><li>cgroup 격리가 privileged 권한을 무력화하거나 호스트 root 접근을 막지는 않음</li></ul></td></tr>
+    <tr><td><strong>cgroup namespace</strong></td><td><ul><li>cgroup = control group(컨트롤 그룹) — 프로세스 묶음의 자원(CPU·메모리)을 관리하는 커널 기능, 기준은 호스트 전체</li><li><code>cgroup: private</code> = <code>docker run --cgroupns=private</code> → 컨테이너가 보는 cgroup 계층 격리</li><li>유효한 값은 <code>host</code> 또는 <code>private</code> (<code>public</code> 없음), 생략하면 Docker 데몬 기본값</li><li>cgroup 격리가 privileged 권한을 무력화하거나 호스트 root 접근을 막지는 않음</li></ul></td></tr>
     <tr><td><strong>systemd용 tmpfs</strong></td><td><ul><li>PID 1을 <code>/sbin/init</code>(systemd)으로 쓰는 실습에서 <code>/run</code>·<code>/run/lock</code>을 임시 파일시스템으로 제공 가능</li><li><code>/run/lock</code> = 프로세스가 잠금 파일(lock)을 만드는 경로 → 같은 서비스의 중복 실행을 막음 (예: nginx가 80을 쓰는 중에 apache를 포트만 바꿔 또 띄우는 식의 중복 기동)</li><li>필수 설정 아님, tmpfs가 하위 경로 읽기를 막는다는 뜻도 아님</li></ul></td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · /root/yaml/compose.yaml 파일 안 · webserver 서비스]</span>
