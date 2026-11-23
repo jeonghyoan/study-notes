@@ -1540,6 +1540,20 @@ netstat -lntpu</code></pre><button class="copy" type="button" aria-label="코드
     </tbody></table></div>
     <div class="dg-bar warn">bash 방식 SSH 수동 구동 — <code class="n">systemctl</code>·<code class="n">service</code> 모두 불가 → <code class="n">openssh-server</code>·<code class="n">openssh-clients</code> 설치 → <code class="n">ssh-keygen -A</code>(없으면 <code>no hostkeys available -- exiting</code>) → <code class="n">/usr/sbin/sshd</code> 직접 실행 → <code class="n">netstat -lntpu</code>로 22 LISTEN 확인. <code class="n">/etc/ssh</code>에 <code class="n">sshd_config</code>가 없으면 서버 패키지가 빠진 것</div>
 
+    <h3>컨테이너 시간대·시계</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+      <tr><td><strong>원리</strong></td><td>컨테이너는 호스트 커널의 시계를 공유하고 시간대만 이미지 기본값(UTC)으로 보임</td><td>생성 후 <code class="n">date</code>로 먼저 확인 — 확인 없이 DB 등을 설치하면 기록·로그 시각이 어긋남</td></tr>
+      <tr><td><strong>시간대 변경</strong></td><td><code class="n">/etc/localtime</code>이 심볼릭 링크라 링크 대상만 서울로 교체하면 KST로 표시</td><td>파일 변경은 stop/start 후에도 유지, 컨테이너 삭제 시 사라짐. Dockerfile에 <code class="n">RUN ln -sf …</code>를 넣으면 이미지에서 처음부터 서울 시간</td></tr>
+      <tr><td><strong>chrony로 맞추기</strong></td><td>NTP 데몬 설정 파일은 <code class="n">/etc/chrony.conf</code>, <code class="n">systemctl restart chronyd</code>는 PID 1이 systemd여야 동작</td><td>systemd가 있어도 시계 변경에는 <code class="n">CAP_SYS_TIME</code> 권한 필요 — 없으면 <code class="n">adjtimex(0x8001) failed : Operation not permitted</code></td></tr>
+      <tr><td><strong>적용 실습</strong></td><td>Spark 마스터·워커 컨테이너를 UTC에서 KST로 맞춘 과정</td><td>자세한 실습: spark.html 34장</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [컨테이너 · root]</span>
+<span class="c"># 현재 시간·시간대 확인 — UTC로 보이면 시간대가 이미지 기본값</span>
+date
+<span class="c"># /etc/localtime 링크를 서울로 교체 (컨테이너 삭제 전까지 유지)</span>
+ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
   </section>
 
   <!-- 7 -->

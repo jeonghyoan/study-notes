@@ -623,7 +623,15 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#spark-sql">27. Spark SQL (임시 뷰·쿼리)</a></li>
         <li><a href="#spark-sql-func">28. SQL 수치 함수와 집계 함정</a></li>
         <li><a href="#spark-crawling">29. 이미지 수집 (웹 크롤링)</a></li>
-        <li><a href="#cheatsheet">30. 통합 명령어 치트시트</a></li>
+        <li><a href="#spark-pyspark-setup">30. PySpark 실습 환경 (라이브러리·주피터)</a></li>
+        <li><a href="#spark-python-syntax">31. 파이썬 문법 최소 세트 (import·read_)</a></li>
+        <li><a href="#spark-template">32. PySpark 기본 코드 템플릿</a></li>
+        <li><a href="#spark-ghost">33. 고스트 세션 (Running Application 잔존)</a></li>
+        <li><a href="#spark-time-sync">34. 컨테이너 시간대·시계 동기화</a></li>
+        <li><a href="#spark-array2d">35. 2차원 배열 (pandas vs Spark)</a></li>
+        <li><a href="#spark-df-func">36. DataFrame 조회·집계 (filter·groupBy)</a></li>
+        <li><a href="#spark-product-csv">37. 실습용 CSV (product.csv)</a></li>
+        <li><a href="#cheatsheet">38. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -631,12 +639,12 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>Spark 통합 학습노트</h1>
-    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → pandas UDF 실습·오류 대응(설정 3종·<code class="n">show</code> 기준·pyarrow·<code class="n">p90</code>) → 공공 API(영화진흥위원회) JSON으로 MySQL 적재(INSERT SQL·<code class="n">count(*)</code>) → Spark JDBC 연동(<code class="n">mysql-connector-j</code> JAR·6옵션·<code class="n">show(5)</code>) → 박스오피스 집계(<code class="n">shuffle.partitions</code>·<code class="n">numPartitions</code>) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지 → 마스터·워커 기동까지(사용자 정의 네트워크) → 컨테이너 클러스터 운영(호스트 폴더 볼륨 연결·재생성·실행 중 포트 추가) → Spark 셸·주피터(<code class="n">notebook</code> 설치·<code class="n">PYSPARK_*</code> 3줄·토큰 로그인) → <code class="n">spark.read.csv</code>·<code class="n">spark-submit</code> → Spark SQL(임시 뷰·<code class="n">floor</code>·<code class="n">ceil</code>·<code class="n">round</code>) → 웹 크롤링 이미지 수집. 네트워크 명령: docker.html 9장, 볼륨·포트 설정 이론: docker.html 10장</p>
+    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → pandas UDF 실습·오류 대응(설정 3종·<code class="n">show</code> 기준·pyarrow·<code class="n">p90</code>) → 공공 API(영화진흥위원회) JSON으로 MySQL 적재(INSERT SQL·<code class="n">count(*)</code>) → Spark JDBC 연동(<code class="n">mysql-connector-j</code> JAR·6옵션·<code class="n">show(5)</code>) → 박스오피스 집계(<code class="n">shuffle.partitions</code>·<code class="n">numPartitions</code>) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지 → 마스터·워커 기동까지(사용자 정의 네트워크) → 컨테이너 클러스터 운영(호스트 폴더 볼륨 연결·재생성·실행 중 포트 추가) → Spark 셸·주피터(<code class="n">notebook</code> 설치·<code class="n">PYSPARK_*</code> 3줄·토큰 로그인) → <code class="n">spark.read.csv</code>·<code class="n">spark-submit</code> → Spark SQL(임시 뷰·<code class="n">floor</code>·<code class="n">ceil</code>·<code class="n">round</code>) → 웹 크롤링 이미지 수집 → PySpark 코드로 전환(마스터·워커 <code class="n">numpy</code>·<code class="n">pandas</code>·<code class="n">pyarrow</code> 설치·<code class="n">spark1</code> 노트북·실무는 주피터를 별도 서버로) → 파이썬 문법(<code class="n">from</code>·<code class="n">as</code>·<code class="n">read_</code> 계열) → 기본 코드 템플릿(<code class="n">globals</code> 체크·<code class="n">SparkSession.builder</code>·<code class="n">getOrCreate</code>·<code class="n">spark.stop()</code> 위아래) → 고스트 세션(<code class="n">Running Application</code> 잔존·<code class="n">try/except</code> 안전 종료) → 컨테이너 시간대(<code class="n">date</code>·<code class="n">chrony</code>·<code class="n">timedatectl</code>·<code class="n">/etc/localtime</code> 심볼릭 링크) → 2차원 배열(<code class="n">createDataFrame</code>·<code class="n">schema</code>) → 조회·집계(<code class="n">filter</code>·<code class="n">where</code>·<code class="n">select</code>·<code class="n">groupBy</code>·<code class="n">sum</code>) → 실습 csv(<code class="n">product.csv</code>). 네트워크 명령: docker.html 9장, 볼륨·포트 설정 이론: docker.html 10장</p>
 
     <div class="core-strip">
       <div>
         <div class="core-metric">개념 → 설치 → 운영</div>
-        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성 (3~7장) → 운영·제출·예제 (8~10장) → PySpark·JupyterLab 연동 (11~15장) → pandas UDF·공공 API 적재·JDBC 연동·집계 (16~20장) → 컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile 이미지를 만들어 재사용 (21장) → 호스트 폴더를 <code class="n">-v</code>로 연결한 마스터·워커 클러스터에서 셸·주피터·csv·Spark SQL 실습 (22~29장)</p>
+        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성 (3~7장) → 운영·제출·예제 (8~10장) → PySpark·JupyterLab 연동 (11~15장) → pandas UDF·공공 API 적재·JDBC 연동·집계 (16~20장) → 컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile 이미지를 만들어 재사용 (21장) → 호스트 폴더를 <code class="n">-v</code>로 연결한 마스터·워커 클러스터에서 셸·주피터·csv·Spark SQL 실습 (22~29장) → PySpark 코드로 기본 템플릿·고스트 세션·시간대·2차원 배열·조회·집계 (30~37장)</p>
       </div>
       <div>
         <div class="core-metric">7077 · 8080 · 8888</div>
@@ -678,7 +686,15 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#spark-sql">27. Spark SQL (임시 뷰·쿼리)</a>
       <a href="#spark-sql-func">28. SQL 수치 함수와 집계 함정</a>
       <a href="#spark-crawling">29. 이미지 수집 (웹 크롤링)</a>
-      <a href="#cheatsheet">30. 통합 명령어 치트시트</a>
+      <a href="#spark-pyspark-setup">30. PySpark 실습 환경 (라이브러리·주피터)</a>
+      <a href="#spark-python-syntax">31. 파이썬 문법 최소 세트 (import·read_)</a>
+      <a href="#spark-template">32. PySpark 기본 코드 템플릿</a>
+      <a href="#spark-ghost">33. 고스트 세션 (Running Application 잔존)</a>
+      <a href="#spark-time-sync">34. 컨테이너 시간대·시계 동기화</a>
+      <a href="#spark-array2d">35. 2차원 배열 (pandas vs Spark)</a>
+      <a href="#spark-df-func">36. DataFrame 조회·집계 (filter·groupBy)</a>
+      <a href="#spark-product-csv">37. 실습용 CSV (product.csv)</a>
+      <a href="#cheatsheet">38. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -2865,6 +2881,656 @@ python img.py</code></pre><button class="copy" type="button" aria-label="코드 
   </section>
 
   <!-- 30 -->
+  <section class="sec" id="spark-pyspark-setup">
+    <h2>PySpark 실습 환경 — 라이브러리 설치와 주피터</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 양쪽 컨테이너에 라이브러리, 마스터에서 주피터</p><div class="dg-flow"><div class="dg-node"><h4>① 라이브러리 3개</h4><p class="sub">numpy·pandas
+·pyarrow</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 마스터 + 워커</h4><p class="sub">둘 다 설치</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ pyspark</h4><p class="sub">8888 서버</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ spark1 노트북</h4><p class="sub">토큰 로그인</p></div></div><p class="dg-foot">파이썬 코드(PySpark)로 넘어가는 단계 — 설치가 먼저이고, 라이브러리는 <b>마스터와 워커 양쪽</b>에 넣어야 연산 단계에서 모듈 없음 에러가 나지 않음. 주피터는 마스터 컨테이너 안에서 8888 포트로 뜸</p></div>
+
+    <h3>실습 구성과 전제</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">진행 방식</td><td>Spark를 <b>파이썬 코드(PySpark)</b>로 다룸 — 설치 먼저, 이후 코드 작성</td><td>실습 대부분이 PySpark 코드 (이 파일 30~37장)</td></tr>
+    <tr><td class="nowrap">마스터</td><td><code>spark-master</code> 컨테이너 — JupyterLab(<code>8888</code>)과 <code>pyspark</code> 실행 위치</td><td>클러스터 제어와 코드 실행을 한 곳에서</td></tr>
+    <tr><td class="nowrap">워커</td><td><code>spark-worker1</code> 등 워커 컨테이너 — 연산 담당</td><td>워커에도 같은 라이브러리 설치 (아래)</td></tr>
+    <tr><td class="nowrap">DB</td><td>DB 컨테이너를 같은 네트워크에 함께 둠</td><td>이름 DNS로 연결 — 네트워크: docker.html 9장</td></tr>
+    <tr><td class="nowrap">첫 데이터</td><td>앞서 만든 <code>sample.csv</code>(<code>/opt/spark/data</code>)</td><td>csv 준비: 이 파일 25장</td></tr>
+    <tr><td class="nowrap">첫 노트북</td><td><code>spark1.ipynb</code> — 앞서 쓰던 JupyterLab을 이어서 사용</td><td>오후에는 <code>spark2.ipynb</code>를 따로 만듦 (37장)</td></tr>
+    <tr><td class="nowrap">파이썬 범위</td><td>파이썬 완전 기초는 다루지 않고 이번 주 자료(표)로 대체 — 스파크에 쓰는 문법만</td><td>일반 파이썬 코드와 스파크 코드는 별개 — 파이썬이 처음이어도 수강 가능</td></tr>
+    <tr><td class="nowrap">선행 지식</td><td><code>pandas</code>·<code>numpy</code> 기초 필요</td><td>스파크에 들어가는 라이브러리가 일반 파이썬과 달라 직접 확인할 부분이 많음 — pandas 기초는 토요일 수업에서 별도</td></tr>
+    </tbody></table></div>
+
+    <h3>라이브러리 설치 — 마스터·워커 양쪽</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 마스터 컨테이너 bash 진입 — 이후 명령은 컨테이너 안에서 실행</span>
+docker exec -it spark-master bash
+<span class="c"># [spark-master 컨테이너 · root]</span>
+<span class="c"># 코드에서 pandas·numpy를 쓰려면 먼저 설치 필수 — 설치 없이 import하면 모듈 없음 에러</span>
+<span class="c"># numpy=수치 연산 / pandas=파일 읽기 / pyarrow=JVM↔Python 데이터 전송</span>
+pip3 install numpy pandas pyarrow
+<span class="c"># 마스터 셸에서 나옴</span>
+exit
+<span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 워커도 같은 설치를 반복 — 마스터에만 깔면 워커에서 연산할 때 실패</span>
+docker exec -it spark-worker1 bash
+<span class="c"># [spark-worker1 컨테이너 · root]</span>
+pip3 install numpy pandas pyarrow</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>패키지</th><th>역할</th><th>설치 위치·메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>numpy</code></td><td>수치 연산 — 다차원 배열 처리</td><td>마스터·워커</td></tr>
+    <tr><td class="nowrap"><code>pandas</code></td><td>여러 형태의 파일을 쉽게 읽어 표로 다룸</td><td>스파크만 돌릴 때는 불필요(스파크 안에 포함) — csv 로드 편의로 설치</td></tr>
+    <tr><td class="nowrap"><code>pyarrow</code></td><td>Apache Arrow 기반 — JVM과 Python 사이 데이터 전송</td><td>워커에 없으면 연산 단계에서 모듈 없음 에러</td></tr>
+    <tr><td class="nowrap"><code>matplotlib</code></td><td>그래프 라이브러리</td><td><b>설치하지 않음</b> — 그래프까지 볼 일이 없고 결과는 표·뷰 형태로 확인</td></tr>
+    <tr><td class="nowrap">설치 누락</td><td>마스터에만 설치한 상태</td><td>코드가 워커로 넘어가는 순간 모듈 없음 — 양쪽 설치가 원칙</td></tr>
+    <tr><td class="nowrap">워커 이름</td><td>실습 워커가 2대면 <code>spark-worker1</code>·<code>spark-worker2</code> 각각</td><td>워커마다 같은 명령 반복</td></tr>
+    </tbody></table></div>
+
+    <h3>주피터 실행</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+<span class="c"># pyspark: .bashrc의 PYSPARK_* 설정 때문에 셸 대신 JupyterLab 서버(8888)를 띄움</span>
+pyspark
+<span class="c"># 실행 결과: 주피터 주소와 ?token= 값이 출력 — 이 터미널은 서버가 점유</span>
+<span class="c"># 명령을 더 칠 때는 터미널(PuTTY)을 하나 더 열어 마스터 컨테이너로 접속</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts"><li><strong>워커 쪽</strong><div>워커는 손대지 않음 — <code>pyspark</code>는 마스터 컨테이너에서만 실행</div></li><li><strong>환경변수</strong><div><code>PYSPARK_PYTHON</code>·<code>PYSPARK_DRIVER_PYTHON</code>·<code>PYSPARK_DRIVER_PYTHON_OPTS</code> 세 줄: 이 파일 24장</div></li></ul>
+
+    <h3>정상 확인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>확인 대상</th><th>정상 상태</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">Spark Master 웹</td><td>마스터 UI에 워커까지 정상으로 표시</td><td>다음 진행 전에 먼저 확인</td></tr>
+    <tr><td class="nowrap">주피터</td><td><code>8888</code> 포트로 서버 기동 — 브라우저 <code>http://서버IP:8888</code></td><td>포트가 없으면 <code>docker ps</code>부터 확인 (24장)</td></tr>
+    <tr><td class="nowrap">로그인</td><td>토큰 필요 — 터미널에 찍힌 <code>?token=</code> 값</td><td>토큰은 기록이 남지 않음</td></tr>
+    <tr><td class="nowrap">서버 재기동</td><td>토큰이 새로 발급됨</td><td>주피터를 껐다 켜면 이전 주소로는 로그인 불가</td></tr>
+    <tr><td class="nowrap">PC 재부팅</td><td>세션이 날아가 토큰을 다시 입력</td><td>노트북 파일은 저장된 것만 남음</td></tr>
+    </tbody></table></div>
+
+    <h3>spark1 노트북</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>동작</th><th>방법</th><th>주의·메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">노트북 생성</td><td>Launcher에서 <b>Notebook</b> → 커널 <b>Python 3</b>(ipykernel)</td><td>이름을 <code>spark1</code>로 — 파일은 <code>spark1.ipynb</code></td></tr>
+    <tr><td class="nowrap">셀 실행</td><td><b>Shift+Enter</b></td><td>에러가 없으면 정상 작동, 에러는 셀 바로 아래에 몇 번째 줄인지 표시</td></tr>
+    <tr><td class="nowrap">저장</td><td><b>Ctrl+S</b></td><td>디스크 아이콘이 보이면 아직 저장 전 (14장)</td></tr>
+    <tr><td class="nowrap">주석</td><td>코드 셀 안에서 <code>#</code> 사용</td><td>코드 설명은 주석으로 — 본문 대신 주석에 옵션 의미</td></tr>
+    <tr><td class="nowrap">새 셀</td><td><code>+</code>로 셀 추가</td><td>새 셀은 위 셀과 완전히 다르게 동작하니 유의</td></tr>
+    <tr><td class="nowrap">Kernel 메뉴</td><td>Restart Kernel 등</td><td>커널 리셋이 필요한 순간이 생김 — 고스트 세션: 이 파일 33장</td></tr>
+    <tr><td class="nowrap">파일 목록</td><td>좌측 <code>/data</code>에서 csv를 열면 표 형태</td><td><code>/opt/spark/data</code> = 호스트 <code>/home/spark-data</code>와 연결된 폴더</td></tr>
+    </tbody></table></div>
+
+    <h3>실무와 실습 환경의 차이</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>실습</th><th>실무</th></tr></thead><tbody>
+    <tr><td class="nowrap">주피터 위치</td><td>편의상 마스터 컨테이너 안에서 같이 실행</td><td>마스터 서버가 아니라 <b>별도 서버</b>로 분리</td></tr>
+    <tr><td class="nowrap">분리 이유</td><td>—</td><td>실제 마스터 서버에는 웹·WAS·FTP 등 많은 서비스가 돌아 주피터까지 얹으면 느려짐</td></tr>
+    <tr><td class="nowrap">별도 구성</td><td>마스터 안에 주피터</td><td>주피터(PySpark) 서버 → 마스터 컨테이너 → 워커들 → DB를 같은 네트워크로 묶음</td></tr>
+    <tr><td class="nowrap">합친 이유</td><td>컨테이너로 돌리면 메모리·용량 한계, 특히 <b>코어</b> 부족</td><td>—</td></tr>
+    <tr><td class="nowrap">코어 계산</td><td>코어 4개뿐 = 마스터 1 + 워커 1~2 + 주피터 1 → 최소 5~6코어 필요</td><td>6코어를 돌리면 윈도우가 뻗음</td></tr>
+    <tr><td class="nowrap">부작용</td><td>합쳐서 돌리는 탓에 약간의 버그 = 커널 문제</td><td>주피터를 분리하면 커널 문제도 줄어듦 (33장)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">라이브러리는 마스터·워커 <b>양쪽</b> — 한쪽만 설치하면 연산 단계에서 모듈 없음 에러. 주피터를 마스터에 붙여 쓰는 것은 코어 4개 사정 때문이고, 실무는 주피터를 별도 서버로 분리</div>
+
+    <ul class="facts"><li><strong>라이브러리 이론</strong><div>pandas·numpy·pyarrow 역할: 이 파일 11장</div></li><li><strong>직접 설치 환경</strong><div>서버 2대(<code>sparkuser</code>)에 pip로 설치: 이 파일 12장</div></li><li><strong>주피터 접속</strong><div>8888 포트 게시·토큰 로그인: 이 파일 24장</div></li><li><strong>노트북·커널</strong><div>화면 구성·<code>.ipynb</code>→<code>.py</code>·커널 정리: 이 파일 14장</div></li></ul>
+  </section>
+
+  <!-- 31 -->
+  <section class="sec" id="spark-python-syntax">
+    <h2>파이썬 문법 최소 세트 — import·from·as와 파일 읽기</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 모듈을 가져오고, 별칭을 붙이고, 파일을 읽는다</p><div class="dg-flow"><div class="dg-node"><h4>① import</h4><p class="sub">모듈 로드</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② from … import</h4><p class="sub">첫 줄 문법</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ as</h4><p class="sub">별칭 pd·np</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ pd.read_</h4><p class="sub">csv·json…</p></div></div><p class="dg-foot">Spark 코드는 거의 <code>from</code>으로 시작 — <code>from pyspark.sql import SparkSession</code> 한 줄이 Spark 실행의 출발점이고, 이 줄이 없으면 일반 파이썬 코드로만 돎</p></div>
+
+    <h3>import · from · as</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>문법</th><th>동작</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>import 모듈</code></td><td>모듈(라이브러리)을 가져와 현재 코드에서 사용</td><td>가장 기본 형태</td></tr>
+    <tr><td class="nowrap"><code>from 모듈 import 이름</code></td><td>지정한 모듈을 찾아 로드한 뒤 그 모듈의 이름만 현재 네임스페이스로 가져옴</td><td>Spark 사용자는 거의 <code>from</code>으로 시작 — 실행은 지금 프로세스에서 이뤄지고 다른 쪽에 넘기는 문법이 아님</td></tr>
+    <tr><td class="nowrap"><code>as 별칭</code></td><td>가져온 모듈에 다른 이름을 붙임 — 아무 이름이나 가능</td><td><code>pd</code>·<code>np</code>는 관례일 뿐 정식 코드가 아님, 실무에서 본인 이름 등 임의 별칭을 쓰기도 함</td></tr>
+    <tr><td class="nowrap">자동완성</td><td><code>Tab</code> 키</td><td>주피터에서 안 나올 때도 있고 비주얼 스튜디오에서는 동작</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+<span class="c"># spark 전용 라이브러리 — 첫 줄이거나 코드 어딘가에 반드시 들어가는 핵심 문구</span>
+from pyspark.sql import SparkSession
+<span class="c"># pandas 모듈을 pd라는 별칭으로 로드</span>
+import pandas as pd
+<span class="c"># numpy도 같은 방식 (np)</span>
+import numpy as np</code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구성</th><th>의미</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>pyspark</code></td><td>파이썬 스파크</td><td>패키지 이름</td></tr>
+    <tr><td class="nowrap"><code>.sql</code></td><td>SQL 쿼리 문을 쓰는 영역</td><td><code>spark.sql</code>·DataFrame API (27장)</td></tr>
+    <tr><td class="nowrap"><code>SparkSession</code></td><td>스파크 세션 객체</td><td>이 줄이 없으면 스파크가 안 돌고 일반 파이썬으로만 동작</td></tr>
+    </tbody></table></div>
+
+    <h3>pandas로 파일 읽기</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+import pandas as pd
+<span class="c"># CSV를 읽어 변수 aa에 저장 — 같은 폴더라 파일명만 씀 (원래는 절대경로)</span>
+aa = pd.read_csv('sample.csv')
+<span class="c"># money + sales 를 신규 컬럼 total에 저장 (변수로 받아도, 안 받아도 됨)</span>
+aa['total'] = aa['money'] + aa['sales']
+<span class="c"># total 컬럼 출력 — 결과에 dtype: int64 표기</span>
+print(aa['total'])</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>읽기 함수</th><th>대상</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>read_excel</code></td><td>엑셀 파일(xlsx·xls)</td></tr>
+    <tr><td class="nowrap"><code>read_csv</code></td><td>CSV 파일</td></tr>
+    <tr><td class="nowrap"><code>read_clipboard</code></td><td>클립보드에 복사한 표</td></tr>
+    <tr><td class="nowrap"><code>read_html</code></td><td>웹 페이지의 표</td></tr>
+    <tr><td class="nowrap"><code>read_json</code></td><td>JSON 문서</td></tr>
+    <tr><td class="nowrap"><code>read_sql</code></td><td>SQL 쿼리 결과</td></tr>
+    <tr><td class="nowrap"><code>read_table</code></td><td>구분자로 나눈 텍스트 표</td></tr>
+    <tr><td class="nowrap"><code>read_xml</code></td><td>XML 문서</td></tr>
+    </tbody></table></div>
+    <p><code>pd.read_</code>까지 입력하고 <code>Tab</code>을 누르면 위 목록이 나옴 — 읽을 형식이 늘어나도 같은 방식.</p>
+
+    <h3>결과·용어</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">실행 결과</td><td><code>total</code> 컬럼 값이 <code>dtype: int64</code>로 출력</td><td>숫자 컬럼끼리 더해 새 숫자 컬럼이 생긴 것</td></tr>
+    <tr><td class="nowrap"><code>aa</code></td><td>csv 내용을 가진 변수(배열 값) — 이름은 자유</td><td>파일 경로는 같은 공간이라 파일명만, 원래는 절대경로</td></tr>
+    <tr><td class="nowrap"><code>total</code></td><td>새로 만든 신규 배열(컬럼)</td><td>합계는 SQL에서도 빨리 내야 하는 부분이라 같은 방식으로 씀</td></tr>
+    <tr><td class="nowrap">스파크 여부</td><td>이 코드는 <b>스파크가 아님</b> — 스파크를 돌리는 명령이 없어 로컬에서만 실행</td><td>일반 파이썬으로 이렇게 돌려도 스파크는 절대 안 돌아감</td></tr>
+    <tr><td class="nowrap">실무 연결</td><td>분석 데이터를 다루는 사람은 pandas 코드를 가져와 <b>스파크로 돌려</b> 데이터가 어떻게 나오는지 판단</td><td>pandas 코드가 출발점, Spark가 실행 주체</td></tr>
+    <tr><td class="nowrap">컬럼</td><td>csv 맨 위 줄(<code>id</code>·<code>name</code>·<code>money</code> 등)</td><td>학교·과제에서는 한글 컬럼을 쓰지만 <b>실무에서는 한글 컬럼을 쓰지 않음</b>(문제 발생) — 이 노트는 보기 편하게 한글</td></tr>
+    <tr><td class="nowrap">범위</td><td><code>pandas</code>·<code>numpy</code>로 데이터프레임 작업도 가능</td><td>이 노트에서는 다루지 않음 (예고 수준)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">Spark 코드의 시작은 <code>from pyspark.sql import SparkSession</code> — 이 줄이 없으면 Spark가 아니라 일반 파이썬으로 돎. <code>pd.read_csv</code>만 있는 코드도 Spark 명령이 없으니 로컬 실행일 뿐이고, <code>from</code>은 다른 쪽에 일을 넘기는 문법이 아니라 지정한 이름만 현재 네임스페이스로 가져오는 문법</div>
+
+    <ul class="facts"><li><strong>라이브러리 역할</strong><div>pandas·numpy·pyarrow: 이 파일 11장</div></li><li><strong>세션 만들기</strong><div><code>SparkSession.builder</code> 전체 구조: 이 파일 32장</div></li><li><strong>파일 읽기 다른 방식</strong><div><code>spark.read.csv</code>: 이 파일 25장</div></li></ul>
+  </section>
+
+  <!-- 32 -->
+  <section class="sec" id="spark-template">
+    <h2>PySpark 기본 코드 템플릿</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 시작 전 정리 → 세션 생성 → 작업 → 종료</p><div class="dg-flow"><div class="dg-node"><h4>① globals 체크</h4><p class="sub">세션 정리</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② builder</h4><p class="sub">appName·master</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 작업 코드</h4><p class="sub">df·SQL</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ spark.stop()</h4><p class="sub">자원 회수</p></div></div><p class="dg-foot">매 노트북 맨 위에 통째로 복사하는 기본 코드 — 두 번째 노트북부터 <code>appName</code>만 바꿈. 이 구조가 제대로 쓰는 Spark 기초 코드이고, 더 추가되는 기본 코드는 없음</p></div>
+
+    <h3>템플릿 전체</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 첫 셀 · root]</span>
+<span class="c"># Spark로 데이터를 다루는 진입 라이브러리 — 이 줄이 없으면 일반 파이썬</span>
+from pyspark.sql import SparkSession
+<span class="c"># 시간 측정·대기용 모듈 (tm.sleep)</span>
+import time as tm
+<span class="c"># 실행 중인 앱(Running Application)이 남아 있으면 코어를 계속 점유 — 시작 전에 전역 변수의 spark 객체를 확인해 안전하게 종료</span>
+if 'spark' in globals():        <span class="c"># 전역 변수에 spark 객체가 있는지 확인</span>
+    try:                        <span class="c"># 예외처리 시작 — 종료 중 문제가 생겨도 멈추지 않게</span>
+        spark.stop()            <span class="c"># 살아 있는 세션 종료</span>
+    except:                     <span class="c"># 종료 중 문제가 생기면</span>
+        pass                    <span class="c"># 그냥 넘어감</span>
+print("시작")
+tm.sleep(2)                     <span class="c"># 일시정지 — 2초 뒤 종료 출력</span>
+print("종료")
+<span class="c"># 세션 생성 — appName(앱 이름), master(마스터 주소), config(환경 설정)</span>
+spark = SparkSession.builder \
+    .appName("초급 배열 연습") \
+    .master("spark://spark-master:7077") \
+    .config("spark.driver.host","spark-master") \
+    .getOrCreate()
+<span class="c"># ... 작업 코드 ...</span>
+spark.stop()   <span class="c"># 모든 작업이 끝나면 반드시 — stop을 안 걸면 워커 노드를 회수하지 못하고 고스트로 남음</span></code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">복사 방식</td><td>템플릿 블록을 매 노트북에 반복 복사</td><td>두 번째 노트북부터 <code>appName</code>만 변경 (예: "2차 배열 연습")</td></tr>
+    <tr><td class="nowrap">필수성</td><td>이 한 덩어리가 없으면 스파크가 안 돌아감 = 핵심 문구</td><td>추가로 더 넣는 기본 코드는 없음</td></tr>
+    <tr><td class="nowrap">줄바꿈</td><td>한 줄로 써도 되나 역슬래시 <code>\</code>로 줄을 나눔</td><td><b>역슬래시 뒤에는 주석을 쓸 수 없음</b> — 쓰는 순간 에러</td></tr>
+    </tbody></table></div>
+
+    <h3>time 모듈</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">쓰는 이유</td><td>스파크에서는 작업 시간이 얼마나 걸리는지 바로 파악해야 함 — 측정까지 가능</td><td><code>import time as tm</code>으로 별칭</td></tr>
+    <tr><td class="nowrap"><code>tm.sleep(초)</code></td><td>지정한 초만큼 일시정지</td><td>앞선 작업이 있으면 잠깐 대기한 뒤 다음을 작동시켜야 해서 타이밍에 많이 씀</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td><code>시작</code> 출력 → 2초 대기 → <code>종료</code> 출력</td><td>세션 생성 전에 흐름을 눈으로 확인하는 용도</td></tr>
+    </tbody></table></div>
+
+    <h3>SparkSession 빌더</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구성</th><th>의미</th><th>주의</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>SparkSession.builder</code></td><td>세션 빌더 시작 — 결과를 변수 <code>spark</code>로 받음</td><td>변수명은 자유지만 관례가 <code>spark</code> (탭 자동완성)</td></tr>
+    <tr><td class="nowrap"><code>.appName("이름")</code></td><td>애플리케이션 이름 — Spark Master 웹의 Running Application에 표시</td><td>한글 가능 (규칙이라 그냥 씀)</td></tr>
+    <tr><td class="nowrap"><code>.master("spark://spark-master:7077")</code></td><td>마스터 서버 주소</td><td>웬만하면 안 바뀜 — Spark 웹의 Master 주소를 그대로 복사해 붙여넣음</td></tr>
+    <tr><td class="nowrap"><code>.config(...)</code></td><td>환경 설정</td><td>있어도 없어도 됨 (아래)</td></tr>
+    <tr><td class="nowrap"><code>.getOrCreate()</code></td><td>기존 전역 SparkSession이 있으면 그 세션을 반환, 없으면 새로 만들어 전역 기본 세션으로 지정</td><td>세션 빌더를 마무리하는 호출 — 재사용되면 새 <code>master</code> 값이 무시될 수 있음 (27장)</td></tr>
+    </tbody></table></div>
+
+    <h3>config — 드라이버 호스트</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+<span class="c"># 드라이버 호스트를 컨테이너 이름으로 지정 — 주피터를 별도 서버에 둘 때 필요</span>
+.config("spark.driver.host","spark-master")</code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>상황</th><th>설정</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">주피터를 마스터와 같은 곳에</td><td>불필요 — 실습은 같은 공간이라 생략 가능</td><td>드라이버와 마스터가 같은 컨테이너</td></tr>
+    <tr><td class="nowrap">주피터를 웹(별도 서버)으로</td><td><code>config</code>로 드라이버 호스트를 넣음</td><td>주피터를 별도로 빼면 <b>워커가 안 돌아가는데</b> 코드 문제로 착각해 헤맬 수 있음</td></tr>
+    <tr><td class="nowrap">코어·메모리</td><td><code>config</code>로 지정 가능하나 이번에는 지정하지 않음</td><td>워커 안에서 DB 등 다른 것을 안 돌려 워커의 코어·메모리를 전부 쓰기 때문</td></tr>
+    </tbody></table></div>
+
+    <h3>템플릿 동작 확인</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+<span class="c"># 확인용 배열 — 템플릿이 정상으로 도는지 눈으로 보는 값</span>
+user = ["홍길동","강감찬","유관순"]
+print(user)
+spark.stop()                          <span class="c"># 세션 종료 (아래쪽 정리)</span></code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>실행 결과</th><th>판단</th></tr></thead><tbody>
+    <tr><td><code>시작</code> → <code>종료</code> → 배열 <code>['홍길동', '강감찬', '유관순']</code> 순서로 출력, 에러 없음</td><td>템플릿이 정확 — 이후 작업 코드를 붙여 진행</td></tr>
+    <tr><td>출력이 중간에 끊기거나 아예 안 뜸</td><td>고스트 세션이 물려 있는 상태일 수 있음 — 이 파일 33장</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">템플릿은 매 노트북에 통째로 — ① globals 체크 ② builder(appName·master·config·getOrCreate) ③ 작업 ④ <code>spark.stop()</code>. 역슬래시 뒤 주석은 에러이고, <code>getOrCreate()</code>는 기존 세션이 있으면 그 세션을 그대로 반환</div>
+
+    <ul class="facts"><li><strong>세션 재사용 함정</strong><div>이미 만든 세션을 재사용할 때 <code>master</code>가 무시되는 경우: 이 파일 27장</div></li><li><strong>고스트 세션</strong><div>globals 체크를 빼면 생기는 일: 이 파일 33장</div></li><li><strong>자원 지정</strong><div>코어·메모리 상한(<code>spark.cores.max</code>·executor): 이 파일 10장</div></li></ul>
+  </section>
+
+  <!-- 33 -->
+  <section class="sec" id="spark-ghost">
+    <h2>고스트 세션 — Running Application이 남는 현상</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 끝났는데 살아 있는 앱이 코어를 잡고 있다</p><div class="dg-flow"><div class="dg-node"><h4>① globals 제거</h4><p class="sub">주석 처리</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② Running 유지</h4><p class="sub">코어 점유</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 무응답</h4><p class="sub">출력만 됨</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ kill 후 복구</h4><p class="sub">정상 생성</p></div></div><p class="dg-foot">종료되지 않은 세션이 워커의 코어·CPU·메모리를 계속 잡고 있는 상태 = 고스트 세션. kill(강제 정지)로만 정리되고, <code>spark.stop()</code>을 위·아래 모두 걸어야 생기지 않음</p></div>
+
+    <h3>현상 — 세 가지 실험</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>실험</th><th>결과</th><th>의미</th></tr></thead><tbody>
+    <tr><td class="nowrap">템플릿 그대로 (globals 체크 + stop)</td><td>정상 종료, Spark 웹 Completed Applications에 앱 이름이 생김</td><td>정상 처리 — 자원 반환까지 완료</td></tr>
+    <tr><td class="nowrap"><code>if 'spark' in globals()</code> 부분을 <code>#</code>으로 주석 처리</td><td>시작·종료·배열은 출력되나 Spark 웹에 <b>Running Application이 계속 남음</b></td><td>종료되지 않은 세션이 코어를 계속 점유, CPU·메모리 할당 유지</td></tr>
+    <tr><td class="nowrap">그 상태에서 <code>spark.stop()</code>만 달고 실행</td><td>시작·종료까지만 나오고 이후 아예 안 뜸</td><td><b>작동이 안 된 것</b> — 에러 난 앱이 고스트처럼 떠다니기 때문</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>정리 방법</th><th>동작</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">kill (강제 정지)</td><td>Spark 웹에서 앱을 강제 종료 — 고스트는 이 방법으로만 종료 가능</td><td>강제로 죽이면 빨간색으로 표시됨 (강제로 죽였다는 뜻)</td></tr>
+    <tr><td class="nowrap">해결 순서</td><td>떠다니는 앱을 모두 컷한 뒤 globals 체크 문구를 살려 실행</td><td>순식간에 사라지고 정상 처리, 새로고침하면 앱 하나가 정상 생성됨</td></tr>
+    <tr><td class="nowrap">재실행</td><td>실행 중이던 앱은 재실행하면 날아감(죽고 정리됨)</td><td>단 끝에 stop을 안 걸면 무조건 계속 돌아감 (고스트)</td></tr>
+    <tr><td class="nowrap">차이</td><td>globals 체크 + stop 문구가 있고 없고의 차이가 매우 큼</td><td>그래서 템플릿에 주석 처리해 둔 것이며 뜻을 알아야 함</td></tr>
+    </tbody></table></div>
+
+    <h3>왜 문제인가 — 실무 연결</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>지점</th><th>일어나는 일</th><th>결과</th></tr></thead><tbody>
+    <tr><td class="nowrap">워커</td><td>일이 끝나면 종료돼야 하는데 놓아주지 않음</td><td>계속 대기 상태 — 코스트가 계속 발생하고 코어를 제대로 활용하지 못함</td></tr>
+    <tr><td class="nowrap">실무 지적</td><td>자원 낭비·종료를 안 했다는 지적의 원인</td><td>stop을 안 건 것</td></tr>
+    <tr><td class="nowrap">증상</td><td>프로그램이 계속 에러가 나거나 워커가 안 돌아감</td><td>고스트로 물려 있는 앱이 원인일 수 있음</td></tr>
+    <tr><td class="nowrap">AI에게 맡길 때</td><td>디버그 코드만 고치고 고스트 컷은 못 함</td><td>서버가 점점 느려지고 "코어가 없다" 에러가 뜸</td></tr>
+    <tr><td class="nowrap">코어 부족</td><td>이미 코어를 점유한 앱이 도는 상태에서 또 코어를 요청</td><td>남는 코어가 없어 에러 (남의 코어 없음)</td></tr>
+    <tr><td class="nowrap">설정값 예</td><td>워커에 코어 2개를 지정해 쓰고 있는 상태에서 같은 2코어를 또 요청</td><td>남는 코어가 없어 연산 불가 — 자원 확보가 먼저</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 41강 41:37</div><p>워커에 "코어 2개에 200"을 지정해 쓴다는 설명이 나오지만 화면에는 그 설정값이 보이지 않음. 200이 무엇의 값인지(메모리 등) — 영상 41분 37초 부근을 다시 듣거나 spark 실행 옵션 코드와 대조해 확인</p></div>
+
+    <h3>stop은 위·아래 둘 다</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>위치</th><th>하는 일</th><th>빠뜨리면</th></tr></thead><tbody>
+    <tr><td class="nowrap">위 (시작 전)</td><td>globals 체크로 살아 있는 세션을 모두 종료</td><td>이전 세션이 남은 채 새 앱이 떠서 코어 부족</td></tr>
+    <tr><td class="nowrap">아래 (작업 끝)</td><td><code>spark.stop()</code>으로 워커 노드 회수</td><td>대기 상태로 남고, 다시 실행하면 죽었다 재생성되지만 또 살아 있음 → 반복</td></tr>
+    <tr><td class="nowrap">하나만 걸면</td><td>동작은 하지만 하나를 깜빡하면 위 문제가 계속됨</td><td>그래서 stop은 항상 끝에도 넣고 시작에도 넣음</td></tr>
+    <tr><td class="nowrap">같은 원리</td><td>개발자가 DB 커넥션 <code>close</code>를 쓰는 이유와 같음</td><td>종료하지 않으면 계속 살아서 작동</td></tr>
+    <tr><td class="nowrap">용어</td><td>이 종료·정리 습관을 가리키는 말로 "스코프"를 쓰지 않음</td><td>scope = 이름이 직접 접근 가능한 프로그램 영역을 뜻하는 용어</td></tr>
+    </tbody></table></div>
+
+    <h3>안전 종료 — try/except</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 첫 셀 · root]</span>
+<span class="c"># running APP 상태에서 state 또는 delay 상태 강제 정지</span>
+<span class="c"># spark 에서 작업시 running이 있는 부분을 모두 안전하게 객체를 확인 후 종료</span>
+if 'spark' in globals():      <span class="c"># 커널이 spark를 계속 잡고 있어 런이 계속 걸리는 현상을 막는 문구 (탭 자동완성)</span>
+    try:                      <span class="c"># 종료 중 문제가 생길 수 있음 — 작업 중 종료되면 큰일</span>
+        spark.stop()
+    except:                   <span class="c"># exception 처리</span>
+        pass                  <span class="c"># 객체가 없으면 그냥 넘어감</span></code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">목적</td><td>종료하다가 문제가 생길 수 있어 안전장치로 예외처리 사용</td><td>작업 중인데 종료되면 큰일</td></tr>
+    <tr><td class="nowrap">흐름</td><td><code>try</code> 실행 → <code>except</code>(exception)에서 <code>pass</code>로 넘김</td><td>에러 메시지를 숨기는 것이 아니라 종료 실패만 넘김</td></tr>
+    <tr><td class="nowrap">결과</td><td>globals 체크에 걸리지 않으면(객체 없음) <code>pass</code>, 고스트처럼 살아 있는 세션이 있으면 모두 종료</td><td>한 번의 실행으로 이전 앱까지 정리</td></tr>
+    <tr><td class="nowrap">필요성</td><td>원래는 없어도 되는 문구이나 실습 편의상 필요하고 실무에서도 씀</td><td>있고 없고가 중요 — 위 실험은 이 부분을 주석 처리한 상태</td></tr>
+    </tbody></table></div>
+
+    <h3>Spark 웹 UI에서 확인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>화면</th><th>확인 항목</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">Completed Applications</td><td>앱 이름, 실행 사용자(<code>root</code>), 사용 메모리, 시작 시각</td><td>항목을 클릭해 상세 확인</td></tr>
+    <tr><td class="nowrap">Executors 탭</td><td>로그, 사용 코어 수, 메모리 사용</td><td>워커별 할당 확인</td></tr>
+    <tr><td class="nowrap">Running Applications</td><td>남아 있는 앱 = 고스트 후보</td><td>오른쪽 <code>(kill)</code> 링크로 정지</td></tr>
+    <tr><td class="nowrap">시각</td><td>처리 시각이 무조건 안 맞아 보임</td><td>컨테이너 시간대 문제 — 이 파일 34장</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">고스트 세션 — globals 체크를 빼면 출력은 그대로인데 Running Application이 남아 코어·메모리를 계속 점유. kill로만 정리되고, stop은 위(시작 전)·아래(작업 끝) 둘 다 걸어야 함. "코어가 없다" 에러의 흔한 원인</div>
+
+    <ul class="facts"><li><strong>템플릿</strong><div>globals 체크·builder 전체 코드: 이 파일 32장</div></li><li><strong>커널 정리</strong><div>Restart Kernel·Shut Down Kernel·<code>(kill)</code>: 이 파일 14장</div></li><li><strong>자원 한계 실험</strong><div>코어를 점유해 <code>WAITING</code>이 되는 사례: 이 파일 15장</div></li></ul>
+  </section>
+
+  <!-- 34 -->
+  <section class="sec" id="spark-time-sync">
+    <h2>컨테이너 시간대·시계 동기화</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — UTC로 뜬 시계를 서울로 맞추는 순서</p><div class="dg-flow"><div class="dg-node"><h4>① date</h4><p class="sub">UTC 확인</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② hwclock 실패</h4><p class="sub">클럭 접근 불가</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ chrony</h4><p class="sub">NTP 서버 지정</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>④ systemctl 불가</h4><p class="sub">PID 1·권한</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ localtime 링크</h4><p class="sub">KST 전환</p></div></div><p class="dg-foot">Spark 웹의 처리 시각이 안 맞아 시작된 실습 — 컨테이너는 호스트 시계를 공유하고 시간대만 이미지 기본값(UTC)으로 보이는 상태. chrony로는 권한이 없어 실패하고, 마지막에 <code>/etc/localtime</code> 링크로 해결</p></div>
+
+    <h3>증상과 확인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">증상</td><td>Spark 웹의 처리 시간·실행 시각이 안 맞음</td><td>컨테이너 시간을 먼저 확인하게 되는 계기</td></tr>
+    <tr><td class="nowrap">작업 위치</td><td>주피터는 정지하지 않고(계속 저장 중) 마스터 컨테이너 터미널에서 진행</td><td>주피터 서버는 그대로 두고 다른 터미널 사용</td></tr>
+    <tr><td class="nowrap">확인 시점</td><td><b>컨테이너 생성 후 무조건 <code>date</code>로 시간부터 확인</b></td><td>확인 없이 DB 등을 설치하면 시간이 엉망이 되어 문제가 터짐</td></tr>
+    <tr><td class="nowrap">방치 위험</td><td>시간이 안 맞는 상태로 두면 큰일</td><td>기록·로그·DB 시각이 모두 어긋남</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+<span class="c"># 현재 시간 확인 — 시간대까지 함께 보임</span>
+date
+<span class="c"># 실행 결과: Tue Nov 10 01:25:19 UTC 2026 (UTC로 잡혀 있음)</span></code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>원리</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">시계</td><td>컨테이너는 호스트 커널의 시계를 공유 — 시간대만 이미지 기본값(UTC)으로 보임</td><td>리눅스에서 시간 정렬을 안 한 것이 아니라 표시 기준이 UTC인 상태</td></tr>
+    <tr><td class="nowrap">파일 변경</td><td>컨테이너 안 파일 변경은 stop/start 후에도 유지되고 컨테이너를 삭제할 때 사라짐</td><td>설정을 파일에 넣으면 재시작에도 유지됨</td></tr>
+    <tr><td class="nowrap">윈도우 쪽</td><td>로컬(윈도우)은 윈도우 시계를 따라 정상</td><td>컨테이너만 UTC로 보이는 상태</td></tr>
+    </tbody></table></div>
+
+    <h3>hwclock 시도 (실패)</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+<span class="c"># 하드웨어 클럭과 시스템 시간을 맞추는 시도 (컨테이너에서는 불가)</span>
+hwclock --systohc
+<span class="c"># 실행 결과: Cannot access the Hardware clock via any known method.</span></code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>옵션·상황</th><th>의미</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>--systohc</code></td><td>시스템 시간을 하드웨어 클럭에 기록</td><td>반대 방향 옵션은 <code>--hctosys</code> (하드웨어 클럭 → 시스템 시간)</td></tr>
+    <tr><td class="nowrap">실패 이유</td><td>컨테이너 상태라 하드웨어 클럭을 로드할 수 없음</td><td>어떤 방법으로도 접근 불가 메시지</td></tr>
+    <tr><td class="nowrap">로컬(물리·VM)</td><td>두 옵션 모두 동작 — 하드웨어(윈도우) 시간을 가져와 바로 맞춤</td><td>컨테이너와 다른 점</td></tr>
+    </tbody></table></div>
+
+    <h3>chrony 설치·설정</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+<span class="c"># chrony(NTP) 설치 — 마스터 컨테이너는 완전 깡통 서버라 미설치 상태</span>
+dnf install chrony
+<span class="c"># 설치가 오래 걸림: 파일 용량은 작은데 base 저장소 로드를 거치기 때문</span></code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+<span class="c"># 설정 파일 편집 — :set number 로 줄 번호 확인</span>
+vi /etc/chrony.conf</code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · /etc/chrony.conf 파일 안 · root]</span>
+<span class="c"># 기본 NTP 풀 — 주석 처리해 사용하지 않음</span>
+#pool 2.rocky.pool.ntp.org iburst
+<span class="c"># 사용할 타임 서버 — 가장 많이 쓰는 서버 하나만 지정 (kornet 등 다른 서버도 있음)</span>
+server time.bora.net iburst</code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">적용 대상</td><td>마스터에 잡으면 <b>워커에도 똑같이</b> 해야 함</td><td>한쪽만 맞으면 Spark 웹 시각이 다시 어긋남</td></tr>
+    <tr><td class="nowrap">설정 유지</td><td><code>/etc/chrony.conf</code>에 넣으면 컨테이너를 껐다 켜도 초기화되지 않고 그 서버로 동기화</td><td>파일 변경은 stop/start 후에도 유지</td></tr>
+    <tr><td class="nowrap">윈도우 대응</td><td>[윈도우 · 설정] 날짜 및 시간 → 자동 표준 시간대 설정 켬/끔, 동기화 → 시간 서버 변경</td><td>윈도우에도 같은 기능이 있음</td></tr>
+    <tr><td class="nowrap">타임존만 바꾸기</td><td>chrony 대신 타임존을 강제로 잡는 방법도 있음 (아래)</td><td>동기화가 막힌 환경의 우회</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 41강 59:13</div><p>NTP를 "네트워크 타임(서버)"이라고 설명한 부분. NTP의 정식 표기와 강사 표현이 같은 뜻인지 — 영상 59분 13초 부근 chrony.conf 편집 화면과 chrony 공식 문서·RFC 5905 원문을 대조해 확인</p></div>
+
+    <h3>서비스 재시작 실패 — 시도별 결과</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>시도</th><th>결과</th></tr></thead><tbody>
+    <tr><td><code>systemctl restart chronyd</code>, <code>timedatectl set-time "2026-11-10.10:40:22"</code>, <code>timedatectl set-ntp yes</code></td><td><code>System has not been booted with systemd as init system (PID 1). Can't operate. Failed to connect to bus: Host is down</code> — 시스템 컨트롤이 없어 <code>set-ntp yes</code>도 안 됨</td></tr>
+    <tr><td><code>chronyd</code> 직접 실행</td><td><code>adjtimex(0x8001) failed : Operation not permitted</code> → <code>pkill chronyd</code>(프로세스 kill) 후 재확인해도 동기화 안 됨</td></tr>
+    <tr><td><code>chronyc makestep</code>, <code>chronyc sources</code></td><td><code>506 Cannot talk to daemon</code> — 데몬과 대화 불가</td></tr>
+    <tr><td><code>chronyd</code> 재실행 (이미 한 번 실행한 뒤)</td><td><code>Another chronyd may already be running (pid=1460), check /run/chrony/chronyd.pid</code></td></tr>
+    <tr><td>호스트에서 <code>docker exec -it spark-master bash date -s "2026-11-10 10:43:44"</code></td><td>반영 안 됨. 호스트 <code>date</code>는 <code>Mon Nov 9 08:43:11 PM EST 2026</code> — 호스트(로컬) 시간도 안 맞음</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>원인</th><th>내용</th><th>결론</th></tr></thead><tbody>
+    <tr><td class="nowrap">systemd 없음</td><td>컨테이너를 만들 때 systemd(시스템 컨트롤)를 넣지 않아 <code>systemctl</code>·<code>timedatectl</code> 계열이 안 됨</td><td>안에서는 방법이 없음</td></tr>
+    <tr><td class="nowrap">CAP_SYS_TIME</td><td>systemd를 넣더라도 컨테이너에서 시계를 바꾸려면 <code>CAP_SYS_TIME</code> 권한이 필요 — 없으면 <code>adjtimex … Operation not permitted</code>로 chronyd가 실패</td><td>권한이 막으면 데몬 자체가 못 뜸</td></tr>
+    <tr><td class="nowrap">재생성</td><td>문제는 컨테이너 쪽 — 안에서 해결할 수 없어 컨테이너를 다시 만들어야 함</td><td>그래서 시간대 우회(localtime)를 씀</td></tr>
+    </tbody></table></div>
+
+    <h3>Dockerfile의 CMD ["/sbin/init"]</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 마스터 Dockerfile 백업본 파일 안]</span>
+<span class="c"># 베이스 이미지 — Rocky Linux 9</span>
+FROM rockylinux:9
+<span class="c"># systemd를 설치하고 저장소 캐시를 정리 — PID 1로 systemd를 띄우기 위한 준비</span>
+RUN dnf install -y systemd &amp;&amp; dnf clean all
+<span class="c"># 컨테이너 환경임을 알리는 환경변수</span>
+ENV container=docker
+<span class="c"># PID 1을 /sbin/init(systemd)으로 — systemctl 계열이 동작하는 조건</span>
+CMD ["/sbin/init"]</code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">마스터</td><td><code>/sbin/init</code>(CMD)을 넣어 둔 이유 = 시스템 컨트롤 불가 사태를 막기 위함</td><td>이미지 빌드 단계에서 결정 — 이미지·빌드: 이 파일 21장</td></tr>
+    <tr><td class="nowrap">워커</td><td>워커 Dockerfile(<code>worker.dl</code>)에는 <code>CMD ["/sbin/init"]</code> 줄이 빠짐 (앞서 빌드할 때 누락)</td><td>이 한 줄만 넣으면 됨</td></tr>
+    <tr><td class="nowrap">이후 활용</td><td>나중에 컨테이너 안에서 시간을 설정할 때는 위 명령을 쓰면 됨</td><td>systemd·권한이 갖춰진 컨테이너 기준</td></tr>
+    <tr><td class="nowrap">AWS</td><td>컨테이너는 호스트 시계를 쓰고, EC2는 Amazon Time Sync Service로 기본 동기화됨</td><td>시간 자체는 맞춰져 있고 시간대만 다를 수 있음</td></tr>
+    </tbody></table></div>
+
+    <h3>로컬(호스트) 시간 맞추기</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 로컬은 systemd가 있어 컨테이너에서 안 되던 명령이 동작 — 컨테이너 쪽은 방법이 없어 로컬부터 맞춤</span>
+systemctl restart chronyd              <span class="c"># chrony 재시작 (설정 반영)</span>
+chronyc makestep                       <span class="c"># 즉시 시간 맞춤 실행</span>
+timedatectl set-timezone Asia/Seoul    <span class="c"># 타임존을 서울로 — 동기화가 안 될 때의 우회</span></code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>시도</th><th>결과</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>server time.bora.net iburst</code>로 수정 후 재시작</td><td>동기화 안 됨</td><td>로컬에 chrony는 이미 설치된 상태 — <code>server</code> 줄만 수정</td></tr>
+    <tr><td class="nowrap"><code>chronyc makestep</code></td><td>응답은 <code>200 OK</code>이나 시간은 그대로</td><td>서버 응답과 실제 시각은 별개</td></tr>
+    <tr><td class="nowrap"><code>server ntp.kornet.net iburst</code>로 교체 후 재시작</td><td>여전히 동기화 안 됨</td><td>bora·kornet 둘 다 타임 서버가 막힌 것으로 추정</td></tr>
+    <tr><td class="nowrap"><code>timedatectl set-timezone Asia/Seoul</code> 후 <code>date</code></td><td><code>Tue Nov 10 10:47:39 AM KST 2026</code></td><td>최종 성공 — 동기화 대신 타임존을 강제로 서울로</td></tr>
+    <tr><td class="nowrap">수강생</td><td>각자 자기 환경에서 시간을 잡고 진행</td><td>같은 순서로 확인</td></tr>
+    </tbody></table></div>
+
+    <h3>컨테이너 우회 — localtime 심볼릭 링크</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · /etc · root]</span>
+<span class="c"># /etc/localtime은 심볼릭 링크 — 링크 대상을 서울로 바꾸면 UTC가 KST로 바뀜</span>
+ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+<span class="c"># 실행 결과: 이후 코드 실행 시 시간이 한국 시간(KST)으로 표시</span></code></pre><button class="copy" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 워커도 같은 명령 — 마스터·워커 둘 다 시간이 안 맞았기 때문</span>
+docker exec -it spark-worker1 bash
+<span class="c"># [spark-worker1 컨테이너 · /etc · root]</span>
+ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">원리</td><td><code>/etc/localtime</code>이 심볼릭 링크라 링크 대상만 바꾸면 시간대가 바뀜</td><td>시계 자체가 아니라 표시 시간대를 바꾸는 방법</td></tr>
+    <tr><td class="nowrap">이미지에 넣기</td><td>Dockerfile에 <code>RUN ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime</code></td><td>이미지에서 처음부터 서울 시간</td></tr>
+    <tr><td class="nowrap">반영 조건</td><td>이미 물려 있는 세션이 있으면 안 바뀌므로 <b>주피터를 껐다 켜야</b> 함</td><td>노트북 커널도 다시 시작</td></tr>
+    <tr><td class="nowrap">적용 범위</td><td>마스터·워커 모두</td><td>컨테이너마다 각각 실행</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">컨테이너 시간 — 생성 후 <code>date</code> 확인이 먼저. 시계는 호스트 것을 쓰고 시간대만 UTC로 보이는 상태라 systemd·<code>CAP_SYS_TIME</code>이 없으면 chrony로 못 바꾸고, <code>/etc/localtime</code> 심볼릭 링크로 서울로 바꾼 뒤 주피터를 재시작. 마스터·워커 둘 다 적용</div>
+
+    <ul class="facts"><li><strong>이미지·Dockerfile</strong><div>Spark 이미지와 <code>CMD</code>·systemd: 이 파일 21장</div></li><li><strong>컨테이너 운영</strong><div>systemd와 PID 1, 서비스·소켓: docker.html 3장·10장</div></li><li><strong>시간대 설정 이론</strong><div>컨테이너 시계와 타임존: docker.html 5장</div></li></ul>
+  </section>
+
+  <!-- 35 -->
+  <section class="sec" id="spark-array2d">
+    <h2>2차원 배열 — pandas DataFrame과 Spark createDataFrame</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 같은 배열을 두 도구로 표로 만든다</p><div class="dg-flow"><div class="dg-node"><h4>① 중첩 리스트</h4><p class="sub">키 없는 배열</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② pd.DataFrame</h4><p class="sub">columns=</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ createDataFrame</h4><p class="sub">schema= · show</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 이후 spark만</h4><p class="sub">분산 전환</p></div></div><p class="dg-foot">csv로 넘어가기 전에 2차원 배열(리스트 안에 리스트) 구조를 먼저 이해 — 같은 데이터를 pandas와 Spark로 각각 만들어 출력 방식·목적지 차이를 비교</p></div>
+
+    <h3>데이터 — usertest</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>이름</th><th>영어</th><th>수학</th></tr></thead><tbody>
+    <tr><td>윤보미</td><td class="num">90</td><td class="num">80</td></tr>
+    <tr><td>정은지</td><td class="num">100</td><td class="num">70</td></tr>
+    <tr><td>오하영</td><td class="num">70</td><td class="num">60</td></tr>
+    <tr><td>김남주</td><td class="num">60</td><td class="num">80</td></tr>
+    <tr><td>박초롱</td><td class="num">100</td><td class="num">55</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">구조</td><td>리스트 안에 리스트 — 이름·영어·수학 3개 값이 한 행</td><td>키가 없는 가장 단순한 배열 구조</td></tr>
+    <tr><td class="nowrap">공백</td><td>배열 요소 사이·안의 공백은 코드 모양을 보기 좋게 정렬하는 용도</td><td>값에는 영향 없음</td></tr>
+    <tr><td class="nowrap">비교 기준</td><td>같은 데이터를 pandas와 Spark로 각각 만들어 차이 확인</td><td>DB 연결·집계 기준은 별도 진행</td></tr>
+    </tbody></table></div>
+
+    <h3>pandas 방식</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+<span class="c"># DataFrame: 배열 값을 원하는 컬럼 형태의 표로 만드는 pandas 전용 문법</span>
+<span class="c"># 규칙: 첫 인자 = 배열 변수, columns= = 컬럼명 리스트 (컬럼 수 = 배열 요소 수 3개)</span>
+import pandas as pd
+bb = pd.DataFrame(usertest, columns=["이름","영어","수학"])
+print(bb)                     <span class="c"># 표(데이터 프레임) 형태로 출력</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <h3>Spark 방식</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+<span class="c"># 컬럼명 리스트를 변수로 분리 — 이후 spark 코드에서 재사용</span>
+columns = ["이름","영어","수학"]
+<span class="c"># pd.DataFrame 자리에 spark.createDataFrame — 컬럼명 자리는 schema 라고 부름</span>
+<span class="c"># 일반 파이썬 리스트를 Spark 클러스터가 이해하는 분산 데이터 프레임으로 변환</span>
+bb = spark.createDataFrame(usertest, schema=columns)
+bb.show()                     <span class="c"># print 대신 show() — 앞부분 행을 표로 출력</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>schema</code></td><td>컬럼 이름·데이터 타입·null 허용 여부를 담은 구조(StructType)</td><td>컬럼 이름 리스트만 주면 타입은 데이터에서 추론 — "컬럼 목록"만 뜻하는 말이 아님</td></tr>
+    <tr><td class="nowrap">컬럼 리스트</td><td>변수(<code>columns</code>)에 담아 넘겨도 되고 <code>schema=["이름","영어","수학"]</code>처럼 직접 써도 됨</td><td>변수가 필수는 아님</td></tr>
+    <tr><td class="nowrap"><code>show()</code></td><td>DataFrame의 처음 n행(기본 20)을 콘솔에 표로 출력</td><td>DB의 뷰 테이블과는 무관 — 출력 형식이 비슷할 뿐</td></tr>
+    <tr><td class="nowrap">실행 중</td><td>워커가 도는 동안 약간 버벅임</td><td>백업도 같이 돌기 때문 — 기다리면 끝남</td></tr>
+    </tbody></table></div>
+
+    <h3>pandas와 Spark 비교</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>pandas</th><th>Spark</th></tr></thead><tbody>
+    <tr><td class="nowrap">목적지</td><td>로컬에서 표를 만들어 출력</td><td>클러스터에서 분산 처리</td></tr>
+    <tr><td class="nowrap">컬럼 인자</td><td><code>columns=</code></td><td><code>schema=</code></td></tr>
+    <tr><td class="nowrap">출력</td><td><code>print</code></td><td><code>show()</code></td></tr>
+    <tr><td class="nowrap">데이터</td><td>배열을 그대로 가진 로컬 표</td><td>일반 파이썬 리스트 → <b>분산 데이터 프레임</b>으로 변환</td></tr>
+    <tr><td class="nowrap">같은 원리</td><td colspan="2"><code>numpy</code>도 비슷 — numpy 코드와 그 아래 스파크가 돌아갈 수 있는 형태의 구조가 따로 있음</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>실습 전환</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">코드 정리</td><td>pandas 코드는 주석 처리하고 "여기까지 pandas 영역 / 아래는 spark 코드"로 구분</td><td>컬럼명 리스트는 복사해서 재사용</td></tr>
+    <tr><td class="nowrap">이후 방식</td><td>이후 실습은 pandas를 지우고 <b>spark만</b> 사용</td><td>배열부터 그대로 복사, 노트 제목은 "2차 배열 연습 2번"</td></tr>
+    <tr><td class="nowrap">시작점</td><td>배열이 있으면 데이터 프레임부터 만들기 시작</td><td>이후 조회·집계 함수로 이어짐 (36장)</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+<span class="c"># 변수 이름 aa는 임의 — 배열만 있으면 이 한 줄로 분산 데이터 프레임 생성</span>
+aa = spark.createDataFrame(usertest, schema=["이름","영어","수학"])</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">pandas는 <code>columns=</code>·<code>print</code>, Spark는 <code>schema=</code>·<code>show()</code> — 배열은 같아도 목적지가 다름. <code>createDataFrame</code>은 일반 리스트를 클러스터가 이해하는 분산 데이터 프레임으로 바꾸는 함수이고, <code>schema</code>는 이름·타입·null 허용을 담은 구조</div>
+
+    <ul class="facts"><li><strong>기본 템플릿</strong><div><code>SparkSession</code> 생성과 종료: 이 파일 32장</div></li><li><strong>조회·집계</strong><div><code>filter</code>·<code>select</code>·<code>groupBy</code>: 이 파일 36장</div></li><li><strong>csv로 확장</strong><div><code>spark.read.csv</code>로 같은 데이터 프레임 만들기: 이 파일 25장</div></li></ul>
+  </section>
+
+  <!-- 36 -->
+  <section class="sec" id="spark-df-func">
+    <h2>DataFrame 조회·집계 — filter·where·select·groupBy</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 조건 추출에서 그룹 합계까지</p><div class="dg-flow"><div class="dg-node"><h4>① filter</h4><p class="sub">조건 추출</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② where</h4><p class="sub">filter 동일</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ select</h4><p class="sub">컬럼 추출</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>④ groupBy</h4><p class="sub">이름별 묶기</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ sum</h4><p class="sub">합계</p></div></div><p class="dg-foot">조건을 뽑는 함수(filter·where)와 컬럼을 고르는 함수(select), 그룹을 묶어 합계를 내는 groupBy·sum — SQL의 WHERE·SELECT·GROUP BY와 대응하지만 함수 방식과 SQL 문법을 둘 다 알아야 함</p></div>
+
+    <h3>filter — 조건에 맞는 행만</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+<span class="c"># filter(조건): 조건을 만족하는 데이터만 추출 — SQL의 WHERE에 대응하는 함수</span>
+aa.filter(aa["영어"] == 100).show()</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정의</td><td>데이터프레임이나 RDD에서 특정 조건을 만족하는 데이터만 추출하는 함수</td><td>SQL의 <code>WHERE</code>와 일대일 대응하지만 완전히 같지는 않음 — RDD는 별도 개념</td></tr>
+    <tr><td class="nowrap">학습 순서</td><td>나중에는 SQL의 <code>select</code>·<code>where</code>로 하게 되나 기본기로 함수 방식을 먼저 배움</td><td>SQL 문법은 이 파일 27장</td></tr>
+    <tr><td class="nowrap">쓰는 자리</td><td>조건이 있을 때</td><td>실무에서 잘 안 쓸 수 있으나 알고 있어야 함</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td>스파크 stage가 돌아감 = 워커를 이용해 작동</td><td>마스터 UI에서 앱·stage 확인</td></tr>
+    </tbody></table></div>
+
+    <h3>where — filter와 같은 함수</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+<span class="c"># where(조건): filter와 완전히 같은 동작 — 실제로 존재하는 함수</span>
+aa.where(aa["영어"] == 100).show()</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">동작</td><td><code>filter</code> 대신 <code>where</code>를 써도 동일 — 차이 없음</td><td>둘 중 아무거나 사용</td></tr>
+    <tr><td class="nowrap">SQL과 구분</td><td>SQL의 <code>WHERE</code>절과 같다고 생각하면 안 됨</td><td>SQL WHERE는 문장, 이쪽은 <code>where</code> 함수</td></tr>
+    <tr><td class="nowrap">기억법</td><td>"filter와 동일한 함수"를 묻는 자리의 답은 <code>where</code></td><td>보기에 다른 이름을 섞어 내는 형태가 흔함</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">filter와 동일한 함수 = <code>where</code> — 두 함수는 같은 동작이고, SQL의 WHERE절(문장)과 같은 것으로 생각하면 안 됨. 조건 추출은 filter·where, 컬럼 선택은 select로 역할이 나뉨</div>
+
+    <h3>select — 컬럼 일부만</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+aa.select("이름").show()           <span class="c"># 이름 컬럼만 추출</span>
+aa.select("이름","영어").show()    <span class="c"># 여러 컬럼 추출</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c">-- [spark-master 컨테이너 · JupyterLab 노트북 셀 · SQL 문자열 안]</span>
+select * from 테이블명;            <span class="c">-- 전체 컬럼 조회</span>
+select usernm from 테이블명;       <span class="c">-- usernm 컬럼만 출력</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정의</td><td>특정 schema(컬럼)에 있는 데이터만 보고 싶을 때 쓰는 함수</td><td>컬럼 일부만 추출</td></tr>
+    <tr><td class="nowrap">SQL과 구분</td><td>DB의 SELECT문(<code>select 컬럼 from 테이블;</code>)과 다름 — 이쪽은 함수</td><td>SELECT는 DDL이 아니라 DQL(또는 DML)로 분류</td></tr>
+    <tr><td class="nowrap">전제</td><td>스키마가 등록되어 있어야 동작</td><td><code>createDataFrame</code> 라인이 없으면 select가 안 먹음</td></tr>
+    <tr><td class="nowrap">두 방식</td><td>함수 방식과 SQL 문법을 같이 알아야 이후 이해가 쉬움</td><td>SQL 기초: mysql.html 5~6장</td></tr>
+    </tbody></table></div>
+
+    <h3>sum — 합계가 바로 안 되는 이유</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+<span class="c"># 영어 합계를 DataFrame 메서드로 시도 — sum 메서드가 없어 실패</span>
+sum_test = aa.sum("영어").show()
+<span class="c"># 실행 결과: AttributeError: 'DataFrame' object has no attribute 'sum'</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">목적</td><td>영어 점수와 수학 점수를 합한 합계 확인 — 이번에도 pandas 없이 순수 스파크 (filter는 뺌)</td><td>숫자 컬럼에 한해 사용</td></tr>
+    <tr><td class="nowrap">실무 예</td><td>몇 월부터 몇 월까지 전체 수익률을 한 번에 계산</td><td>행이 많은 집계일수록 Spark가 유리</td></tr>
+    <tr><td class="nowrap">변수명</td><td><code>sum_test</code>처럼 씀 — <code>sum</code>을 변수명으로 쓰면 함수 이름과 겹쳐 에러 가능</td><td>앞에 대문자를 붙이거나 언더바 사용</td></tr>
+    <tr><td class="nowrap">가로 합계</td><td><code>withColumn</code>은 가로(행 방향) 기준 합계에 쓴다고 언급만 됨</td><td>이 실습 코드는 세로(컬럼) 합계</td></tr>
+    <tr><td class="nowrap">groupBy 없이</td><td><code>df.agg(F.sum("컬럼"))</code>로 전체 합계를 구할 수 있음</td><td>DataFrame 객체에 <code>sum</code> 메서드가 없다는 것과 별개</td></tr>
+    </tbody></table></div>
+
+    <h3>groupBy — 그룹별 합계</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+<span class="c"># groupBy("이름"): 같은 이름끼리 묶어 그룹화 → sum("영어"): 그룹별 영어 합계</span>
+sum_test = aa.groupBy("이름").sum("영어")
+sum_test.show()</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">자동완성</td><td><code>groupBy</code> 입력 시 statement·function 두 가지가 나옴</td><td><b>function</b>을 선택</td></tr>
+    <tr><td class="nowrap">대소문자</td><td>소문자 <code>groupby</code>는 <code>groupBy</code>의 alias라 둘 다 동작</td><td>화면·문서는 대문자 B 표기를 씀</td></tr>
+    <tr><td class="nowrap">정의</td><td>동일한 이름(데이터)끼리 묶어 그룹화하는 함수 — 같은 그룹이 있을 때 합계를 냄</td><td>그룹 앞에 컬럼을 붙여 구분할 수도 있음</td></tr>
+    <tr><td class="nowrap">실무 예</td><td>상품명이 같은 것끼리만 합산(상품별), 월별 합계</td><td>사용자명 대신 <code>product</code> 컬럼으로 하면 상품별 합계</td></tr>
+    <tr><td class="nowrap">GROUP BY의 역할</td><td>행을 그룹별로 묶어 그룹당 집계 한 행을 만드는 것</td><td>특정 월만 뽑는 것은 WHERE의 역할 — GROUP BY가 아님</td></tr>
+    <tr><td class="nowrap">sum의 위치</td><td>같은 그룹으로 묶인 뒤 합계를 내는 함수</td><td>단독으로 따로 쓰는 일은 거의 없고, <code>select</code>로 별도 추출하는 경우는 있음</td></tr>
+    <tr><td class="nowrap">중요도</td><td>이 묶음에서 <b>groupBy가 가장 중요</b></td><td>집계의 기본 단위</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>실수·실험</th><th>결과</th><th>해결·메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>aa.groupBy("점수").sum("영어")</code></td><td>에러 — "점수"라는 컬럼이 없음</td><td>그룹으로 묶을 컬럼은 실제 존재하는 컬럼이어야 함 → "이름"으로 변경</td></tr>
+    <tr><td class="nowrap">이름이 모두 다를 때</td><td>같은 그룹이 없어 각 행이 그대로 한 줄씩 나옴</td><td>합계가 보이지 않는 것이 정상</td></tr>
+    <tr><td class="nowrap">동일인 연습 — <code>["김남주",80,20]</code> 행 추가</td><td>원래 김남주는 60·80 → 영어 합계 <b>140점</b>(60+80)</td><td>같은 이름이 두 행일 때 합계가 합쳐지는지 확인</td></tr>
+    </tbody></table></div>
+
+    <h3>SQL 문법 대응</h3>
+    <div class="code"><pre><code><span class="c">-- [spark-master 컨테이너 · JupyterLab 노트북 셀 · SQL 문자열 안]</span>
+<span class="c">-- 상품별 결제 합계 — group by 로 묶고 sum 을 select 뒤 컬럼 자리에</span>
+select product, sum(pay) from 테이블명 group by product order by ...</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>요소</th><th>역할</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>group by 컬럼</code></td><td>그룹화</td><td>묶는 기준 컬럼</td></tr>
+    <tr><td class="nowrap"><code>sum(컬럼)</code></td><td>합계</td><td><code>select</code> 뒤 컬럼 자리에 붙임</td></tr>
+    <tr><td class="nowrap"><code>order by</code></td><td>정렬</td><td>뒤에 붙여 사용 (27장)</td></tr>
+    <tr><td class="nowrap">학습 방향</td><td>앞으로는 함수 호출보다 SQL 문법을 더 많이 쓰게 됨</td><td>둘 다 알아야 그룹 바이·select 문구에서 오해하지 않음</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">filter = where(같은 함수)이고, sum은 DataFrame 메서드로 없어 <code>groupBy().sum()</code> 또는 <code>agg(F.sum())</code>으로 계산. groupBy는 실제 존재하는 컬럼으로 묶고, GROUP BY는 특정 값만 뽑는 WHERE와 역할이 다름</div>
+
+    <ul class="facts"><li><strong>SQL 조회</strong><div>임시 뷰·<code>spark.sql</code>·집계 함정: 이 파일 27장</div></li><li><strong>2차원 배열</strong><div><code>createDataFrame</code>으로 데이터 프레임 만들기: 이 파일 35장</div></li><li><strong>SQL 집계 기초</strong><div><code>group by</code>·<code>sum</code>·<code>order by</code>: mysql.html 6~8장</div></li></ul>
+  </section>
+
+  <!-- 37 -->
+  <section class="sec" id="spark-product-csv">
+    <h2>실습용 CSV — product.csv 만들기</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 텍스트로 만들고 확장자만 csv로</p><div class="dg-flow"><div class="dg-node"><h4>① 새 텍스트 파일</h4><p class="sub">product.txt</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 헤더</h4><p class="sub">date,product,
+ea,money</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 행 입력</h4><p class="sub">블록 복사</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ product.csv</h4><p class="sub">표 확인</p></div></div><p class="dg-foot">배열 대신 실제 데이터베이스화할 수 있는 csv로 진행 — 콤마로 나눈 텍스트가 곧 csv이고, 첫 줄 헤더가 컬럼명이 됨. 오후에는 이 파일로 두 번째 노트북(<code>spark2</code>)을 만들어 이어감</p></div>
+
+    <h3>만들기 전 주의</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">100개짜리 CSV</td><td><b>아직 쓰지 말 것</b> — 오늘 응용문제로 출제 예정</td><td>그 CSV를 스파크로 돌려 출력하는 형태라 미리 손대면 안 됨</td></tr>
+    <tr><td class="nowrap">데이터 성격</td><td>날짜별 판매 리스트 — 원래는 DB에 INSERT되어 그날 매출로 잡히는 형태</td><td>csv를 DB 테이블처럼 다루는 연습</td></tr>
+    <tr><td class="nowrap">만드는 위치</td><td>JupyterLab 파일 목록의 <code>/data</code></td><td><code>/opt/spark/data</code> = 호스트 <code>/home/spark-data</code>와 연결</td></tr>
+    </tbody></table></div>
+
+    <h3>만드는 순서</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>동작</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>JupyterLab 파일 목록(<code>/data</code>)에서 신규 텍스트 파일 생성 → 이름 <code>product.txt</code></td><td><code>New</code> → <code>Text File</code></td></tr>
+    <tr><td class="nowrap">2</td><td>첫 줄에 헤더(컬럼/스키마) <code>date,product,ea,money</code></td><td>첫 줄이 컬럼명이 됨</td></tr>
+    <tr><td class="nowrap">3</td><td>아래 행을 입력한 뒤 저장 — 같은 날짜 블록을 복사해 수정</td><td>콤마 개수가 헤더와 맞는지 확인</td></tr>
+    <tr><td class="nowrap">4</td><td>파일 이름을 <code>product.csv</code>로 변경</td><td>확장자가 형식을 결정</td></tr>
+    <tr><td class="nowrap">5</td><td>파일을 열었을 때 표로 잘 나오면 성공</td><td>표가 안 나오면 콤마·헤더 줄부터 확인</td></tr>
+    </tbody></table></div>
+
+    <h3>데이터</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>date</th><th>product</th><th>ea</th><th>money</th></tr></thead><tbody>
+    <tr><td class="nowrap">2026-11-01</td><td>사과</td><td class="num">10</td><td class="num">2500</td></tr>
+    <tr><td class="nowrap">2026-11-01</td><td>딸기</td><td class="num">5</td><td class="num">1000</td></tr>
+    <tr><td class="nowrap">2026-11-01</td><td>포도</td><td class="num">10</td><td class="num">6500</td></tr>
+    <tr><td class="nowrap">2026-11-01</td><td>키위</td><td class="num">4</td><td class="num">5500</td></tr>
+    <tr><td class="nowrap">2026-11-02</td><td>딸기</td><td class="num">15</td><td class="num">15000</td></tr>
+    <tr><td class="nowrap">2026-11-02</td><td>포도</td><td class="num">2</td><td class="num">3500</td></tr>
+    <tr><td class="nowrap">2026-11-02</td><td>키위</td><td class="num">10</td><td class="num">15500</td></tr>
+    <tr><td class="nowrap">2026-11-03</td><td>사과</td><td class="num">8</td><td class="num">2000</td></tr>
+    <tr><td class="nowrap">2026-11-03</td><td>포도</td><td class="num">6</td><td class="num">4300</td></tr>
+    <tr><td class="nowrap">2026-11-03</td><td>딸기</td><td class="num">6</td><td class="num">3800</td></tr>
+    </tbody></table></div>
+
+    <h3>오후 진행</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">노트북 정리</td><td><code>spark1</code> 노트북은 저장해 두고 <code>spark2</code>를 새로 만듦</td><td>파일은 <code>spark2.ipynb</code></td></tr>
+    <tr><td class="nowrap">이어지는 실습</td><td>만든 <code>product.csv</code>로 조회·집계를 이어서 진행</td><td>읽기 코드는 <code>spark.read.csv</code> (25장)</td></tr>
+    <tr><td class="nowrap">템플릿</td><td>새 노트북에도 기본 코드 템플릿을 그대로 복사</td><td><code>appName</code>만 바꿈 (32장)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">헤더 한 줄(<code>date,product,ea,money</code>)이 컬럼명이고 콤마로 나눈 텍스트가 곧 csv — 100개짜리 csv는 응용문제용이라 손대지 않고 10행을 직접 만듦. 확장자를 <code>.csv</code>로 바꿔 표로 열리면 준비 완료</div>
+
+    <ul class="facts"><li><strong>csv 읽기</strong><div><code>spark.read.csv</code>·<code>show()</code>: 이 파일 25장</div></li><li><strong>조회·집계</strong><div><code>filter</code>·<code>groupBy</code>로 같은 데이터 다루기: 이 파일 36장</div></li><li><strong>SQL 조회</strong><div>임시 뷰로 csv를 SQL로 조회: 이 파일 27장</div></li></ul>
+  </section>
+
+  <!-- 38 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -3015,6 +3681,52 @@ python img.py</code></pre><button class="copy" type="button" aria-label="코드 
           <tr><td><code>pip install selenium webdriver-manager requests</code></td><td>브라우저 제어·드라이버 자동 관리·HTTP 요청 — 로컬 PC에만 설치</td></tr>
           <tr><td><code>python img.py</code></td><td><code>D:\py</code>에서 실행, 브라우저가 자동 스크롤. 기본 20장(개), 100 지정 시 33개에서 멈춤</td></tr>
           <tr><td><code>download_unsplash_images(url, save_dir="travel_images", max_images=20)</code></td><td>호출부 인자 — 사이트 주소·저장 폴더·수집 장수. 서버에서는 실행 금지</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">PySpark 환경·주피터 (30장)</th></tr>
+          <tr><td><code>docker exec -it spark-master bash</code> / <code>docker exec -it spark-worker1 bash</code></td><td>마스터·워커 컨테이너 bash 진입 — 설치·설정은 컨테이너 안에서</td></tr>
+          <tr><td><code>pip3 install numpy pandas pyarrow</code></td><td><b>마스터·워커 양쪽</b> 같은 설치. matplotlib은 설치 안 함, 한쪽만 깔면 연산 단계에서 모듈 없음</td></tr>
+          <tr><td><code>pyspark</code></td><td>마스터에서 JupyterLab(8888) 기동 — 터미널 하나 더 열어 작업, 워커는 손대지 않음</td></tr>
+          <tr><td><code>http://서버IP:8888</code> + <code>?token=</code></td><td>토큰 로그인. 서버 재기동·PC 재부팅 후 토큰 다시 입력</td></tr>
+          <tr><td><code>spark1</code> 노트북 (Python 3)</td><td>실행 <b>Shift+Enter</b>·저장 <b>Ctrl+S</b>, 에러는 셀 아래 줄 번호, Kernel 메뉴로 리셋</td></tr>
+          <tr><td>실무 구성</td><td>주피터를 마스터에 붙이지 않고 별도 서버로 → 마스터 → 워커 → DB. 실습은 코어 4개라 합침</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">파이썬 문법·파일 읽기 (31장)</th></tr>
+          <tr><td><code>from pyspark.sql import SparkSession</code></td><td>Spark 코드의 첫 줄 — 없으면 일반 파이썬으로 동작</td></tr>
+          <tr><td><code>import pandas as pd</code> / <code>import numpy as np</code></td><td>별칭(<code>as</code>)은 관례일 뿐 — 다른 이름도 가능, 탭 자동완성</td></tr>
+          <tr><td><code>pd.read_csv('sample.csv')</code></td><td><code>read_excel</code>·<code>read_json</code>·<code>read_sql</code>·<code>read_html</code>·<code>read_table</code>·<code>read_xml</code>·<code>read_clipboard</code></td></tr>
+          <tr><td><code>aa['total'] = aa['money'] + aa['sales']</code></td><td>신규 컬럼 계산, 출력 <code>dtype: int64</code>. Spark 명령이 없으면 로컬 실행</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">기본 코드 템플릿 (32장)</th></tr>
+          <tr><td><code>import time as tm</code> / <code>tm.sleep(2)</code></td><td>시간 측정·일시정지 — 시작 → 2초 → 종료</td></tr>
+          <tr><td><code>SparkSession.builder.appName().master().config().getOrCreate()</code></td><td>세션 생성 4요소. 역슬래시 뒤 주석 금지, <code>getOrCreate</code>는 기존 세션 재사용</td></tr>
+          <tr><td><code>.config("spark.driver.host","spark-master")</code></td><td>드라이버 호스트 — 주피터를 별도 서버에 둘 때 필수</td></tr>
+          <tr><td><code>spark.stop()</code></td><td>위(시작 전)·아래(작업 끝) 모두. 두 번째 노트북부터 <code>appName</code>만 변경</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">고스트 세션 (33장)</th></tr>
+          <tr><td><code>if 'spark' in globals():</code> → <code>try: spark.stop() except: pass</code></td><td>시작 전 살아 있는 세션 정리 — 주석 처리하면 Running Application이 남아 코어 점유</td></tr>
+          <tr><td>8080 UI Running Applications <code>(kill)</code></td><td>고스트는 강제 정지로만 종료, 죽이면 빨간 표시. 모두 컷한 뒤 globals 체크 살려 재실행</td></tr>
+          <tr><td>Completed Applications / Executors</td><td>앱 이름·실행 사용자 <code>root</code>·메모리·시작 시각 / 로그·코어 수·메모리</td></tr>
+          <tr><td>코어가 없다 에러</td><td>이미 점유한 앱이 있어 남는 코어 없음 — stop을 안 건 것이 원인</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">컨테이너 시간대 (34장)</th></tr>
+          <tr><td><code>date</code></td><td>컨테이너 생성 후 무조건 확인 — <code>Tue Nov 10 01:25:19 UTC 2026</code>처럼 UTC로 표시</td></tr>
+          <tr><td><code>hwclock --systohc</code></td><td><code>Cannot access the Hardware clock via any known method.</code> — 컨테이너에는 하드웨어 클럭 없음. 반대 방향은 <code>--hctosys</code></td></tr>
+          <tr><td><code>dnf install chrony</code> / <code>vi /etc/chrony.conf</code></td><td>설치 오래 걸림. <code>pool</code> 줄 주석 → <code>server time.bora.net iburst</code> 추가 (하나만)</td></tr>
+          <tr><td><code>systemctl restart chronyd</code> / <code>timedatectl set-time "…"</code> / <code>set-ntp yes</code></td><td><code>System has not been booted with systemd as init system (PID 1). Can't operate. Failed to connect to bus: Host is down</code></td></tr>
+          <tr><td><code>chronyd</code> 직접 실행 / <code>pkill chronyd</code></td><td><code>adjtimex(0x8001) failed : Operation not permitted</code> — <code>CAP_SYS_TIME</code> 없음</td></tr>
+          <tr><td><code>chronyc makestep</code> / <code>chronyc sources</code></td><td><code>506 Cannot talk to daemon</code>. 재실행 시 <code>Another chronyd may already be running (pid=1460)</code></td></tr>
+          <tr><td><code>docker exec -it spark-master bash date -s "2026-11-10 10:43:44"</code></td><td>반영 안 됨 — 호스트도 <code>Mon Nov 9 08:43:11 PM EST 2026</code>로 어긋남</td></tr>
+          <tr><td><code>systemctl restart chronyd</code> / <code>chronyc makestep</code> / <code>timedatectl set-timezone Asia/Seoul</code></td><td>로컬에서 실행 — bora·kornet 모두 동기화 실패, 타임존 강제 후 <code>date</code>가 <code>KST</code></td></tr>
+          <tr><td><code>ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime</code></td><td>마스터·워커 각각 실행 — 이미 물린 세션이 있으면 주피터를 껐다 켜야 반영</td></tr>
+          <tr><td><code>CMD ["/sbin/init"]</code></td><td>systemd를 PID 1로 — 워커 <code>worker.dl</code>에 이 줄이 빠져 있음. 이미지에도 <code>RUN ln -sf …</code> 가능</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">2차원 배열 (35장)</th></tr>
+          <tr><td><code>pd.DataFrame(usertest, columns=["이름","영어","수학"])</code> → <code>print(bb)</code></td><td>로컬 표 — 컬럼 수 = 배열 요소 수</td></tr>
+          <tr><td><code>spark.createDataFrame(usertest, schema=[...])</code> → <code>bb.show()</code></td><td>분산 데이터 프레임. <code>schema</code> = 이름·타입·null 허용(StructType), <code>show</code>는 앞 n행 출력</td></tr>
+          <tr><td><code>aa = spark.createDataFrame(usertest, schema=[...])</code></td><td>이후 실습은 pandas 없이 spark만 — 노트 제목 "2차 배열 연습 2번"</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">조회·집계 함수 (36장)</th></tr>
+          <tr><td><code>aa.filter(aa["영어"] == 100).show()</code> / <code>aa.where(...)</code></td><td>조건 추출 — 두 함수 동일, SQL WHERE에 대응. 결과는 stage가 돌며 워커 사용</td></tr>
+          <tr><td><code>aa.select("이름","영어").show()</code></td><td>컬럼 일부 조회. 스키마(createDataFrame)가 없으면 동작 안 함</td></tr>
+          <tr><td><code>aa.sum("영어")</code></td><td><code>AttributeError: 'DataFrame' object has no attribute 'sum'</code> — <code>agg(F.sum(…))</code>로는 전체 합계 가능</td></tr>
+          <tr><td><code>aa.groupBy("이름").sum("영어")</code> → <code>.show()</code></td><td>그룹별 합계 — 자동완성은 function, 소문자 <code>groupby</code>도 동작</td></tr>
+          <tr><td><code>aa.groupBy("점수").sum("영어")</code></td><td>없는 컬럼 에러 → 실제 존재하는 컬럼("이름")으로. 동일인 행 추가 시 김남주 영어 <b>140</b></td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">실습 CSV (37장)</th></tr>
+          <tr><td><code>product.txt</code> → <code>product.csv</code></td><td>헤더 <code>date,product,ea,money</code> + 10행, <code>/data</code>에서 표로 열리면 성공. 100개짜리 csv는 응용문제용</td></tr>
+          <tr><td><code>spark2.ipynb</code></td><td>오후에 새로 만드는 두 번째 노트북 — <code>spark1</code>은 저장해 둠</td></tr>
         </tbody>
       </table>
     </div>
