@@ -7,13 +7,13 @@
 
 ## 파일
 - `style-template.html`: 디자인 양식. 맨 위 주석의 "양식 요소 사용법"을 따른다. CSS·스크립트는 수정하지 않는다.
-- 카테고리별 통합본: `docker.html`, `mysql.html`, `postgresql.html`, `spark.html`, `fastapi.html`, `was.html`, `httpd.html`, `nginx.html`, `linux.html`, `shell.html`, `aws.html` 등 (소문자 영문 고정. 목록에 없는 새 카테고리는 이름을 제안하고 확인받는다.)
+- 카테고리별 통합본: `docker.html`, `mysql.html`, `postgresql.html`, `vectordb.html`, `spark.html`, `fastapi.html`, `was.html`, `httpd.html`, `nginx.html`, `linux.html`, `shell.html`, `aws.html` 등 (소문자 영문 고정. 목록에 없는 새 카테고리는 이름을 제안하고 확인받는다.)
 - 항상 작업 폴더(또는 프로젝트)에 있는 최신 파일을 기준으로 작업한다. 기억이나 이전 대화로 재작성하지 않는다.
 
 ## 분류
 - 주차·Day·강의 번호로 나누지 않고 주제로만 나눈다. 본문에 강의 번호(예: 31강)나 "이번 강"을 쓰지 않는다. 다른 부분은 "3장 참고"처럼 목차 번호로 가리킨다. 존재하지 않는 장을 가리키지 않는다.
 - 여러 카테고리에 걸친 내용은 주 카테고리에 전부 쓰고, 다른 곳에는 요약과 "자세한 실습: postgresql.html 2장" 같은 연결 표시만 넣는다.
-  - 주 카테고리 = 그 내용의 설정·원리를 다루는 쪽. 예: PostgreSQL 설정·인증 → postgresql.html, Tomcat·Java → was.html, Spark 이미지·클러스터 → spark.html, FastAPI·uvicorn API 서버 → fastapi.html, Docker 명령·Compose·포트 게시 → docker.html.
+  - 주 카테고리 = 그 내용의 설정·원리를 다루는 쪽. 예: PostgreSQL 설정·인증 → postgresql.html, VectorDB·임베딩·pgvector·CLIP → vectordb.html, Tomcat·Java → was.html, Spark 이미지·클러스터 → spark.html, FastAPI·uvicorn API 서버 → fastapi.html, Docker 명령·Compose·포트 게시 → docker.html.
   - 연결 표시는 양쪽 파일에 모두 넣는다.
 - 파일이 너무 커지면 먼저 묻고 하위 주제로 나눈다.
 

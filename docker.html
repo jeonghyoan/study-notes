@@ -1354,7 +1354,7 @@ docker images</code></pre><button class="copy" type="button" aria-label="코드 
     <div class="dg-bar warn">compose down — 파일 하나로 서비스 전부가 내려가는 것이 편의이자 위험. 실행 전 <code>docker compose ps</code>·현재 폴더·<code>-f</code> 대상 확인, 데이터가 있으면 <code>-v</code> 금지</div>
     <div class="note-verify">
       <div class="tag">🔍 직접 확인 · 37강 36:12~36:40</div>
-      <p>자료에서 이미지 설명 직후 RDS 쪽 DB 형태를 가리킨 말이 "프리비에스드/프리베이스디"로 들렸다고 기록돼 있으나 정확한 표현은 미확인 (RDS 계열 DB 이미지에 대한 발언) → 의미를 임의로 확정하지 않음. 해당 구간 음성을 다시 들어 정리 (자세한 실습: postgresql.html 16장)</p>
+      <p>자료에서 이미지 설명 직후 RDS 쪽 DB 형태를 가리킨 말이 "프리비에스드/프리베이스디"로 들렸다고 기록돼 있으나 정확한 표현은 미확인 (RDS 계열 DB 이미지에 대한 발언) → 의미를 임의로 확정하지 않음. 해당 구간 음성을 다시 들어 정리 (자세한 실습: postgresql.html 11장)</p>
     </div>
     <div class="table-wrap"><table>
     <thead><tr><th>분리 파일</th><th>내용</th></tr></thead><tbody>
@@ -1442,8 +1442,8 @@ docker compose -f postgre.yaml down</code></pre><button class="copy" type="butto
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>요약</strong></td><td>DB 데이터 경로를 이름 있는 볼륨(<code>pgdata</code>)에 연결 → 컨테이너를 지우고 다시 만들어도 데이터 유지(컨테이너 교체와 데이터 생명주기 분리)</td></tr>
     <tr><td><strong>Docker 쪽 명령</strong></td><td><code>docker volume create pgdata</code> → <code>docker run ... -v pgdata:/var/lib/postgresql/data ...</code> → Compose에서는 <code>volumes:</code>에 <code>external: true</code>로 선언 (외부 볼륨은 미리 존재해야 함)</td></tr>
-    <tr><td><strong>설정 파일 왕복</strong></td><td><ul><li><code>docker cp 컨테이너:파일 호스트경로</code>로 꺼내 수정 → <code>docker cp</code>로 되돌림 → <code>docker restart</code>로 반영</li><li>PostgreSQL의 인증(pg_hba.conf)·성능(postgresql.conf) 설정은 compose 속성으로 해결되지 않음 → 컨테이너 안 파일을 직접 고쳐야 함 (postgresql.html 17~18장)</li></ul></td></tr>
-    <tr><td><strong>자세한 실습</strong></td><td>postgresql.html 16~18장 (이미지·볼륨·접속·인증·설정 파일)</td></tr>
+    <tr><td><strong>설정 파일 왕복</strong></td><td><ul><li><code>docker cp 컨테이너:파일 호스트경로</code>로 꺼내 수정 → <code>docker cp</code>로 되돌림 → <code>docker restart</code>로 반영</li><li>PostgreSQL의 인증(pg_hba.conf)·성능(postgresql.conf) 설정은 compose 속성으로 해결되지 않음 → 컨테이너 안 파일을 직접 고쳐야 함 (postgresql.html 12~13장)</li></ul></td></tr>
+    <tr><td><strong>자세한 실습</strong></td><td>postgresql.html 11~13장 (이미지·볼륨·접속·인증·설정 파일)</td></tr>
     </tbody></table></div>
 
   
@@ -2326,7 +2326,7 @@ docker run -d ... -v /home/spark-data:/opt/spark/data 이미지이름 실행명�
     <div class="table-wrap"><table>
     <thead><tr><th>구분</th><th>형식</th><th>쓰는 경우</th></tr></thead><tbody>
     <tr><td class="nowrap">바인드 마운트</td><td><code>-v /home/spark-data:/opt/spark/data</code></td><td>호스트의 실제 폴더를 지정 — 파일을 직접 보고 고칠 때 (이 노트의 Spark 데이터 폴더)</td></tr>
-    <tr><td class="nowrap">이름 있는 볼륨</td><td><code>-v pgdata:/var/lib/postgresql/data</code></td><td>Docker가 관리하는 저장 공간 — 컨테이너를 지워도 데이터 유지 (postgresql.html 16장)</td></tr>
+    <tr><td class="nowrap">이름 있는 볼륨</td><td><code>-v pgdata:/var/lib/postgresql/data</code></td><td>Docker가 관리하는 저장 공간 — 컨테이너를 지워도 데이터 유지 (postgresql.html 11장)</td></tr>
     <tr><td class="nowrap">읽기 전용</td><td><code>-v /경로:/컨테이너경로:ro</code></td><td>컨테이너가 설정 파일을 고치지 못하게 막을 때</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">볼륨 연결 — <code>-v 호스트경로:컨테이너경로</code>의 콜론이 구분자이고, 옵션은 이미지 이름 <b>앞</b>에 둠. 바인드 마운트는 Docker 기능이라 Spark·클라우드와 무관. 볼륨 없이 만든 컨테이너는 나중에 붙일 수 없어 정지·삭제 후 재생성</div>
@@ -2422,7 +2422,7 @@ systemctl stop docker docker.socket                    <span class="c"># 데몬�
     <tr><td class="nowrap">포트폴리오</td><td>사수가 설계도를 주고 그대로 세팅하게 하는 과제 형태</td><td>실무와 같은 순서(설계도 → 구현 → 검증)를 미리 연습</td></tr>
     </tbody></table></div>
 
-    <ul class="facts"><li><strong>실제 적용</strong><div>Spark 마스터·워커 컨테이너에 <code>-v</code>를 넣어 재생성하고 마운트 검증: spark.html 22장</div></li><li><strong>네임드 볼륨</strong><div><code>docker volume create</code>와 Compose 선언: postgresql.html 16장</div></li><li><strong>디스크 여유</strong><div><code>/var/lib/docker</code>가 차지하는 공간과 파티션 배분: linux.html 12장</div></li><li><strong>실시간 동기화와 구분</strong><div>lsyncd는 파일을 복사해 맞추는 도구, <code>-v</code>는 같은 폴더를 함께 봄: linux.html 14장</div></li></ul>
+    <ul class="facts"><li><strong>실제 적용</strong><div>Spark 마스터·워커 컨테이너에 <code>-v</code>를 넣어 재생성하고 마운트 검증: spark.html 22장</div></li><li><strong>네임드 볼륨</strong><div><code>docker volume create</code>와 Compose 선언: postgresql.html 11장</div></li><li><strong>디스크 여유</strong><div><code>/var/lib/docker</code>가 차지하는 공간과 파티션 배분: linux.html 12장</div></li><li><strong>실시간 동기화와 구분</strong><div>lsyncd는 파일을 복사해 맞추는 도구, <code>-v</code>는 같은 폴더를 함께 봄: linux.html 14장</div></li></ul>
   </section>
 
   <!-- 11 -->
@@ -2563,7 +2563,7 @@ systemctl stop docker docker.socket                    <span class="c"># 데몬�
           <tr><td><code>docker compose ps</code> / <code>docker compose logs</code> / <code>logs -f</code></td><td>Compose 서비스 목록(yml 밖에서 <code>docker run</code>한 컨테이너는 빠짐) / 오류 로그 / 실시간 로그 추적</td></tr>
           <tr><td><code>docker compose -f &lt;파일&gt; up -d</code> / <code>logs -f</code> / <code>ps</code> / <code>down</code></td><td>지정 YAML 프로젝트 실행·로그·목록·정리; 올린 파일과 같은 파일을 지정 (<code>-f</code> 생략 시 기본 compose.yaml)</td></tr>
           <tr><td><code>docker cp &lt;컨테이너&gt;:&lt;파일&gt; &lt;호스트&gt;</code> / <code>docker cp &lt;호스트 파일&gt; &lt;컨테이너&gt;:&lt;디렉터리&gt;/</code></td><td>설정 파일을 호스트로 꺼내고 수정본을 PGDATA로 되돌림</td></tr>
-          <tr><td><code>docker volume create pgdata</code> / <code>-v pgdata:/var/lib/postgresql/data</code></td><td>이름 있는 볼륨 생성 / 컨테이너 데이터 경로에 연결 → 컨테이너를 지워도 데이터 유지 (자세한 실습: postgresql.html 16장)</td></tr>
+          <tr><td><code>docker volume create pgdata</code> / <code>-v pgdata:/var/lib/postgresql/data</code></td><td>이름 있는 볼륨 생성 / 컨테이너 데이터 경로에 연결 → 컨테이너를 지워도 데이터 유지 (자세한 실습: postgresql.html 11장)</td></tr>
           <tr><td><code>docker cp &lt;컨테이너&gt;:&lt;파일&gt; &lt;호스트&gt;</code> / <code>docker cp &lt;호스트 파일&gt; &lt;컨테이너&gt;:&lt;디렉터리&gt;/</code></td><td>컨테이너 설정 파일을 호스트로 꺼내 수정 → 되돌린 뒤 <code>docker restart</code>로 반영</td></tr>
           <tr><td><code>mv compose.yaml compose___.yaml</code></td><td>기본 파일 자동 선택을 막아 <code>-f</code> 없는 compose 명령 실수 방지</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">포트 게시·네트워크 진단</th></tr>

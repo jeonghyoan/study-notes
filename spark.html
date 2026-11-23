@@ -4560,7 +4560,7 @@ ls /var/lib/postgresql/data/    <span class="c"># pg_hba.conf · postgresql.conf
     </tbody></table></div>
     <div class="dg-bar warn">Debian 컨테이너의 패키지 관리자는 <code>apt</code> — <code>apk</code> 는 알파인 전용. 패키지 목록 갱신 전에는 <code>E: Unable to locate package</code></div>
 
-    <ul class="facts"><li><strong>이미지·컨테이너 이론</strong><div>Docker 이미지 계층·실행 구조: docker.html 3장</div></li><li><strong>PostgreSQL 컨테이너 실행</strong><div>공식 이미지·볼륨·환경변수로 세우는 절차: postgresql.html 16장</div></li><li><strong>psql 메타 명령</strong><div><code>\l</code>·<code>\du</code>·<code>\dn</code>·<code>\c</code> 사용법: postgresql.html 6장</div></li><li><strong>다음 단계</strong><div>스파크가 PostgreSQL 을 읽을 JDBC 드라이버 준비: 이 파일 49장</div></li></ul>
+    <ul class="facts"><li><strong>이미지·컨테이너 이론</strong><div>Docker 이미지 계층·실행 구조: docker.html 3장</div></li><li><strong>PostgreSQL 컨테이너 실행</strong><div>공식 이미지·볼륨·환경변수로 세우는 절차: postgresql.html 11장</div></li><li><strong>psql 메타 명령</strong><div><code>\l</code>·<code>\du</code>·<code>\dn</code>·<code>\c</code> 사용법: postgresql.html 6장</div></li><li><strong>다음 단계</strong><div>스파크가 PostgreSQL 을 읽을 JDBC 드라이버 준비: 이 파일 49장</div></li></ul>
   </section>
 
   <!-- 49 -->
@@ -4693,7 +4693,7 @@ select pg_encoding_to_char(encoding) from pg_database where datname='mg';</code>
     </tbody></table></div>
     <div class="dg-bar warn">인코딩은 DB 생성 시점에 정해짐 — 만든 뒤 중간 변경은 위험. PostgreSQL 기본 UTF-8 은 MySQL <code>utf8mb4</code> 와 같은 4바이트 범위라 별도 지정 불필요</div>
 
-    <ul class="facts"><li><strong>문자셋 설정</strong><div>MySQL 캐릭터셋·콜레이션과 오류 복구: mysql.html 11장</div></li><li><strong>DB 생성</strong><div><code>create database</code>·owner 지정: 이 파일 50장</div></li><li><strong>설정 파일</strong><div>컨테이너 <code>postgresql.conf</code> 설정·재시작 검증: postgresql.html 18장</div></li><li><strong>다음 단계</strong><div>스키마 분리와 <code>search_path</code>: 이 파일 52장</div></li></ul>
+    <ul class="facts"><li><strong>문자셋 설정</strong><div>MySQL 캐릭터셋·콜레이션과 오류 복구: mysql.html 11장</div></li><li><strong>DB 생성</strong><div><code>create database</code>·owner 지정: 이 파일 50장</div></li><li><strong>설정 파일</strong><div>컨테이너 <code>postgresql.conf</code> 설정·재시작 검증: postgresql.html 13장</div></li><li><strong>다음 단계</strong><div>스키마 분리와 <code>search_path</code>: 이 파일 52장</div></li></ul>
   </section>
 
   <!-- 52 -->
@@ -5269,7 +5269,7 @@ pdf = pd.read_sql(query, con=dbinfo)   <span class="c"># 앞 장에서 만든 �
     <tr><td class="nowrap">대상 컨테이너</td><td><code>spark-master</code>·<code>spark-worker1</code> — 프롬프트 <code>[root@spark-master spark]#</code>(<code>/opt/spark</code>)</td><td>실제 연산은 워커에서 실행되므로 두 곳 모두 설치</td></tr>
     <tr><td class="nowrap">기존 라이브러리</td><td><code>numpy</code>·<code>pandas</code>는 이미 설치된 상태</td><td>그 위에 <code>pip</code>(파이썬 모듈)로 추가 설치</td></tr>
     <tr><td class="nowrap">진입 준비</td><td>기존 접속에서 <code>exit</code>로 컨테이너를 완전히 빠져나온 뒤 호스트에서 PuTTY 창을 하나 더 띄움</td><td>마스터·워커를 동시에 보려면 창이 두 개 필요</td></tr>
-    <tr><td class="nowrap">이 장의 범위</td><td>AI 모델과 임베딩 라이브러리 설치까지</td><td>벡터 테이블·유사도 검색은 postgresql.html 19~23장</td></tr>
+    <tr><td class="nowrap">이 장의 범위</td><td>AI 모델과 임베딩 라이브러리 설치까지</td><td>벡터 테이블·유사도 검색은 vectordb.html 8~10장</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># 마스터 컨테이너 진입 — 프롬프트 [root@spark-master spark]#</span>
@@ -5342,7 +5342,7 @@ pip install --no-cache-dir sentence-transformers scikit-learn psycopg2-binary</c
     </tbody></table></div>
     <div class="dg-bar warn">마스터에만 설치하면 워커에서 도는 태스크가 임베딩 모델을 찾지 못함 — PyTorch·sentence-transformers·scikit-learn·psycopg2-binary를 마스터와 워커 양쪽에 같은 명령으로 설치</div>
 
-    <ul class="facts"><li><strong>벡터 테이블·검색</strong><div>vector(2) 테이블·정렬 연산자(<code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>·<code>&lt;#&gt;</code>)·거리 지표: postgresql.html 21~23장</div></li><li><strong>벡터 검색·임베딩 입력</strong><div>연산자별 결과·<code>movie_data vector(384)</code>·<code>SentenceTransformer</code>·모델 교체: postgresql.html 24~26장</div></li><li><strong>벡터 SELECT 읽기</strong><div>노트북 vb1에서 <code>read_sql</code>·<code>createDataFrame</code>: 이 파일 61장</div></li><li><strong>임베딩 개념</strong><div>벡터·임베딩·모델 차원(1536·512~768): postgresql.html 22장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code>와 마스터·워커 구분: 이 파일 22장</div></li><li><strong>PostgreSQL 드라이버</strong><div><code>psycopg2-binary</code>·<code>psycopg[binary]</code> 설치 이력: 이 파일 56장</div></li></ul>
+    <ul class="facts"><li><strong>벡터 테이블·검색</strong><div>vector(2) 테이블·정렬 연산자(<code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>·<code>&lt;#&gt;</code>)·거리 지표: vectordb.html 8~10장</div></li><li><strong>벡터 검색·임베딩 입력</strong><div>연산자별 결과·<code>movie_data vector(384)</code>·<code>SentenceTransformer</code>·모델 교체: vectordb.html 11~13장</div></li><li><strong>벡터 SELECT 읽기</strong><div>노트북 vb1에서 <code>read_sql</code>·<code>createDataFrame</code>: 이 파일 61장</div></li><li><strong>임베딩 개념</strong><div>벡터·임베딩·모델 차원(1536·512~768): vectordb.html 9장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code>와 마스터·워커 구분: 이 파일 22장</div></li><li><strong>PostgreSQL 드라이버</strong><div><code>psycopg2-binary</code>·<code>psycopg[binary]</code> 설치 이력: 이 파일 56장</div></li></ul>
   </section>
 
   <!-- 61 -->
@@ -5398,7 +5398,7 @@ dbinfo = create_engine(
 )
 print("와~~ 연결됨!!")
 
-<span class="c"># postgresql.html 24장 SQL 그대로 — 벡터 컬럼도 select 문으로 읽음</span>
+<span class="c"># vectordb.html 11장 SQL 그대로 — 벡터 컬럼도 select 문으로 읽음</span>
 query = "select title, cate_emd &lt;-&gt; '[1,1]' as ce from movie order by cate_emd &lt;-&gt; '[1,1]'"
 
 <span class="c"># with 사용 → close 불필요</span>
@@ -5411,11 +5411,11 @@ df.show(truncate=False)           <span class="c"># show() 기본 20행, False �
 spark.stop()</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">SQL 재사용</td><td>postgresql.html 24장 SQL 문법이 그대로 들어감 — SQL에서 안 되면 여기서도 안 됨</td><td>먼저 DBeaver에서 확인하고 노트북으로 옮김</td></tr>
+    <tr><td class="nowrap">SQL 재사용</td><td>vectordb.html 11장 SQL 문법이 그대로 들어감 — SQL에서 안 되면 여기서도 안 됨</td><td>먼저 DBeaver에서 확인하고 노트북으로 옮김</td></tr>
     <tr><td class="nowrap"><code>with</code> 미사용 시</td><td>DB 연결을 <code>close</code> 해야 함</td><td>안 하면 연결이 계속 connecting 상태로 남음</td></tr>
     <tr><td class="nowrap">pgvector 패키지</td><td>파이썬에서 별도 vector 라이브러리를 import하지 않음</td><td>PostgreSQL 안의 extension이라 서버가 계산</td></tr>
     <tr><td class="nowrap">바뀌는 것</td><td>벡터를 써도 연결 코드는 크게 달라지지 않음 — 가장 중요한 건 스키마 확인</td><td>테이블이 <code>mg_schema</code>에 있는지 먼저 확인</td></tr>
-    <tr><td class="nowrap"><code>read_sql</code></td><td>select 전용 — insert는 연결 아래 구조가 다르고 값은 반복문으로 돌려야 함</td><td>insert 형태: 이 파일 56장, postgresql.html 25장</td></tr>
+    <tr><td class="nowrap"><code>read_sql</code></td><td>select 전용 — insert는 연결 아래 구조가 다르고 값은 반복문으로 돌려야 함</td><td>insert 형태: 이 파일 56장, vectordb.html 12장</td></tr>
     <tr><td class="nowrap">거리 값 컬럼</td><td><code>as ce</code>로 붙인 거리 값도 일반 숫자 컬럼처럼 DataFrame에 들어감</td><td>정렬은 DB에서 끝난 상태로 도착</td></tr>
     </tbody></table></div>
 
@@ -5429,8 +5429,8 @@ spark.stop()</code></pre><button class="copy" type="button" aria-label="코드 �
     </tbody></table></div>
     <div class="dg-bar warn">read_sql은 select 전용 — insert·update·delete는 <code>psycopg2</code>의 <code>cursor.execute</code> + <code>commit</code>. 벡터 컬럼도 조회는 일반 컬럼과 같고, 결과 순서는 DB의 <code>order by</code>가 결정</div>
     <ul class="facts">
-    <li><strong>벡터 SQL·연산자</strong><div>검색 문법·연산자별 순서·거리 값 조회: postgresql.html 24장</div></li>
-    <li><strong>임베딩 입력·모델 교체</strong><div><code>movie_data</code>·<code>SentenceTransformer</code>·사용자 문장 검색: postgresql.html 25~26장</div></li>
+    <li><strong>벡터 SQL·연산자</strong><div>검색 문법·연산자별 순서·거리 값 조회: vectordb.html 11장</div></li>
+    <li><strong>임베딩 입력·모델 교체</strong><div><code>movie_data</code>·<code>SentenceTransformer</code>·사용자 문장 검색: vectordb.html 12~13장</div></li>
     <li><strong>연결 코드</strong><div><code>create_engine</code>·<code>with connect</code>·<code>text()</code>: 이 파일 58장</div></li>
     </ul>
   </section>
@@ -6051,7 +6051,7 @@ spark.stop()</code></pre><button class="copy" type="button" aria-label="코드 �
 
     <div class="dg-bar warn">UDF 등록은 fn.udf(함수, 반환타입) — 반환 타입을 생략하면 기본 StringType이 적용되므로 숫자 결과는 IntegerType처럼 명시. 행마다 파이썬 함수를 호출하는 방식이라 단순 형 변환은 cast() 내장 함수를 씀</div>
 
-    <ul class="facts"><li><strong>pandas UDF</strong><div>벡터화 UDF 실습과 설정 3종: 이 파일 16장</div></li><li><strong>pandas UDF 오류</strong><div><code>show</code> 기준·pyarrow 오류 대응: 이 파일 17장</div></li><li><strong>윈도우 함수</strong><div><code>over(ws)</code>·순위·누적 합산: 이 파일 64장</div></li><li><strong>형 변환 실습</strong><div><code>cast("long")</code>으로 결과 컬럼 타입 바꾸기: 이 파일 59장</div></li><li><strong>숫자 반환 UDF</strong><div><code>types as t</code>·<code>t.IntegerType()</code>·점수 2배: 이 파일 65장</div></li><li><strong>이미지 유사도 결과 읽기</strong><div><code>read_sql</code>·<code>createDataFrame</code>·<code>show</code>: 이 파일 66장</div></li><li><strong>벡터 SQL</strong><div><code>travel_image</code>·<code>&lt;=&gt;</code>·<code>cast(:user_vec as vector)</code>: postgresql.html 30~33장</div></li></ul>
+    <ul class="facts"><li><strong>pandas UDF</strong><div>벡터화 UDF 실습과 설정 3종: 이 파일 16장</div></li><li><strong>pandas UDF 오류</strong><div><code>show</code> 기준·pyarrow 오류 대응: 이 파일 17장</div></li><li><strong>윈도우 함수</strong><div><code>over(ws)</code>·순위·누적 합산: 이 파일 64장</div></li><li><strong>형 변환 실습</strong><div><code>cast("long")</code>으로 결과 컬럼 타입 바꾸기: 이 파일 59장</div></li><li><strong>숫자 반환 UDF</strong><div><code>types as t</code>·<code>t.IntegerType()</code>·점수 2배: 이 파일 65장</div></li><li><strong>이미지 유사도 결과 읽기</strong><div><code>read_sql</code>·<code>createDataFrame</code>·<code>show</code>: 이 파일 66장</div></li><li><strong>벡터 SQL</strong><div><code>travel_image</code>·<code>&lt;=&gt;</code>·<code>cast(:user_vec as vector)</code>: vectordb.html 17~20장</div></li></ul>
   </section>
 
   <!-- 66 -->
@@ -6068,10 +6068,10 @@ spark.stop()</code></pre><button class="copy" type="button" aria-label="코드 �
     <h3>노트북 img2</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">왜 Spark</td><td>저장된 이미지끼리 비교하는 SELECT 단계라 Spark를 사용</td><td>벡터를 만드는 INSERT 단계(img1)에는 Spark를 쓰지 않음 — postgresql.html 30장</td></tr>
+    <tr><td class="nowrap">왜 Spark</td><td>저장된 이미지끼리 비교하는 SELECT 단계라 Spark를 사용</td><td>벡터를 만드는 INSERT 단계(img1)에는 Spark를 쓰지 않음 — vectordb.html 17장</td></tr>
     <tr><td class="nowrap">import</td><td><code>SparkSession</code>·<code>pandas</code>·<code>create_engine</code>·<code>text</code></td><td>pandas로 접속해 SELECT하는 쪽이 빨라 함께 사용</td></tr>
     <tr><td class="nowrap">세션</td><td>61장의 <code>SparkSession.builder</code> 구조 그대로</td><td><code>spark.driver.host</code>를 <code>spark-master</code>로 지정</td></tr>
-    <tr><td class="nowrap">SQL 출처</td><td>DBeaver에서 먼저 확인한 쿼리를 그대로 옮김</td><td>문법·순서 해석은 postgresql.html 31~32장</td></tr>
+    <tr><td class="nowrap">SQL 출처</td><td>DBeaver에서 먼저 확인한 쿼리를 그대로 옮김</td><td>문법·순서 해석은 vectordb.html 18~19장</td></tr>
     <tr><td class="nowrap">SQLAlchemy 엔진</td><td><code>create_engine</code>에 접속 정보와 <code>-c search_path=mg_schema,public</code> 지정</td><td>스키마 경로가 없으면 <code>travel_image</code>를 못 찾음(58장)</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · Jupyter 노트북 img2 · root]</span>
@@ -6117,7 +6117,7 @@ spark.stop()                                   <span class="c"># 마지막에 Sp
     <thead><tr><th>확인 지점</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
     <tr><td class="nowrap">출력 표</td><td><code>file_path</code>와 <code>img</code> 두 컬럼</td><td><code>img</code> 값은 거리 — 작을수록 비슷</td></tr>
     <tr><td class="nowrap">1순위</td><td>기준 이미지 자신이 <code>0.0</code>으로 맨 위</td><td>0이면 완전히 같은 벡터</td></tr>
-    <tr><td class="nowrap">확인 절차</td><td>표의 <code>file_path</code>로 이미지를 직접 열어 비교</td><td>13번 기준 결과는 postgresql.html 32장 표</td></tr>
+    <tr><td class="nowrap">확인 절차</td><td>표의 <code>file_path</code>로 이미지를 직접 열어 비교</td><td>13번 기준 결과는 vectordb.html 19장 표</td></tr>
     <tr><td class="nowrap">Spark 화면</td><td>Master 화면(<code>192.168.222.5:8080</code>) Running Applications에 앱 표시</td><td>앱이 남아 있으면 <code>spark.stop()</code> 확인(23·33장)</td></tr>
     </tbody></table></div>
 
@@ -6128,14 +6128,14 @@ spark.stop()                                   <span class="c"># 마지막에 Sp
     <tr><td class="nowrap">쿼리 조건</td><td><code>emd &lt;=&gt; (select emd …)</code></td><td><code>emd &lt;=&gt; cast(:user_vec as vector)</code></td></tr>
     <tr><td class="nowrap">값 전달</td><td>SQL 안에서 해결</td><td><code>params={"user_vec":vector_str}</code></td></tr>
     <tr><td class="nowrap">import 추가</td><td>—</td><td><code>PIL</code>·<code>transformers</code>·<code>os</code></td></tr>
-    <tr><td class="nowrap">상세</td><td>postgresql.html 32장</td><td>postgresql.html 33장</td></tr>
+    <tr><td class="nowrap">상세</td><td>vectordb.html 19장</td><td>vectordb.html 20장</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">Spark는 조회 결과 표시를 담당 — CLIP 추론과 SQL 실행은 파이썬과 DB에서 일어나고 Spark가 분산 처리하는 구조가 아님. <code>read_sql</code>은 select 전용이고 insert는 psycopg2의 커서로 처리</div>
 
     <ul class="facts">
     <li><strong>벡터 SELECT 기본 구조</strong><div><code>create_engine</code>·<code>read_sql</code>·<code>createDataFrame</code>: 이 파일 61장</div></li>
-    <li><strong>SQL·결과 해석</strong><div>더블 셀렉트·<code>ilike</code>·거리 정렬·결과 표: postgresql.html 31~32장</div></li>
-    <li><strong>사용자 이미지 검색</strong><div><code>params</code>·<code>cast</code>·모델 차원: postgresql.html 33장</div></li>
+    <li><strong>SQL·결과 해석</strong><div>더블 셀렉트·<code>ilike</code>·거리 정렬·결과 표: vectordb.html 18~19장</div></li>
+    <li><strong>사용자 이미지 검색</strong><div><code>params</code>·<code>cast</code>·모델 차원: vectordb.html 20장</div></li>
     <li><strong>모델 설치</strong><div>CLIP·PyTorch 설치 상태: 이 파일 60장</div></li>
     </ul>
   </section>
@@ -6468,7 +6468,7 @@ spark.stop()                                   <span class="c"># 마지막에 Sp
           <tr class="group"><th colspan="2" scope="colgroup">벡터 SELECT 읽기 (61장)</th></tr>
           <tr><td>노트북 <code>vb1</code> — <code>Untitled.ipynb</code>를 Rename, 터미널은 <code>exit</code></td><td>PySpark는 Jupyter에서 실행, Master 8080에서 Workers·Running Applications 확인, 마지막 <code>spark.stop()</code> 필수</td></tr>
           <tr><td><code>SparkSession.builder.appName("vector DB 유사도 검사").master("spark://spark-master:7077").config("spark.driver.host","spark-master").getOrCreate()</code></td><td>세션 생성 — <code>globals()</code>로 기존 <code>spark</code>를 먼저 stop, 앱 이름이 Master 화면에 표시</td></tr>
-          <tr><td><code>create_engine("postgresql+psycopg2://mg:a1234@192.168.222.5/mg", connect_args={"options":"-c search_path=mg_schema,public"})</code></td><td>postgresql.html 24장 SQL을 그대로 옮김 — 스키마 경로가 없으면 테이블을 못 찾음</td></tr>
+          <tr><td><code>create_engine("postgresql+psycopg2://mg:a1234@192.168.222.5/mg", connect_args={"options":"-c search_path=mg_schema,public"})</code></td><td>vectordb.html 11장 SQL을 그대로 옮김 — 스키마 경로가 없으면 테이블을 못 찾음</td></tr>
           <tr><td><code>with dbinfo.connect() as conn:</code> → <code>pd.read_sql(text(query), con=conn)</code></td><td><code>with</code>면 close 불필요, <code>read_sql</code>은 select 전용</td></tr>
           <tr><td><code>df = spark.createDataFrame(pdf)</code> → <code>df.show(truncate=False)</code></td><td>pandas → Spark, 기본 20행·<code>False</code>면 안 잘림. 결과 <code>와~~ 연결됨!!</code> + 거리 값 표</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">파이썬 클래스·메서드 (62장)</th></tr>
