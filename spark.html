@@ -653,7 +653,8 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#spark-pg-link">57. Spark → PostgreSQL 연동 실습</a></li>
         <li><a href="#spark-sqlalchemy">58. SQLAlchemy 엔진으로 PostgreSQL 연결</a></li>
         <li><a href="#spark-result-long">59. Spark 결과 값 변환과 응용문제</a></li>
-        <li><a href="#cheatsheet">60. 통합 명령어 치트시트</a></li>
+        <li><a href="#spark-torch">60. Spark 컨테이너에 PyTorch·임베딩 라이브러리 설치</a></li>
+        <li><a href="#cheatsheet">61. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -738,7 +739,8 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#spark-pg-link">57. Spark → PostgreSQL 연동 실습</a>
       <a href="#spark-sqlalchemy">58. SQLAlchemy 엔진으로 PostgreSQL 연결</a>
       <a href="#spark-result-long">59. Spark 결과 값 변환과 응용문제</a>
-      <a href="#cheatsheet">60. 통합 명령어 치트시트</a>
+      <a href="#spark-torch">60. Spark 컨테이너에 PyTorch·임베딩 라이브러리 설치</a>
+      <a href="#cheatsheet">61. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -5234,6 +5236,92 @@ pdf = pd.read_sql(query, con=dbinfo)   <span class="c"># 앞 장에서 만든 �
     <ul class="facts"><li><strong>SQLAlchemy 엔진</strong><div><code>create_engine</code>·<code>dispose</code>: 이 파일 58장</div></li><li><strong>PostgreSQL SELECT</strong><div><code>ilike</code>·<code>limit offset</code>·<code>concat</code>: 이 파일 54장</div></li><li><strong>조인·뷰</strong><div>테이블 4개·ERD·<code>create view</code>: mysql.html 17~19장</div></li><li><strong>MariaDB 적재</strong><div>API 데이터를 INSERT 문으로: 이 파일 18장</div></li></ul>
   </section>
 
+  <section class="sec" id="spark-torch">
+    <h2>Spark 컨테이너에 PyTorch·임베딩 라이브러리 설치</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 마스터·워커 진입 → 빌드 선택(CPU) → torch 설치 → 임베딩 세트 → 용량·버전 확인</p><div class="dg-flow"><div class="dg-node"><h4>① 진입</h4><p class="sub">spark-master · worker1</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 선택</h4><p class="sub">Compute Platform · CPU</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ torch</h4><p class="sub">--index-url …/whl/cpu</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 임베딩 세트</h4><p class="sub">sentence-transformers</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 확인</h4><p class="sub">버전 · 80GB 디스크</p></div></div><p class="dg-foot">마스터에만 깔면 워커 태스크가 모듈을 찾지 못함 — 두 컨테이너에 같은 설치를 반복</p></div>
+
+    <h3>실습 환경</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">대상 컨테이너</td><td><code>spark-master</code>·<code>spark-worker1</code> — 프롬프트 <code>[root@spark-master spark]#</code>(<code>/opt/spark</code>)</td><td>실제 연산은 워커에서 실행되므로 두 곳 모두 설치</td></tr>
+    <tr><td class="nowrap">기존 라이브러리</td><td><code>numpy</code>·<code>pandas</code>는 이미 설치된 상태</td><td>그 위에 <code>pip</code>(파이썬 모듈)로 추가 설치</td></tr>
+    <tr><td class="nowrap">진입 준비</td><td>기존 접속에서 <code>exit</code>로 컨테이너를 완전히 빠져나온 뒤 호스트에서 PuTTY 창을 하나 더 띄움</td><td>마스터·워커를 동시에 보려면 창이 두 개 필요</td></tr>
+    <tr><td class="nowrap">이 장의 범위</td><td>AI 모델과 임베딩 라이브러리 설치까지</td><td>벡터 테이블·유사도 검색은 postgresql.html 19~23장</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 마스터 컨테이너 진입 — 프롬프트 [root@spark-master spark]#</span>
+docker exec -it spark-master bash
+<span class="c"># 워커 컨테이너 진입 — 프롬프트 [root@spark-worker1 spark]#</span>
+docker exec -it spark-worker1 bash</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <h3>PyTorch 빌드 선택</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>선택 항목</th><th>값</th><th>이 환경</th></tr></thead><tbody>
+    <tr><td class="nowrap">사이트 경로</td><td><code>pytorch.org</code> → Get Started → Start Locally</td><td>선택 결과가 하단 <code>Run this Command</code>에 명령으로 나옴</td></tr>
+    <tr><td class="nowrap">Build</td><td>Stable 2.15.0 / Preview(Nightly)</td><td>Stable — 안정 빌드</td></tr>
+    <tr><td class="nowrap">OS</td><td>Linux·Mac·Windows</td><td>Linux(컨테이너)</td></tr>
+    <tr><td class="nowrap">Package</td><td>Pip·LibTorch·Source</td><td>Pip — <code>pip</code>로 설치</td></tr>
+    <tr><td class="nowrap">Language</td><td>Python·C++/Java</td><td>Python</td></tr>
+    <tr><td class="nowrap">Compute Platform</td><td>CUDA 13.2·13.4, ROCm 10.0, CPU</td><td>CPU — 이 환경에 CUDA·ROCm이 없음</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">PyTorch의 정체</td><td>딥러닝 프레임워크(라이브러리) — Meta 주도로 시작해 현재 PyTorch Foundation 소속</td><td>Python이 제공하는 AI 모델이 아님 — 임베딩 모델은 <code>sentence-transformers</code> 등이 별도로 내려받음</td></tr>
+    <tr><td class="nowrap">명령 복사</td><td>선택을 마치면 나오는 명령을 그대로 복사해 붙여넣음</td><td>손으로 고치면 index-url·패키지 이름이 어긋나 CUDA 빌드를 받게 됨</td></tr>
+    <tr><td class="nowrap">AMD 내장 그래픽</td><td>AMD CPU에 내장 그래픽 모듈이 있으면 그에 맞는 플랫폼, 없으면 CPU로 설치</td><td>Intel도 그래픽카드가 있으면 그 플랫폼, 없으면 CPU</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 45강 113:11~113:50</div><p>AMD CPU 내장 그래픽에서 ROCm 플랫폼으로 설치하면 더 빨라진다는 설명 — PyTorch·AMD ROCm 지원 GPU 목록에서 내장 그래픽이 실제 지원 대상인지 확인 필요. 화면 설명은 “그쪽 플랫폼을 선택해 설치하면 더 빨라짐”까지</p></div>
+
+    <h3>PyTorch CPU 설치</h3>
+<div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+<span class="c"># PyTorch CPU 빌드 설치 — pytorch.org 가 알려 준 명령 그대로</span>
+pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="code"><pre><code><span class="c"># [spark-worker1 컨테이너 · root]</span>
+<span class="c"># 워커도 같은 CPU 빌드 — 마스터에만 깔면 워커 태스크에서 모듈을 못 찾음</span>
+python3 -m pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>실행 결과</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">조회 저장소</td><td><code>Looking in indexes: https://download.pytorch.org/whl/cpu</code></td><td><code>--index-url</code>로 CPU 빌드 저장소를 지정한 결과</td></tr>
+    <tr><td class="nowrap">받는 파일</td><td><code>torch-2.8.0+cpu-cp39-cp39-manylinux_2_28_x86_64.whl (184.0 MB)</code></td><td>마스터·워커 동일, 진행률·ETA 표시 — 용량이 커서 오래 걸림</td></tr>
+    <tr><td class="nowrap">두 명령의 차이</td><td><code>pip3 install torch torchvision</code> / <code>python3 -m pip install --no-cache-dir torch</code></td><td>같은 CPU 빌드이고 캐시 사용 여부만 다름 — 두 번째는 <code>torchvision</code>을 따로 넣지 않음</td></tr>
+    <tr><td class="nowrap">설치 위치</td><td>컨테이너 안 파이썬(<code>python3</code>·<code>cp39</code>)</td><td>호스트가 아니라 컨테이너 파일 시스템에 들어감 — 컨테이너를 새로 만들면 다시 설치</td></tr>
+    </tbody></table></div>
+
+    <h3>용량 주의</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">필요한 디스크</td><td>80GB로 잡으면 설치 가능</td><td>40GB·30GB였으면 용량 부족으로 설치 불가</td></tr>
+    <tr><td class="nowrap">차지하는 양</td><td>torch 휠 184MB에 의존성·임베딩 라이브러리까지 같은 디스크에 쌓임</td><td>이미지·컨테이너가 이미 공간을 쓰는 상태 — 설치 전 <code>df -m</code>으로 여유 확인</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">설치 전 디스크 확인 — PyTorch wheel 184MB에 의존성이 더해지고 임베딩 라이브러리까지 쌓임. 30~40GB 환경은 용량 부족으로 설치가 멈추므로 80GB 기준으로 잡음</div>
+
+    <h3>임베딩 라이브러리 추가 설치</h3>
+<div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+<span class="c"># 문장 임베딩·전처리·PostgreSQL 연결 모듈 3개를 한 번에 설치 (워커도 같은 명령)</span>
+pip install --no-cache-dir sentence-transformers scikit-learn psycopg2-binary</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>패키지</th><th>역할</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>sentence-transformers</code></td><td>문장 임베딩 모델 라이브러리</td><td>OpenAI 호출 없이 로컬에서 임베딩을 만들어 유사도 검색을 검증할 수 있음</td></tr>
+    <tr><td class="nowrap"><code>scikit-learn</code></td><td>전처리·유사도 계산 도구</td><td>거리 계산을 코드로 확인할 때 사용</td></tr>
+    <tr><td class="nowrap"><code>psycopg2-binary</code></td><td>PostgreSQL 연결 모듈</td><td>56장의 파이썬 드라이버와 같은 계열 — 설치된 환경에서는 덮어 설치</td></tr>
+    <tr><td class="nowrap"><code>--no-cache-dir</code></td><td>설치 캐시를 남기지 않음</td><td>CPU만 쓰는 환경에서 캐시를 쌓지 않으려고 붙임 — 같은 패키지를 다시 받으면 다운로드부터 반복</td></tr>
+    <tr><td class="nowrap">입력 방법</td><td>메모장에 명령을 써서 복사 → PuTTY에 <code>Shift+Insert</code> → Enter</td><td>긴 명령을 두 컨테이너에 반복 입력할 때 오타 방지</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td><code>sentence_transformers-5.1.2-py3-none-any.whl (488 kB)</code>, <code>scikit_learn-1.6.1-cp39 … (13.5 MB)</code> 등 다운로드</td><td>설치가 끝날 때까지 기다린 뒤 다음 작업</td></tr>
+    <tr><td class="nowrap">워커 경고</td><td><code>Retrying … Network is unreachable</code> 경고가 한 번 뜨고 재시도 후 정상 설치</td><td>네트워크가 잠깐 끊긴 것이므로 재시도가 끝날 때까지 기다림 — 중간에 끊지 않음</td></tr>
+    </tbody></table></div>
+
+    <h3>CPU와 CUDA 설치 구분</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>환경</th><th>설치 명령</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">CPU만 (이 실습)</td><td><code>pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu</code> · <code>python3 -m pip install --no-cache-dir torch --index-url …/cpu</code></td><td>CUDA·ROCm이 없는 환경 — CPU 빌드를 지정</td></tr>
+    <tr><td class="nowrap">NVIDIA(CUDA) 있는 집 PC</td><td><code>pip install --no-cache-dir torch</code>(index-url 없이)</td><td>PyPI의 기본 <code>torch</code> 휠은 Linux에서 CUDA 빌드지만 Windows·macOS에서는 CPU 전용 — Windows에서 CUDA를 쓰려면 <code>--index-url https://download.pytorch.org/whl/cu…</code>처럼 CUDA 인덱스를 지정</td></tr>
+    <tr><td class="nowrap">메모</td><td>메모장에 CPU용·CUDA용 명령을 나란히 적어 둠</td><td>하드웨어에 따라 설치 방식이 다름 — 명령을 섞으면 그래픽카드가 쓰이지 않음</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">마스터에만 설치하면 워커에서 도는 태스크가 임베딩 모델을 찾지 못함 — PyTorch·sentence-transformers·scikit-learn·psycopg2-binary를 마스터와 워커 양쪽에 같은 명령으로 설치</div>
+
+    <ul class="facts"><li><strong>벡터 테이블·검색</strong><div>vector(2) 테이블·정렬 연산자(<code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>·<code>&lt;#&gt;</code>)·거리 지표: postgresql.html 21~23장</div></li><li><strong>임베딩 개념</strong><div>벡터·임베딩·모델 차원(1536·512~768): postgresql.html 22장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code>와 마스터·워커 구분: 이 파일 22장</div></li><li><strong>PostgreSQL 드라이버</strong><div><code>psycopg2-binary</code>·<code>psycopg[binary]</code> 설치 이력: 이 파일 56장</div></li></ul>
+  </section>
+
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -5552,6 +5640,13 @@ pdf = pd.read_sql(query, con=dbinfo)   <span class="c"># 앞 장에서 만든 �
           <tr><td><code>df.withColumn(c, F.col(c).cast("long"))</code> → <code>df.show()</code></td><td>숫자 컬럼(금액·카운트) 형 변환 — 필요 없으면 주석 처리, 출력은 마지막 한 번</td></tr>
           <tr><td><code>select count(*) as total … travel ilike '하와이%' and paystate='결제완료' and product_type != '숙박'</code></td><td>응용문제 1 — 하와이 결제완료 중 숙박 제외, 결과 <code>28</code></td></tr>
           <tr><td>조인·뷰 문제(응용 2~4)</td><td>MariaDB 4개 테이블에서 조인·뷰로 해결 — 자세히: mysql.html 17~19장</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">PyTorch·임베딩 라이브러리 (60장)</th></tr>
+          <tr><td><code>pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu</code></td><td>마스터 CPU 빌드 — 받는 파일 <code>torch-2.8.0+cpu … (184.0 MB)</code>, pytorch.org 선택 결과 명령 그대로</td></tr>
+          <tr><td><code>python3 -m pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu</code></td><td>워커 CPU 빌드 — 마스터에만 깔면 워커 태스크가 모듈을 못 찾음</td></tr>
+          <tr><td><code>pip install --no-cache-dir sentence-transformers scikit-learn psycopg2-binary</code></td><td>임베딩·전처리·PostgreSQL 모듈 3종, 마스터·워커 양쪽. <code>sentence_transformers-5.1.2</code>·<code>scikit_learn-1.6.1</code></td></tr>
+          <tr><td><code>pip install --no-cache-dir torch</code></td><td>NVIDIA(CUDA) 있는 집 PC용 — Linux는 기본 CUDA 빌드, Windows·macOS는 CPU 전용이라 CUDA는 <code>--index-url …/whl/cu…</code> 지정</td></tr>
+          <tr><td><code>Retrying … Network is unreachable</code></td><td>워커 설치 중 네트워크 경고 — 재시도가 끝날 때까지 기다리면 정상 설치</td></tr>
+          <tr><td>용량</td><td>PyTorch wheel 184MB + 의존성·임베딩 라이브러리 — 디스크 80GB 기준, 30~40GB는 부족</td></tr>
         </tbody>
       </table>
     </div>

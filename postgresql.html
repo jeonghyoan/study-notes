@@ -612,7 +612,12 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#pg-run">16. 공식 이미지·볼륨·컨테이너 실행</a></li>
         <li><a href="#pg-auth">17. psql 접속과 pg_hba 인증</a></li>
         <li><a href="#pg-config">18. postgresql.conf 설정·로그·재시작</a></li>
-        <li><a href="#cheatsheet">19. 통합 명령어 치트시트</a></li>
+        <li><a href="#pg-vector-basics">19. 벡터 DB 기초 (저장 지표·거리 계산)</a></li>
+        <li><a href="#pg-vector-apt">20. 컨테이너 Debian에 pgvector 설치</a></li>
+        <li><a href="#pg-vector-similarity">21. vector 테이블·유사도 정렬</a></li>
+        <li><a href="#pg-embedding">22. 벡터·임베딩·임베딩 모델</a></li>
+        <li><a href="#pg-metrics">23. 거리 지표 3종·계산 검증</a></li>
+        <li><a href="#cheatsheet">24. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -620,7 +625,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>PostgreSQL 통합 학습노트</h1>
-    <p class="deck">PostgreSQL 통합 학습노트 · 범위: 로컬 서버의 설치 방식(소스·RPM)·버전 선택(dnf module)·초기화·pg_hba 접속 허용·postgresql.conf 수신 주소와 psql 로컬·원격 접속(peer 인증) → 운영: 인증 전환(trust→md5)·psql 메타 명령·사용자·DB·소유자·권한·스키마 우선순위(search_path)·백업과 복구(pg_dump·psql -f)·DBeaver 접속 → 이미지·영상 바이트 저장 구조 → pgvector 소스 설치·vector 확장·임베딩·유사도·vector 권한과 적용 순서 → 공식 이미지 컨테이너 실행·이름 있는 볼륨 → psql 접속·pg_hba.conf 인증 → postgresql.conf 메모리·로그 설정과 재시작 검증. 서버 10.2.2.101 · PostgreSQL 16.8 · vector 0.8.7 · 서비스 postgresql.service. Docker·Compose 기본 명령은 docker.html 4·5장</p>
+    <p class="deck">PostgreSQL 통합 학습노트 · 범위: 로컬 서버의 설치 방식(소스·RPM)·버전 선택(dnf module)·초기화·pg_hba 접속 허용·postgresql.conf 수신 주소와 psql 로컬·원격 접속(peer 인증) → 운영: 인증 전환(trust→md5)·psql 메타 명령·사용자·DB·소유자·권한·스키마 우선순위(search_path)·백업과 복구(pg_dump·psql -f)·DBeaver 접속 → 이미지·영상 바이트 저장 구조 → pgvector 소스 설치·vector 확장·임베딩·유사도·vector 권한과 적용 순서 → 공식 이미지 컨테이너 실행·이름 있는 볼륨 → psql 접속·pg_hba.conf 인증 → postgresql.conf 메모리·로그 설정과 재시작 검증. 서버 10.2.2.101 · PostgreSQL 16.8 · vector 0.8.7 · 서비스 postgresql.service. 컨테이너 Debian의 pgvector 패키지 설치·vector 테이블·유사도 정렬 연산자(<code class="n">&lt;-&gt;</code>·<code class="n">&lt;=&gt;</code>·<code class="n">&lt;#&gt;</code>)·임베딩 모델·거리 지표 3종과 계산 검증 → Docker·Compose 기본 명령은 docker.html 4·5장</p>
 
     <div class="core-strip">
       <div>
@@ -633,7 +638,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       </div>
       <div>
         <div class="core-metric">백업·복구 · vector</div>
-        <p class="core-desc"><code class="n">pg_dump -f sample.sql</code> → <code class="n">drop database</code> → <code class="n">create database</code>·<code class="n">owner</code> → 관리자는 <code class="n">-d apink -f sample.sql</code>. <code class="n">-d</code>를 빼면 기본 DB로 복구 (9장). vector는 <code class="n">make install</code> 뒤 DB마다 <code class="n">create extension vector</code> (12·13장)</p>
+        <p class="core-desc"><code class="n">pg_dump -f sample.sql</code> → <code class="n">drop database</code> → <code class="n">create database</code>·<code class="n">owner</code> → 관리자는 <code class="n">-d apink -f sample.sql</code>. <code class="n">-d</code>를 빼면 기본 DB로 복구 (9장). vector는 <code class="n">make install</code> 뒤 DB마다 <code class="n">create extension vector</code> (12·13장), 컨테이너 Debian은 <code class="n">apt-get install postgresql-14-pgvector</code> + <code class="n">with schema</code> (20장). 검색은 <code class="n">order by emb &lt;-&gt; · &lt;=&gt; · &lt;#&gt;</code> (21·23장)</p>
       </div>
     </div>
 
@@ -656,7 +661,12 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#pg-run">16. 공식 이미지·볼륨·컨테이너 실행</a>
       <a href="#pg-auth">17. psql 접속과 pg_hba 인증</a>
       <a href="#pg-config">18. postgresql.conf 설정·로그·재시작</a>
-      <a href="#cheatsheet">19. 통합 명령어 치트시트</a>
+      <a href="#pg-vector-basics">19. 벡터 DB 기초 (저장 지표·거리 계산)</a>
+      <a href="#pg-vector-apt">20. 컨테이너 Debian에 pgvector 설치</a>
+      <a href="#pg-vector-similarity">21. vector 테이블·유사도 정렬</a>
+      <a href="#pg-embedding">22. 벡터·임베딩·임베딩 모델</a>
+      <a href="#pg-metrics">23. 거리 지표 3종·계산 검증</a>
+      <a href="#cheatsheet">24. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -1661,7 +1671,7 @@ drop schema sample_schema cascade;</code></pre><button class="copy" type="button
     <tr><td class="nowrap">사용 사례</td><td>배경에 영상이 계속 도는 사이트, 카페24 같은 쇼핑몰의 슬라이드</td><td>인프라 담당자가 형식을 알아야 서버 세팅과 소통이 됨</td></tr>
     </tbody></table></div>
     <ul class="facts">
-    <li><strong>이어지는 학습</strong><div>PostgreSQL → pgvector(벡터 DB) — 이 과정에서는 시간상 생략, 스스로 학습</div></li>
+    <li><strong>이어지는 학습</strong><div>PostgreSQL → pgvector(벡터 DB) — 이 과정에서는 시간상 생략, 스스로 학습. 이 파일 19~23장에서 컨테이너 설치·vector 테이블·유사도 연산·임베딩·거리 지표로 이어짐</div></li>
     <li><strong>판단 목적</strong><div>DB마다 할당·저장하는 데이터 형태가 다름 → 왜 설치하는지, AI에는 어떤 DB를 쓰는지 판단하고 어떤 서비스를 할 수 있는지 확인</div></li>
     </ul>
     <div class="dg-bar warn">byte 저장 — 백업·복제·접근 제어 일원화가 목적이고, 성능은 파일시스템보다 불리할 수 있음. PostgreSQL <code>bytea</code>·MySQL <code>BLOB</code> 모두 가능, 판단 기준은 파일 누적·이전 위험</div>
@@ -1867,6 +1877,7 @@ select * from members;</code></pre><button class="copy" type="button" aria-label
     </tbody></table></div>
     <ul class="facts">
     <li><strong>후속 계획</strong><div>사용자 추가 등은 다음 단계에서 진행, 가능하면 프레임워크를 써서 시연 예정</div></li>
+    <li><strong>이어지는 실습</strong><div>컨테이너 안에서 <code>apt-get</code>으로 pgvector를 넣고 스키마를 지정해 등록하는 절차, vector 테이블과 정렬 연산자: 20~21장</div></li>
     </ul>
     <div class="note-verify"><div class="tag">🔍 직접 확인 · 16강 118:23 · 120:03</div><p>118:23 강사가 “프레임워크” 앞에 말한 “파이사이” 단어가 무엇인지 영상 소리로 확인할 항목(전사 불명확, 무음에 가까운 구간). 120:03의 “바이브 예시, 패스트 APN”도 전사가 불명확 — 나중에 해보겠다는 맥락</p></div>
     <div class="dg-bar warn">vector 테이블 — <code>vector(3)</code> 타입 컬럼은 <code>CREATE EXTENSION vector</code>를 실행한 DB에서만 생성 가능. 데이터가 public에 들어간 것은 우선순위 미설정 때문이므로 실습 뒤 정리 필요</div>
@@ -2151,6 +2162,7 @@ volumes:
     <div class="dg-bar warn">볼륨과 데이터 보존 — 컨테이너 안에만 저장한 데이터는 컨테이너 삭제와 함께 소멸, 이름 있는 볼륨은 유지. external 볼륨은 미리 만들어 둬야 하고 Compose가 지우지 않음 (Compose 생명주기: docker.html 5장)</div>
     <ul class="facts">
     <li><strong>스파크 클러스터의 DB 컨테이너</strong><div>같은 <code>rds_psql</code> 를 스파크 마스터·워커와 함께 띄우는 구성: spark.html 48장</div></li>
+    <li><strong>이 컨테이너에 확장 넣기</strong><div>Debian 계열이라 <code>apt-get</code>으로 pgvector를 설치하고 스키마를 지정해 등록: 20장</div></li>
     </ul>
   </section>
 
@@ -2255,6 +2267,508 @@ log_rotation_size = 10MB
   </section>
 
   <!-- 19 -->
+  <section class="sec" id="pg-vector-basics">
+    <h2>벡터 DB 기초 — 저장 지표와 거리 계산</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 저장 지표 → 좌표 → 피타고라스 → 제곱근 표기 → 유사도 검색</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 저장 지표</h4><p class="sub">내구성 · 가용성</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② 좌표</h4><p class="sub">앞 x · 뒤 y</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ 피타고라스</h4><p class="sub">a² + b² = c²</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ 제곱근 표기</h4><p class="sub">sqrt · ^2</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 유사도 검색</h4><p class="sub">가장 가까운 값</p></div></div>
+      <p class="dg-foot">공식을 알아야 코드를 만듦 — 모르면 AI에게 물어도 공식과 코드를 되묻는 상황이 됨</p></div>
+
+    <h3>내구성·가용성</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>용어</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">내구성<br>(Durability)</td><td>저장한 데이터가 유실·손상 없이 유지될 확률 — S3는 99.999999999%(11 nines) 설계</td><td>값이 거의 100%인데 100%가 아닌 것은 확률적 설계 수치이기 때문 — 특정 서비스 중단 사고 탓이 아님</td></tr>
+    <tr><td class="nowrap">가용성<br>(Availability)</td><td>필요할 때 접근·사용할 수 있는 시간 비율 — S3 Standard 99.99% 설계</td><td>데이터를 잘 보관했다는 전제 위에서 보관을 얼마나 안정적으로 유지하는가의 지표</td></tr>
+    <tr><td class="nowrap">판단 기준</td><td>내구성 = 데이터가 살아 있는가 / 가용성 = 지금 꺼내 쓸 수 있는가</td><td>두 용어를 바꿔 쓰면 설계 의도를 잘못 설명하게 됨</td></tr>
+    <tr><td class="nowrap">배우는 이유</td><td>데이터·파일·로그·백업 파일을 다루는 일이면 두 용어를 알아야 하고 면접·질문에 자주 나옴</td><td>벡터 DB와 S3를 함께 묶어 이야기하는 경우가 많아 벡터 실습 앞에서 먼저 정리</td></tr>
+    <tr><td class="nowrap">S3를 많이 쓰는 이유</td><td>가용성과 내구성을 우선하기 때문</td><td>용량·가격만 보고 고르는 저장소가 아님</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">내구성과 가용성 — 내구성은 저장된 데이터가 남아 있을 확률(S3 11 nines), 가용성은 필요할 때 접근할 수 있는 시간 비율(S3 Standard 99.99%). 100%가 아닌 것은 확률 설계값이고 사고 한 번 때문이 아님</div>
+
+    <h3>수학 사전 지식</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">왜 필요한가</td><td>벡터 DB 설정·설치·테스트를 하며 AI 모델까지 설치 — AI 모델이 있어야 벡터 DB를 완성하고 실무에서도 씀</td><td>코사인·루트 같은 공식이 화면에 나옴 — 유클리드 검색에서 피타고라스를 씀</td></tr>
+    <tr><td class="nowrap">공식 수준</td><td>직접 계산하는 것이 아니라 공식 정도는 알아야 함</td><td>공식을 알아야 코드를 만들 수 있음 — 모르면 코드를 한 줄도 못 씀</td></tr>
+    <tr><td class="nowrap">AI에게 물을 때</td><td>공식과 코드를 되묻는 상황이 됨</td><td>질문에 공식·값을 담아야 쓸 만한 코드가 나옴</td></tr>
+    <tr><td class="nowrap">이 노트의 범위</td><td>유클리드·코사인 중심 — 내적(inner product·dot product)은 23장의 비교표까지만 다룸</td><td>세 지표의 원리는 같지만 계산식과 정렬 방향이 다름</td></tr>
+    <tr><td class="nowrap">벡터와 numpy</td><td>벡터는 numpy와 함께 다룸</td><td>pandas와 구조가 다름 — 배열의 축·형태 중심으로 다룸</td></tr>
+    </tbody></table></div>
+
+    <h3>피타고라스와 제곱근</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">피타고라스</td><td>a² + b² = c² — 빗변 c = 루트(a² + b²)</td><td>유사도 검사의 기본 베이스 — 제곱의 합이지 제곱근의 합이 아님</td></tr>
+    <tr><td class="nowrap">sqrt</td><td>square root(스퀘어 루트)의 줄임말 — 제곱근(루트)을 구하는 명령</td><td>단어와 기호를 알아야 제곱근을 쓸 수 있음</td></tr>
+    <tr><td class="nowrap">텍스트 표기</td><td><code>$c = \sqrt{a^2 + b^2}$</code> — 달러로 시작·끝, 역슬래시, <code>sqrt</code>, 중괄호, <code>^2</code> 제곱</td><td>표기 요소를 하나씩 맞춰야 수식이 렌더링됨</td></tr>
+    <tr><td class="nowrap">표기 요소</td><td><code>$ … $</code> 수식 시작·끝 / <code>\sqrt</code> 제곱근 / <code>{ }</code> 묶음 / <code>^2</code> 제곱</td><td>중괄호를 빼면 제곱이 첫 글자에만 붙는 식으로 깨짐</td></tr>
+    <tr><td class="nowrap">앞의 식</td><td><code>c²</code>·<code>a²</code>도 같은 방식으로 씀</td><td>뒤의 계산 시연이 이 표기를 기준으로 진행</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">피타고라스 — a² + b² = c²(제곱)이고 빗변 c는 루트로 구함. 제곱근을 더하는 식(√a + √b = √c)으로 옮겨 쓰면 거리 계산 전체가 틀어짐</div>
+  </section>
+
+  <!-- 20 -->
+  <section class="sec" id="pg-vector-apt">
+    <h2>컨테이너 Debian에 pgvector 설치 (apt · 스키마 지정)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 컨테이너 진입 → OS 판별 → apt 갱신 → 패키지 설치 → 스키마 지정 등록</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 진입</h4><p class="sub">docker exec · rds_psql</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② OS 판별</h4><p class="sub">/etc/*release*</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ apt 갱신</h4><p class="sub">apt-get update</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ 설치</h4><p class="sub">postgresql-14-pgvector</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 등록</h4><p class="sub">with schema mg_schema</p></div></div>
+      <p class="dg-foot">계열과 버전을 먼저 확인해야 패키지 이름이 정해짐 — 컨테이너 안에서는 소스 빌드 대신 배포판 패키지로 설치</p></div>
+
+    <h3>실습 환경</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">컨테이너</td><td><code>rds_psql</code> — Debian 계열, PostgreSQL 14(이미지 태그 14.24)</td><td>로컬 서버의 소스 설치(12장)와 달리 컨테이너에서는 배포판 패키지로 설치 — 같은 확장을 다른 경로로 넣는 사례</td></tr>
+    <tr><td class="nowrap">접속 도구</td><td>PuTTY(호스트에서 <code>docker exec</code>로 컨테이너 진입), DBeaver(DB <code>mg</code>, 스키마 <code>mg_schema</code>)</td><td>psql은 컨테이너 안 bash에서 실행, 테이블 실습은 DBeaver 스크립트 편집기에서</td></tr>
+    <tr><td class="nowrap">사용자·DB</td><td>최고 관리자 <code>postgres</code>, 일반 사용자 <code>mg</code>(DB <code>mg</code>, 스키마 <code>mg_schema</code>)</td><td>앞 실습 테이블 <code>mg_schema.travel_payment</code>가 이미 있는 상태</td></tr>
+    <tr><td class="nowrap">작업 순서</td><td>컨테이너 진입 → OS 확인 → <code>apt-get update</code> → pgvector 설치 → 확장 등록 → 스키마 지정 부여</td><td>설치·확인까지가 이 장의 범위 — 벡터 테이블·검색은 21~23장, AI 모델을 실제로 쓰는 실습은 이후 단계</td></tr>
+    </tbody></table></div>
+
+    <h3>컨테이너 진입</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 컨테이너 기동 — 꺼져 있으면 먼저 올림 (출력 rds_psql)</span>
+docker start rds_psql
+<span class="c"># 컨테이너 안 bash 진입 (프롬프트 root@702b57583e33:/#)</span>
+docker exec -it rds_psql bash</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">실행 위치</td><td>호스트 리눅스에서 <code>docker</code> 명령, 들어간 뒤의 설치·psql 명령은 컨테이너 안</td><td>호스트에 PostgreSQL을 설치하는 것이 아님 — 컨테이너의 파일 시스템만 바뀜</td></tr>
+    <tr><td class="nowrap">프롬프트</td><td><code>root@702b57583e33:/#</code> — 컨테이너 ID가 프롬프트에 나옴</td><td>호스트(<code>root@서버명</code>)와 구분되는 지점</td></tr>
+    <tr><td class="nowrap">기동 실패</td><td><code>docker start</code> 뒤에도 진입이 안 되면 <code>docker ps -a</code>로 상태 확인</td><td>컨테이너가 Exited 상태면 로그(<code>docker logs rds_psql</code>)를 먼저 봄</td></tr>
+    </tbody></table></div>
+
+    <h3>OS 확인</h3>
+<div class="code"><pre><code><span class="c"># [rds_psql 컨테이너 · root]</span>
+<span class="c"># 레드햇 계열 판별에 쓰는 이름이지만 일반 배포판에는 없는 파일 (결과 No such file or directory)</span>
+cat /etc/release
+<span class="c"># 커널 이름만 확인 (결과 Linux) — 배포판 종류는 나오지 않음</span>
+uname
+<span class="c"># 커널 버전 문자열 — 컨테이너가 공유하는 호스트 커널(el9)이 보임</span>
+cat /proc/version
+<span class="c"># 커널 상세 (5.14.0-687.61.1.el9_8 … GNU/Linux)</span>
+uname -a
+<span class="c"># 배포판 확인 — PRETTY_NAME="Debian GNU/Linux 13 (trixie)" 출력</span>
+cat /etc/*release*</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>명령</th><th>보이는 것</th><th>판단</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>cat /etc/release</code></td><td><code>No such file or directory</code></td><td>레드햇 계열 판별 파일은 <code>/etc/redhat-release</code> — <code>/etc/release</code>는 일반 배포판에 없는 이름이라 센트OS 여부와 무관하게 같은 결과</td></tr>
+    <tr><td class="nowrap"><code>uname</code></td><td><code>Linux</code></td><td>커널 이름만 — 배포판 종류를 알려 주지 않음</td></tr>
+    <tr><td class="nowrap"><code>cat /proc/version</code></td><td>커널 버전 문자열(<code>el9</code>·<code>rockylinux</code> 표기)</td><td>컨테이너는 호스트 커널을 공유하므로 호스트(Rocky Linux 9) 정보가 보임 — 컨테이너 OS 판별용이 아님</td></tr>
+    <tr><td class="nowrap"><code>uname -a</code></td><td><code>5.14.0-687.61.1.el9_8 … GNU/Linux</code></td><td>같은 커널 정보의 상세 출력</td></tr>
+    <tr><td class="nowrap"><code>cat /etc/*release*</code></td><td><code>PRETTY_NAME="Debian GNU/Linux 13 (trixie)"</code></td><td>배포판 판별은 이 명령(<code>/etc/os-release</code> 계열) — 실제 OS는 Debian 13</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>출력 값</th><th>의미</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>PRETTY_NAME="Debian GNU/Linux 13 (trixie)"</code></td><td>배포판 이름·버전·코드명</td></tr>
+    <tr><td class="nowrap"><code>VERSION_ID="13"</code></td><td>주 버전 13</td></tr>
+    <tr><td class="nowrap"><code>DEBIAN_VERSION_FULL=13.7</code></td><td>배포판 포인트 릴리스 13.7</td></tr>
+    <tr><td class="nowrap"><code>ID=debian</code></td><td>계열 ID — 패키지 도구로 <code>apt</code>를 쓰는 근거</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>계열 관계</strong><div>Debian은 1993년 독립적으로 개발된 배포판이고 Red Hat 계열이 아님 — Ubuntu가 Debian에서 파생되어 명령이 같음(<code>apt</code>)</div></li>
+    <li><strong>OS를 알아야 하는 이유</strong><div>컨테이너(서버)가 어떤 리눅스인지 알아야 맞는 설치 명령을 쓸 수 있음 — 서버 담당자는 하드웨어와 OS를 알아야 함</div></li>
+    </ul>
+
+    <h3>dnf 대신 apt</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>계열·명령</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">레드햇 계열</td><td>CentOS·Rocky — <code>dnf</code>로 설치</td><td>이 컨테이너에는 <code>dnf</code>가 없어 실행 불가</td></tr>
+    <tr><td class="nowrap">Debian·Ubuntu 계열</td><td><code>apt</code>(화면은 <code>apt-get</code>)로 설치</td><td>Ubuntu도 Debian 계열이라 명령이 같음</td></tr>
+    <tr><td class="nowrap"><code>apt update</code></td><td>패키지 목록(인덱스)만 갱신</td><td>실제 패키지 업그레이드는 <code>apt upgrade</code> — dnf는 install 때 메타데이터를 자동 갱신하므로 두 명령이 완전히 같은 역할은 아님</td></tr>
+    <tr><td class="nowrap">실행 순서</td><td><code>apt-get update</code> → <code>apt-get install</code></td><td>갱신 없이 install하면 저장소 목록이 오래된 상태로 실패할 수 있음</td></tr>
+    </tbody></table></div>
+
+    <h3>버전 확인과 설치</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">버전 맞춤</td><td>PostgreSQL 버전에 맞는 패키지를 설치 — 이 컨테이너는 14이므로 <code>postgresql-14-pgvector</code></td><td>15를 설치한 환경이라면 15용 패키지 — 이미지 태그로 버전을 확인</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td><code>psql (14.25 (Debian 14.25-1.pgdg13+1), server 14.24 (Debian 14.24-1.pgdg13+2))</code></td><td>클라이언트 14.25·서버 14.24 — 둘 다 14 계열이라 14용 패키지로 맞음</td></tr>
+    <tr><td class="nowrap">설치되는 것</td><td>pgvector 확장 하나</td><td>PostgreSQL은 이미 설치돼 있고 그 위에서 확장만 추가</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [rds_psql 컨테이너 · root]</span>
+<span class="c"># 패키지 목록 갱신 — trixie·trixie-pgdg 저장소(deb.debian.org·apt.postgresql.org)에서 11.6MB</span>
+apt-get update
+<span class="c"># PostgreSQL 14용 pgvector 설치 — Do you want to continue? [Y/n] 에 y</span>
+apt-get install postgresql-14-pgvector</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>실행 결과</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">저장소</td><td><code>deb.debian.org</code>·<code>apt.postgresql.org</code>에서 목록을 받음</td><td>Debian 기본 저장소와 PostgreSQL 전용 저장소를 함께 씀</td></tr>
+    <tr><td class="nowrap">함께 upgrade</td><td><code>postgresql-14</code>·<code>postgresql-client-14</code></td><td>새 패키지에 맞춰 기존 패키지도 함께 갱신됨 — 서버를 다시 설치하는 작업이 아님</td></tr>
+    <tr><td class="nowrap">새로 설치</td><td>1개, 16.7MB 필요</td><td>실제로 추가되는 패키지는 pgvector 하나</td></tr>
+    <tr><td class="nowrap">설치 확인</td><td><code>psql -U postgres</code>로 접속해 확장 등록 여부 확인</td><td>패키지 설치와 확장 등록은 별개 단계</td></tr>
+    </tbody></table></div>
+
+    <h3>vector 확장 등록</h3>
+<div class="code"><pre><code><span class="c"># [rds_psql 컨테이너 · root]</span>
+<span class="c"># 최고 관리자 접속 — 기본 DB postgres, 비밀번호는 입력해도 화면에 안 보임</span>
+psql -U postgres</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · postgres]</span>
+<span class="c">-- 등록 여부 확인 — extname 은 컬럼명, 결과는 컬럼만 나오고 (0 rows)</span>
+select * from pg_extension where extname='vector';
+<span class="c">-- vector 확장 생성 (결과 CREATE EXTENSION)</span>
+create extension if not exists vector;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">등록 전 결과</td><td><code>oid, extname, extowner, extnamespace, extrelocatable, extversion, extconfig, extcondition</code> 컬럼만 나오고 <code>(0 rows)</code></td><td>테이블 구조는 있고 등록된 행이 없는 상태 — 아직 vector 사용 불가</td></tr>
+    <tr><td class="nowrap">등록 후 결과</td><td>같은 select에서 1건</td><td>이 상태여야 vector 자료형을 쓸 수 있음</td></tr>
+    <tr><td class="nowrap"><code>extension</code></td><td>PostgreSQL에 vector 연산 기능을 더하는 확장 모듈(라이브러리)</td><td>별도 DB 제품이 아니라 확장 — 서버는 그대로</td></tr>
+    <tr><td class="nowrap"><code>if not exists</code></td><td>이미 설치돼 있으면 건너뜀</td><td>생략해도 동작하지만 이미 작동 중일 때 다시 실행하면 에러</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>MySQL의 <code>create</code> 문에서도 <code>if not exists</code> 사용 가능</td><td>DB를 만들 때 있으면 안 만들고 없으면 만드는 같은 문법</td></tr>
+    <tr><td class="nowrap">권한</td><td>확장 등록은 최고 관리자(postgres)가 하고, 이어서 일반 사용자(mg)에게 쓸 수 있게 부여</td><td>부여하지 않으면 일반 사용자는 아무것도 못 함</td></tr>
+    </tbody></table></div>
+
+    <h3>스키마 지정 부여</h3>
+<div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · postgres]</span>
+<span class="c">-- psql 종료 — 컨테이너 bash 로 복귀 (exit 도 같음)</span>
+\q</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="code"><pre><code><span class="c"># [rds_psql 컨테이너 · root]</span>
+<span class="c"># 최고 관리자로 mg DB 접속 — -d = 데이터베이스</span>
+psql -U postgres -d mg</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="code"><pre><code><span class="c">-- [mg DB · psql 프롬프트 · postgres]</span>
+<span class="c">-- 사용자 목록 — mg 사용자 확인</span>
+\du
+<span class="c">-- 스키마 목록 — mg_schema(소유자 mg), public(소유자 postgres), 2 rows</span>
+\dn</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">프롬프트</td><td><code>mg=#</code> — 접속한 DB 이름이 앞에 붙음</td><td><code>#</code>이면 최고 관리자, <code>&gt;</code>면 일반 사용자</td></tr>
+    <tr><td class="nowrap"><code>\dn</code>을 먼저 보는 이유</td><td>일반 사용자(mg)가 쓰는 스키마를 먼저 확인해야 그 스키마에 확장을 넣을 수 있음</td><td>스키마를 모른 채 등록하면 public으로 들어감</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [mg DB · psql 프롬프트 · postgres]</span>
+<span class="c">-- mg_schema 에 vector 확장 생성 — 스키마를 지정하지 않으면 public 으로 들어감</span>
+create extension vector with schema mg_schema;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>상황</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">스키마 미지정</td><td>확장이 <code>public</code>에 들어감 — 세팅은 끝났는데 하나도 안 되는 상황</td><td>일반 사용자는 자기 스키마(<code>mg_schema</code>)에서 찾으므로 계속 에러</td></tr>
+    <tr><td class="nowrap">실무 사례</td><td>인프라 담당은 public에 넣고 세팅 완료라고 하고, 개발자(mg)는 자기 스키마에서 찾아 안 된다고 함</td><td>서로 다투는 상황이 실제로 자주 발생 — 등록 위치를 먼저 합의</td></tr>
+    <tr><td class="nowrap">public에서의 사용</td><td>public 스키마에서는 vector를 쓰지 못함</td><td>관리자가 지정한 스키마에만 쓰도록 부여했기 때문</td></tr>
+    <tr><td class="nowrap">확인</td><td><code>extnamespace</code>가 <code>public</code>으로 나오면 이 사고</td><td><code>mg_schema</code>로 나와야 정상</td></tr>
+    </tbody></table></div>
+
+    <h3>일반 사용자로 확인</h3>
+<div class="code"><pre><code><span class="c"># [rds_psql 컨테이너 · root]</span>
+<span class="c"># 일반 사용자 mg 접속 — 프롬프트는 mg=&gt;</span>
+psql -U mg</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="code"><pre><code><span class="c">-- [mg DB · psql 프롬프트 · mg]</span>
+<span class="c">-- 테이블 목록 — mg_schema.travel_payment (type table, owner mg)</span>
+\dt
+<span class="c">-- 확장 확인 — 관리자와 같은 쿼리, 결과 1건</span>
+select * from pg_extension where extname='vector';
+<span class="c">-- 이름·스키마·버전만 확인 — extnamespace::regnamespace 로 스키마 이름 표시</span>
+select extname,extnamespace::regnamespace, extversion from pg_extension where extname='vector';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">첫 select 결과</td><td>1건 <code>16720 vector 10 16386 0.8.7</code></td><td>oid·이름·소유자 oid·스키마 oid·relocatable·버전 순</td></tr>
+    <tr><td class="nowrap">둘째 select 결과</td><td>이름 <code>vector</code>, 스키마 <code>mg_schema</code>, 버전 <code>0.8.7</code></td><td>필요한 컬럼 3개만 골라 확인</td></tr>
+    <tr><td class="nowrap">필요한 컬럼</td><td><code>extname</code>(이름), <code>extnamespace</code>(공간·스키마, <code>::regnamespace</code>로 이름 표시), <code>extversion</code>(버전)</td><td><code>extnamespace</code>는 PostgreSQL 카탈로그 <code>pg_extension</code>의 표준 컬럼이고 <code>::regnamespace</code>도 표준 캐스트 — vector 전용 문법이 아님</td></tr>
+    <tr><td class="nowrap">확인 위치</td><td>관리자 접속에서도 <code>extnamespace::regnamespace</code>를 넣으면 같은 쿼리로 스키마 확인 가능</td><td>일반 사용자 접속은 mg 권한에서 실제 조회·사용까지 보는 확인 방법</td></tr>
+    <tr><td class="nowrap">스키마가 여러 개일 때</td><td>요청받은 스키마에만 설치하고 다른 곳에는 두지 않음</td><td>확장을 여러 스키마에 중복 등록할 이유가 없음</td></tr>
+    <tr><td class="nowrap"><code>\dt</code> 결과</td><td><code>mg_schema.travel_payment</code> — type table, owner mg</td><td>앞 실습 테이블이 있는 스키마와 확장 스키마가 같은 것을 확인</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">확장은 DB·스키마 단위 — 스키마를 지정하지 않으면 public으로 들어가 개발자 스키마에서는 보이지 않음. <code>extnamespace</code>가 public이면 그 사고이고, 관리자 등록 뒤 일반 사용자로 재접속해 확인</div>
+  </section>
+
+  <!-- 21 -->
+  <section class="sec" id="pg-vector-similarity">
+    <h2>vector 테이블과 유사도 정렬 연산자</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 스크립트 준비 → vector 테이블 → 3건 입력 → 연산자 정렬 → 영화 5건</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 편집기</h4><p class="sub">DBeaver new script</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② 테이블</h4><p class="sub">test · emb vector(2)</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>③ 입력</h4><p class="sub">'[1,2]' · 3건</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>④ 정렬</h4><p class="sub">&lt;-&gt; · &lt;=&gt;</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 영화</h4><p class="sub">movie · 5건</p></div></div>
+      <p class="dg-foot">연산자 하나로 결과 순서가 바뀜 — 맨 위가 가장 가까운 값이고, 원리는 23장의 거리 지표</p></div>
+
+    <h3>스크립트 준비</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">연결 확인</td><td>DBeaver에서 스키마(<code>mg_schema</code>)가 체크돼 있고 연결돼 있어야 함</td><td>연결이 끊겨 있으면 실행 단계에서 실패 — 먼저 연결 상태 확인</td></tr>
+    <tr><td class="nowrap">편집기</td><td><code>new script</code>(SQL 편집기)를 새로 엶</td><td>바로 실행 창에서도 되지만 거기서는 주석을 달 수 없어 스크립트 편집기를 씀</td></tr>
+    <tr><td class="nowrap">실행</td><td><code>Ctrl+Enter</code> — 커서가 있는 문장 단위 실행</td><td>여러 문장을 한 번에 돌리면 에러 위치를 찾기 어려움</td></tr>
+    </tbody></table></div>
+
+    <h3>vector 테이블 생성</h3>
+<div class="code"><pre><code><span class="c">-- [mg DB · DBeaver SQL 편집기 · mg]</span>
+<span class="c">-- 벡터 실습용 임시 테이블 — 순서 비교가 끝나면 삭제</span>
+create table test(
+  idx serial primary key,   <span class="c">-- serial = MySQL auto_increment, primary key = 중복 없는 고유값</span>
+  name varchar(100),        <span class="c">-- 가변 길이 문자, 100 = 길이</span>
+  emb vector(2)             <span class="c">-- vector 자료형, emb = embedding 약자(컬럼명은 자유)</span>
+);</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">varchar</td><td>가변 길이 문자 — 오라클은 <code>varchar</code>·<code>varchar2</code> 등 이름이 다양하고 복잡</td><td>DB를 옮길 때 자료형 이름 차이를 먼저 확인</td></tr>
+    <tr><td class="nowrap">vector 자료형</td><td>pgvector 확장을 등록해야 사용 가능</td><td>MySQL 9.0의 <code>VECTOR(N)</code>·Oracle 23ai의 <code>VECTOR</code>처럼 다른 DB도 벡터 자료형을 제공 — pgvector에만 있는 자료형이 아님</td></tr>
+    <tr><td class="nowrap"><code>vector(2)</code>의 2</td><td>한 값에 담기는 실수(float)의 개수 = 차원 수(dimension)</td><td>컬럼이 2개 생기는 것이 아니라 한 컬럼 안에 숫자 2개 — column보다 차원이라고 부름</td></tr>
+    <tr><td class="nowrap">생성 확인</td><td>실행 후 <code>F5</code>(새로고침) → <code>test</code> 더블클릭 → Properties의 자료형이 <code>vector</code></td><td>구조 화면에서 자료형이 확인되는 지점</td></tr>
+    <tr><td class="nowrap">실수 사례</td><td>관리자가 vector 확장을 등록하지 않은 DB에서 생성</td><td>생성 시 에러 — 20장의 스키마 지정 등록이 선행 조건</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>오라클 배경</strong><div>오라클은 이 노트의 수업 범위가 아니며 프로젝트 뒤 특강으로 설치 예정 — AWS에 올리면 라이선스 비용이 들어 지원이 어려움</div></li>
+    </ul>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 45강 43:30~44:00</div><p>오라클을 AWS에 설치할 때 드는 라이선스가 “한 계정당 21만원”이라는 금액 — 오라클 공식 라이선스 안내·AWS 가격표에서 확인 필요. 화면에는 금액만 있고 산정 기준(인스턴스 종류·기간·계정 범위)은 나오지 않은 상태</p></div>
+
+    <h3>데이터 입력</h3>
+<div class="code"><pre><code><span class="c">-- [mg DB · DBeaver SQL 편집기 · mg]</span>
+<span class="c">-- 벡터 값은 작은따옴표 안 대괄호, 자동 증가 컬럼(idx)은 컬럼 목록에서 뺌</span>
+insert into test (name, emb) values ('a','[1,2]');
+insert into test (name, emb) values ('b','[2,4]');
+insert into test (name, emb) values ('c','[4,1]');
+<span class="c">-- 입력한 3건 확인</span>
+select * from test;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">직접 입력하는 이유</td><td>AI로 값을 만들기 전이라 데이터가 없음</td><td>3건이면 연산자별 순서 차이를 비교하기에 충분</td></tr>
+    <tr><td class="nowrap">값 표기</td><td>작은따옴표 안 대괄호 <code>'[1,2]'</code></td><td>헷갈리지 않게 소수점 없는 정수로 입력</td></tr>
+    <tr><td class="nowrap">idx 처리</td><td>자동 증가(<code>serial</code>) 컬럼은 컬럼 목록에서 빼거나 <code>values (default, …)</code>로 입력</td><td>값 자리에 컬럼명(<code>values (idx, …)</code>)을 쓰면 PostgreSQL에서 에러 — 기본값을 넣겠다는 뜻이 아님</td></tr>
+    <tr><td class="nowrap">실행</td><td>한 줄씩 <code>Ctrl+Enter</code></td><td>결과 <code>INSERT 0 1</code>를 한 줄씩 확인</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td><code>select * from test;</code> → a <code>[1,2]</code>, b <code>[2,4]</code>, c <code>[4,1]</code> 3건</td><td>입력한 값이 배열로 저장된 것을 확인</td></tr>
+    </tbody></table></div>
+
+    <h3>유사도 정렬 연산자</h3>
+<div class="code"><pre><code><span class="c">-- [mg DB · DBeaver SQL 편집기 · mg]</span>
+<span class="c">-- 막대 하나(&lt;-&gt;) = 유클리드 거리, 질의 벡터 [1,4] 기준 정렬</span>
+select * from test order by emb &lt;-&gt; '[1,4]';
+<span class="c">-- equal 두 개(&lt;=&gt;) = 코사인 거리, 같은 질의로 정렬</span>
+select * from test order by emb &lt;=&gt; '[1,4]';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>연산자</th><th>표기</th><th>질의 <code>[1,4]</code> 결과 순서</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>&lt;-&gt;</code></td><td>꺾쇠 + 마이너스(막대 하나) + 꺾쇠</td><td>b <code>[2,4]</code>, a <code>[1,2]</code>, c <code>[4,1]</code></td></tr>
+    <tr><td class="nowrap"><code>&lt;=&gt;</code></td><td>꺾쇠 + equal 두 개 + 꺾쇠</td><td>a <code>[1,2]</code>, b <code>[2,4]</code>, c <code>[4,1]</code></td></tr>
+    <tr><td class="nowrap"><code>&lt;#&gt;</code></td><td>꺾쇠 + 샵(내적) + 꺾쇠</td><td>원리는 23장 — 이 실습에는 실행 화면이 없음</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>정렬 문법</strong><div>벡터는 <code>order by</code>에서 <code>asc</code>·<code>desc</code> 대신 연산자를 쓰고, 뒤에 따옴표로 질의 벡터(<code>'[1,4]'</code>)를 씀</div></li>
+    <li><strong>결과 읽기</strong><div>맨 위에 뜬 것이 가장 가까운(가장 유사한) 값 — 기호가 막대 하나냐 둘이냐에 따라 결과가 달라짐</div></li>
+    </ul>
+    <div class="dg-bar warn">같은 데이터·같은 질의라도 연산자 하나로 순서가 바뀜 — <code>&lt;-&gt;</code>는 b, a, c이고 <code>&lt;=&gt;</code>는 a, b, c. 맨 위가 가장 가까운 값</div>
+
+    <h3>영화 장르 테이블</h3>
+<div class="code"><pre><code><span class="c">-- [mg DB · DBeaver SQL 편집기 · mg]</span>
+<span class="c">-- 앞의 test 데이터 정리 — 다음 실습은 영화 장르로 진행</span>
+delete from test;
+<span class="c">-- 카테고리 2가지(스릴러·코미디) = 2차원, cate_emd 는 임의 컬럼명</span>
+create table movie(
+  idx serial primary key,
+  title varchar(100),   <span class="c">-- 영화 제목</span>
+  cate_emd vector(2)    <span class="c">-- 카테고리 임베딩, 2차원</span>
+);
+<span class="c">-- 여러 행을 한 번에 입력 — 앞 = 스릴러 정도, 뒤 = 코미디 정도 (각 10점 만점)</span>
+insert into movie (title,cate_emd) values
+('폭설','[5,1]'),            <span class="c">-- 스릴러 약간, 코미디 거의 없음</span>
+('폴2','[9,1]'),             <span class="c">-- 스릴러 강함</span>
+('라라랜드','[1,6]'),        <span class="c">-- 코미디(로맨스) 쪽</span>
+('오디세이','[1,1]'),        <span class="c">-- 스릴러도 코미디도 아님</span>
+('와이드호스나인','[8,8]');  <span class="c">-- 코미디 스릴러(둘 다 강함)</span>
+<span class="c">-- 입력한 5건 확인</span>
+select * from movie;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>값</th><th>의미</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>10,10</code></td><td>스릴러도 코미디도 완벽한 영화</td></tr>
+    <tr><td class="nowrap"><code>9,1</code></td><td>스릴러가 강함</td></tr>
+    <tr><td class="nowrap"><code>1,9</code></td><td>코미디가 강함</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">차원 = 카테고리 수</td><td>스릴러·코미디 2가지 → <code>vector(2)</code></td><td>액션·공포를 더해 4가지면 <code>vector(4)</code></td></tr>
+    <tr><td class="nowrap">값 설계</td><td>각 10점 만점으로 계산을 쉽게 함</td><td>실습용 임의 점수 — 실제 서비스는 임베딩 모델이 값을 만듦</td></tr>
+    <tr><td class="nowrap">실수 사례</td><td>첫 실행은 문법 오류 <code>SQL Error [42601] ERROR: syntax error at or near …</code></td><td>수정 후 재실행해 성공(0.034s) — 에러 문구의 위치 표시로 괄호·쉼표를 먼저 확인</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td><code>select * from movie</code> → 5건</td><td>이 데이터로 이후 AI 모델 연습</td></tr>
+    <tr><td class="nowrap">정리</td><td>실습이 끝나면 <code>delete from test;</code>로 임시 테이블 데이터를 비움</td><td>movie는 남겨 두고 다음 단계의 데이터로 사용</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">삭제·입력은 조건 없이 실행 — <code>delete from test;</code>는 테이블의 모든 행을 지움. 운영 DB에서는 <code>where</code>와 백업을 먼저 확인</div>
+  </section>
+
+  <!-- 22 -->
+  <section class="sec" id="pg-embedding">
+    <h2>벡터·임베딩과 임베딩 모델</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 검색어 → 임베딩 모델 → 1차원 배열 → 저장·비교 → 가까운 값</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 검색어</h4><p class="sub">카레 · 자연어</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② 변환</h4><p class="sub">임베딩 모델</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ 배열</h4><p class="sub">[4,6] · 1차원</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ 저장·비교</h4><p class="sub">vector(N) 컬럼</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 답</h4><p class="sub">가장 가까운 값</p></div></div>
+      <p class="dg-foot">컴퓨터는 단어를 이해하지 못함 — 숫자 배열로 바꿔 거리를 재야 검색이 됨</p></div>
+
+    <h3>왜 알아야 하나</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">쓰는 자리</td><td>AI와 함께 쓰는 작업이라 반드시 알아야 함 — Spark를 돌리려면 필요</td><td>할 일: Spark에서 AI 값을 가져와 분석한 뒤 AI 값으로 다시 로드해 최적의 값을 찾아 출력</td></tr>
+    <tr><td class="nowrap">어원·역사</td><td>벡터의 어원 등은 몰라도 됨</td><td>동작과 저장 구조가 핵심</td></tr>
+    <tr><td class="nowrap">컴퓨터의 한계</td><td><code>카레</code>(또는 <code>오늘은 카레를 먹고 싶은데</code>)를 검색해도 컴퓨터는 단어를 이해하지 못함</td><td>글자를 숫자로 바꿔 비교해야 하는 이유</td></tr>
+    </tbody></table></div>
+
+    <h3>동작 예 — 카레</h3>
+    <ul class="facts">
+    <li><strong>변환 흐름</strong><div>AI가 단어를 잘라 검토해 배열값(<code>1.234 …</code>, <code>2. …</code> 같은 숫자 배열)으로 변환 → 그 배열로 DB에서 맞는 값을 찾아 출력</div></li>
+    <li><strong>메모 정리</strong><div><code>Vector란? "카레" =&gt; [4,6] =&gt; CPU(머신러닝) =&gt; 1차원 배열 =&gt; 비교하여 가장 가까운 데이터를 찾는 형태</code></div></li>
+    </ul>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">변환 주체</td><td>임베딩 모델(신경망)이 텍스트를 숫자 배열로 변환</td><td>CPU·GPU는 그 연산을 실행하는 하드웨어 — 변환을 하는 주체가 아님</td></tr>
+    <tr><td class="nowrap">결과 형태</td><td>고정 길이의 1차원 수치 배열</td><td>모델마다 길이(차원)가 정해져 있음</td></tr>
+    <tr><td class="nowrap">벡터의 정의</td><td>크기와 방향을 갖는 순서 있는 수치 배열</td><td>배열 그 자체 — 검색 방식과 구분</td></tr>
+    <tr><td class="nowrap">가까운 값 찾기</td><td>벡터 검색(유사도 검색)</td><td>저장·검색을 맡는 DB가 벡터 DB — “가장 가까운 것을 찾는 형태”가 벡터의 정의는 아님</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">벡터는 순서 있는 수치 배열, 임베딩은 비정형 데이터를 그 배열로 바꾸는 과정과 결과물. 가까운 값을 찾는 일은 벡터 검색이고 이를 담는 DB가 벡터 DB</div>
+
+    <h3>임베딩</h3>
+    <ul class="facts">
+    <li><strong>컬럼명</strong><div><code>emb</code>는 embedding(임베딩)의 약자 — 검토해 변환하는 것을 임베딩이라 부름</div></li>
+    <li><strong>메모 정의</strong><div><code>embedding? 텍스트, 이미지, 오디오, 파일을 읽는 사항 등의 비정형 데이터를 숫자 배열로 변환하는 과정에 대한 결과물을 의미</code></div></li>
+    </ul>
+    <div class="table-wrap"><table>
+    <thead><tr><th>데이터 종류</th><th>처리 방식</th><th>비고</th></tr></thead><tbody>
+    <tr><td class="nowrap">텍스트<br>(<code>오늘의 날씨</code>)</td><td>단어를 구분해 숫자화하고 정형화된 배열로 만들어 DB에서 확인</td><td>방언·문맥까지 있어 모델 학습이 어려움</td></tr>
+    <tr><td class="nowrap">이미지</td><td>각 픽셀 단위를 배열로 나눔</td><td>픽셀당 컬러를 보면 되어 문장보다 단순</td></tr>
+    <tr><td class="nowrap">오디오</td><td>소리에서 해당 부분을 찾아 배열화</td><td>텍스트·이미지보다 손이 많이 감</td></tr>
+    <tr><td class="nowrap">파일 읽기</td><td>문서·파일 내용을 읽어 배열화</td><td>네 가지 중 가장 어려움</td></tr>
+    <tr><td class="nowrap">난이도</td><td>텍스트 → 이미지 → 오디오 → 파일 읽기 순</td><td>맨 뒤가 가장 어려움</td></tr>
+    <tr><td class="nowrap">머신러닝과 에이전트</td><td>머신러닝(코어, AI에게 가르치는 러닝)은 어렵고 에이전트는 만들어진 것을 가져다 씀</td><td>에이전트는 값만 던지면 처리 — 인프라 담당의 범위는 저장·연결</td></tr>
+    </tbody></table></div>
+
+    <h3>임베딩 모델의 차원</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>대상</th><th>모델·종류</th><th>차원</th><th>설명</th></tr></thead><tbody>
+    <tr><td class="nowrap">텍스트</td><td>OpenAI <code>text-embedding-3-small</code> — 벡터 전용 상용 AI 모델</td><td><b>1536차원</b></td><td>문장을 읽어 미묘한 뉘앙스·문맥·의미까지 반영</td></tr>
+    <tr><td class="nowrap">이미지</td><td>이미지 임베딩 모델</td><td><b>512~768차원</b></td><td>최소 512(이미지끼리 비교·틀린 부분 찾기), 768이면 더 고품질</td></tr>
+    <tr><td class="nowrap">테이블 컬럼</td><td><code>vector(N)</code>의 N을 모델 차원에 맞춤</td><td>1536차원 모델이면 <code>vector(1536)</code></td><td>차원 수는 임베딩 모델이 정함(13장) — 컬럼 길이를 임의로 줄이면 저장 실패</td></tr>
+    <tr><td class="nowrap">비용</td><td>OpenAI 모델은 호출할 때마다 결제가 필요</td><td>—</td><td>이 노트의 범위에서는 쓰지 않고 회사에서 사용</td></tr>
+    <tr><td class="nowrap">대안</td><td><code>sentence-transformers</code> 같은 오픈소스 임베딩 모델</td><td>모델마다 다름</td><td>로컬에서 API 키·호출 비용 없이 실행 — 설치: spark.html 60장</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>이미지가 문장보다 쉬운 이유</strong><div>픽셀 단위 색상(픽셀당 컬러)만 보면 되기 때문 — 문장은 방언까지 있어 AI도 어려움</div></li>
+    </ul>
+
+    <h3>하드웨어 — CUDA·NVIDIA</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">CUDA</td><td>NVIDIA 그래픽카드가 없으면 CUDA를 쓸 수 없음</td><td>설치 명령 자체가 달라지는 분기점</td></tr>
+    <tr><td class="nowrap">AWS GPU 인스턴스</td><td>GPU 인스턴스는 G·P 계열(<code>g4dn</code> 등)</td><td>M4는 GPU가 없는 범용 인스턴스 — GPU 인스턴스로 오해하기 쉬운 지점</td></tr>
+    <tr><td class="nowrap">CUDA 설치</td><td>설치 방식이 CPU와 완전히 다르고 NVIDIA CUDA 관련 패키지가 함께 깔려 용량이 더 큼</td><td>CPU용과 CUDA용을 섞으면 동작하지 않음</td></tr>
+    <tr><td class="nowrap">효과</td><td>CUDA를 쓰면 AI가 더 빠르고 효율적으로 동작</td><td>모델 크기·배치에 따라 차이가 달라짐</td></tr>
+    <tr><td class="nowrap">이 실습 환경</td><td>CPU와 메모리뿐 → CPU 모델로만 실행</td><td>그래픽카드가 없으면 CUDA 설치가 애초에 불가</td></tr>
+    <tr><td class="nowrap">집 PC</td><td>NVIDIA 그래픽카드가 있으면 CUDA용으로 설치</td><td>설치: spark.html 60장의 CPU·CUDA 구분표</td></tr>
+    <tr><td class="nowrap">실수 사례</td><td>NVIDIA 그래픽카드가 있는데 CPU용으로 설치하면 그래픽카드가 작동하지 않음</td><td>설치 전에 하드웨어를 먼저 확인</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">설치 전 하드웨어 확인 — NVIDIA/CUDA가 있으면 CUDA용, 없으면 CPU용. NVIDIA가 있는데 CPU용으로 깔면 그래픽카드는 쓰이지 않고, CUDA 패키지까지 받으면 용량이 크게 늘어남</div>
+  </section>
+
+  <!-- 23 -->
+  <section class="sec" id="pg-metrics">
+    <h2>거리 지표 3종과 계산 검증</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 질의 벡터 → 유클리드 → 코사인 → 내적 → 순서 대조</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 질의</h4><p class="sub">'[1,4]' · 벡터</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② 유클리드</h4><p class="sub">&lt;-&gt; 직선거리</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ 코사인</h4><p class="sub">&lt;=&gt; 각도</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ 내적</h4><p class="sub">&lt;#&gt; 크기 포함</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 검증</h4><p class="sub">계산 ↔ DB 순서</p></div></div>
+      <p class="dg-foot">지표마다 “가깝다”의 기준이 다름 — 정렬 방향을 함께 봐야 결과를 잘못 읽지 않음</p></div>
+
+    <h3>지표의 뜻</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">표기</td><td>Similarity Metrics = 벡터간 거리</td><td>유사도 측정 지표(거리 척도)를 뜻함 — “Simulator Matrix”가 아님</td></tr>
+    <tr><td class="nowrap">쓰는 자리</td><td>데이터가 <code>1,2</code> / <code>3,6</code> / <code>6,1</code>처럼 들어 있을 때 질의 값과 가장 가까운 거리를 찾음</td><td>저장된 값과 질의 값을 같은 척도로 비교</td></tr>
+    <tr><td class="nowrap">일상 예</td><td>휴대폰에서 주위 맛집을 찾으면 내 위치 기준 가장 가까운 곳이 우선순위</td><td>거리 개념 = 유사도 검색</td></tr>
+    </tbody></table></div>
+
+    <h3>세 가지 지표</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>연산자</th><th>이름</th><th>측정 기준</th><th>판단</th></tr></thead><tbody>
+    <tr><td class="nowrap">유클리드</td><td><code>&lt;-&gt;</code></td><td>Euclidean Distance(유클리드 거리)</td><td>두 점 사이의 직선거리(피타고라스)</td><td>거리 값이 작을수록 유사도 높음</td></tr>
+    <tr><td class="nowrap">코사인</td><td><code>&lt;=&gt;</code></td><td>코사인 유사도 거리</td><td>두 벡터가 이루는 각도 → 방향성에 대한 유사도</td><td>값이 0에 가까울수록 좋음 — 방향이 같으면 거리 0</td></tr>
+    <tr><td class="nowrap">내적</td><td><code>&lt;#&gt;</code> (“샵”)</td><td>inner product / dot product(내적 유사도)</td><td>성분 곱의 합(방향 + 크기)</td><td>값이 클수록 좋음</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정규화와 내적</td><td>길이 1로 정규화(normalization)한 벡터의 내적은 코사인 유사도와 같아 -1~1 범위</td><td>정규화하지 않은 벡터의 내적은 범위 제한이 없음 — 값의 크기 자체가 커질 수 있음</td></tr>
+    <tr><td class="nowrap">소수점 읽기</td><td><code>0.9562</code>와 <code>0.9998</code>이면 1에 가까운 <code>0.9998</code>이 먼저(우선순위 1), 다음이 <code>0.9562</code>, <code>0.12</code>는 거의 먼 값</td><td>0이면 멀고 1이면 가까움 — 코사인 유사도 기준의 읽기</td></tr>
+    <tr><td class="nowrap">속도</td><td><code>&lt;#&gt;</code>가 코사인 유사도 거리 연산보다 연산이 빠름</td><td>코사인은 내적에 두 벡터의 길이 계산이 더해지기 때문 — 고정 “6배”라는 수치는 근거가 없고 차원·하드웨어·인덱스에 따라 달라짐</td></tr>
+    <tr><td class="nowrap">pgvector의 내적</td><td><code>&lt;#&gt;</code>는 음의 내적을 반환</td><td><code>order by … &lt;#&gt;</code>는 오름차순(작은 값 먼저)으로 정렬해야 가까운 순 — 값이 클수록 유사하다는 원리와 정렬 방향이 반대</td></tr>
+    </tbody></table></div>
+
+    <h3>비교표와 사용처 (간단요약.png)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>유클리드 거리(<code>&lt;-&gt;</code>)</th><th>코사인 거리(<code>&lt;=&gt;</code>)</th><th>내적(<code>&lt;#&gt;</code>)</th></tr></thead><tbody>
+    <tr><td class="nowrap">측정 기준</td><td>직선 거리(절대적 위치)</td><td>각도(방향성)</td><td>성분 곱의 합(방향 + 크기)</td></tr>
+    <tr><td class="nowrap">유사할 때 값</td><td>0에 가까움(작을수록 좋음)</td><td>0에 가까움(작을수록 좋음)</td><td>값이 큼(클수록 좋음)</td></tr>
+    <tr><td class="nowrap">주요 사용처</td><td>위치 정보, 이미지 픽셀 비교</td><td>텍스트 임베딩, 문서 유사도</td><td>추천 시스템, 정규화된 모델</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>텍스트에 코사인을 쓰는 이유</strong><div>텍스트·문서에 유클리드를 쓰면 오차 범위가 너무 크게 나서 코사인을 씀</div></li>
+    <li><strong>공통점</strong><div>유클리드·코사인은 0에 가까울수록, 내적은 값이 클수록 유사 — 앞의 둘은 거의 같은 형태</div></li>
+    </ul>
+    <div class="table-wrap"><table>
+    <thead><tr><th>방식</th><th>사용처</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">유클리드</td><td>GPS(물리적 거리, 내 위치 기준 가장 가까운 곳), 위치 기반 서비스, 얼굴인식</td><td>위치는 좌표 간 실제 직선거리를 재는 의미가 맞음 — 계산량은 곱·합만 쓰는 내적이 더 단순해 “유클리드가 가장 빠르다”는 기준은 아님</td></tr>
+    <tr><td class="nowrap">코사인</td><td>자연어 검색(<code>오늘 날씨</code>), AI 모델 임베딩, 고차원 벡터 임베딩, 딥러닝</td><td>방향이 같으면 길이가 달라도 가까운 값으로 판단</td></tr>
+    <tr><td class="nowrap">내적 <code>&lt;#&gt;</code></td><td>추천 시스템(넷플릭스·유튜브·쇼핑몰), 대규모 임베딩, 대규모 알고리즘</td><td>프로젝트 예: 자동차가 사물을 보고 브레이크를 거는 것, 사무 시스템</td></tr>
+    <tr><td class="nowrap">얼굴인식</td><td>현대 얼굴인식은 얼굴을 임베딩 벡터로 바꿔 비교</td><td>FaceNet 계열은 L2(유클리드) 거리, ArcFace 계열은 코사인 유사도 — 눈·코·입 사이 거리를 재는 것은 고전적 특징점 방식</td></tr>
+    <tr><td class="nowrap">난이도</td><td>유클리드 &lt; 코사인 &lt; 내적</td><td>유클리드가 가장 쉽고 내적이 가장 어려움</td></tr>
+    <tr><td class="nowrap">테스트 방법</td><td>내적·코사인은 OpenAI 모델 없이도 <code>sentence-transformers</code>로 로컬에서 확인 가능</td><td>API 키·호출 비용이 들지 않음 — 설치: spark.html 60장</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">내적은 값이 클수록 유사하지만 pgvector의 <code>&lt;#&gt;</code>는 음의 내적을 반환 — 정렬은 오름차순이 가까운 순. <code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>는 0에 가까울수록 가까움</div>
+
+    <h3>계산 시연 — 유클리드</h3>
+    <ul class="facts">
+    <li><strong>좌표</strong><div>중학교 과정 수준의 계산 — 값의 앞이 x축, 뒤가 y축(무조건 x, y) — 헷갈리면 그림을 그려 확인</div></li>
+    <li><strong>메모(<code>표1.png</code>)</strong><div>A = <code>[1,2]</code>(기준 벡터), B = <code>[2,4]</code>(방향이 A와 같고 크기만 2배), C = <code>[2,1]</code>(방향이 다름)</div></li>
+    <li><strong>주의</strong><div>그림판의 C는 <code>[2,1]</code>이지만 앞에서 DB에 넣은 c는 <code>[4,1]</code> — 시연과 DB 결과가 다른 이유</div></li>
+    <li><strong>공식</strong><div>거리 = √((x₁−x₂)² + (y₁−y₂)²) — 피타고라스 c = √(a²+b²) 적용</div></li>
+    </ul>
+    <div class="table-wrap"><table>
+    <thead><tr><th>점</th><th>x 차이</th><th>y 차이</th><th>계산</th><th>거리</th></tr></thead><tbody>
+    <tr><td class="nowrap">A <code>[1,2]</code></td><td>1−2 = −1</td><td>2−1 = 1</td><td>√((−1)²+1²) = √2</td><td>≈ 1.414</td></tr>
+    <tr><td class="nowrap">C <code>[2,1]</code></td><td>0</td><td>0</td><td>√0</td><td>0</td></tr>
+    <tr><td class="nowrap">B <code>[2,4]</code></td><td>0</td><td>4−1 = 3</td><td>√(0²+3²) = √9</td><td>3</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">A의 계산</td><td>(1−2)² = 1 — 제곱이지 제곱근이 아님</td><td>√2 ≈ 1.414(1.424 아님) — 제곱근 값은 계산기로 확인</td></tr>
+    <tr><td class="nowrap">B의 계산</td><td>x 차이 0, y 차이 3 → √(0²+3²) = 3</td><td>3을 제곱하지 않고 루트에 넣으면 √3 ≈ 1.73이 되어 순서가 뒤집힘</td></tr>
+    <tr><td class="nowrap">결과 순서</td><td>C(0) → A → B</td><td>값이 작을수록 가까움 — 같은 위치의 C가 먼저</td></tr>
+    <tr><td class="nowrap">다른 질의</td><td>질의 <code>[3,2]</code>도 C → A → B</td><td>그래프를 그리면 빨리 확인됨</td></tr>
+    <tr><td class="nowrap"><code>&lt;-&gt;</code>의 정체</td><td>실제로 피타고라스 정리로 계산하는 방식</td><td>계산기의 루트 버튼으로 같은 값 확인</td></tr>
+    <tr><td class="nowrap">그림으로 확인하는 이유</td><td>같은 값이라도 DBeaver에서 연산자만 바꾸면 결과가 완전히 달라짐</td><td>점을 찍어 질의 값 위치를 보고 가까운 순서를 미리 판단</td></tr>
+    </tbody></table></div>
+
+    <h3>계산 시연 — 코사인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>질의</th><th>결과 순서</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>[2,3]</code></td><td>A → B → C</td><td>같은 방향인 A·B가 먼저, C가 마지막 — <code>&lt;-&gt;</code> 결과와 순서가 완전히 다름</td></tr>
+    <tr><td class="nowrap"><code>[1,4]</code></td><td>A → B → C</td><td>DB 실행 결과도 a, b, c</td></tr>
+    <tr><td class="nowrap">계산식</td><td>코사인 거리 = 1 − cosθ</td><td>두 벡터 사이 각도의 차이만 보고 크기는 무시 — 같은 방향이면 거리 0. x축 일직선 거리나 점 사이 거리가 아님</td></tr>
+    <tr><td class="nowrap">목적</td><td>직접 계산이 아니라 작동이 맞는지 판단</td><td>헷갈리면 그림·공식으로 다시 확인</td></tr>
+    </tbody></table></div>
+
+    <h3>실제 DB 실행 확인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>질의</th><th>연산자</th><th>결과 순서</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>[1,4]</code></td><td><code>&lt;-&gt;</code></td><td>b, a, c</td></tr>
+    <tr><td class="nowrap"><code>[1,4]</code></td><td><code>&lt;=&gt;</code></td><td>a, b, c</td></tr>
+    <tr><td class="nowrap"><code>[4,1]</code></td><td><code>&lt;-&gt;</code></td><td>c, a, b</td></tr>
+    <tr><td class="nowrap"><code>[4,1]</code></td><td><code>&lt;=&gt;</code></td><td>c, a, b</td></tr>
+    <tr><td class="nowrap"><code>[2,1]</code></td><td><code>&lt;-&gt;</code></td><td>a, c, b</td></tr>
+    <tr><td class="nowrap"><code>[2,1]</code></td><td><code>&lt;=&gt;</code></td><td>이 실습 화면에 없음</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>결과</th><th>읽는 법</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>[4,1]</code> + <code>&lt;-&gt;</code> → c, a, b</td><td>c가 먼저 뜨는 이유는 같은 값이기 때문 — 다음 a는 계산한 거리가 가깝고 b는 멂</td></tr>
+    <tr><td class="nowrap"><code>[4,1]</code> + <code>&lt;=&gt;</code> → c, a, b</td><td>a, b가 같은 방향(같은 형태)으로 나옴</td></tr>
+    <tr><td class="nowrap"><code>[2,1]</code> + <code>&lt;-&gt;</code> → a, c, b</td><td>그림판 C=<code>[2,1]</code>의 C → A → B와 다름 — DB의 c는 <code>[4,1]</code></td></tr>
+    <tr><td class="nowrap"><code>&lt;#&gt;</code>로 바꾸면</td><td>결과가 완전히 뒤바뀜(내적은 값이 클수록 가까움) — 실행 화면은 영상에 없음</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">같은 3건이라도 질의·연산자로 순서가 달라짐 — 그림·공식으로 계산한 순서와 DB 결과를 대조해야 연산자를 잘못 고르지 않음</div>
+  </section>
+
+  <!-- 24 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -2322,6 +2836,21 @@ log_rotation_size = 10MB
           <tr><td><code>\c hong postgres</code> / <code>create extension vector;</code> / <code>\dx</code></td><td>관리자가 사용자 DB로 접속 전환(비밀번호 불필요) / 해당 DB에 확장 등록 / 재접속한 일반 사용자가 확인</td></tr>
           <tr><td><code>\l</code> Access privileges <code>c</code>·<code>C</code>·<code>T</code></td><td>connect / create(스키마) / temporary — <code>grant all privileges</code>면 C·c·T가 함께 붙음</td></tr>
     
+          <tr class="group"><th colspan="2" scope="colgroup">컨테이너 pgvector·벡터 검색 (19~23장)</th></tr>
+          <tr><td><code>docker start rds_psql</code> / <code>docker exec -it rds_psql bash</code></td><td>컨테이너 기동·진입 — <code>psql</code>은 컨테이너 안 bash에서 실행</td></tr>
+          <tr><td><code>cat /etc/release</code> → <code>No such file</code> · <code>cat /etc/*release*</code></td><td>배포판 확인 — Debian 13 (trixie), 레드햇 계열 판별 파일은 <code>/etc/redhat-release</code></td></tr>
+          <tr><td><code>uname</code> / <code>uname -a</code> / <code>cat /proc/version</code></td><td>커널 정보 — 호스트 커널(el9)이 보여 컨테이너 OS 판별에는 쓸 수 없음</td></tr>
+          <tr><td><code>apt-get update</code> / <code>apt-get install postgresql-14-pgvector</code></td><td>Debian 계열 목록 갱신(인덱스만) / PostgreSQL 14용 pgvector 설치 — <code>[Y/n]</code>에 <code>y</code>, 16.7MB</td></tr>
+          <tr><td><code>psql -U postgres -d mg</code> / <code>\du</code> / <code>\dn</code></td><td>관리자로 mg DB 접속 / 사용자·스키마 확인 — <code>mg_schema</code>(소유자 mg), <code>public</code>(소유자 postgres)</td></tr>
+          <tr><td><code>create extension vector with schema mg_schema;</code></td><td>스키마를 지정해 확장 생성 — 지정하지 않으면 public으로 들어가 개발자 스키마에서 안 보임</td></tr>
+          <tr><td><code>select extname,extnamespace::regnamespace, extversion from pg_extension where extname='vector';</code></td><td>이름·스키마·버전 확인 — <code>extnamespace</code>가 public이면 스키마 미지정 사고, 일반 사용자 접속으로 확인</td></tr>
+          <tr><td><code>create table test(idx serial primary key, name varchar(100), emb vector(2));</code></td><td>vector 컬럼 테이블 — <code>vector(N)</code>의 N은 차원(실수 개수)</td></tr>
+          <tr><td><code>insert into test (name, emb) values ('a','[1,2]');</code></td><td>벡터 값 입력 — 작은따옴표 안 대괄호, <code>serial</code> 컬럼은 컬럼 목록에서 빼거나 <code>default</code></td></tr>
+          <tr><td><code>select * from test order by emb &lt;-&gt; '[1,4]';</code></td><td>유클리드 거리 정렬 — 작을수록 가까움, 맨 위가 가장 가까운 값</td></tr>
+          <tr><td><code>select * from test order by emb &lt;=&gt; '[1,4]';</code></td><td>코사인 거리 정렬 — 각도(방향) 기준, 0에 가까울수록 가까움</td></tr>
+          <tr><td><code>... order by emb &lt;#&gt; '[질의]'</code></td><td>내적 — 값이 클수록 유사하지만 pgvector는 음의 내적이라 오름차순 정렬, 실행 화면은 이 실습에 없음</td></tr>
+          <tr><td><code>delete from test;</code> / <code>create table movie(idx serial primary key, title varchar(100), cate_emd vector(2));</code></td><td>임시 데이터 정리 / 영화 장르 테이블 — 스릴러·코미디 10점 만점, 차원 수 = 카테고리 수</td></tr>
+          <tr><td><code>insert into movie (title,cate_emd) values ('폭설','[5,1]'), … ;</code></td><td>여러 행을 한 번에 입력(5건) — <code>SQL Error [42601]</code>은 괄호·쉼표 위치 확인 후 재실행</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">이미지·컨테이너</th></tr>
           <tr><td><code>df -m</code></td><td>디스크 여유(MB) 확인 → 이미지(약 624MB) 받기 전</td></tr>
           <tr><td><code>docker pull postgres:14.24</code> / <code>docker volume create pgdata</code></td><td>PostgreSQL 공식 이미지 받기 / 데이터 보존용 이름 있는 볼륨 준비. 허브는 Official Image 필터 → Tags에서 14.24 선택</td></tr>
