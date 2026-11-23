@@ -608,7 +608,20 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#vscode-upload">12. Lambda ↔ VS Code 연결·업로드</a></li>
         <li><a href="#python-basics">13. 파이썬 기초로 동작 확인</a></li>
         <li><a href="#lambda-expression">14. lambda 표현식 — 익명 함수</a></li>
-        <li><a href="#cheatsheet">15. 통합 명령어 치트시트</a></li>
+        <li><a href="#lab-environment">15. 실습 환경 — Lambda·S3·API Gateway 결합</a></li>
+        <li><a href="#lambda-exception">16. Lambda 예외 처리 — try·except·finally</a></li>
+        <li><a href="#s3-overview">17. S3 개요 — 거대 창고와 내구성</a></li>
+        <li><a href="#bucket-types">18. 버킷 유형 — 범용과 디렉터리</a></li>
+        <li><a href="#bucket-options">19. 버킷 만들기 옵션 — 이름부터 객체 잠금까지</a></li>
+        <li><a href="#s3-trigger">20. S3 트리거 — 버킷 이벤트로 Lambda 실행</a></li>
+        <li><a href="#iam-s3-policy">21. 권한 설정 — Lambda 실행 역할에 S3 정책</a></li>
+        <li><a href="#s3-console-upload">22. 콘솔에서 S3 폴더·파일 올리기와 삭제</a></li>
+        <li><a href="#boto3-client">23. boto3 — 클라이언트 설정과 폴더 만들기</a></li>
+        <li><a href="#presigned-url">24. presigned URL 업로드 Lambda — fileup.py</a></li>
+        <li><a href="#upload-html">25. HTML 업로드 페이지 — 클로드로 생성</a></li>
+        <li><a href="#api-gateway">26. API Gateway 연결 — HTTP API</a></li>
+        <li><a href="#cors">27. CORS 오류 해결 — S3·Lambda·API Gateway</a></li>
+        <li><a href="#cheatsheet">28. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -616,7 +629,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>AWS 클라우드 통합 학습노트</h1>
-    <p class="deck">AWS 클라우드 통합 학습노트 · 범위: 수업에서 다루는 서비스 범위 → <b>Lambda</b>(서버리스·이벤트 JSON·과금) → 함수 생성 화면(<b>함수 이름</b>·<b>런타임</b>·<b>권한</b>·사용자 지정 설정 토글) → <b>스테이트풀·스테이트리스</b> → 추가 설정 8항목(ARM64·사용자 지정 실행 역할·함수 URL·테넌트 격리 모드·VPC·코드 서명·KMS·태그) → 콘솔 코드 편집기(<code class="n">lambda_handler</code>·<code class="n">Deploy</code> <code class="n">Ctrl+Shift+U</code>·<code class="n">Test</code> <code class="n">Ctrl+Shift+I</code>) → 테스트 이벤트(<code class="n">Synchronous</code>·<code class="n">Private</code>·<code class="n">hello-world</code>) → 이벤트 처리(<code class="n">event.get</code>·f-string·<code class="n">headers</code> <code class="n">charset=utf-8</code>) → VS Code 연결 준비(<code class="n">AWS Toolkit</code>·<code class="n">aws --version</code>) → IAM 액세스 키(<code class="n">admin</code>·CLI 사용 사례) → Toolkit 로그인(프로필 <code class="n">apink</code>) → 리전(<code class="n">ap-northeast-2</code>·CloudFormation) → Lambda ↔ VS Code(<code class="n">M</code> 아이콘·저장 = 업로드·<code class="n">Accept</code>) → 파이썬 기초(if·for·<code class="n">sort(key=lambda ...)</code>) → <b>lambda 표현식</b>. 연결 파일: fastapi.html(API·JSON 응답)</p>
+    <p class="deck">AWS 클라우드 통합 학습노트 · 범위: 수업에서 다루는 서비스 범위 → <b>Lambda</b>(서버리스·이벤트 JSON·과금) → 함수 생성 화면(<b>함수 이름</b>·<b>런타임</b>·<b>권한</b>·사용자 지정 설정 토글) → <b>스테이트풀·스테이트리스</b> → 추가 설정 8항목(ARM64·사용자 지정 실행 역할·함수 URL·테넌트 격리 모드·VPC·코드 서명·KMS·태그) → 콘솔 코드 편집기(<code class="n">lambda_handler</code>·<code class="n">Deploy</code> <code class="n">Ctrl+Shift+U</code>·<code class="n">Test</code> <code class="n">Ctrl+Shift+I</code>) → 테스트 이벤트(<code class="n">Synchronous</code>·<code class="n">Private</code>·<code class="n">hello-world</code>) → 이벤트 처리(<code class="n">event.get</code>·f-string·<code class="n">headers</code> <code class="n">charset=utf-8</code>) → VS Code 연결 준비(<code class="n">AWS Toolkit</code>·<code class="n">aws --version</code>) → IAM 액세스 키(<code class="n">admin</code>·CLI 사용 사례) → Toolkit 로그인(프로필 <code class="n">apink</code>) → 리전(<code class="n">ap-northeast-2</code>·CloudFormation) → Lambda ↔ VS Code(<code class="n">M</code> 아이콘·저장 = 업로드·<code class="n">Accept</code>) → 파이썬 기초(if·for·<code class="n">sort(key=lambda ...)</code>) → <b>lambda 표현식</b> → <b>S3</b>(버킷 유형·만들기 옵션·암호화·트리거·권한) → <b>boto3</b>(클라이언트·put_object) → <b>presigned URL</b>(generate_presigned_url·ExpiresIn) → <b>HTML 업로드 페이지</b>(enctype·Live Server) → <b>API Gateway</b>(HTTP API) → <b>CORS</b>(S3 규칙·Lambda 헤더·Gateway 구성). 연결 파일: fastapi.html(API·JSON 응답·12장 CORS·13장 파일 업로드 API), nginx.html(정적 파일 서비스)</p>
 
     <div class="core-strip">
       <div>
@@ -648,7 +661,20 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#vscode-upload">12. Lambda ↔ VS Code 연결·업로드</a>
       <a href="#python-basics">13. 파이썬 기초로 동작 확인</a>
       <a href="#lambda-expression">14. lambda 표현식 — 익명 함수</a>
-      <a href="#cheatsheet">15. 통합 명령어 치트시트</a>
+      <a href="#lab-environment">15. 실습 환경 — Lambda·S3·API Gateway 결합</a>
+      <a href="#lambda-exception">16. Lambda 예외 처리 — try·except·finally</a>
+      <a href="#s3-overview">17. S3 개요 — 거대 창고와 내구성</a>
+      <a href="#bucket-types">18. 버킷 유형 — 범용과 디렉터리</a>
+      <a href="#bucket-options">19. 버킷 만들기 옵션 — 이름부터 객체 잠금까지</a>
+      <a href="#s3-trigger">20. S3 트리거 — 버킷 이벤트로 Lambda 실행</a>
+      <a href="#iam-s3-policy">21. 권한 설정 — Lambda 실행 역할에 S3 정책</a>
+      <a href="#s3-console-upload">22. 콘솔에서 S3 폴더·파일 올리기와 삭제</a>
+      <a href="#boto3-client">23. boto3 — 클라이언트 설정과 폴더 만들기</a>
+      <a href="#presigned-url">24. presigned URL 업로드 Lambda — fileup.py</a>
+      <a href="#upload-html">25. HTML 업로드 페이지 — 클로드로 생성</a>
+      <a href="#api-gateway">26. API Gateway 연결 — HTTP API</a>
+      <a href="#cors">27. CORS 오류 해결 — S3·Lambda·API Gateway</a>
+      <a href="#cheatsheet">28. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -685,7 +711,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
     <div class="note-verify"><div class="tag">🔍 직접 확인 · AWS 클라우드 1 102:14~102:30</div><p>수업에서 “호출하는 경우”라고 말한 부분이 재귀(자기) 호출을 뜻하는지 음성으로 확인할 항목. 재귀 호출이 반복되면 요청 수·실행 시간이 계속 쌓이는 구조이므로, 연결 전에 실행 횟수와 종료 조건을 확인</p></div>
 
-    <ul class="facts"><li><strong>관련 파일</strong><div>API 개념과 HTTP 메서드·JSON 응답 형식: fastapi.html 1~2장 / Lambda가 받는 이벤트 JSON과 API 호출의 관계: 이 파일 7장</div></li></ul>
+    <ul class="facts"><li><strong>관련 파일</strong><div>API 개념과 HTTP 메서드·JSON 응답 형식: fastapi.html 1~2장 / Lambda가 받는 이벤트 JSON과 API 호출의 관계: 이 파일 7장</div></li><li><strong>다음 흐름</strong><div>S3 버킷·presigned URL·API Gateway 결합 실습: 이 파일 15~27장</div></li></ul>
   </section>
 
   <!-- 2 -->
@@ -799,6 +825,16 @@ def lambda_handler(event, context):                <span class="c"># 필수 함�
       <li><strong>핸들러 설정</strong><div>런타임 설정(Runtime settings)의 핸들러에 <b>실행할 파일 이름</b>을 지정해야 반영 — 파일이 여러 개면 핸들러 설정도 여러 개 필요</div></li>
     </ul>
 
+    <h3>새 파일과 핸들러 — 파일명.함수명</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">핸들러 형식</td><td><b>파일명.함수명</b></td><td>기본값 <code>lambda_function.lambda_handler</code>(기본 파일 <code>lambda_function.py</code>)</td></tr>
+    <tr><td class="nowrap">새 파일 <code>test.py</code></td><td>런타임 설정 <b>편집 → 핸들러 <code>test.lambda_handler</code> → 설정 저장</b></td><td>바꾸지 않으면 <b>이전 파일만 계속 실행</b> (16장)</td></tr>
+    <tr><td class="nowrap">순서</td><td>코드 작성 → <b>Deploy</b> → (새로고침으로 파일 확인, 생략 가능) → 핸들러 수정 → 테스트</td><td><code>fileup.py</code>를 만들 때도 같은 순서 (24장)</td></tr>
+    </tbody></table></div>
+
+    <div class="dg-bar warn">새 파일과 핸들러 — 핸들러는 <b>파일명.함수명</b>이고 기본값은 <code>lambda_function.lambda_handler</code>. 새 파일을 만들었으면 <b>Deploy 후 런타임 설정에서 핸들러를 바꿔야</b> 하고, 바꾸지 않으면 이전 파일만 계속 실행</div>
+
     <div class="dg-bar warn">Deploy 필수 — <code>Ctrl+S</code>는 편집기 저장, Lambda 반영은 <b>Deploy(<code>Ctrl+Shift+U</code>)</b>. 녹색 배너가 반영 완료 신호이고, Undeployed Changes 상태의 Test는 이전 코드 결과. 코드를 고쳐도 Deploy하지 않으면 S3·이벤트 연결에서 “왜 반응이 없나”의 원인이 됨</div>
   </section>
 
@@ -903,6 +939,7 @@ def lambda_handler(event, context):
       <li><strong>원인</strong><div><code>json.dumps</code>의 기본값 <code>ensure_ascii=True</code>가 한글을 <code>\uXXXX</code> 표기로 바꾼 것 — URL 인코딩 문제가 아니고, <code>charset=utf-8</code> 헤더를 넣어도 이 표기는 그대로 남음</div></li>
       <li><strong>한글 그대로 내보내기</strong><div><code>json.dumps(..., ensure_ascii=False)</code> — 헤더가 아니라 <code>json.dumps</code> 옵션이 표기를 바꿈</div></li>
       <li><strong>확인 결과</strong><div><code>200</code> 응답, body 문자열에 <code>\u</code> 이스케이프 표기가 그대로 남은 상태</div></li>
+      <li><strong>CORS 헤더</strong><div>브라우저에서 다른 출처로 호출할 때 필요한 <code>Access-Control-Allow-Origin</code>과 세 곳의 허용 설정: 27장</div></li>
     </ul>
 
     <div class="dg-bar warn">이벤트 = API 호출 — Lambda가 받는 <code>event</code>는 클라이언트가 보낸 JSON 그대로라, <code>event.get(키, 기본값)</code>으로 꺼내고 반환 dict의 <code>statusCode</code>·<code>body</code>가 응답이 됨. 문자열과 이벤트를 <code>+</code>로 이으면 <code>str</code> 타입 에러 — 쉼표로 연결</div>
@@ -1096,7 +1133,7 @@ irm https://awscli.amazonaws.com/v2/install.ps1 | iex</code></pre><button class=
 
     <div class="dg-bar warn">연결 조건 — <b>PC 파이썬 버전과 Lambda 런타임 버전 일치</b>(같은 계열이면 패치 차이 무관), 연결 후 <b><code>M</code> 아이콘</b>으로 확인. 자동 재실행으로 AWS Toolkit이 <b>Disable</b>되면 코드 업로드가 안 되므로 <b>Enable</b>로 복구. 저장은 곧 업로드라 콘솔 새로고침 뒤 <b>Accept</b>로 최신 배포를 받음</div>
 
-    <ul class="facts"><li><strong>관련 파일</strong><div>VS Code 원격 Jupyter 서버 연결과 편집기 사용: spark.html 63장</div></li></ul>
+    <ul class="facts"><li><strong>관련 파일</strong><div>VS Code 원격 Jupyter 서버 연결과 편집기 사용: spark.html 63장 / 이 창에서 boto3로 S3 폴더·presigned URL 함수 작성: 이 파일 23~24장</div></li></ul>
   </section>
 
   <!-- 13 -->
@@ -1177,6 +1214,566 @@ irm https://awscli.amazonaws.com/v2/install.ps1 | iex</code></pre><button class=
   </section>
 
   <!-- 15 -->
+  <section class="sec" id="lab-environment">
+    <h2>실습 환경 — Lambda·S3·API Gateway 결합</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 함수 하나에서 파일 업로드 페이지까지</p><div class="dg-flow"><div class="dg-node"><h4>① 예외 처리</h4><p class="sub">try·except·finally</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② S3 버킷</h4><p class="sub">mz-apink-s3-…</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ presigned URL</h4><p class="sub">boto3 · PUT · 300초</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ HTML 페이지</h4><p class="sub">Live Server 5500</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ API Gateway</h4><p class="sub">HTTP API · CORS</p></div></div><p class="dg-foot">Lambda(Python) + S3 + API Gateway를 결합해 <strong>파일 업로드 페이지</strong>를 완성하는 흐름 — 브라우저가 API Gateway를 거쳐 Lambda에서 받은 presigned URL로 S3에 파일을 직접 올리는 구조</p></div>
+
+    <h3>환경</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">계정·사용자</td><td>수업용 AWS 계정 하나에 수강생별 IAM 사용자 4개 — 실습 사용자 <code>admin</code></td><td>콘솔 로그인 이름을 코드 블록 첫 줄의 주체 표기에도 그대로 사용</td></tr>
+    <tr><td class="nowrap">리전</td><td>서울 · <code>ap-northeast-2</code></td><td>S3 버킷·Lambda·API Gateway를 모두 같은 리전에 생성 — 리전이 다르면 리소스가 안 보임 (11장)</td></tr>
+    <tr><td class="nowrap">브라우저</td><td>AWS 콘솔(S3·Lambda·IAM·API Gateway)</td><td>S3 탭과 Lambda 탭을 따로 열어 두고 작업 — 탭 혼동이 실수 원인</td></tr>
+    <tr><td class="nowrap">윈도우 PC</td><td>VS Code + AWS Toolkit, 메모장, 크롬 F12 개발자 도구, Claude Code</td><td>코드 작성·HTML 생성·요청 확인 도구 — VS Code ↔ Lambda 연결은 8~12장</td></tr>
+    </tbody></table></div>
+
+    <h3>시연값 — 사람마다 다름</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>값</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">Lambda 함수</td><td><code>mz-apink</code></td><td>앞 장에서 만든 함수를 그대로 이어서 사용 (2장)</td></tr>
+    <tr><td class="nowrap">VS Code 프로필</td><td><code>apink</code></td><td>Toolkit IAM credentials 로그인에 쓴 프로필 이름 (10장)</td></tr>
+    <tr><td class="nowrap">버킷 접두사</td><td><code>mz-apink-s3</code></td><td>최종 이름은 <code>mz-apink-s3-&lt;계정ID 12자리&gt;-ap-northeast-2-an</code> — 계정ID·리전·<code>an</code> 접미사는 자동으로 붙음</td></tr>
+    <tr><td class="nowrap">주의</td><td>이름은 수강생마다 다름</td><td>만든 뒤 버킷 이름 전체를 복사해 둘 것 — 이후 boto3 코드·HTML·API 호출에서 그대로 사용</td></tr>
+    </tbody></table></div>
+
+    <ul class="facts">
+      <li><strong>선행 조건</strong><div>VS Code ↔ Lambda 연결이 끝난 상태 — AWS Toolkit 설치, IAM 액세스 키, Explorer·CloudFormation 리전 <code>ap-northeast-2</code>, 런타임 Python 버전 일치, 재실행 후 Toolkit Enable (8~12장)</div></li>
+      <li><strong>수업 범위</strong><div>Lambda는 이후 수업에서도 계속 사용하고, 수백 줄짜리 개발 코드는 다루지 않음 — 서비스 연결 방식과 옵션의 의미가 중심</div></li>
+      <li><strong>설정의 무게</strong><div>S3 옵션·보안은 이해하고 직접 설정 — 잘못 열면 실무에서 큰 문제로 이어지는 영역</div></li>
+    </ul>
+
+    <div class="dg-bar warn">S3 보안 — 버킷 옵션과 권한은 한 번 잘못 열면 데이터 유출로 이어짐. 기본값(<b>퍼블릭 액세스 차단 · ACL 비활성화 · SSE-S3</b>)을 유지하고, 공개가 필요한 경우에도 범위를 좁혀 최소만 허용</div>
+
+    <h3>수업 중 받아 적은 원문</h3>
+    <div class="code"><pre><code><span class="c"># [윈도우 PC · 메모장 · admin]</span>
+<span class="c"># EC2 서버와 S3의 역할 구분 (E2 = EC2 표기)</span>
+E2 server =&gt; 50GB =&gt; 무한(이미지, 문서(pdf), pptx, 동영상)
+거대창고: s3(이미지, 문서(pdf), pptx, 동영상, 압축파일, 로그파일) =&gt; 내구성(private) =&gt; method: PUT
+범용(s3 standard): 정적 or 동적 웹호스팅, 파일 스토리지
+디렉토리(s3 express): AI / ML 학습(pytorch), real-time Analytic</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts"><li><strong>관련 파일</strong><div>서버에서 직접 정적 파일을 내보내는 방식과 웹 루트: nginx.html 1~2장 / API 개념·HTTP 메서드·JSON 응답: fastapi.html 1~2장</div></li></ul>
+  </section>
+
+  <!-- 16 -->
+  <section class="sec" id="lambda-exception">
+    <h2>Lambda 예외 처리 — try·except·finally</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 정상·예외를 나눠 에러 위치를 드러내기</p><div class="dg-flow"><div class="dg-node"><h4>① test.py 작성</h4><p class="sub">lambda_handler 안</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② try / except</h4><p class="sub">200 · 500</p></div><div class="dg-arrow">Deploy</div><div class="dg-node"><h4>③ 핸들러 변경</h4><p class="sub">test.lambda_handler</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 테스트 결과</h4><p class="sub">state 200 또는 500</p></div></div><p class="dg-foot">서버·통신 작업에서 가장 많이 쓰는 구문 — 어디서 막혔는지(Gateway·방화벽 등)를 에러로 드러내는 수단이고, 500이 나오면 일단 서버 쪽 문제로 좁혀 봄</p></div>
+
+    <h3>세 구문의 역할</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구문</th><th>뜻</th><th>이번 실습</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>try:</code></td><td>정상적인 실행이 되었을 경우 처리할 코드</td><td>응답 200을 반환하는 본문</td></tr>
+    <tr><td class="nowrap"><code>except Exception as e:</code></td><td>예외처리(문제발생) — <code>print(e)</code>로 에러 내용 출력</td><td>이 한 줄이면 충분, 개발자는 추가 코드를 쓰기도 함</td></tr>
+    <tr><td class="nowrap"><code>finally:</code></td><td><code>try</code> 또는 <code>except</code> 결과가 처리가 되더라도 무조건 실행</td><td>개념만 — 실습 코드에서는 사용하지 않음</td></tr>
+    </tbody></table></div>
+    <p>들여쓰기는 <b>Tab 키</b>로 맞춤 — <code>try</code> 안에 <code>return</code>을 붙여 넣을 때도 같음.</p>
+
+    <h3>응답 코드 구조 — test.py</h3>
+    <p>순서 — Lambda 코드 편집기에서 <b>새 파일 <code>test.py</code></b> 생성 → <code>lambda_handler(event, context)</code> 안에 작성 → <b>Deploy</b>.</p>
+    <div class="code"><pre><code><span class="c"># [AWS 콘솔 · Lambda 함수 mz-apink 코드 편집기 · 새 파일 test.py · admin]</span>
+import json
+
+def lambda_handler(event, context):
+    try:                                <span class="c"># 정상 실행이 된 경우</span>
+        return {
+            'state' : 200,              <span class="c"># 정상 상태 코드 (연습용 키)</span>
+            'body' : json.dumps({       <span class="c"># 결과는 대부분 JSON으로 반환</span>
+                'msg' : '통신처리 완료'
+            })
+        }
+    except Exception as e:              <span class="c"># 문제 발생 시 이쪽으로 옴</span>
+        print(e)                        <span class="c"># 에러 내용 출력</span>
+        return {
+            'state' : 500,              <span class="c"># 500 = 서버 쪽 문제</span>
+            'body' : json.dumps({
+                'msg' : '통신에러 발생'
+            })
+        }</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <p>상태 키는 화면에서 <code>'state'</code>로 입력하는 연습용 코드 — 에러가 나면 Lambda <b>테스트</b>로 처리 결과를 확인.</p>
+
+    <div class="dg-bar warn">응답 키 — Lambda 응답을 API Gateway·함수 URL로 돌려줄 때 상태 코드 키는 <b>statusCode</b>, 본문 키는 <b>body</b>이고 <b>대소문자 구분</b>. <code>'state'</code>나 소문자 <code>'statuscode'</code>는 상태 코드로 인식되지 않음 — 실습 코드의 <code>'state'</code>는 연습용 표기</div>
+
+    <h3>강제로 오류 내 보기</h3>
+    <div class="code"><pre><code><span class="c"># [AWS 콘솔 · Lambda 함수 mz-apink 코드 편집기 · test.py · try 블록 안 · admin]</span>
+a = 50
+b = "100"          <span class="c"># 따옴표 → 문자열</span>
+c = a * b          <span class="c"># int * str — 에러가 아니라 문자열 반복</span>
+print(c)</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>시도</th><th>실행 결과</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>c = a * b</code> (<code>b = "100"</code>)</td><td>에러 없음 → <b>200</b></td><td><code>int * str</code>은 에러가 아니라 <b>문자열 반복</b> — <code>50 * "100"</code>은 "100"을 50번 이은 문자열이라 except로 빠지지 않음</td></tr>
+    <tr><td class="nowrap"><code>a + b</code></td><td><b>500</b> (except 진입)</td><td><code>int</code>와 <code>str</code>을 더해야 <code>TypeError</code> — 강제로 예외를 보려면 이 형태</td></tr>
+    <tr><td class="nowrap"><code>a = aaaa</code></td><td><b>500</b> (except 진입)</td><td>정의되지 않은 이름이라 <code>NameError</code></td></tr>
+    <tr><td class="nowrap"><code>c = a * int(b)</code></td><td><b>5000</b></td><td>문자열 <code>b</code>를 int로 형 변환 — 문자열 반복 결과는 올바른 값이 아니므로 형 변환</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+      <li><strong>print 결과</strong><div>에러가 나면 테스트 응답 화면에 <code>print</code> 결과가 나오지 않음 — 출력은 Function Logs에서 확인</div></li>
+      <li><strong>값 전달</strong><div><code>print(c)</code> 대신 body의 <code>json.dumps</code> 안에 <code>'result' : c</code>를 넣으면 값이 백엔드·개발자 쪽으로 전달</div></li>
+      <li><strong>에러 원인</strong><div>except 쪽 body의 <code>result</code>에 <code>e</code>를 넣으면 에러 원인을 확인 — 에러 시 정상 <code>result</code>는 없음</div></li>
+    </ul>
+
+    <div class="dg-bar warn">500의 뜻 — 500이 나오면 일단 우리(서버) 쪽 잘못으로 보고 except에 남긴 에러 내용부터 확인. 요청 자체가 잘못된 4xx와 구분해 원인 범위를 좁히는 것이 예외 처리의 목적</div>
+
+    <h3>새 파일을 만들면 핸들러 변경</h3>
+    <p><code>test.py</code>를 만들었으면 런타임 설정의 핸들러를 <code>test.lambda_handler</code>로 바꿔야 실행 — 바꾸지 않으면 이전 파일만 계속 실행. 핸들러 형식과 변경 순서는 5장, 이후 <code>fileup.py</code>를 만들 때도 같은 절차.</p>
+  </section>
+
+  <!-- 17 -->
+  <section class="sec" id="s3-overview">
+    <h2>S3 개요 — 거대 창고와 내구성</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 서버 용량을 넘긴 파일을 창고로</p><div class="dg-flow"><div class="dg-node"><h4>① EC2 50GB</h4><p class="sub">업로드 파일이 계속 쌓임</p></div><div class="dg-arrow">용량 부족</div><div class="dg-node key"><h4>② S3로 이전</h4><p class="sub">이미지·문서·동영상</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 버킷</h4><p class="sub">폴더별 저장 · 기본 프라이빗</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ Lambda 결합</h4><p class="sub">업로드·이벤트 처리</p></div></div><p class="dg-foot">S3 = Simple Storage Service — 콘솔 <strong>S3 → 버킷</strong>, 버킷은 파일을 담는 <strong>거대 창고</strong>. 구글의 같은 서비스는 <strong>GCS(Google Cloud Storage)</strong></p></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정의</td><td><b>S3 = Simple Storage Service</b>, AWS 클라우드 스토리지 서비스. 버킷 = 거대 창고</td><td>서버 컴퓨팅(EC2)과 분리된 저장 계층</td></tr>
+    <tr><td class="nowrap">저장 대상</td><td>이미지, 문서(pdf·pptx), 동영상, <b>압축파일, 로그파일</b></td><td>형식 제한 없이 객체로 저장</td></tr>
+    <tr><td class="nowrap">EC2만 쓸 때</td><td>업로드 파일이 서버에 쌓여 50GB 같은 서버 용량이 계속 부족 — 동영상까지 올리면 서버가 버티지 못함</td><td>파일을 S3로 넘겨 저장하면 서버 용량이 작아도 운영 가능, 버킷 안에 폴더별로 저장</td></tr>
+    <tr><td class="nowrap">기본 상태</td><td><b>프라이빗</b> — 퍼블릭 액세스 차단이 켜진 기본값</td><td>공개로 풀면 <b>데이터가 모두 유출</b> — AI가 공개로 풀라고 답해도 그대로 따르지 않음</td></tr>
+    <tr><td class="nowrap">메서드</td><td>업로드(<code>PutObject</code>) = HTTP <b>PUT</b>(push 방향), 다운로드(<code>GetObject</code>) = <b>GET</b>, 삭제는 <b>DELETE</b></td><td>버킷에 따로 정해진 기본 메서드는 없음 — PUT·GET·DELETE 등 어떤 작업을 허용할지는 IAM·버킷 정책으로 결정</td></tr>
+    <tr><td class="nowrap">궁합</td><td>S3와 <b>가장 잘 맞는 서비스는 Lambda</b></td><td>업로드 이벤트·presigned URL 모두 Lambda와 연결해 실습 (20·24장)</td></tr>
+    </tbody></table></div>
+
+    <div class="dg-bar warn">내구성과 가용성 — S3 Standard 내구성은 <b>99.999999999%</b>(9가 11개, 11 nines), 가용성 설계 목표는 <b>99.99%</b>. 내구성은 저장한 데이터가 사라지지 않을 확률, 가용성은 서비스가 응답할 확률로 서로 별개의 지표</div>
+    <div class="dg-bar warn">프라이빗 기본 — 버킷은 기본이 비공개이고 모든 퍼블릭 액세스 차단이 켜진 상태. 공개로 풀면 저장한 파일이 모두 노출되므로, 실습 버킷에서도 공개 해제는 하지 않음</div>
+  </section>
+
+  <!-- 18 -->
+  <section class="sec" id="bucket-types">
+    <h2>버킷 유형 — 범용과 디렉터리</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 저장 위치와 속도로 고르는 두 유형</p><div class="dg-flow"><div class="dg-node"><h4>① 버킷 유형 선택</h4><p class="sub">범용 / 디렉터리</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 범용</h4><p class="sub">S3 Standard · 다중 AZ</p></div><div class="dg-arrow">또는</div><div class="dg-node"><h4>③ 디렉터리</h4><p class="sub">Express One Zone · 단일 AZ</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 용도로 결정</h4><p class="sub">웹호스팅 vs AI/ML 학습</p></div></div><p class="dg-foot">버킷 만들기 화면의 <strong>버킷 유형</strong>은 둘 중 하나 — 범용은 “공용”과 다른 뜻이고, 어느 쪽이 맞는지는 용도가 정함</p></div>
+
+    <ul class="facts">
+      <li><strong>범용</strong><div>대부분의 사용 사례에 권장, 원래 S3 버킷 유형 — 여러 가용 영역에 중복 저장하는 스토리지 클래스를 섞어 쓸 수 있음</div></li>
+      <li><strong>디렉터리</strong><div>지연 시간이 짧은 용도에 권장 — <b>단일 가용 영역</b>의 <b>S3 Express One Zone</b> 스토리지 클래스만 사용</div></li>
+      <li><strong>실습 대상</strong><div><b>범용 버킷</b> — 어떤 유형으로, 어디에 만드는지 확인하고 생성 (19장)</div></li>
+    </ul>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>범용 (S3 Standard)</th><th>디렉터리 (S3 Express One Zone)</th></tr></thead><tbody>
+    <tr><td class="nowrap">기본 성격</td><td>가장 기본, 가장 많이 씀</td><td>스토리지 클래스 기반으로만 사용, <b>단일 데이터</b> 액세스 처리</td></tr>
+    <tr><td class="nowrap">구성</td><td>여러 스토리지 클래스 혼합 가능, 설정 자유로움</td><td>디렉터리별 구성</td></tr>
+    <tr><td class="nowrap">가용성</td><td>월등히 좋음 — 설계 목표 <b>99.99%</b></td><td>떨어짐 — 설계 목표 <b>99.95%</b></td></tr>
+    <tr><td class="nowrap">지연(속도)</td><td>수십 밀리초</td><td>한 자리 밀리초</td></tr>
+    <tr><td class="nowrap">용도</td><td>웹호스팅, 파일 스토리지(이미지 등)</td><td><b>AI/ML 학습(PyTorch·TensorFlow)</b>, real-time Analytics, 수천~수만 건 병렬·초저지연 처리</td></tr>
+    </tbody></table></div>
+
+    <p>가용성 차이는 설계 목표 기준 <b>99.99% 대 99.95%로 약 0.04%p</b> — “약 3% 차이”는 공식 수치가 아님. 디렉터리는 <b>단일 가용 영역(AZ)에만 저장</b>되므로 그 AZ에 장애가 나면 데이터를 잃을 수 있어, 내구성이 Standard와 같다고 볼 수 없음.</p>
+    <p>S3 웹사이트 호스팅은 <b>정적 콘텐츠(HTML·CSS·JS 등)만</b> 가능하고 서버 측 동적 처리는 불가 — 동적 처리는 Lambda·EC2 등이 담당. <b>정적 웹호스팅</b> 개념은 따로 찾아볼 것(웹호스팅 기본 상식).</p>
+
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · AWS 클라우드 2 · 버킷 만들기 화면</div><p>“버킷에 관련된 종류만 21가지가 나온다”의 정확한 의미·개수 — 버킷 만들기 화면 전체를 열어 항목을 직접 세어 보는 항목</p></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · AWS 클라우드 2 · 버킷 유형 설명</div><p>범용 버킷이 HDD, 디렉터리(Express)가 SSD라는 하드웨어 설명의 사실 여부 — AWS 공식 S3 스토리지 클래스 문서에서 확인할 항목</p></div>
+
+    <div class="dg-bar warn">범용 vs 디렉터리 — 범용은 여러 가용 영역에 중복 저장하는 S3 Standard 계열(웹호스팅·파일 스토리지), 디렉터리는 단일 AZ의 Express One Zone(초저지연, AI/ML 학습·실시간 분석). 가용성 차이는 0.04%p 정도지만 단일 AZ라 <b>AZ 장애 시 데이터 손실 위험</b>이 있음</div>
+  </section>
+
+  <!-- 19 -->
+  <section class="sec" id="bucket-options">
+    <h2>버킷 만들기 옵션 — 이름부터 객체 잠금까지</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 여섯 묶음을 용도에 맞춰 통과</p><div class="dg-flow"><div class="dg-node"><h4>① 네임스페이스·이름</h4><p class="sub">계정 리전 · mz-apink-s3</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 객체 소유권</h4><p class="sub">ACL 비활성화</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 퍼블릭 액세스 차단</h4><p class="sub">모두 체크</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 버전·태그</h4><p class="sub">비활성화 · 미사용</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 암호화·잠금</h4><p class="sub">SSE-S3 · 잠금 해제</p></div></div><p class="dg-foot">선택 항목은 <strong>프로젝트 목적에 따라</strong> 달라짐 — 실습은 대부분 기본값 그대로, 각 옵션이 무엇을 막고 무엇을 여는지가 핵심</p></div>
+
+    <h3>네임스페이스와 버킷 이름</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>선택지</th><th>의미</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">글로벌 네임스페이스(기본)</td><td>범용 버킷을 글로벌 네임스페이스에 생성 — 이름이 <b>전 세계 모든 계정에서 고유</b>해야 하는 범위</td><td>이름의 범위일 뿐, 다른 사람이 내 버킷을 쓸 수 있다는 뜻이 아님. 접근은 IAM·버킷 정책·퍼블릭 액세스 차단으로 통제되고 기본은 프라이빗</td></tr>
+    <tr><td class="nowrap">계정 리전 네임스페이스(권장)</td><td>계정마다 고유, 접두사를 입력하는 방식</td><td>이름이 <b>계정+리전 범위</b>에서 고유 — 실습에서 선택</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+      <li><strong>버킷 이름</strong><div>접두사 <code>mz-apink-s3</code> 입력 → <code>mz-apink-s3-&lt;계정ID&gt;-ap-northeast-2-an</code>으로 완성 — 뒤는 자동 접미사라 나중에 필요하므로 기억</div></li>
+      <li><strong>이름 규칙</strong><div>3~63자, 소문자·숫자·마침표·하이픈만, 글로벌 네임스페이스에서는 전 세계 고유</div></li>
+      <li><strong>기존 버킷 설정 복사</strong><div>만들어 둔 버킷의 설정을 가져오는 기능 — 실습은 미사용</div></li>
+    </ul>
+
+    <h3>객체 소유권 — ACL</h3>
+    <p><b>ACL</b> = Access Control List = <b>접근 제어 목록</b>, 보안 계층에 해당 — 개념만 알면 됨.</p>
+    <div class="table-wrap"><table>
+    <thead><tr><th>선택지</th><th>내용</th><th>실습</th></tr></thead><tbody>
+    <tr><td class="nowrap">ACL 비활성화(권장·기본)</td><td>Bucket owner enforced — 소유자가 모든 객체를 소유하고 ACL로 권한을 나누지 않음</td><td><b>비활성화</b></td></tr>
+    <tr><td class="nowrap">ACL 활성화</td><td>객체별·버킷별 ACL로 접근 권한을 부여</td><td>미사용</td></tr>
+    </tbody></table></div>
+    <p>ACL 활성화·비활성화는 비용·복구와 무관 — 덮어쓰기·삭제 복구는 <b>버전 관리(Versioning)</b> 기능이고, “비활성화 12개 = 활성화 1개”라는 비용 차이는 근거가 없음.</p>
+
+    <h3>퍼블릭 액세스 차단</h3>
+    <ul class="facts">
+      <li><strong>설정</strong><div><b>모든 퍼블릭 액세스 차단 → 체크</b>(기본값) — 허락한 것만 통과</div></li>
+      <li><strong>해제 금지</strong><div>해제하면 통신은 되지만 실무에서도 금지 — 열어 두는 경우는 거의 없음</div></li>
+    </ul>
+
+    <h3>버전 관리·태그·객체 잠금</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>옵션</th><th>내용</th><th>실습</th></tr></thead><tbody>
+    <tr><td class="nowrap">버킷 버전 관리</td><td>같은 키의 객체를 덮어쓰거나 삭제해도 <b>이전 버전을 보존</b>해 복구할 수 있게 하는 기능</td><td><b>비활성화</b>(테스트용) — 버킷 자체를 버전별로 나누는 기능은 아님</td></tr>
+    <tr><td class="nowrap">태그</td><td>키-값 태그 추가 — 권한 분석·관리 자료를 만들 때 사용</td><td>사용 안 함</td></tr>
+    <tr><td class="nowrap">객체 잠금(Object Lock)</td><td>절대 수정·유실되면 안 되는 자료를 <b>영구 보존</b> — 예: 은행이 연말 마감 후 1년치 입출금 데이터를 버킷에 옮기고 잠금, 수정 불가</td><td><b>비활성화</b></td></tr>
+    </tbody></table></div>
+
+    <h3>기본 암호화 유형</h3>
+    <p>기본값 <b>SSE-S3</b> — 실습도 SSE-S3, SSE-KMS·DSSE-KMS는 선택하지 않음. <b>KMS</b> = Key Management Service(키 관리 서비스).</p>
+    <div class="table-wrap"><table>
+    <thead><tr><th>유형</th><th>키 관리</th><th>비용</th><th>용도</th></tr></thead><tbody>
+    <tr><td class="nowrap"><b>SSE-S3</b> (Amazon S3 관리형 키)</td><td>서버 쪽에서 <b>마스터키 관리</b></td><td><b>없음</b></td><td>기본값</td></tr>
+    <tr><td class="nowrap"><b>SSE-KMS</b> (AWS KMS 키)</td><td>고객이 키를 직접 생성·관리, 키 정책을 고객에게 설명·전달</td><td>키 생성 비용 + 일별 <b>유지 비용</b>(3일 쓰면 3일치)</td><td>고객 요청 시 — <b>키 단위 접근 통제</b>, 키별 접근 <b>로그 기록</b>(보안감사)</td></tr>
+    <tr><td class="nowrap"><b>DSSE-KMS</b> (이중 계층 서버 측 암호화)</td><td>이중 보안</td><td>가장 큼</td><td>강력한 규제 준수(금융·공공기관) — 고객이 요구하면 필수</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+      <li><strong>버킷 키</strong><div>Bucket Key — KMS 호출(요청) 비용을 줄이는 옵션. <b>SSE-KMS일 때만 의미</b>가 있어 SSE-S3면 활성·비활성 상관없음</div></li>
+      <li><strong>생성</strong><div><b>버킷 만들기</b> 클릭 → 목록에서 <code>mz-apink-s3…</code> 버킷 확인</div></li>
+    </ul>
+    <p>같은 계정에 수강생 버킷이 여러 개 보여도 퍼블릭이 아니라는 것과 접근 가능 여부는 별개 — 퍼블릭 액세스 차단은 익명(외부) 공개를 막는 설정이고, 같은 계정의 IAM 사용자가 다른 버킷을 보고 쓸 수 있는지는 그 사용자의 IAM 정책으로 정해짐.</p>
+
+    <div class="dg-bar warn">암호화 3종 — <b>SSE-S3</b>는 기본·무료(서버 쪽 마스터키 관리), <b>SSE-KMS</b>는 고객이 키를 관리하고 비용이 들지만 키 단위 접근 통제·접근 로그(보안감사)를 얻음, <b>DSSE-KMS</b>는 이중 계층으로 가장 비싸고 규제 준수(금융·공공)에 필요한 선택. 버킷 키는 KMS 요청 비용 절감용이라 SSE-KMS일 때만 의미</div>
+
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · AWS 클라우드 2 · 암호화 유형 설명</div><p>DSSE-KMS 비용이 정확히 2배라는 설명 — AWS S3 요금 페이지에서 DSSE-KMS 요금을 확인할 항목</p></div>
+
+    <div class="dg-bar warn">버킷 만들기 기본값 — <b>계정 리전 네임스페이스 · ACL 비활성화 · 퍼블릭 액세스 차단 모두 체크 · 버전 관리 비활성화 · SSE-S3 · 객체 잠금 비활성화</b>. 퍼블릭 액세스 차단 해제와 ACL 활성화는 보안팀 영역이라 실습에서도 건드리지 않음</div>
+  </section>
+
+  <!-- 20 -->
+  <section class="sec" id="s3-trigger">
+    <h2>S3 트리거 — 버킷 이벤트로 Lambda 실행</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 버킷에 파일이 생기면 함수 호출</p><div class="dg-flow"><div class="dg-node"><h4>① 트리거 추가</h4><p class="sub">소스 S3</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 버킷 선택</h4><p class="sub">mz-apink-s3-…</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 이벤트 유형</h4><p class="sub">ObjectCreated:*</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 재귀 확인 체크</h4><p class="sub">같은 버킷 입출력 경고</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 추가</h4><p class="sub">트리거 목록에 표시</p></div></div><p class="dg-foot">버킷만 만든 상태에서는 Lambda와 S3가 <strong>연결되지 않음</strong> — 버킷에 객체가 만들어지는 순간 함수가 실행되도록 트리거를 붙이는 단계</p></div>
+
+    <ol class="wide-list">
+      <li><b>Lambda → 함수 <code>mz-apink</code> → 트리거 추가 → 소스 <code>S3</code> → 버킷 선택</b></li>
+      <li><b>이벤트 유형</b> — <b>모든 객체 생성 이벤트</b>(<code>s3:ObjectCreated:*</code>) 선택. 목록에 PUT·POST·COPY 등이 있고 기본(권장)은 PUT</li>
+      <li>삭제 이벤트는 사용 안 함 — <code>rls</code> 항목도 제외</li>
+      <li><b>접두사·접미사</b>(선택) — 입력 안 함, 특수문자 URL 인코딩 등도 생략</li>
+      <li><b>재귀 호출 확인 체크 필수</b> — 입력·출력에 같은 버킷을 쓰면 재귀 호출로 Lambda 사용량·비용이 늘 수 있음을 인정하는 항목</li>
+      <li><b>추가</b> → 실행 결과 — 트리거 목록에 S3 트리거, 아래에 버킷 정보 표시</li>
+    </ol>
+
+    <p>콘솔 홈에는 최근 방문 서비스(IAM 포함 작업 이력)가 표시되고, Lambda <b>대시보드</b>에는 함수·이벤트 수와 사용량이 표시됨 — 트리거가 붙었는지 대시보드와 트리거 목록 두 곳에서 확인.</p>
+
+    <h3>이벤트 유형 해석</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>이벤트 유형</th><th>반응 범위</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>ObjectCreated:*</code></td><td>버킷에 객체를 만드는 <b>모든 작업</b></td><td><b>별표(<code>*</code>)</b>가 모든 작업을 뜻함 — 실습 선택</td></tr>
+    <tr><td class="nowrap">PUT</td><td><code>ObjectCreated:Put</code>만</td><td><b>PUT·POST</b> = 파일 전송(업로드), 거의 같은 방식 — 선택한 방식과 같은 메서드로 보내야 반응</td></tr>
+    <tr><td class="nowrap">POST</td><td><code>ObjectCreated:Post</code>만</td><td>POST로 업로드하는 폼과 짝을 이룸</td></tr>
+    <tr><td class="nowrap">COPY</td><td><code>ObjectCreated:Copy</code>만</td><td>S3 내부에서 파일 복사가 일어날 때 반응</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+      <li><strong>다른 유형을 고르면</strong><div>그 유형만 처리 — PUT만 선택하면 PUT만 반응하고 나머지 업로드는 무시</div></li>
+      <li><strong>실무</strong><div>버킷을 넘겨받으면 <b>이벤트 유형부터 확인</b>하고 처리 — 어떤 업로드에 반응하는 구성인지가 먼저이고, 이벤트 유형을 보고 처리하라는 것이 실무 지시의 뜻</div></li>
+      <li><strong>GET</strong><div>객체 생성 이벤트 유형은 Put·Post·Copy·CompleteMultipartUpload 등이고 <b>GET(다운로드)은 이벤트 알림 유형이 아님</b> — HTTP 메서드와 이벤트 유형은 별개</div></li>
+      <li><strong>가장 중요한 값</strong><div><b>버킷 이름(저장 위치)</b> — 개발자에게 알려 주면 그 버킷에 파일이 저장됨</div></li>
+      <li><strong>삭제 위험</strong><div>버킷을 삭제하면 안의 데이터가 <b>모두 사라짐</b></div></li>
+    </ul>
+
+    <div class="dg-bar warn">재귀 호출 — 함수의 입력과 출력에 <b>같은 버킷</b>을 쓰면 업로드가 다시 함수를 호출해 사용량·비용이 끝없이 늘어남. 재귀 호출로 사고를 낸 사례가 있어 권장하지 않고, 정책으로 호출 자체를 막는 경우도 있음 — 트리거 추가 시 재귀 호출 확인 체크 필수</div>
+  </section>
+
+  <!-- 21 -->
+  <section class="sec" id="iam-s3-policy">
+    <h2>권한 설정 — Lambda 실행 역할에 S3 정책</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 함수가 버킷을 만질 수 있게 역할에 정책 붙이기</p><div class="dg-flow"><div class="dg-node"><h4>① 구성 → 권한</h4><p class="sub">실행 역할 mz-apink-role-…</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② IAM 화면</h4><p class="sub">권한 추가 → 정책 연결</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ Amazon S3 검색</h4><p class="sub">ReadOnly / FullAccess</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ FullAccess 연결</h4><p class="sub">S3 전체 접근</p></div></div><p class="dg-foot">실습에서 다루는 보안은 <strong>Lambda(함수) 쪽 권한</strong> — 버킷 권한 탭의 정책 편집은 잘못하면 버킷이 공개되므로 보안팀 영역으로 두고 기본 보안만 유지</p></div>
+
+    <ul class="facts">
+      <li><strong>버킷 권한 탭</strong><div>보안 리소스·정책 — 개별 권한·정책 편집이 가능하지만 <b>잘못 편집하면 공개</b>될 수 있음</div></li>
+      <li><strong>실습 범위</strong><div>Lambda 실행 역할에 S3 정책을 붙이는 것까지 — 객체 소유권·관리·지표·메타데이터는 건드리지 않음</div></li>
+      <li><strong>CORS</strong><div>권한 탭 맨 아래 <b>CORS(Cross-Origin Resource Sharing)</b>는 27장에서 설정, 그 전에는 손대지 않음</div></li>
+    </ul>
+
+    <h3>실행 역할에 정책 연결</h3>
+    <ol class="wide-list">
+      <li><b>Lambda → 함수 → 구성 → 권한 → 실행 역할</b>(예: <code>mz-apink-role-…</code>) 클릭 → IAM 화면</li>
+      <li><b>권한 추가 → 정책 연결</b> → 검색창에 <code>Amazon S3</code> 입력</li>
+      <li>정책 선택 — 연습 기본은 <b>ReadOnly</b>(업로드 차단), 익숙해지면 FullAccess. 이번 실습은 <b>FullAccess</b> 연결</li>
+      <li>실행 결과 — 역할 링크에서 연결된 정책 확인, 권한 새로고침 시 <code>function</code>·<code>lambda</code> 등 항목이 추가됨</li>
+    </ol>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>정책</th><th>범위</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>AmazonS3ReadOnlyAccess</code></td><td>S3 읽기 전용 — 업로드·삭제 불가</td><td>연습 기본으로 쓰는 최소 권한</td></tr>
+    <tr><td class="nowrap"><code>AmazonS3FullAccess</code></td><td>S3 스토리지에 <b>모든 접근</b></td><td>이번 실습에서 연결 — 폴더 생성·업로드가 모두 필요</td></tr>
+    <tr><td class="nowrap">Files client access 계열</td><td>파일 시스템 형태로 붙는 액세스 포인트용</td><td>이번 실습에서는 선택하지 않음</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+      <li><strong>문제 발생 시</strong><div>정책을 <b>분리</b>(해제)해 원인 범위를 좁힘 — 권한 때문에 실패하는지 확인하는 첫 단계</div></li>
+      <li><strong>모니터링 탭</strong><div>호출 수, 오류, 성공률, 비동기 실행 지표 표시 — 연결 후 함수가 실제로 불리는지 확인하는 창</div></li>
+    </ul>
+
+    <div class="dg-bar warn">FullAccess의 무게 — FullAccess를 붙이면 그 Lambda가 S3의 <b>모든 버킷</b>에 접근 가능. 실습은 편의를 위해 쓰지만 운영에서는 버킷·동작을 지정한 최소 권한 정책으로 좁히고, 이상이 보이면 즉시 정책 분리</div>
+  </section>
+
+  <!-- 22 -->
+  <section class="sec" id="s3-console-upload">
+    <h2>콘솔에서 S3 폴더·파일 올리기와 삭제</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 폴더를 만들고 파일 한 개로 확인</p><div class="dg-flow"><div class="dg-node"><h4>① 버킷 → 객체 탭</h4><p class="sub">범용 버킷</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 폴더 만들기</h4><p class="sub">upload</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 업로드</h4><p class="sub">user.jpg 끌어다 놓기</p></div><div class="dg-arrow">대상 경로 확인</div><div class="dg-node accent"><h4>④ 삭제</h4><p class="sub">확인문 입력</p></div></div><p class="dg-foot">boto3로 같은 폴더를 만들기 전에 콘솔에서 먼저 확인하는 단계 — 23장에서 Lambda가 같은 이름의 폴더를 만들기 때문에 실습 뒤 <strong>이 폴더는 삭제</strong></p></div>
+
+    <ul class="facts">
+      <li><strong>화면</strong><div>버킷 클릭 → <b>객체</b> 탭 — 범용 버킷 사용, 액세스 포인트 등 다른 탭은 사용 안 함</div></li>
+      <li><strong>폴더 만들기</strong><div>이름 <code>upload</code>, 암호화 키는 지정 안 함</div></li>
+      <li><strong>S3의 폴더</strong><div>S3는 폴더가 없는 <b>평면 객체 스토어</b> — “폴더”는 키 접두사(<code>upload/</code>)를 폴더처럼 보여 주는 것. 콘솔의 폴더 만들기는 이름이 <code>/</code>로 끝나는 빈 객체를 만듦</div></li>
+      <li><strong>업로드</strong><div><code>upload</code> 폴더 → <b>업로드</b> → 파일 끌어다 놓기(파일·폴더 추가, 제거 가능) → 업로드 — <b>대상 경로</b>를 반드시 확인</div></li>
+      <li><strong>실행 결과</strong><div>바탕화면 <code>user.jpg</code>(image/jpeg, <b>1,112.6KB</b>) → <code>s3://mz-apink-s3-…/upload/</code></div></li>
+      <li><strong>삭제</strong><div>객체 선택 → <b>삭제</b> → 영구 삭제 확인문 입력 → <b>개체 삭제</b></div></li>
+      <li><strong>탭 분리</strong><div>S3 탭과 Lambda 탭을 따로 열어 두고 혼동하지 않기 — 비슷한 화면에서 엉뚱한 리소스를 지우는 실수가 잦음</div></li>
+    </ul>
+
+    <div class="dg-bar warn">대상 경로 — 업로드 창의 <b>대상 경로</b>(<code>s3://버킷/upload/</code>)와 객체 키를 업로드 전에 확인. 경로를 놓치면 버킷 루트에 파일이 쌓여 Lambda의 <code>upload/</code> 경로와 어긋나고, presigned URL 업로드 결과도 찾지 못함</div>
+  </section>
+
+  <!-- 23 -->
+  <section class="sec" id="boto3-client">
+    <h2>boto3 — 클라이언트 설정과 폴더 만들기</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 리전·엔드포인트·서명을 정하고 put_object</p><div class="dg-flow"><div class="dg-node"><h4>① import</h4><p class="sub">boto3 · Config · ClientError</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② client('s3')</h4><p class="sub">ap-northeast-2 · s3v4</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ BUCKET_NAME</h4><p class="sub">mz-apink-s3-…</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ put_object</h4><p class="sub">Key = upload/</p></div><div class="dg-arrow">Deploy</div><div class="dg-node accent"><h4>⑤ 객체 탭 확인</h4><p class="sub">upload/ 폴더 생성</p></div></div><p class="dg-foot"><strong>boto3</strong>는 AWS 파이썬 SDK이고 Lambda(Python)에 기본 설치 — VS Code(AWS Toolkit)에서 앞 연습 코드를 지우고 새로 작성하고, 뼈대는 <code>try:</code> + <code>except Exception as e:</code> — 자동완성은 Lambda 콘솔 편집기보다 VS Code에서 잘 뜸</p></div>
+
+    <div class="code"><pre><code><span class="c"># [VS Code · Lambda 프로젝트 mz-apink · test.py · 함수 밖(전역)]</span>
+import json
+import boto3                                  <span class="c"># AWS 파이썬 SDK — Lambda(Python)에 기본 설치</span>
+from botocore.client import Config            <span class="c"># 클라이언트 설정(서명 버전)</span>
+from botocore.exceptions import ClientError   <span class="c"># boto3 에러 처리용</span>
+
+s3_client = boto3.client(
+    's3',                                     <span class="c"># 사용할 서비스</span>
+    region_name = 'ap-northeast-2',           <span class="c"># 버킷 리전 — 콘솔 S3 버킷 목록의 리전을 복사, 없으면 동작 안 함</span>
+    endpoint_url = 'https://s3.ap-northeast-2.amazonaws.com',   <span class="c"># 요청을 보낼 S3 주소 (https://s3.&lt;리전&gt;.amazonaws.com 형식)</span>
+    config = Config(signature_version='s3v4') <span class="c"># 서명 버전 S3 V4 (AWS 표준)</span>
+)
+
+BUCKET_NAME = 'mz-apink-s3-&lt;계정ID&gt;-ap-northeast-2-an'   <span class="c"># 연결할 버킷 이름 (각자 다름)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts">
+      <li><strong>위치</strong><div><code>s3_client</code>는 함수 밖에 둠 — 호출마다 만들지 않고 재사용</div></li>
+      <li><strong>region_name</strong><div>버킷 리전 — 콘솔 S3 버킷 목록의 리전을 복사, 없으면 동작 안 함</div></li>
+      <li><strong>endpoint_url</strong><div>boto3 클라이언트가 요청을 보낼 S3 엔드포인트 주소를 직접 지정하는 값 — presigned URL도 이 주소 기준으로 만들어짐. S3 구성·세부 정보 화면의 리전 이름으로 조립</div></li>
+      <li><strong>config</strong><div><code>Config(signature_version='s3v4')</code> = 서명 버전 <b>S3 V4</b>(AWS 표준)</div></li>
+      <li><strong>다른 버킷</strong><div>연결 대상이 바뀌면 이 설정 부분만 바꾸고 아래 코드는 용도에 따라 수정</div></li>
+    </ul>
+
+    <div class="dg-bar warn">S3 V4 서명 — 서울 <code>ap-northeast-2</code>처럼 <b>2014년 1월 30일 이후 생긴 리전은 서명 버전 4만 지원</b>. boto3로 presigned URL을 만들 때는 리전과 <code>signature_version='s3v4'</code>를 클라이언트 설정에 함께 지정</div>
+
+    <h3>put_object로 폴더 만들기</h3>
+    <div class="code"><pre><code><span class="c"># [VS Code · Lambda 프로젝트 mz-apink · test.py · lambda_handler 안]</span>
+def lambda_handler(event, context):
+    try:
+        res = s3_client.put_object(
+            Bucket = BUCKET_NAME,       <span class="c"># 대문자 시작 (인자 이름 대소문자 구분)</span>
+            Key = 'upload/'             <span class="c"># 만들 폴더 이름, 끝에 /</span>
+        )
+        print("디렉토리가 생성 되었습니다.!!")
+        return {
+            'state' : 200,
+            'body' : json.dumps({'msg' : '폴더 생성 완료'})
+        }
+    except Exception as e:
+        print(e)
+        return {
+            'state' : 500,
+            'body' : json.dumps({'error' : str(e)})
+        }</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <p>순서 — 코드 작성 → <b>Deploy</b> → 테스트. 실행 결과는 테스트 성공(OK)과 S3 <b>객체</b> 탭의 <code>upload/</code> 폴더 생성으로 확인 — 폴더가 안 보이면 새로고침.</p>
+
+    <div class="dg-bar warn">인자 이름 — <code>put_object</code>의 인자는 <code>Bucket</code>·<code>Key</code>처럼 <b>대문자로 시작</b>하고 대소문자를 구분. 소문자로 쓰면 파라미터 오류로 실패하고, <code>Key</code> 끝의 <code>/</code>가 없으면 폴더가 아니라 그 이름의 빈 객체가 만들어짐</div>
+  </section>
+
+  <!-- 24 -->
+  <section class="sec" id="presigned-url">
+    <h2>presigned URL 업로드 Lambda — fileup.py</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 파일 이름을 받아 5분짜리 업로드 주소 발급</p><div class="dg-flow"><div class="dg-node"><h4>① fileup.py 준비</h4><p class="sub">앞 코드 복사 · 주석 제거</p></div><div class="dg-arrow">Deploy</div><div class="dg-node"><h4>② 핸들러 변경</h4><p class="sub">fileup.lambda_handler</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 파라미터</h4><p class="sub">file_name · file_type</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ presigned URL</h4><p class="sub">put_object · ExpiresIn 300</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 응답</h4><p class="sub">upload_url · key</p></div></div><p class="dg-foot">앞의 <code>put_object</code>는 폴더를 강제로 만드는 코드였고, 여기서는 <strong>실제 파일 이름·타입을 받아 업로드 URL을 만드는 함수</strong> — Lambda 코드를 먼저 완성해야 HTML을 만들 수 있음 (25장)</p></div>
+
+    <p>준비 순서 — 앞 코드 전체 복사(<code>Ctrl+A</code>, <code>Ctrl+C</code>) → 새 파일 <code>fileup.py</code>에 붙여넣기 → 주석 제거 → 저장 → <b>Deploy</b> → 핸들러 <code>fileup.lambda_handler</code>로 수정 → 설정 저장 (5장).</p>
+
+    <div class="code"><pre><code><span class="c"># [VS Code · Lambda 프로젝트 mz-apink · fileup.py · lambda_handler 안]</span>
+<span class="c"># 위의 import·s3_client 설정·BUCKET_NAME은 그대로 두고 핸들러만 교체</span>
+def lambda_handler(event, context):
+    try:
+        if event is None:                       <span class="c"># 이벤트가 없으면 빈 dict</span>
+            event = {}
+        params = event.get('queryStringParameters', {})   <span class="c"># 쿼리 스트링 파라미터</span>
+        if params is None:                      <span class="c"># 파라미터가 없으면 빈 dict</span>
+            params = {}
+
+        file_name = params.get('file_name', 'default.txt')   <span class="c"># 이름 없이 호출되면 default.txt</span>
+        file_type = params.get('file_type', 'application/octet-stream')   <span class="c"># 기본 = 순수 바이너리</span>
+
+        s3url = s3_client.generate_presigned_url(   <span class="c"># 만료 시간이 있는 업로드 URL 생성</span>
+            'put_object',                       <span class="c"># PUT으로 전송 (POST object 아님)</span>
+            Params = {                          <span class="c"># 대문자 시작 (함수 인자)</span>
+                'Bucket' : BUCKET_NAME,
+                'Key' : f"upload/{file_name}",  <span class="c"># upload 폴더 + 프론트가 보낸 파일 이름</span>
+                'ContentType' : file_type
+            },
+            ExpiresIn = 300                     <span class="c"># 단위 초, 300 = 5분</span>
+        )
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Origin": "*",     <span class="c"># CORS 허용 (27장)</span>
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps({"upload_url": s3url, "key": file_name})   <span class="c"># 업로드 URL 반환</span>
+        }
+    except Exception as e:
+        return {
+            'statuscode' : 500,                 <span class="c"># 소문자 표기 — 정상 키는 statusCode</span>
+            'body' : json.dumps({'error' : str(e)})     <span class="c"># 에러 위치 파악용 (27장)</span>
+        }</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <ul class="facts">
+      <li><strong>파라미터 이름</strong><div><code>file_name</code>·<code>file_type</code>은 HTML을 만들 클로드에게 그대로 알려 줘야 함 — 이름이 어긋나면 업로드가 실패 (27장)</div></li>
+      <li><strong>기본값</strong><div>외부에서 파라미터 없이 호출하는 경우 대비 — <code>default.txt</code>가 생기면 이름 없이 호출된 것</div></li>
+      <li><strong>함수 위치</strong><div><code>generate_presigned_url</code>은 <code>s3_client.</code> 입력 시 나오는 함수 목록 중 하나</div></li>
+      <li><strong>만료 시간</strong><div><code>ExpiresIn</code> 단위는 <b>초</b> — 100 정도면 충분하나(동영상은 더 필요) 너무 짧으면 왕복 시간 때문에 실패할 수 있어 실습은 300</div></li>
+      <li><strong>정리</strong><div>앞 코드의 <code>print</code>(“디렉토리가 생성 되었습니다”)는 삭제 — 테스트는 생략 가능하고 HTML이 호출하면 동작</div></li>
+    </ul>
+
+    <div class="dg-bar warn">presigned URL의 만료 — presigned URL은 <b>항상 만료 시간이 있는 주소</b>이고, 만료는 <b>접근 가능 기간을 제한(보안)</b>하는 장치. 요금은 요청·저장·전송량 기준이므로 시간 제한으로 요금이 결정되는 구조는 아니고, 짧은 만료는 대용량 업로드에서 실패 원인이 됨</div>
+
+    <h3>최종 점검</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>확인 내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">버킷 이름</td><td><code>BUCKET_NAME</code>이 콘솔의 버킷 이름과 같은지</td></tr>
+    <tr><td class="nowrap">파라미터 이름</td><td><code>file_name</code>·<code>file_type</code> — HTML이 보내는 키와 일치</td></tr>
+    <tr><td class="nowrap">메서드</td><td><code>generate_presigned_url('put_object', …)</code>와 <code>put_object</code> 호출의 짝</td></tr>
+    <tr><td class="nowrap">ContentType</td><td>파일 타입이 <code>ContentType</code>으로 전달되는지</td></tr>
+    <tr><td class="nowrap">만료</td><td><code>ExpiresIn=300</code></td></tr>
+    <tr><td class="nowrap">상태 코드</td><td>필수는 아니지만 요청 측(HTML) 요구로 넣음 — 응답 body에는 불필요한 값을 빼고 s3 url 정도만</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <!-- 25 -->
+  <section class="sec" id="upload-html">
+    <h2>HTML 업로드 페이지 — 클로드로 생성</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 창을 나누고 프롬프트로 페이지 생성</p><div class="dg-flow"><div class="dg-node"><h4>① HTML 전용 창</h4><p class="sub">D 드라이브 파이 → html</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② Claude Code</h4><p class="sub">Shift+Tab 수동 모드</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 프롬프트</h4><p class="sub">파라미터 · API 주소</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ fileupload.html</h4><p class="sub">생성 · 수정 승인</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ Live Server</h4><p class="sub">127.0.0.1:5500</p></div></div><p class="dg-foot">이 HTML이 <strong>Lambda·S3를 결합</strong>하는 화면 — 각자 PC(로컬)에서 실행해도 요청은 AWS로 전송됨</p></div>
+
+    <h3>준비</h3>
+    <ul class="facts">
+      <li><strong>폴더 분리</strong><div>VS Code를 <b>새 창</b>으로 열어 HTML 전용 폴더 사용(예: D 드라이브 <code>파이 → html</code>) — Lambda 코드 폴더에서 만들면 <b>Lambda에 같이 올라감</b></div></li>
+      <li><strong>창 배치</strong><div>HTML 창에 터미널을 열고 <b>Claude Code</b> 연결, Lambda 창은 닫지 않고 뒤에 둠</div></li>
+      <li><strong>수동 모드</strong><div>Claude Code는 <b>수동(manual) 모드</b>로 실행 — <code>Shift+Tab</code>으로 전환, 오토 모드는 의도하지 않은 작업을 할 수 있음</div></li>
+      <li><strong>새 파일</strong><div><code>fileupload.html</code> 생성 — 이 파일이 Lambda·S3를 결합</div></li>
+    </ul>
+
+    <p>프롬프트는 메모장에 작성 후 붙여넣기 — Lambda 파라미터 값과 presigned URL 코드도 함께 제공.</p>
+    <div class="code"><pre><code><span class="c"># [윈도우 PC · Claude Code 프롬프트 입력 · admin]</span>
+presigned_url 직접 파일 업로드를 할 수 있는 람다 규칙에 맞게 쿼리 스트링 및 API 엔드포인트 주소를 활용하여 API로 전송하는 HTML 파일을 제작해 주세요</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts">
+      <li><strong>프롬프트 수준</strong><div>이 정도로 <b>구체적으로</b> 써야 원하는 결과가 나옴 — 파라미터 이름(<code>file_name</code>·<code>file_type</code>)과 API 주소를 함께 주는 편이 정확</div></li>
+      <li><strong>생성 중</strong><div>기다리고, 변경 사항은 <b>Yes</b>로 승인해 적용</div></li>
+      <li><strong>결과 차이</strong><div>사람마다 다른 HTML이 생성됨 — URL 입력 칸·파이썬 예시·설명이 과하게 들어가기도 함</div></li>
+      <li><strong>다시 요청</strong><div>복잡하면 간단하게 다시 요청, 로그인이 안 되면 API 엔드포인트 주소를 넣는 방식으로 요청</div></li>
+    </ul>
+
+    <h3>화면 확인 — Live Server</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>동작</th><th>확인</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>VS Code <b>Live Server</b> 확장의 <b>Go Live</b></td><td>로컬 서버가 5500 포트로 뜸</td></tr>
+    <tr><td class="nowrap">2</td><td><code>127.0.0.1:5500/fileupload.html</code> 접속</td><td>화면 제목 <b>Presigned URL S3 업로드</b></td></tr>
+    <tr><td class="nowrap">3</td><td>화면 구성 확인</td><td>API 엔드포인트 입력란, 파일 선택, 업로드 버튼, 진행 막대, 결과 표시</td></tr>
+    </tbody></table></div>
+
+    <h3>form과 enctype</h3>
+    <p><code>&lt;form name="…" method="post" action="람다 URL" enctype="…"&gt;</code> — method = 전송 방식(POST), action = 보낼 주소(Lambda), enctype = 보낼 수 있는 데이터 종류.</p>
+    <div class="table-wrap"><table>
+    <thead><tr><th>enctype / Content-Type</th><th>의미</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>application/x-www-form-urlencoded</code></td><td><b>텍스트만</b> 보낼 때 — form enctype 기본값</td></tr>
+    <tr><td class="nowrap"><code>multipart/form-data</code></td><td>파일 전송 — 단점은 <b>압축·텍스트·영상 등 모든 종류가 다 날아옴</b>이라 제한이 어려움</td></tr>
+    <tr><td class="nowrap"><code>application/json</code></td><td>JSON만 전송, 이미지는 전송 못 함 — form enctype이 아니라 fetch/XHR의 Content-Type 헤더 값</td></tr>
+    <tr><td class="nowrap"><code>application/xml</code>·미디어 타입 등</td><td>여러 종류가 있음</td></tr>
+    <tr><td class="nowrap"><b><code>application/octet-stream</code></b></td><td><b>순수 바이너리</b> — 이미지·바이너리 파일만, ASCII 파일은 안 옴. <b>이번 실습에서 사용</b>, FTP 전송 타입 binary/ASCII 중 binary에 해당</td></tr>
+    </tbody></table></div>
+    <p>HTML <code>form</code>의 enctype으로 지정할 수 있는 값은 <b>urlencoded·multipart/form-data·text/plain 3가지</b>뿐 — <code>application/octet-stream</code>·<code>application/json</code>은 form enctype이 아니라 fetch/XHR 요청의 <code>Content-Type</code> 헤더로 지정. 알아 두면 좋은 수준이니 한 번 검색해 확인할 것.</p>
+
+    <div class="dg-bar warn">enctype — form이 보낼 수 있는 형식은 <b>urlencoded(텍스트)·multipart/form-data(파일)·text/plain</b> 세 가지. <code>octet-stream</code>은 fetch의 Content-Type 헤더로 지정하는 <b>순수 바이너리</b> 타입이고, 이번 실습은 이미지 업로드라 이 타입을 씀</div>
+
+    <div class="dg-bar warn">도구 분리 — Claude Code는 <b>수동(manual) 모드(<code>Shift+Tab</code>)</b>로 쓰고, HTML은 <b>Lambda 코드 폴더와 별도 VS Code 창</b>에서 만듬. 같은 폴더에서 만들면 HTML이 Lambda 패키지에 함께 올라가고, 오토 모드는 의도하지 않은 수정을 할 수 있음</div>
+
+    <ul class="facts"><li><strong>관련 파일</strong><div>서버에서 파일 업로드를 받는 API(multipart·UploadFile·저장 경로): fastapi.html 13장 / 다른 출처 요청의 차단과 허용 원리: fastapi.html 12장</div></li></ul>
+  </section>
+
+  <!-- 26 -->
+  <section class="sec" id="api-gateway">
+    <h2>API Gateway 연결 — HTTP API</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 함수 앞에 공개 주소를 하나 세우기</p><div class="dg-flow"><div class="dg-node"><h4>① 트리거 추가</h4><p class="sub">소스 api → API Gateway</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 새 API 생성</h4><p class="sub">HTTP API</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 보안 열기</h4><p class="sub">JWT · IAM · 열기</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ CORS 체크 금지</h4><p class="sub">Lambda에서 제어</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ API endpoint</h4><p class="sub">HTML의 API_URL</p></div></div><p class="dg-foot">HTML의 <code>API_URL</code>에는 Lambda 자체 주소가 아니라 <strong>API Gateway를 만들어 받은 주소</strong>를 넣어야 호출 가능 — Lambda 함수 URL로도 HTTPS 엔드포인트를 만들 수 있지만 이 수업은 API Gateway를 사용</p></div>
+
+    <h3>트리거로 HTTP API 만들기</h3>
+    <ol class="wide-list">
+      <li>Lambda 함수 <code>mz-apink</code> → <b>트리거 추가</b> → 소스 검색 <code>api</code> → <b>API Gateway</b></li>
+      <li>의도 — <b>새 API 생성</b></li>
+      <li>API 유형 — <b>HTTP API</b>(WebSocket API·REST API 아님)</li>
+      <li>보안 — <code>JWT 권한 부여자 생성</code> / <code>IAM</code> / <b><code>열기</code></b> 중 <b>열기</b></li>
+      <li>추가 설정 — API 이름 <code>mz-apink-API</code>, 배포 단계 기본값(default). <b>CORS는 체크하지 말 것</b>(체크하면 다 열려 Lambda에서 제어해야 함)</li>
+      <li><b>추가</b> → 실행 결과 — 트리거 목록에 API Gateway(API 이름 + <code>API endpoint</code> URL) 생성</li>
+    </ol>
+
+    <p><b>API endpoint</b>(예: <code>https://&lt;api-id&gt;.execute-api.ap-northeast-2.amazonaws.com/default/mz-apink</code>) 전체 복사 → HTML의 <code>API_URL</code>에 붙여넣고 저장. 이 구축 과정은 <b>포트폴리오</b>에 넣으면 좋음.</p>
+
+    <h3>첫 업로드 시도</h3>
+    <ul class="facts">
+      <li><strong>전제</strong><div>아직 EC2는 사용 안 함 — 버킷만 사용하는 구성</div></li>
+      <li><strong>순서</strong><div>화면 새로고침 → <b>F12</b>(개발자 도구) 켜기 → 이미지 선택 → 업로드</div></li>
+      <li><strong>실행 결과</strong><div><b>에러</b> — 요청은 도착했지만 Lambda/S3 쪽 보안에서 막힌 상태</div></li>
+      <li><strong>네트워크 탭</strong><div><code>mz-apink?filename=…</code> 요청이 <b>CORS 오류</b>(preflight 실패, Failed to fetch)</div></li>
+    </ul>
+
+    <div class="dg-bar warn">API Gateway CORS — 트리거를 만들 때 CORS 체크를 켜면 모든 출처가 열리므로 체크하지 않고, 허용은 S3 CORS 규칙과 API Gateway CORS 구성에서 필요한 만큼만 (27장). API endpoint는 함수 주소가 아니라 Gateway 주소라는 점도 혼동 주의</div>
+  </section>
+
+  <!-- 27 -->
+  <section class="sec" id="cors">
+    <h2>CORS 오류 해결 — S3·Lambda·API Gateway</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 세 곳에서 허용을 맞춰야 통과</p><div class="dg-flow"><div class="dg-node"><h4>① 브라우저</h4><p class="sub">127.0.0.1:5500</p></div><div class="dg-arrow">preflight</div><div class="dg-node key"><h4>② API Gateway CORS</h4><p class="sub">Allow-Origin</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ Lambda 헤더</h4><p class="sub">Access-Control-Allow-Origin</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ S3 CORS JSON</h4><p class="sub">PUT · ETag</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ PUT 업로드 성공</h4><p class="sub">upload/ 폴더 저장</p></div></div><p class="dg-foot"><strong>CORS</strong> = Cross-Origin Resource Sharing(교차 출처 리소스 공유) — 다른 출처(HTML이 있는 127.0.0.1)의 페이지가 S3·API로 요청할 때 서버가 허용해야 통과. 기본 보안은 유지하고 <strong>필요한 곳만, 필요한 만큼만</strong> 푸는 원칙</p></div>
+
+    <h3>S3 버킷 CORS 설정</h3>
+    <p>순서 — S3 → 버킷 이름 클릭(새 탭) → <b>권한</b> → 맨 아래 <b>CORS → 편집</b> → JSON 입력 → <b>변경 사항 저장</b>. 형태는 배열 <code>[ { … } ]</code>이고 항목 사이에 쉼표 — 아래 블록을 그대로 붙여넣으면 됨.</p>
+    <div class="code"><pre><code><span class="c"># [AWS 콘솔 · S3 버킷 mz-apink-s3-… · 권한 탭 CORS 편집기 · admin]</span>
+<span class="c"># 버킷에 올린 HTML이 브라우저에서 직접 S3로 PUT할 수 있게 허용</span>
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["PUT", "POST", "GET", "HEAD"],
+    "AllowedOrigins": ["*"],
+    "ExposeHeaders": ["ETag"]
+  }
+]</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>키</th><th>값</th><th>의미</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>AllowedHeaders</code></td><td><code>*</code></td><td>허용할 <b>요청 헤더 이름 목록</b> — 연습용 전체 허용</td></tr>
+    <tr><td class="nowrap"><code>AllowedMethods</code></td><td>PUT, POST, GET, HEAD</td><td>PUT = presigned URL 업로드, POST = POST로 만든 HTML 대비, GET·HEAD = 조회·확인</td></tr>
+    <tr><td class="nowrap"><code>AllowedOrigins</code></td><td><code>*</code></td><td>요청하는 웹 페이지의 <b>출처(스킴+도메인+포트)</b> 목록 — 실서비스에서는 <code>*</code> 금지</td></tr>
+    <tr><td class="nowrap"><code>ExposeHeaders</code></td><td><code>ETag</code></td><td><b>고유 식별자</b> — 파일이 맞는지·변경됐는지(<b>무결성</b>) 확인</td></tr>
+    </tbody></table></div>
+    <p>실행 결과 — 권한 탭 맨 아래에 CORS 규칙 표시. <code>AllowedOrigins</code>는 서버 IP가 아니라 요청하는 웹 페이지의 출처(예 <code>http://127.0.0.1:5500</code>)이고, <code>AllowedHeaders</code>도 IP가 아니라 허용할 요청 헤더 이름 목록 — 실제 서비스에서 API·버킷을 <code>*</code>로 다 열어 두면 안 됨.</p>
+
+    <h3>Lambda 응답 헤더에 CORS 추가</h3>
+    <p>HTML이 요구한 <code>Access-Control-Allow-Origin</code>을 <code>fileup.py</code> 응답의 <code>headers</code>에 추가 (24장 코드) — 요구가 없으면 생략 가능.</p>
+
+    <h3>에러 디버깅 — HTML과 Lambda 이름 맞추기</h3>
+    <ul class="facts">
+      <li><strong>증상</strong><div>CORS를 해결해도 <b>PUT 쪽 에러</b> — HTML은 파라미터를 <code>filename</code>, Lambda는 <code>file_name</code>으로 사용해 <b>이름 불일치</b></div></li>
+      <li><strong>해결</strong><div>F12에서 해당 요청을 복사해 클로드에 붙여넣고 <code>해당 람다 소스에 맞는 fileupload.html로 수정하세요</code> 요청</div></li>
+      <li><strong>결과</strong><div>클로드가 API 주소는 그대로 두고 경로·파라미터 이름을 Lambda에 맞게 수정</div></li>
+      <li><strong>메서드</strong><div>GET으로 보내던 요청은 <code>fetch(url, { method: "PUT" })</code>로 <b>PUT</b> 변경, 파일 이름 변수는 <code>file_name</code>으로 통일</div></li>
+      <li><strong>이름 통일</strong><div>코드 전체에서 변수·파라미터 이름 통일(<code>url</code> → <code>s3 url</code>, 파일 이름 → <code>file_name</code>)</div></li>
+      <li><strong>Content-Type</strong><div>클로드가 <code>Content-Type</code>(application/octet-stream 등)을 빠뜨리는 경우가 있으니 확인</div></li>
+      <li><strong>500 응답</strong><div>Lambda <code>except</code>는 <code>print</code>만 두지 말고 <b>500 + body에 <code>str(e)</code></b>를 반환 — 어디가 실패했는지 파악하려면 필수</div></li>
+    </ul>
+
+    <h3>API Gateway CORS 구성</h3>
+    <p>원인 — S3 CORS·Lambda 헤더를 설정해도 <b>API Gateway에서 승인되지 않아</b> 뒷단(Lambda) 에러가 남. 세부 정보는 상태 활성화됨, 스테이지 <code>default</code>, 권한 부여 없음, API 유형 HTTP.</p>
+    <ol class="wide-list">
+      <li><b>API Gateway → <code>mz-apink-API</code> → 왼쪽 메뉴 <code>CORS</code> → CORS 구성</b></li>
+      <li><code>Access-Control-Allow-Origin</code>에 <code>*</code> 입력 → <b>추가 → 저장</b></li>
+      <li>나머지 칸(Allow-Headers, Allow-Methods, Expose-Headers, Max-Age, Allow-Credentials)은 건드리지 않음</li>
+      <li>실행 결과 — 파일 선택 → 업로드 성공 → S3 <code>upload/</code> 폴더에 이미지(<code>user.jpg</code> 등) 저장</li>
+    </ol>
+    <p>API에 CORS를 구성하면 API Gateway는 <b>백엔드 통합(Lambda)이 반환한 CORS 헤더를 무시함</b>(화면 안내) — Lambda 응답의 <code>Access-Control-Allow-Origin</code>이 필요한 것은 Gateway CORS를 구성하지 않았을 때의 이야기.</p>
+
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · AWS 클라우드 2 · API Gateway CORS 구성</div><p>버킷 CORS와 Gateway의 Origin 한 곳만 열면 위험하지 않다는 설명 — API 인증 방식과 자격 증명 사용 여부에 따라 위험이 달라지므로 보안 담당에게 확인할 항목</p></div>
+
+    <h3>데이터 흐름 정리</h3>
+    <ol class="wide-list">
+      <li>브라우저(HTML, Live Server)가 <b>API Gateway 엔드포인트</b>로 <code>file_name</code>·<code>file_type</code>을 쿼리 스트링으로 보내 Lambda 호출</li>
+      <li>Lambda(<code>fileup.py</code>)가 <b>presigned URL(PUT, 만료 300초)</b> 생성 → <code>{"upload_url", "key"}</code> 반환</li>
+      <li>HTML이 받은 presigned URL로 <b>PUT</b> 요청을 보내 <b>S3 <code>upload/</code> 폴더</b>에 파일 업로드</li>
+      <li>브라우저가 S3·API Gateway를 호출하므로 <b>CORS(S3 CORS 규칙 + API Gateway CORS + Lambda 응답 헤더)</b> 허용이 필요</li>
+    </ol>
+
+    <div class="dg-bar warn">CORS는 세 곳 — <b>S3 버킷 CORS JSON</b>(PUT·POST·GET·HEAD, ExposeHeaders ETag), <b>API Gateway CORS</b>(Allow-Origin), <b>Lambda 응답 헤더</b>(Access-Control-Allow-Origin). 하나만 빠져도 preflight에서 막히고, API Gateway까지 전부 풀면 보안이 무너짐. <code>*</code> 전체 허용은 연습용 — 실서비스는 출처를 좁혀 지정</div>
+    <div class="dg-bar warn">이름·메서드 일치 — <code>file_name</code>(HTML·Lambda 동일), HTTP 메서드 PUT, <code>Content-Type</code> 세 가지가 어긋나면 업로드 실패. 에러가 나면 F12 네트워크 탭에서 요청을 복사해 Lambda 규칙에 맞게 HTML을 고치라고 지시하고, Lambda except는 500과 <code>str(e)</code>를 함께 반환</div>
+  </section>
+
+  <!-- 28 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
     <p>영역별 모음. 실행 위치·주체는 코드 블록 첫 줄 표기(<code class="n">AWS 콘솔</code>·<code class="n">VS Code</code>·<code class="n">윈도우 PC</code>) 기준.</p>
@@ -1230,6 +1827,45 @@ irm https://awscli.amazonaws.com/v2/install.ps1 | iex</code></pre><button class=
           <tr><td><code>for aa in range(1, 5):</code></td><td>1~4 출력(끝값 미포함) — 5까지는 <code>range(1, 6)</code></td></tr>
           <tr><td><code>list.sort(key=lambda b: b[1])</code></td><td>리스트를 튜플의 1번 값 기준 오름차순 정렬 — <code>key</code>는 고정 이름, 람다 변수 <code>b</code>는 임의, 변수명 일치</td></tr>
           <tr><td><code>lambda : 100</code> / <code>lambda aa, bb : aa + bb</code></td><td>익명 함수 — <code>print(sum(30, 50))</code> → 80. 서비스 Lambda와 이름만 같은 별개 개념</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Lambda 예외 처리 (16장)</th></tr>
+          <tr><td><code>try:</code> / <code>except Exception as e:</code> / <code>finally:</code></td><td>정상 실행 / 예외처리(문제발생) / 무조건 실행. <code>print(e)</code>로 에러 내용 출력, 들여쓰기는 Tab</td></tr>
+          <tr><td><code>return {'state': 200, 'body': json.dumps({...})}</code></td><td>연습 코드의 정상 응답 — <code>'state'</code>는 연습용 키, 원래 상태 키는 <code>statusCode</code>(대소문자 구분)</td></tr>
+          <tr><td><code>return {'state': 500, ...}</code></td><td>오류(except) 응답 — <code>'msg': '통신에러 발생'</code>, 500이면 서버 쪽 문제</td></tr>
+          <tr><td><code>c = a * int(b)</code></td><td><code>a=50</code>, <code>b="100"</code> → 5000. <code>a * b</code>(문자열)는 에러 없이 문자열 반복이라 200</td></tr>
+          <tr><td>핸들러 <code>test.lambda_handler</code> · <code>fileup.lambda_handler</code></td><td>런타임 설정의 진입점 = <code>파일명.함수명</code> — 새 파일을 만들면 Deploy 후 반드시 변경</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">S3 개요·버킷 유형 (17·18장)</th></tr>
+          <tr><td>S3 = Simple Storage Service · 버킷</td><td>거대 창고 — EC2 50GB 용량 한계를 넘긴 이미지·문서·동영상·압축·로그파일 저장. 기본 프라이빗, 업로드 PutObject(PUT)·다운로드 GetObject(GET)</td></tr>
+          <tr><td>내구성 99.999999999% · 가용성 99.99%</td><td>S3 Standard — 9가 11개(11 nines), 가용성은 별개 지표</td></tr>
+          <tr><td>버킷 유형 — 범용 / 디렉터리</td><td>범용 = S3 Standard 계열, 다중 AZ, 수십 ms, 웹호스팅·파일 스토리지. 디렉터리 = S3 Express One Zone, 단일 AZ, 한 자리 ms, AI/ML 학습·실시간 분석</td></tr>
+          <tr><td>정적 웹호스팅</td><td>HTML·CSS·JS 등 정적 콘텐츠만 — 동적 처리는 Lambda·EC2 담당</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">버킷 만들기 옵션 (19장)</th></tr>
+          <tr><td>계정 리전 네임스페이스 · <code>mz-apink-s3-…</code></td><td>이름은 3~63자, 소문자·숫자·마침표·하이픈. 계정ID·리전·<code>an</code> 접미사 자동</td></tr>
+          <tr><td>ACL 비활성화(접근 제어 목록)</td><td>기본·권장. ACL은 비용·복구와 무관 — 복구는 버전 관리로</td></tr>
+          <tr><td>모든 퍼블릭 액세스 차단 체크</td><td>기본값 유지 — 해제하면 버킷이 공개됨</td></tr>
+          <tr><td>버전 관리 · 태그 · 객체 잠금</td><td>실습은 모두 비활성·미사용. 버전 관리는 덮어쓰기·삭제 복구, 객체 잠금은 영구 보존(WORM)</td></tr>
+          <tr><td>SSE-S3 / SSE-KMS / DSSE-KMS</td><td>SSE-S3 기본·무료, SSE-KMS는 고객 키 관리·비용·키 단위 통제·접근 로그, DSSE-KMS는 이중 계층·규제 준수. KMS = Key Management Service</td></tr>
+          <tr><td>버킷 키(Bucket Key)</td><td>KMS 호출 비용 절감 — SSE-KMS일 때만 의미</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">S3 트리거 (20장)</th></tr>
+          <tr><td>트리거 추가 → S3 → 버킷 선택</td><td>모든 객체 생성 이벤트 <code>s3:ObjectCreated:*</code>, 기본 권장 PUT. 삭제 이벤트·<code>rls</code> 제외</td></tr>
+          <tr><td>접두사·접미사 · 재귀 호출 확인</td><td>접두사·접미사는 비움. 재귀 호출 확인 체크 필수 — 같은 버킷 입출력은 사용량·비용 폭증</td></tr>
+          <tr><td>PUT · POST · COPY · GET</td><td>PUT·POST = 업로드(선택한 방식과 같은 메서드로 전송), COPY = S3 내부 복사. GET은 이벤트 알림 유형이 아님</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">권한·콘솔 업로드 (21·22장)</th></tr>
+          <tr><td>구성 → 권한 → 실행 역할 → IAM → 정책 연결</td><td>검색 <code>Amazon S3</code> — 연습 기본 <code>AmazonS3ReadOnlyAccess</code>, 이번 실습 <code>AmazonS3FullAccess</code>. 문제 시 정책 분리</td></tr>
+          <tr><td>버킷 → 객체 탭 → 폴더 만들기 <code>upload</code></td><td>S3는 평면 객체 스토어 — 폴더는 키 접두사 <code>upload/</code></td></tr>
+          <tr><td>업로드 <code>user.jpg</code> (image/jpeg, 1,112.6KB)</td><td>대상 경로 <code>s3://mz-apink-s3-…/upload/</code> 확인. 삭제는 확인문 입력 → 개체 삭제</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">boto3·presigned URL (23·24장)</th></tr>
+          <tr><td><code>boto3.client('s3', region_name=…, endpoint_url=…, config=Config(signature_version='s3v4'))</code></td><td>리전 필수, <code>endpoint_url='https://s3.ap-northeast-2.amazonaws.com'</code>. 2014-01-30 이후 리전은 S3 V4만 지원</td></tr>
+          <tr><td><code>s3_client.put_object(Bucket=…, Key='upload/')</code></td><td>인자는 대문자 시작(<code>Bucket</code>·<code>Key</code>), 끝 <code>/</code>가 폴더</td></tr>
+          <tr><td><code>event.get('queryStringParameters', {})</code></td><td>쿼리 스트링 파라미터 — 없으면 빈 dict</td></tr>
+          <tr><td><code>params.get('file_name','default.txt')</code> · <code>params.get('file_type','application/octet-stream')</code></td><td>파일 이름·타입 파라미터와 기본값. 이름은 HTML과 일치</td></tr>
+          <tr><td><code>generate_presigned_url('put_object', Params={…}, ExpiresIn=300)</code></td><td>PUT용 만료 URL — <code>ExpiresIn</code> 단위 초, 300 = 5분</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">HTML·API Gateway·CORS (25~27장)</th></tr>
+          <tr><td>Claude Code <code>Shift+Tab</code> · Live Server <code>Go Live</code></td><td>수동(manual) 모드 전환, 포트 5500 — <code>127.0.0.1:5500/fileupload.html</code></td></tr>
+          <tr><td>enctype</td><td>urlencoded(텍스트) · multipart/form-data(파일, 모든 종류) · text/plain 3가지. <code>application/octet-stream</code>은 fetch Content-Type으로 지정하는 순수 바이너리</td></tr>
+          <tr><td>트리거 추가 → api → API Gateway → HTTP API → 보안 열기</td><td>API 이름 <code>mz-apink-API</code>, 배포 단계 default, CORS 체크 금지. API endpoint를 HTML <code>API_URL</code>에 붙여넣기</td></tr>
+          <tr><td>S3 CORS JSON</td><td><code>AllowedHeaders</code> · <code>AllowedMethods</code>(PUT·POST·GET·HEAD) · <code>AllowedOrigins</code>(웹 페이지 출처, 연습용 *) · <code>ExposeHeaders</code>(ETag = 무결성 확인)</td></tr>
+          <tr><td>API Gateway → <code>CORS</code> → CORS 구성</td><td><code>Access-Control-Allow-Origin</code>에 <code>*</code> → 추가 → 저장. Gateway에 구성하면 Lambda 헤더는 무시됨</td></tr>
+          <tr><td><code>fetch(url, { method: "PUT" })</code> · F12</td><td>GET으로 보낸 요청을 PUT으로, 파라미터 <code>file_name</code> 통일. 네트워크 탭에서 preflight·CORS 오류 확인</td></tr>
         </tbody>
       </table>
     </div>
