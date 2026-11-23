@@ -615,8 +615,15 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#spark-jdbc">19. JDBC 연동 (MySQL 테이블 읽기)</a></li>
         <li><a href="#spark-movie-agg">20. 응용: 박스오피스 집계</a></li>
         <li><a href="#spark-image">21. Spark 이미지 (Dockerfile·빌드)</a></li>
-        <li><a href="#spark-master">22. 마스터 컨테이너 기동·재시작</a></li>
-        <li><a href="#cheatsheet">23. 통합 명령어 치트시트</a></li>
+        <li><a href="#spark-master">22. 마스터·워커 컨테이너 기동·재시작과 볼륨 연결</a></li>
+        <li><a href="#spark-shell">23. Spark 셸 실행과 앱 상태</a></li>
+        <li><a href="#spark-jupyter-container">24. 컨테이너 주피터 설치·PySpark 연동</a></li>
+        <li><a href="#spark-csv-shell">25. 샘플 csv 준비와 셸 모드 읽기</a></li>
+        <li><a href="#spark-py-submit">26. 파이썬 파일 제출과 spark-submit</a></li>
+        <li><a href="#spark-sql">27. Spark SQL (임시 뷰·쿼리)</a></li>
+        <li><a href="#spark-sql-func">28. SQL 수치 함수와 집계 함정</a></li>
+        <li><a href="#spark-crawling">29. 이미지 수집 (웹 크롤링)</a></li>
+        <li><a href="#cheatsheet">30. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -624,20 +631,20 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>Spark 통합 학습노트</h1>
-    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → pandas UDF 실습·오류 대응(설정 3종·<code class="n">show</code> 기준·pyarrow·<code class="n">p90</code>) → 공공 API(영화진흥위원회) JSON으로 MySQL 적재(INSERT SQL·<code class="n">count(*)</code>) → Spark JDBC 연동(<code class="n">mysql-connector-j</code> JAR·6옵션·<code class="n">show(5)</code>) → 박스오피스 집계(<code class="n">shuffle.partitions</code>·<code class="n">numPartitions</code>) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지와 마스터 기동까지, 워커는 다음 단계. 네트워크 명령: docker.html 9장</p>
+    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → pandas UDF 실습·오류 대응(설정 3종·<code class="n">show</code> 기준·pyarrow·<code class="n">p90</code>) → 공공 API(영화진흥위원회) JSON으로 MySQL 적재(INSERT SQL·<code class="n">count(*)</code>) → Spark JDBC 연동(<code class="n">mysql-connector-j</code> JAR·6옵션·<code class="n">show(5)</code>) → 박스오피스 집계(<code class="n">shuffle.partitions</code>·<code class="n">numPartitions</code>) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지 → 마스터·워커 기동까지(사용자 정의 네트워크) → 컨테이너 클러스터 운영(호스트 폴더 볼륨 연결·재생성·실행 중 포트 추가) → Spark 셸·주피터(<code class="n">notebook</code> 설치·<code class="n">PYSPARK_*</code> 3줄·토큰 로그인) → <code class="n">spark.read.csv</code>·<code class="n">spark-submit</code> → Spark SQL(임시 뷰·<code class="n">floor</code>·<code class="n">ceil</code>·<code class="n">round</code>) → 웹 크롤링 이미지 수집. 네트워크 명령: docker.html 9장, 볼륨·포트 설정 이론: docker.html 10장</p>
 
     <div class="core-strip">
       <div>
         <div class="core-metric">개념 → 설치 → 운영</div>
-        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성 (3~7장) → 운영·제출·예제 (8~10장) → PySpark·JupyterLab 연동 (11~15장) → pandas UDF·공공 API 적재·JDBC 연동·집계 (16~20장) → 컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile 이미지를 만들어 재사용 (21장)</p>
+        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성 (3~7장) → 운영·제출·예제 (8~10장) → PySpark·JupyterLab 연동 (11~15장) → pandas UDF·공공 API 적재·JDBC 연동·집계 (16~20장) → 컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile 이미지를 만들어 재사용 (21장) → 호스트 폴더를 <code class="n">-v</code>로 연결한 마스터·워커 클러스터에서 셸·주피터·csv·Spark SQL 실습 (22~29장)</p>
       </div>
       <div>
         <div class="core-metric">7077 · 8080 · 8888</div>
-        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI(Running 앱 확인), 8888 Jupyter(토큰 로그인, 재기동마다 토큰 변경), 8081 워커 UI, 3306 MySQL (2장·13장·19장)</p>
+        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI(Running 앱 확인), 8888 Jupyter(토큰 로그인, 재기동마다 토큰 변경 — 컨테이너에서는 hostconfig.json으로 추가), 8081 워커 UI, 3306 MySQL (2장·13장·19장·24장)</p>
       </div>
       <div>
         <div class="core-metric">spark-net + --host</div>
-        <p class="core-desc">사용자 정의 네트워크의 이름 DNS로 <code class="n">spark://spark-master:7077</code> 연결. <code class="n">--ip</code>는 deprecated → <code class="n">--host</code> (22장)</p>
+        <p class="core-desc">사용자 정의 네트워크의 이름 DNS로 <code class="n">spark://spark-master:7077</code> 연결. <code class="n">--ip</code>는 deprecated → <code class="n">--host</code>. 호스트 폴더는 <code class="n">-v /home/spark-data:/opt/spark/data</code>로 연결 (22장)</p>
       </div>
     </div>
 
@@ -663,8 +670,15 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#spark-jdbc">19. JDBC 연동 (MySQL 테이블 읽기)</a>
       <a href="#spark-movie-agg">20. 응용: 박스오피스 집계</a>
       <a href="#spark-image">21. Spark 이미지 (Dockerfile·빌드)</a>
-      <a href="#spark-master">22. 마스터 컨테이너 기동·재시작</a>
-      <a href="#cheatsheet">23. 통합 명령어 치트시트</a>
+      <a href="#spark-master">22. 마스터·워커 컨테이너 기동·재시작과 볼륨 연결</a>
+      <a href="#spark-shell">23. Spark 셸 실행과 앱 상태</a>
+      <a href="#spark-jupyter-container">24. 컨테이너 주피터 설치·PySpark 연동</a>
+      <a href="#spark-csv-shell">25. 샘플 csv 준비와 셸 모드 읽기</a>
+      <a href="#spark-py-submit">26. 파이썬 파일 제출과 spark-submit</a>
+      <a href="#spark-sql">27. Spark SQL (임시 뷰·쿼리)</a>
+      <a href="#spark-sql-func">28. SQL 수치 함수와 집계 함정</a>
+      <a href="#spark-crawling">29. 이미지 수집 (웹 크롤링)</a>
+      <a href="#cheatsheet">30. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -2286,7 +2300,7 @@ docker run --rm spark-rocky9:3.5.3 python3 --version <span class="c"># Python 3 
 
   <!-- 22 -->
   <section class="sec" id="spark-master">
-    <h2>마스터 컨테이너 기동·재시작</h2>
+    <h2>마스터·워커 컨테이너 기동·재시작과 볼륨 연결</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — 마스터를 사용자 정의 네트워크에서 기동</p><div class="dg-flow"><div class="dg-node"><h4>① 점유 확인</h4><p class="sub">docker ps</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② docker run</h4><p class="sub">--network spark-net · -p 7077:7077</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ spark-class Master</h4><p class="sub">--host spark-master</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 확인</h4><p class="sub">UI Status ALIVE · 버전 3.5.3</p></div></div></div>
 
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
@@ -2312,11 +2326,545 @@ docker start spark-master                            <span class="c"># 시작 �
     <tr><td><strong>AWS 비교</strong></td><td><ul><li>수강생 계정은 VPC·서브넷이 없는 상태 → AWS 실습은 하지 않고, 운영 계정의 VPC·서브넷·flow 구성은 필요한 구축 범위를 확인하는 화면 시연</li><li>MFA 로그인 설정의 MFA 기기·설정은 삭제 금지 (관리자가 설정, 삭제하면 계정 접속 불가)</li></ul></td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">마스터 기동 — <code>docker run</code> 옵션 → 이미지 → 실행 명령 순서. <code>--ip</code>는 deprecated라 <code>--host spark-master</code>, 주소는 <code>spark://spark-master:7077</code>. 정상 = UI에서 Status ALIVE, 버전 3.5.3</div>
-  
+
+    <h3>볼륨 연결(-v)을 넣어 클러스터 다시 만들기</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>상황</strong></td><td>csv를 마스터에서 처리해야 하는데 호스트에는 <code>/opt/spark</code>가 없음 — <code>/opt/spark</code>는 마스터 컨테이너 안에만 존재</td></tr>
+    <tr><td><strong>하려는 것</strong></td><td><ul><li>마스터에서 처리할 파일을 로컬에 올리면 마스터에 자동 전달</li><li>마스터 작업물을 로컬에서 바로 가져오기</li></ul></td></tr>
+    <tr><td><strong>연결 방식</strong></td><td>Docker 바인드 마운트(<code>-v</code>) — 호스트 폴더와 컨테이너 폴더를 이어 두는 Docker 기능. Spark 기능이 아니고 온프레미스·클라우드 구분 없이 쓰는 방식 (원리·판단: docker.html 10장)</td></tr>
+    <tr><td><strong>제약</strong></td><td>볼륨 없이 만든 컨테이너에는 나중에 볼륨을 붙일 수 없음 → 마스터·워커1·워커2를 정지·삭제하고 다시 생성</td></tr>
+    <tr><td><strong>삭제 전 준비</strong></td><td><code>docker run</code> 명령을 적어 둔 메모장은 지우지 않음 — 재생성 때 그대로 붙여 넣어 사용</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 호스트 볼륨 폴더 생성 — root 기준 절대 경로 (일반 사용자 홈 안이 아님)</span>
+mkdir /home/spark-data
+<span class="c"># 실행 중인 컨테이너는 생성 옵션을 바꿀 수 없으므로 정지 → 삭제 → 재생성 순서</span>
+docker stop spark-master spark-worker1 spark-worker2
+docker rm spark-master
+docker rm spark-worker1
+docker rm spark-worker2
+<span class="c"># 남은 spark 컨테이너가 없는지 확인</span>
+docker ps</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># -v 호스트경로:컨테이너경로 — 콜론이 두 경로의 구분자, 이미지 이름 바로 앞에 두면 눈에 잘 띔</span>
+<span class="c"># 이번 run에는 -p 8888을 넣지 않음 — 주피터 포트는 24장에서 hostconfig.json으로 추가</span>
+<span class="c"># --host spark-master: 이름 DNS로 찾을 주소 (메모장 원문은 --ip이며 Spark가 deprecated로 표시)</span>
+docker run -d --name spark-master --hostname spark-master --network spark-net \
+    -p 8080:8080 -p 7077:7077 \
+    -v /home/spark-data:/opt/spark/data \
+    spark-rocky9:3.5.3 /opt/spark/bin/spark-class \
+    org.apache.spark.deploy.master.Master --host spark-master --port 7077 --webui-port 8080</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 워커1 — 마스터와 같은 호스트 폴더를 같은 컨테이너 경로에 연결 (한 칸 띄우고 호스트경로:컨테이너경로)</span>
+<span class="c"># -v 위치는 -p·-e 뒤 어디든 가능하지만 이미지 이름 바로 앞이 가장 읽기 쉬움</span>
+docker run -d --name spark-worker1 --hostname spark-worker1 --network spark-net \
+    -p 8081:8081 -e 8081:8081 -e SPARK_WORKER_CORES=1 -e SPARK_WORKER_MEMORY=2G \
+    -v /home/spark-data:/opt/spark/data \
+    spark-rocky9:3.5.3 /opt/spark/bin/spark-class \
+    org.apache.spark.deploy.worker.Worker spark://spark-master:7077 --webui-port 8081
+<span class="c"># 이미지 이름이 길어 메모장에서 명령을 통째로 복사해 붙여넣음 (복사 Ctrl+C / 붙여넣기 Shift+Insert)</span>
+<span class="c"># 워커2 — 이름·호스트명만 spark-worker2, 포트만 8082로 바꾸고 나머지는 동일</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 40강 03:19~03:30</div><p>워커 run 명령의 <code>-e 8081:8081</code>은 메모장 원문 그대로이며 의미가 분명하지 않음. <code>-e</code>는 <code>이름=값</code> 형식이라 이 줄은 이름이 <code>8081:8081</code>인 환경변수를 만드는 것으로 읽히고, 워커 UI 포트는 <code>--webui-port 8081</code>이 정함. 서버에서 <code>docker inspect spark-worker1</code>의 Env 항목으로 실제로 어떤 변수가 잡혔는지 확인 필요</p></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 마운트 검증 — 컨테이너에서 만든 파일이 호스트에, 호스트에서 지운 파일이 컨테이너에 즉시 반영되는지</span>
+docker ps                                              <span class="c"># 마스터·워커1·워커2가 모두 Up인지 확인</span>
+docker exec -it spark-master /bin/bash                 <span class="c"># 마스터 컨테이너 접속 (컨테이너 안에서는 root)</span>
+<span class="c"># [spark-master 컨테이너 · root]</span>
+cd /opt/spark/data                                     <span class="c"># 볼륨으로 연결된 디렉터리 — 처음에는 비어 있음</span>
+vi test.txt                                            <span class="c"># 파일 하나 생성 후 저장</span>
+exit                                                   <span class="c"># 호스트로 복귀</span>
+<span class="c"># [호스트 리눅스 · root]</span>
+ls -a /home/spark-data                                 <span class="c"># 컨테이너에서 만든 test.txt 확인 (컨테이너 → 호스트)</span>
+rm /home/spark-data/test.txt                           <span class="c"># 호스트에서 삭제</span>
+docker exec -it spark-master ls -al /opt/spark/data    <span class="c"># 컨테이너 안에서도 사라짐 (호스트 → 컨테이너)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>확인</th><th>정상 결과</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">컨테이너 → 호스트</td><td>컨테이너 <code>/opt/spark/data</code>에 만든 파일이 호스트 <code>/home/spark-data</code>에 그대로 존재</td><td>두 경로가 같은 폴더를 가리킴</td></tr>
+    <tr><td class="nowrap">호스트 → 컨테이너</td><td>호스트에서 지운 파일이 컨테이너 안에서도 사라짐</td><td>복사본이 아니라 하나의 폴더 — 양방향 반영</td></tr>
+    <tr><td class="nowrap">워커 검증</td><td><code>docker exec -it spark-worker1 /bin/bash</code> → <code>cd /opt/spark/data</code> → <code>vi 123.txt</code> 저장 → 호스트 <code>ls -l</code>로 반영 확인 후 삭제</td><td>워커도 같은 호스트 폴더를 같은 경로에 연결했기 때문</td></tr>
+    <tr><td class="nowrap">워커 환경</td><td><code>SPARK_WORKER_CORES=1</code>, <code>SPARK_WORKER_MEMORY=2G</code></td><td>워커가 쓸 코어·메모리 상한 (15장)</td></tr>
+    <tr><td class="nowrap">활용 사례</td><td>볼륨 폴더를 실시간으로 감시해 위험한 파일을 강제 삭제</td><td>csv에 심은 악성코드가 서버에서 실행되면 서버 정보가 외부로 유출 → 업로드 자체를 차단. 막은 사유는 파일에 악성코드가 있다는 설명으로 충분</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">볼륨 연결 — <code>-v 호스트경로:컨테이너경로</code>의 콜론이 구분자이고 옵션은 이미지 이름 <b>앞</b>에 둠. 볼륨은 생성 시점에만 붙으므로 빠뜨렸으면 정지·삭제 후 재생성. <code>-v</code>가 없으면 아키텍처의 공유 볼륨 요구가 충족되지 않아 재구축으로 이어짐</div>
+
+    <ul class="facts"><li><strong>원리·포트 추가</strong><div>바인드 마운트의 정체, hostconfig.json, 서비스와 소켓의 차이: docker.html 10장</div></li><li><strong>다음 단계</strong><div>이 클러스터에서 셸 실행·주피터 연동: 이 파일 23~24장</div></li><li><strong>이미지</strong><div>Dockerfile·빌드·검증: 이 파일 21장</div></li></ul>
 
   </section>
 
   <!-- 23 -->
+  <section class="sec" id="spark-shell">
+    <h2>Spark 셸 실행과 앱 상태</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 셸을 띄우면 마스터 UI에 앱이 대기 상태로 뜸</p><div class="dg-flow"><div class="dg-node"><h4>① pyspark 실행</h4><p class="sub">spark://…:7077</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 셸 프롬프트</h4><p class="sub">&gt;&gt;&gt; · 라이선스 문구</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ jps</h4><p class="sub">Master 프로세스 확인</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ exit</h4><p class="sub">앱 종료·UI에서 사라짐</p></div></div><p class="dg-foot">셸이 떠 있는 동안 = 마스터 UI의 Running Applications에 앱이 표시되는 <b>대기 상태</b>. 셸을 나가면 앱도 끝나 목록에서 사라짐 — 누가 앱을 띄웠는지 보는 것이 관제의 기본</p></div>
+
+    <h3>이 구성의 환경</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>값</th></tr></thead><tbody>
+    <tr><td class="nowrap">서버</td><td>Rocky Linux 9 VM(VirtualBox), PuTTY로 서버 IP·22번 포트 접속</td></tr>
+    <tr><td class="nowrap">컨테이너</td><td><code>spark-master</code>·<code>spark-worker1</code>·<code>spark-worker2</code> (Docker 네트워크 <code>spark-net</code>)</td></tr>
+    <tr><td class="nowrap">이미지</td><td><code>spark-rocky9:3.5.3</code> — Spark 3.5.3, 컨테이너 안 Python 3.9.25 (21장)</td></tr>
+    <tr><td class="nowrap">포트</td><td>마스터 UI 8080 · 마스터 통신 7077 · 워커 UI 8081(워커1)·8082(워커2) · 주피터 8888(24장에서 추가)</td></tr>
+    <tr><td class="nowrap">호스트 폴더</td><td><code>/home/spark-data</code> ↔ 컨테이너 <code>/opt/spark/data</code> (22장)</td></tr>
+    <tr><td class="nowrap">윈도우 PC</td><td>VS Code 작업 경로 <code>D:\py</code>, 브라우저, 메모장(긴 <code>docker run</code> 명령 백업용)</td></tr>
+    </tbody></table></div>
+
+    <h3>pyspark 셸 실행</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+<span class="c"># 셸을 띄우는 가장 단순한 방법 — 주피터 설치·환경변수 없이 바로 실행</span>
+<span class="c"># --master: 작업을 넘길 마스터 주소 (이름 DNS — spark-net 안에서 spark-master로 찾음)</span>
+pyspark --master spark://spark-master:7077
+<span class="c"># 실행 결과: 라이선스·카피라이트 문구 → 자바 클래스 처리 → 셸 프롬프트(&gt;&gt;&gt;)</span>
+jps                                                   <span class="c"># 자바 프로세스 확인 (JVM Process Status)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>확인</th><th>결과</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">배너</td><td>라이선스 문구가 지나가고 <code>&gt;&gt;&gt;</code> 프롬프트가 뜨면 셸 정상</td><td>Python REPL이 Spark 세션(<code>sc</code>·<code>spark</code>)을 만들고 대기</td></tr>
+    <tr><td class="nowrap"><code>jps</code></td><td>마스터 컨테이너에서는 <b>Master</b> 프로세스 하나만 보임</td><td>워커 프로세스는 각자 워커 컨테이너 안에서 실행 — 마스터 컨테이너에 있을 이유가 없음</td></tr>
+    <tr><td class="nowrap">오타</td><td><code>pjs</code>·<code>psj</code>로 치면 <code>command not found</code></td><td>명령 이름은 <code>jps</code> 고정</td></tr>
+    <tr><td class="nowrap">마스터만으로 실행</td><td>워커를 띄우지 않아도 같은 셸이 뜸</td><td>작동 테스트가 목적이면 워커 필수 아님 — 다만 실제 연산은 워커 자원이 필요</td></tr>
+    </tbody></table></div>
+
+    <h3>셸과 마스터 UI의 관계</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>상황</th><th>마스터 UI(8080) Running Applications</th><th>의미</th></tr></thead><tbody>
+    <tr><td class="nowrap">셸을 띄운 직후</td><td>앱이 하나 표시됨 (새로고침 필요)</td><td>대기 상태 — 작업이 떨어지면 그때 워커에서 실행</td></tr>
+    <tr><td class="nowrap">셸에 코드 입력 전</td><td>앱은 계속 표시, 워커는 움직이지 않음</td><td>세션만 만든 상태라 자원을 쓰는 연산은 없음</td></tr>
+    <tr><td class="nowrap"><code>exit</code>로 셸 종료</td><td>앱이 사라짐</td><td>셸이 곧 드라이버 프로세스 — 셸을 나가면 앱도 끝남</td></tr>
+    <tr><td class="nowrap">UI에 앱이 보일 때</td><td>누군가 테스트 중이라고 판단</td><td>관제 관점 — 남의 작업을 끊거나 자원을 빼앗지 않도록 확인하는 습관</td></tr>
+    <tr><td class="nowrap">이 방식의 위치</td><td>Spark를 설치만 하고 쓰는 방식</td><td>실무에서는 쓰지 않음 — 코드를 파일로 만들어 제출하는 방식(26장)이 기본</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">셸과 앱은 함께 살고 함께 죽음 — <code>pyspark</code> 셸이 떠 있으면 8080 UI에 앱이 Running으로 보이고, <code>exit</code>하면 사라짐. UI의 앱 = 누군가 대화형 세션을 열어 둔 상태라는 신호</div>
+
+    <ul class="facts"><li><strong>클러스터 기동</strong><div>마스터·워커 컨테이너와 볼륨 연결: 이 파일 22장</div></li><li><strong>이미지</strong><div>Spark 3.5.3 Dockerfile·빌드: 이 파일 21장</div></li><li><strong>파일 제출</strong><div><code>spark-submit</code>으로 코드 실행: 이 파일 26장</div></li><li><strong>대화형 노트북</strong><div>pyspark를 주피터로 띄우기: 이 파일 24장</div></li></ul>
+  </section>
+
+  <!-- 24 -->
+  <section class="sec" id="spark-jupyter-container">
+    <h2>컨테이너에 주피터 설치와 PySpark 연동</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 설치 → 환경변수 3줄 → pyspark가 주피터로</p><div class="dg-flow"><div class="dg-node"><h4>① 포트 확인</h4><p class="sub">8888 게시</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② notebook 설치</h4><p class="sub">pip3 install notebook</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ .bashrc 3줄</h4><p class="sub">PYSPARK_* 설정</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ pyspark</h4><p class="sub">셸 대신 주피터 서버</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 토큰 로그인</h4><p class="sub">서버IP:8888</p></div></div><p class="dg-foot">주피터는 열려 있는 포트에만 접속되므로 <b>8888 게시가 먼저</b> — 포트가 없으면 컨테이너를 다시 만들지 않고 설정 파일로 추가(22장·docker.html 10장)</p></div>
+
+    <h3>8888 포트 열기</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>명령</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td><code>docker ps</code>로 마스터 포트 확인</td><td>7077·8080만 보이면 8888이 없는 상태</td></tr>
+    <tr><td class="nowrap">2</td><td>컨테이너 정지 → <code>hostconfig.json</code>에 8888 블록 추가</td><td><code>PortBindings</code>의 기존 블록을 복사해 <code>8888/tcp</code>·<code>HostPort</code> 8888로</td></tr>
+    <tr><td class="nowrap">3</td><td><code>systemctl stop docker docker.socket</code> → 붙여넣기 → <code>docker ps</code> → <code>docker start</code></td><td>소켓을 살려 두면 수정이 원복됨</td></tr>
+    <tr><td class="nowrap">4</td><td><code>0.0.0.0:8888-&gt;8888/tcp</code> 표시 확인</td><td>다른 포트(예: 8889)를 깜빡 빠뜨렸을 때도 같은 방법</td></tr>
+    </tbody></table></div>
+    <ul class="facts"><li><strong>자세한 절차</strong><div>hostconfig.json 수정·소켓 정지·서비스와 소켓의 차이: docker.html 10장</div></li></ul>
+
+    <h3>notebook 설치</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+<span class="c"># notebook 패키지가 주피터 본체 — 설치 중 Collecting … 이 이어짐</span>
+pip3 install notebook
+jupyter --version                                      <span class="c"># 설치된 주피터 구성 요소 확인</span>
+<span class="c"># 오타(예: netebook)로 치면 No matching distribution found → 철자 확인 후 재실행</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>출력</th><th>설명</th></tr></thead><tbody>
+    <tr><td><code>IPython 8.18.1</code> / <code>ipykernel 6.31.0</code></td><td>커널 — 파이썬 코드를 실행하는 엔진</td></tr>
+    <tr><td><code>jupyter_client 8.6.3</code> / <code>jupyter_core 5.8.1</code> / <code>jupyter_server 2.18.2</code></td><td>클라이언트·서버 — 필수 확인 항목</td></tr>
+    <tr><td><code>jupyterlab 4.5.11</code> / <code>notebook 7.5.8</code></td><td>랩·노트북 — 필수 확인 항목</td></tr>
+    <tr><td><code>nbclient</code> / <code>nbconvert</code> / <code>nbformat</code> / <code>traitlets</code></td><td>부가 패키지</td></tr>
+    <tr><td><code>ipywidgets</code> / <code>qtconsole</code> : not installed</td><td>없어도 무방 — 필요할 때 <code>pip3 install</code></td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>패키지</th><th>정체</th><th>필요성</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>ipywidgets</code></td><td>슬라이드·버튼·체크박스·입력창 같은 UI 요소를 코드 셀에 넣는 대화형 위젯</td><td>없어도 노트북 실행에 지장 없음</td></tr>
+    <tr><td class="nowrap"><code>qtconsole</code></td><td>Qt 기반 <b>그래픽(GUI) 콘솔</b> — 터미널 프로그램이 아님</td><td>따로 다룰 필요 없음</td></tr>
+    <tr><td class="nowrap">root 설치</td><td>root로 설치하면 경고가 나와도 무관</td><td>일반 사용자 환경이 아니라 컨테이너 안 root</td></tr>
+    <tr><td class="nowrap">pip3 없음</td><td><code>dnf install</code>로 python3-pip 설치</td><td>이 이미지는 python3·pip가 미리 들어 있어 바로 진행 (21장)</td></tr>
+    </tbody></table></div>
+
+    <h3>~/.bashrc 세 줄 — pyspark를 주피터로</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root · ~/.bashrc 파일 안]</span>
+<span class="c"># PYSPARK_PYTHON: PySpark가 실제 연산에 쓸 파이썬 — 이 컨테이너의 python3(3.9.25)</span>
+<span class="c"># Spark 3.5.x는 Python 3.8~3.11을 지원 (출처: Spark 3.5 요구 사항)</span>
+export PYSPARK_PYTHON=python3
+<span class="c"># PYSPARK_DRIVER_PYTHON: pyspark 실행 시 드라이버 대신 띄울 프로그램 → jupyter</span>
+export PYSPARK_DRIVER_PYTHON=jupyter
+<span class="c"># PYSPARK_DRIVER_PYTHON_OPTS: 위 프로그램에 넘길 실행 옵션 (한 줄, 등호 양옆 공백 없이)</span>
+<span class="c"># notebook=노트북 서버 / --ip=0.0.0.0=모든 주소 허용 / --port=8888=접속 포트</span>
+<span class="c"># --no-browser=서버라 브라우저를 띄우지 않음 / --allow-root=root 실행 허용</span>
+export PYSPARK_DRIVER_PYTHON_OPTS="notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root"</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+source ~/.bashrc                                       <span class="c"># 저장한 값은 현재 셸에 자동 적용되지 않음 → 즉시 반영</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>변수</th><th>값</th><th>의미</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>PYSPARK_PYTHON</code></td><td><code>python3</code></td><td>연산에 쓸 기본 파이썬</td></tr>
+    <tr><td class="nowrap"><code>PYSPARK_DRIVER_PYTHON</code></td><td><code>jupyter</code></td><td>pyspark 드라이버를 주피터로 바꿈</td></tr>
+    <tr><td class="nowrap"><code>PYSPARK_DRIVER_PYTHON_OPTS</code></td><td><code>"notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root"</code></td><td>주피터 실행 옵션 — 따옴표 전체가 한 값</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>주의</th><th>내용</th><th>결과</th></tr></thead><tbody>
+    <tr><td class="nowrap">등호 공백</td><td><code>export VAR = 값</code>처럼 띄우면 셸이 변수 지정으로 읽지 않음</td><td>값이 적용되지 않아 셸이 그대로 뜸</td></tr>
+    <tr><td class="nowrap">옵션 오타</td><td><code>--ip</code> 뒤 콜론, <code>--no-browser</code> 철자 오류</td><td>주피터가 뜨지 않고 에러 — 메시지를 보고 그 줄만 수정</td></tr>
+    <tr><td class="nowrap">워커 쪽</td><td>워커 컨테이너에는 따로 설정할 것이 없음</td><td><code>PYSPARK_PYTHON</code>만 맞으면 됨</td></tr>
+    </tbody></table></div>
+
+    <h3>주피터 접속</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+<span class="c"># .bashrc가 적용된 상태에서는 pyspark가 셸이 아니라 주피터 서버를 띄움</span>
+pyspark
+<span class="c"># 실행 결과: 주피터 주소와 ?token=… 값이 출력 → 이 터미널은 계속 점유됨</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>동작</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>브라우저에서 <code>http://서버IP:8888</code></td><td>이 실습은 VM IP 사용</td></tr>
+    <tr><td class="nowrap">2</td><td>로그에 찍힌 URL의 <code>?token=</code> 값을 복사해 로그인</td><td>토큰은 실행마다 달라짐</td></tr>
+    <tr><td class="nowrap">3</td><td><code>View</code> → <code>Open JupyterLab</code></td><td>랩 화면에서 노트북·터미널 사용</td></tr>
+    <tr><td class="nowrap">4</td><td>작업할 터미널은 PuTTY를 새로 열어 사용</td><td>주피터를 띄운 터미널은 입력 불가</td></tr>
+    <tr><td class="nowrap">5</td><td>윈도우 IP로 접속하려면 VirtualBox 포트 포워딩 필요</td><td>열지 않으면 리눅스(VM) IP로만 접속</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>주의</th><th>내용</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>Ctrl+C</code> 금지</td><td>주피터를 띄운 터미널에서 <code>Ctrl+C</code>를 누르면 서버가 꺼짐</td><td>껐다 다시 켜면 토큰도 새로 발급</td></tr>
+    <tr><td class="nowrap">작업 위치</td><td>랩에서는 컨테이너의 전체 디렉터리가 보임 → <code>/opt/spark</code>에서 시작해 <code>data</code> 폴더로 이동</td><td>아무 파일이나 고치지 않도록 정해진 위치에서만 작업. 컨테이너 안이므로 영향 범위는 컨테이너까지</td></tr>
+    <tr><td class="nowrap">재실행</td><td>주피터를 내린 뒤 <code>pwd</code>가 <code>/opt/spark</code>면 그 자리에서 <code>pyspark</code>를 다시 실행</td><td>경로를 옮겨 실행하면 파일 브라우저 기준 경로도 바뀜</td></tr>
+    <tr><td class="nowrap">노트북 셀 실행</td><td><code>Shift+Enter</code>(엔터만 치면 셀 안 줄바꿈), Tab 자동완성</td><td>화면 사용법: 이 파일 14장</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">주피터 접속 3요소 — ① 8888 포트가 <code>docker ps</code>에 게시되어 있을 것 ② <code>?token=</code> 값으로 로그인 ③ 주피터 터미널에서 <code>Ctrl+C</code> 금지. 토큰은 재기동마다 바뀌고, 랩은 컨테이너 전체 디렉터리가 보이므로 작업 위치를 정해 둠</div>
+
+    <ul class="facts"><li><strong>포트 추가</strong><div>hostconfig.json·소켓 정지·서비스와 소켓: docker.html 10장</div></li><li><strong>다른 설치 방식</strong><div>서버 2대에 직접 설치한 환경의 <code>PYSPARK_*</code>·JupyterLab(옵션 <code>lab</code>): 이 파일 13장</div></li><li><strong>화면·커널</strong><div>노트북 저장·<code>.ipynb</code>→<code>.py</code>·커널 정리: 이 파일 14장</div></li><li><strong>셸 모드 전환</strong><div>주피터를 내리지 않고 셸로 돌아가기: 이 파일 25장</div></li></ul>
+  </section>
+
+  <!-- 25 -->
+  <section class="sec" id="spark-csv-shell">
+    <h2>샘플 csv 준비와 셸 모드에서 읽기</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 주피터에서 csv를 만들고, 셸로 돌아가 읽기</p><div class="dg-flow"><div class="dg-node"><h4>① csv 작성</h4><p class="sub">sample.csv · 7행</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 새 PuTTY</h4><p class="sub">마스터 컨테이너 접속</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ unset 2개</h4><p class="sub">주피터 변수 해제</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ spark.read.csv</h4><p class="sub">header · inferSchema</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ show</h4><p class="sub">DB SELECT 같은 표</p></div></div><p class="dg-foot"><code>.bashrc</code>에 넣은 주피터 변수 때문에 <code>pyspark</code>가 셸을 띄우지 않음 — <b><code>unset</code> 두 개</b>가 셸 모드로 돌아가는 유일한 방법</p></div>
+
+    <h3>sample.csv 만들기</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>동작</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>주피터 랩 → <code>data</code> 폴더로 이동</td><td><code>/opt/spark/data</code> = 호스트 <code>/home/spark-data</code>와 연결된 폴더</td></tr>
+    <tr><td class="nowrap">2</td><td><code>New</code> → <code>Text File</code></td><td>엑셀·전용 편집기 불필요</td></tr>
+    <tr><td class="nowrap">3</td><td>콤마로 구분한 내용 입력</td><td>메모장에서 작성해 붙여넣고 콤마 개수가 맞는지 확인</td></tr>
+    <tr><td class="nowrap">4</td><td><code>Rename and Save</code>로 이름을 <code>sample.csv</code>로</td><td>확장자 <code>.csv</code>가 형식을 결정</td></tr>
+    <tr><td class="nowrap">5</td><td>남은 불필요 파일은 휴지통으로 삭제</td><td>파이썬 파일은 만들지 않고 csv만 둠</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>id</th><th>name</th><th>money</th><th>sales</th></tr></thead><tbody>
+    <tr><td class="num">1</td><td>hong1</td><td class="num">55000</td><td class="num">2500</td></tr>
+    <tr><td class="num">2</td><td>hong2</td><td class="num">155000</td><td class="num">1500</td></tr>
+    <tr><td class="num">3</td><td>hong3</td><td class="num">80000</td><td class="num">3500</td></tr>
+    <tr><td class="num">4</td><td>hong4</td><td class="num">95200</td><td class="num">500</td></tr>
+    <tr><td class="num">5</td><td>hong5</td><td class="num">116000</td><td class="num">900</td></tr>
+    <tr><td class="num">6</td><td>hong6</td><td class="num">455000</td><td class="num">5500</td></tr>
+    <tr><td class="num">7</td><td>hong7</td><td class="num">95000</td><td class="num">1800</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">목적</td><td>마스터뿐 아니라 워커까지 정상 동작하는지 보는 최소 데이터</td><td>행이 적어 결과를 눈으로 검산할 수 있음</td></tr>
+    <tr><td class="nowrap">id</td><td>auto-increment 개념 — 값은 각자 원하는 숫자로, 같은 숫자만 피함</td><td>정렬·집계 실습에서 기준 컬럼으로 씀</td></tr>
+    <tr><td class="nowrap">hong7 sales</td><td>출력 표 기준 <code>1800</code></td><td>구두로 3800을 언급한 부분과 다르므로 표 값 기준으로 통일</td></tr>
+    <tr><td class="nowrap">형식</td><td>콤마로 나눈 텍스트가 곧 csv</td><td>첫 행이 헤더(id·name·money·sales)가 되어 컬럼명으로 쓰임</td></tr>
+    </tbody></table></div>
+
+    <h3>셸 모드 진입 — unset 두 개</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>상황</th><th>증상</th><th>원인</th></tr></thead><tbody>
+    <tr><td class="nowrap">새 PuTTY로 마스터 컨테이너 접속 후 <code>pyspark</code></td><td>셸 프롬프트 대신 <b>주피터가 뜸</b></td><td><code>~/.bashrc</code>의 <code>PYSPARK_DRIVER_PYTHON=jupyter</code>가 살아 있음</td></tr>
+    <tr><td class="nowrap"><code>.bashrc</code> 3줄을 주석 처리하고 <code>source</code></td><td>여전히 주피터가 뜸</td><td>이미 현재 셸에 export된 값은 파일을 고쳐도 그대로 남음</td></tr>
+    <tr><td class="nowrap"><code>unset</code> 후 실행</td><td>셸 프롬프트(<code>&gt;&gt;&gt;</code>) 정상</td><td>환경변수를 현재 셸에서 해제 — 주피터 서버는 그대로 살아 있음</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+<span class="c"># unset: 지정한 환경변수를 현재 셸에서 해제 (파일 저장값은 그대로)</span>
+<span class="c"># 두 변수를 해제해야 pyspark가 주피터 대신 기본 셸로 뜸 — &amp;&amp; 로 이어 한 번에 실행</span>
+unset PYSPARK_DRIVER_PYTHON PYSPARK_DRIVER_PYTHON_OPTS &amp;&amp; pyspark
+<span class="c"># 다시 주피터를 쓰려면 source ~/.bashrc 로 복원</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>배너 확인</th><th>의미</th></tr></thead><tbody>
+    <tr><td><code>Spark 3.5.3</code></td><td>이미지에 들어 있는 Spark 버전</td></tr>
+    <tr><td><code>Spark context available as 'sc' (master = local[*] …)</code></td><td><code>--master</code>를 주지 않아 <b>로컬 모드</b>로 시작 — <code>[*]</code>는 가용 코어 전부</td></tr>
+    <tr><td><code>SparkSession available as 'spark'</code></td><td>SQL·DataFrame에 쓸 세션 객체가 미리 준비됨</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">로컬 모드의 의미</td><td>드라이버와 실행기가 한 JVM에서 도는 방식 — 클러스터에 작업을 넘기지 않음</td><td>마스터 UI(8080)의 Running Applications에 앱이 뜨지 않음 (정상)</td></tr>
+    <tr><td class="nowrap">마스터 UI 포트</td><td><code>8080</code></td><td><code>docker ps</code>의 8080 게시와 UI 접속 주소가 같은 값</td></tr>
+    <tr><td class="nowrap">실습 후 원복</td><td><code>.bashrc</code>는 세 줄만 남기고 주석을 풀어 <code>source</code></td><td>주피터를 다시 쓰기 위한 정리</td></tr>
+    <tr><td class="nowrap"><code>spark-submit</code> 단독 입력</td><td>실행할 파일이 없어 아무 일도 일어나지 않음</td><td>csv·py가 있는 <code>/opt/spark/data</code>에서 실행해야 함 (26장)</td></tr>
+    </tbody></table></div>
+
+    <h3>csv 읽기 — spark.read.csv</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · 셸 프롬프트 · root]</span>
+<span class="c"># spark.read.csv(경로, header=, inferSchema=) — csv 전용 읽기, 엔터를 치면 로드</span>
+<span class="c"># 경로는 컨테이너 안 /opt/spark/data/sample.csv (호스트 /home/spark-data와 같은 폴더)</span>
+df = spark.read.csv("/opt/spark/data/sample.csv", header=True, inferSchema=True)
+<span class="c"># show(): 앞부분 몇 행을 표로 출력 — DB의 SELECT 결과 화면과 같은 모양</span>
+df.show()</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>옵션</th><th>의미</th><th>주의</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>header=True</code></td><td>첫 행(id,name,money,sales)을 컬럼명으로 사용</td><td><code>True</code>의 첫 글자는 대문자</td></tr>
+    <tr><td class="nowrap"><code>inferSchema=True</code></td><td>컬럼 타입(숫자·문자)을 자동 추정</td><td>없으면 전부 문자열로 읽혀 <code>avg</code> 같은 집계가 어긋남</td></tr>
+    <tr><td class="nowrap">경로</td><td>컨테이너 기준 절대 경로</td><td>호스트 경로(<code>/home/spark-data</code>)를 넣으면 찾지 못함</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">실수</td><td>콤마를 빼고 입력 → <code>line 1</code>을 가리키는 에러</td><td>에러 줄을 보고 콤마를 넣어 해결, 괄호를 닫아야 실행됨</td></tr>
+    <tr><td class="nowrap">마스터 UI</td><td>파일을 읽는 시점에는 아직 움직임 없음</td><td><code>show</code>도 출력만 하는 동작 — 평균 같은 연산은 하지 않음</td></tr>
+    <tr><td class="nowrap">확인 목적</td><td>csv 로드와 <code>show</code>가 되는지 보는 테스트</td><td>MySQL 출력과 같은 모양이라 결과 검산이 쉬움</td></tr>
+    <tr><td class="nowrap">같은 동작</td><td>주피터 노트북에서도 동일한 코드로 가능</td><td>SQL로 조회하려면 임시 뷰를 만들어야 함 (27장)</td></tr>
+    <tr><td class="nowrap">큰 데이터</td><td>공공데이터 포털 등에서 받은 대용량 csv로도 같은 코드</td><td>텍스트로 직접 만들어도 표로 읽힘</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">셸 모드 전환 — <code>.bashrc</code>를 주석 처리해도 현재 셸의 export 값은 남으므로 <code>unset PYSPARK_DRIVER_PYTHON PYSPARK_DRIVER_PYTHON_OPTS</code>가 필요. 배너의 <code>master = local[*]</code>는 클러스터가 아니라 로컬 실행이라 마스터 UI에 앱이 안 뜸</div>
+
+    <ul class="facts"><li><strong>주피터 설정</strong><div><code>PYSPARK_*</code> 세 줄·토큰 접속: 이 파일 24장</div></li><li><strong>SQL 조회</strong><div>임시 뷰를 만들어 <code>spark.sql</code>로 조회: 이 파일 27장</div></li><li><strong>파일 제출</strong><div><code>.py</code> 파일을 <code>spark-submit</code>으로 실행: 이 파일 26장</div></li><li><strong>볼륨 확인</strong><div>호스트 폴더와 같은 파일인지 확인: 이 파일 22장</div></li></ul>
+  </section>
+
+  <!-- 26 -->
+  <section class="sec" id="spark-py-submit">
+    <h2>파이썬 파일 제출과 spark-submit</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — dict로 집계하는 코드를 파일로 만들어 제출</p><div class="dg-flow"><div class="dg-node"><h4>① rdd1.py 작성</h4><p class="sub">키별 합계·건수</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② data 폴더로 이동</h4><p class="sub">cd /opt/spark/data</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ spark-submit</h4><p class="sub">--master local[*]</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 결과 확인</h4><p class="sub">결과: [(…)]</p></div></div><p class="dg-foot">DB가 연결돼 있지 않으므로 (키, 값) 목록을 파이썬 dict로 집계하는 맛보기 — Spark RDD API를 쓰는 코드가 아니라 분산 처리 흐름을 손으로 흉내 낸 코드</p></div>
+
+    <h3>연습 코드 rdd1.py</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab · /opt/spark/data/rdd1.py 파일 안]</span>
+<span class="c"># (키, 값) 형태의 목록 — 배열의 숫자가 나중에 컬럼 값 역할</span>
+rdd_db = [("hong",3),("hong2",4),("hong3",6),("hong4",2),("hong5",11)]
+<span class="c"># 키별 (합계, 건수)를 담을 딕셔너리</span>
+rtd = {}
+<span class="c"># 목록을 하나씩 순회하며 키별로 합계와 건수를 누적</span>
+for k, v in rdd_db:
+    <span class="c"># get(k, (0, 0)): 아직 없는 키면 (0, 0)에서 시작</span>
+    ksum, kcnt = rtd.get(k, (0, 0))
+    <span class="c"># 합계에 값 더하기, 건수 1 증가</span>
+    rtd[k] = (ksum + v, kcnt + 1)
+<span class="c"># 딕셔너리를 (키, (합계, 건수)) 목록으로 변환해 출력</span>
+rtd_cnt = list(rtd.items())
+print("결과:", rtd_cnt)</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">코드 성격</td><td>파이썬 <code>dict</code>와 <code>for</code>로 합계·건수를 세는 일반 파이썬 코드</td><td><code>parallelize</code>·<code>map</code> 같은 RDD API를 쓰지 않음 — 분산 실행 없음</td></tr>
+    <tr><td class="nowrap">목표</td><td>실제 DB 대신 (키, 값) 데이터로 집계 흐름을 익히는 것</td><td>DB 연동은 개념만 다룸 — 마리아DB 11 컨테이너가 Exited 상태라 쓰지 않음</td></tr>
+    <tr><td class="nowrap">이어지는 내용</td><td>키별 합계·건수 집계 개념은 뒤에서 SQL 집계로 다시 등장</td><td><code>group by</code>·<code>count</code>와 같은 원리 (27~28장)</td></tr>
+    <tr><td class="nowrap">작성 위치</td><td>주피터 랩에서 <code>data/rdd1.py</code>로 저장</td><td>노트북이 아닌 <code>.py</code> — <code>spark-submit</code>의 입력</td></tr>
+    </tbody></table></div>
+
+    <h3>spark-submit 실행</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root · 실행 위치는 주피터 랩 Terminal 또는 새 PuTTY]</span>
+cd /opt/spark/data                                     <span class="c"># csv·py가 있는 경로로 이동 (상대 경로 파일을 찾기 위해)</span>
+<span class="c"># --master local[*]: 클러스터가 아니라 이 컨테이너의 가용 코어 전부로 실행 (별표 = 전부)</span>
+spark-submit --master local[*] rdd1.py
+<span class="c"># 실행 결과: 파일을 찾지 못한다는 메시지와 함께 종료 — 아래 원인 확인 필요</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>증상</th><th>실제 원인</th><th>해결</th></tr></thead><tbody>
+    <tr><td class="nowrap">파일을 못 찾거나 실행이 안 됨</td><td><code>PYSPARK_DRIVER_PYTHON=jupyter</code>가 남아 있어 <code>spark-submit</code>이 <code>jupyter rdd1.py</code>를 실행하려 함</td><td><code>unset PYSPARK_DRIVER_PYTHON PYSPARK_DRIVER_PYTHON_OPTS</code> 후 다시 제출</td></tr>
+    <tr><td class="nowrap">에러 문구</td><td><code>Jupyter command jupyter-/opt/spark/data/rdd1.py not found</code></td><td>주피터가 파일 경로를 하위 명령으로 해석한 결과 — 코드·경로 문제가 아님</td></tr>
+    <tr><td class="nowrap">셸 모드와의 관계</td><td>셸을 쓰는지와 무관, 남아 있는 환경변수 때문</td><td>25장의 <code>unset</code>과 같은 처방</td></tr>
+    <tr><td class="nowrap"><code>local[*]</code></td><td>코어 수·메모리 옵션은 지금 단계에서 신경 쓰지 않음</td><td>자원 배분은 9장·15장에서 다룸</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn"><code>spark-submit</code>이 엉뚱한 명령을 찾을 때 — 원인은 코드가 아니라 <code>PYSPARK_DRIVER_PYTHON=jupyter</code> 환경변수. <code>unset</code> 두 개로 해제한 뒤 제출하고, 상대 경로 파일은 그 파일이 있는 디렉터리에서 실행</div>
+
+    <ul class="facts"><li><strong>환경변수 해제</strong><div><code>unset</code>으로 셸 모드 진입: 이 파일 25장</div></li><li><strong>자원 배분</strong><div><code>--master</code>·<code>--executor-memory</code>·<code>--total-executor-cores</code>: 이 파일 9장·15장</div></li><li><strong>SQL 집계로 확장</strong><div>임시 뷰와 <code>group by</code>: 이 파일 27~28장</div></li></ul>
+  </section>
+
+  <!-- 27 -->
+  <section class="sec" id="spark-sql">
+    <h2>Spark SQL — 임시 뷰와 쿼리</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — csv를 가상 테이블로 만들고 SQL로 조회</p><div class="dg-flow"><div class="dg-node key"><h4>① SparkSession</h4><p class="sub">builder · appName · master</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② csv 읽기</h4><p class="sub">option(header·inferSchema)</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 임시 뷰</h4><p class="sub">createOrReplaceTempView</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ spark.sql</h4><p class="sub">select … from sample</p></div></div><p class="dg-foot">실제 DB가 아니라 <b>csv를 읽어 메모리 위의 가상 테이블(임시 뷰)</b>로 만들고 SQL 문법으로 조회 — 분산 데이터에 DB 쿼리를 그대로 쓰는 방식</p></div>
+
+    <h3>작성 위치와 셀 실행</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">파일</td><td>주피터 랩 <code>data/test.ipynb</code>(또는 <code>sql.py</code>)</td><td>노트북은 셀 단위 실행, <code>.py</code>는 <code>spark-submit</code> 제출</td></tr>
+    <tr><td class="nowrap">셀 실행</td><td><code>Shift+Enter</code></td><td>엔터만 치면 셀 안에서 줄바꿈</td></tr>
+    <tr><td class="nowrap">자동완성</td><td><code>Tab</code></td><td>컬럼·함수 이름 오타를 줄임</td></tr>
+    <tr><td class="nowrap">노트북의 장점</td><td>터미널이 필요 없음 — 결과가 셀 아래에 남음</td><td>셸·<code>.py</code> 방식은 터미널 사용</td></tr>
+    <tr><td class="nowrap">셀 합치기</td><td>줄 사이를 엔터만 치고 붙여넣은 뒤 마지막에 <code>Shift+Enter</code></td><td>셀 3개를 한 셀로 만들 때</td></tr>
+    </tbody></table></div>
+
+    <h3>SparkSession 만들기</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 첫 셀 · root]</span>
+<span class="c"># from pyspark.sql import SparkSession: Spark로 데이터를 다루는 진입 라이브러리 — Spark 코드의 첫 줄</span>
+from pyspark.sql import SparkSession
+<span class="c"># builder: 어떤 환경으로 Spark를 돌릴지 만드는 진입점</span>
+<span class="c"># appName("연습용"): 마스터 UI에 표시될 앱 이름</span>
+<span class="c"># master("spark://spark-master:7077"): 마스터 UI에 표시된 주소를 그대로 복사</span>
+<span class="c"># getOrCreate(): 세션 생성 — 이미 있으면 그 세션을 재사용</span>
+spark = SparkSession.builder \
+    .appName("연습용") \
+    .master("spark://spark-master:7077") \
+    .getOrCreate()
+<span class="c"># 연결 확인용 출력 — 없어도 동작에는 지장 없음</span>
+print("성공")</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구성</th><th>의미</th><th>주의</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>SparkSession</code></td><td>DataFrame·SQL을 쓰기 위한 세션 — Spark 코드의 기본 시작점</td><td>Spark를 돌릴 때는 이 첫 줄을 넣고 시작</td></tr>
+    <tr><td class="nowrap"><code>appName</code></td><td>8080 UI Running Applications에 보이는 이름</td><td>여러 앱을 구분하는 표식</td></tr>
+    <tr><td class="nowrap"><code>master</code></td><td>작업을 넘길 마스터 주소</td><td>주소를 틀리면 <code>print("성공")</code> 전에 에러 — 연결 점검 지점</td></tr>
+    <tr><td class="nowrap"><code>getOrCreate</code></td><td>세션 생성 또는 기존 세션 재사용</td><td>재사용되면 <code>master</code> 인자가 무시될 수 있음 (아래)</td></tr>
+    <tr><td class="nowrap">자원</td><td>코어·워커 설정을 따로 주지 않음</td><td>크게 분산해서 도는 작업은 없음</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>상황</th><th>실제 동작</th><th>해결</th></tr></thead><tbody>
+    <tr><td class="nowrap">pyspark로 띄운 노트북에서 <code>.master("spark://…")</code></td><td>이미 만들어진 세션을 재사용(<code>Using an existing Spark session</code> 경고)하고, 그 세션은 <code>local[*]</code></td><td>SQL은 그대로 실행되지만 클러스터에서 돌리려면 <code>--master</code>로 세션을 새로 만들어야 함</td></tr>
+    <tr><td class="nowrap">마스터 UI 확인</td><td>앱이 <code>local[*]</code> 세션이면 클러스터 앱으로 잡히지 않음</td><td>실행 위치와 무관하게 결과는 나옴 — 분산 실행 여부가 다를 뿐</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 40강 141:10~141:45</div><p>세션 셀 실행 직전에 “Spark 런타임에 걸리는 것이 있어 셀을 빨리 돌려야 한다”는 취지의 발언이 나옴. 문장이 끊겨 무엇을 가리키는지 분명하지 않아 세션 시간 제한인지 확인 필요 — 그 구간을 다시 듣고 판단</p></div>
+
+    <h3>csv 읽기와 임시 뷰</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 둘째 셀 · root]</span>
+<span class="c"># option("header","true")·option("inferSchema","true"): header=·inferSchema= 대신 옵션을 따로 주는 방식</span>
+<span class="c"># csv()의 인자는 파일 경로 — csv는 모두 같은 방식으로 읽을 수 있음</span>
+df = spark.read.option("header","true").option("inferSchema","true").csv("/opt/spark/data/sample.csv")
+<span class="c"># createOrReplaceTempView("sample"): 메모리 위 임시 뷰(가상 테이블) 생성 — SQL의 from sample에서 이름으로 사용</span>
+df.createOrReplaceTempView("sample")</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">임시 뷰</td><td>데이터는 파일에 있고 뷰는 이름만 붙인 것 — 세션이 끝나면 사라짐</td><td>뷰 이름은 원하는 이름으로 바꿔도 되고, 바꾸면 쿼리의 <code>from</code>도 같이 바꿈</td></tr>
+    <tr><td class="nowrap">글로벌 뷰</td><td><code>createGlobalTempView</code>·<code>createOrReplaceGlobalTempView</code>는 다른 세션과 공유</td><td>세션 간 간섭이 생기므로 쓰지 않고 임시 뷰만 사용</td></tr>
+    <tr><td class="nowrap">뷰에 쓰기</td><td>뷰는 읽기 전용 — <code>INSERT</code>가 허용되지 않음</td><td>내용을 바꾸려면 <code>CREATE OR REPLACE</code>로 다시 만듦 (출처: Spark SQL InsertIntoTable 문서)</td></tr>
+    <tr><td class="nowrap">DB 연결</td><td>MySQL 같은 실제 DB를 읽으려면 JDBC 드라이버(JAR)가 필요</td><td>이번에는 csv라서 필요 없음 — JDBC 연결: 이 파일 19장</td></tr>
+    </tbody></table></div>
+
+    <h3>spark.sql로 조회</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셋째 셀 · root]</span>
+<span class="c"># spark.sql("""…"""): PostgreSQL·MySQL·Oracle과 같은 SQL 문법을 그대로 넣는 자리</span>
+<span class="c"># SQL 문자열 안에는 # 주석을 쓰지 않음 (주석은 문자열 밖에) — 결과는 항상 show()로 출력</span>
+spark.sql("""
+    select round(avg(money)) as total_avg from sample
+""").show()</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>규칙</th><th>내용</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">따옴표 3개</td><td>SQL을 <code>"""…"""</code>로 감싸고 끝에 <code>.show()</code></td><td>여러 줄 SQL을 그대로 쓸 수 있는 고정 틀</td></tr>
+    <tr><td class="nowrap">컬럼명</td><td>csv 헤더가 그대로 컬럼명</td><td>테이블을 만들 때도 같은 이름을 씀</td></tr>
+    <tr><td class="nowrap">쿼리 작성</td><td>연결 코드는 AI로 만들어도 쿼리 부분은 직접 입력</td><td>AI는 컬럼·데이터를 보지 못해 문법이 어긋난 쿼리를 자주 만듦</td></tr>
+    <tr><td class="nowrap">출력</td><td><code>show()</code>가 없으면 결과가 화면에 나오지 않음</td><td>Spark는 지연 실행이라 출력 요청이 있어야 계산</td></tr>
+    </tbody></table></div>
+
+    <h3>쿼리 실습</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>쿼리</th><th>결과·메모</th></tr></thead><tbody>
+    <tr><td><code>select * from sample</code></td><td>전체 7행 출력</td></tr>
+    <tr><td><code>select * from sample order by id desc</code></td><td>id 역순(7번부터) — <code>desc</code> 내림차순, 기본은 <code>asc</code></td></tr>
+    <tr><td><code>select round(avg(money)) as total_avg from sample</code></td><td>평균 <code>150171.0</code> — <code>avg</code> 평균, <code>round</code> 반올림, <code>as</code> 별칭(컬럼명)</td></tr>
+    <tr><td><code>select max(money) from sample</code></td><td>최댓값 <code>455000</code></td></tr>
+    <tr><td><code>select * from sample order by money desc</code></td><td>돈 많은 순 전체 정렬 — 행 단위로 보려면 <code>select *</code></td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>상황</th><th>에러·결과</th><th>해결</th></tr></thead><tbody>
+    <tr><td class="nowrap">두 쿼리를 한 셀에</td><td>에러</td><td>하나만 남기고 나머지는 주석 처리해 하나씩 실행</td></tr>
+    <tr><td class="nowrap">집계에 <code>order by id desc</code>를 붙임</td><td>에러</td><td>메시지의 줄 번호를 확인해 그 쿼리만 수정 — 다른 셀은 손대지 않음</td></tr>
+    <tr><td class="nowrap"><code>max(money)</code>와 <code>order by money desc</code>를 함께</td><td>없는 컬럼으로 정렬한다는 에러</td><td>집계 결과는 1행이라 <code>id</code>·<code>money</code> 같은 원본 컬럼이 없음 — <code>order by</code>를 빼거나 <code>select *</code>로 정렬</td></tr>
+    <tr><td class="nowrap">대문자 <code>ROUND</code>/<code>AVG</code>와 소문자</td><td>결과 차이 없음</td><td>에러의 원인은 대소문자가 아니라 집계에 붙인 <code>order by</code> — 대문자 <code>MAX</code>에도 같은 에러가 남</td></tr>
+    <tr><td class="nowrap">결과 모양</td><td>실제 DB에서 <code>mysql -u …</code>로 조회한 표와 같은 형태</td><td>집계 규칙은 DB와 같으므로 SQL을 알면 그대로 전용 가능</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">Spark 코드의 뼈대 — ① <code>from pyspark.sql import SparkSession</code> ② <code>builder.appName().master().getOrCreate()</code> ③ <code>createOrReplaceTempView</code>로 가상 테이블 ④ <code>spark.sql("""…""").show()</code>. 뷰는 읽기 전용이라 <code>INSERT</code> 불가, 집계 결과에는 원본 컬럼이 없어 <code>order by</code>에 원본 컬럼을 쓰면 에러</div>
+
+    <ul class="facts"><li><strong>수치 함수</strong><div><code>FLOOR</code>·<code>CEIL</code>·<code>ROUND</code> 차이: 이 파일 28장</div></li><li><strong>셸에서 같은 읽기</strong><div><code>spark.read.csv</code>와 <code>show()</code>: 이 파일 25장</div></li><li><strong>실제 DB 조회</strong><div>JDBC로 MySQL 테이블 읽기: 이 파일 19장</div></li><li><strong>SQL 기초</strong><div><code>select</code>·<code>where</code>·집계·<code>group by</code> 문법: mysql.html 5~8장</div></li></ul>
+  </section>
+
+  <!-- 28 -->
+  <section class="sec" id="spark-sql-func">
+    <h2>SQL 수치 함수와 집계 함정</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 3.2와 3.7이 함수에 따라 갈린다</p><div class="dg-flow"><div class="dg-node"><h4>① FLOOR</h4><p class="sub">3.2 → 3 · 3.7 → 3</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② CEIL</h4><p class="sub">3.2 → 4 · 3.7 → 4</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ ROUND</h4><p class="sub">3.2 → 3 · 3.7 → 4</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 평균 집계</h4><p class="sub">결과값이 달라짐</p></div></div><p class="dg-foot">평균값을 낼 때 가장 많이 쓰는 세 함수 — 하나만 잘못 골라도 집계표 전체가 달라지므로 정의를 구분해 외움</p></div>
+
+    <h3>세 함수의 정의</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>함수</th><th>동작</th><th>3.2</th><th>3.7</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>FLOOR</code></td><td>소수점 이하를 무조건 버림(내림)</td><td class="num">3</td><td class="num">3</td></tr>
+    <tr><td class="nowrap"><code>CEIL</code></td><td>입력보다 작지 않은 가장 작은 정수(올림)</td><td class="num">4</td><td class="num">4</td></tr>
+    <tr><td class="nowrap"><code>ROUND</code></td><td>0.5를 기준으로 올림·내림(반올림)</td><td class="num">3</td><td class="num">4</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+<span class="c"># 세 함수에 같은 값을 넣어 결과가 어떻게 갈리는지 확인 (표 값과 대조)</span>
+spark.sql("""
+    select floor(3.2) as f1, floor(3.7) as f2,
+           ceil(3.2)  as c1, ceil(3.7)  as c2,
+           round(3.2) as r1, round(3.7) as r2
+""").show()</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>CEIL</code>의 정의</td><td>무조건 올림 — 반올림이 아님</td><td>반올림은 <code>ROUND</code> (0.5 기준 HALF_UP). 3.2를 <code>CEIL</code>하면 3이 아니라 4</td></tr>
+    <tr><td class="nowrap">쓰는 자리</td><td>평균(<code>avg</code>)을 낼 때 반올림·올림·내림을 골라 적용</td><td>금액·건수 집계에서 함수 선택이 결과를 바꿈</td></tr>
+    <tr><td class="nowrap">다른 DB</td><td>Oracle·MySQL 등에서 이름과 동작이 동일</td><td>SQL 문법을 한 번 익히면 DB를 바꿔도 그대로 사용</td></tr>
+    <tr><td class="nowrap">확인 습관</td><td>작은 값 두 개(3.2·3.7)로 함수별 결과를 먼저 확인</td><td>면접에서 정의를 묻는 단골 — 말로 설명할 수 있어야 함</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">FLOOR·CEIL·ROUND — 내림 / 올림 / 0.5 기준 반올림. 3.2·3.7 예에서 floor 3·3, ceil 4·4, round 3·4. <code>CEIL</code>을 반올림으로 착각하면 평균 집계가 통째로 달라짐</div>
+
+    <h3>쿼리 문법 최소 세트</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>요소</th><th>역할</th><th>예</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>select</code> · <code>from</code></td><td>가져올 컬럼 · 대상 뷰</td><td><code>select * from sample</code></td></tr>
+    <tr><td class="nowrap"><code>avg</code> · <code>max</code> · <code>round</code></td><td>평균 · 최댓값 · 반올림</td><td><code>round(avg(money))</code></td></tr>
+    <tr><td class="nowrap"><code>as</code></td><td>결과 컬럼에 별칭 부여</td><td><code>as total_avg</code></td></tr>
+    <tr><td class="nowrap"><code>order by … desc/asc</code></td><td>정렬 — 내림차순·오름차순</td><td><code>order by id desc</code></td></tr>
+    <tr><td class="nowrap"><code>where</code> · <code>group by</code></td><td>조건 · 그룹 집계</td><td>자세한 문법: mysql.html 6~8장</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">SQL을 모르면 Spark도 못 씀 — <code>select</code>·<code>from</code>·<code>avg</code>·<code>max</code>·<code>round</code>·<code>as</code>·<code>order by</code>는 손으로 쓸 수 있어야 하고, Spark 코드는 항상 <code>SparkSession</code> 첫 줄에서 시작. 집계 결과(1행)에는 원본 컬럼이 없으므로 <code>order by</code> 대상을 따로 확인</div>
+
+    <ul class="facts"><li><strong>쿼리 실행</strong><div>임시 뷰·<code>spark.sql</code>·에러 사례: 이 파일 27장</div></li><li><strong>집계 확장</strong><div><code>group by</code>·<code>count</code>·<code>sum</code>으로 키별 집계: mysql.html 8장</div></li><li><strong>응용 집계</strong><div>박스오피스 데이터 집계와 셔플 파티션: 이 파일 20장</div></li></ul>
+  </section>
+
+  <!-- 29 -->
+  <section class="sec" id="spark-crawling">
+    <h2>이미지 수집 — 웹 크롤링</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 필요한 이미지 100장을 자동으로 모으기</p><div class="dg-flow"><div class="dg-node key"><h4>① 로컬 실행</h4><p class="sub">D:\py</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② img.py</h4><p class="sub">자동 스크롤</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ travel_images</h4><p class="sub">travel_1.jpg</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 주피터 업로드</h4><p class="sub">data 폴더</p></div></div><p class="dg-foot">이미지 처리 실습에 쓸 사진을 모으는 단계 — 브라우저를 자동으로 움직여 이미지를 내려받는 크롤링이며, <b>반드시 로컬 윈도우에서 실행</b>하고 서버에서는 실행하지 않음</p></div>
+
+    <h3>목적과 원칙</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">목적</td><td>이미지를 Spark로 처리해 DB에 넣는 실습에 쓸 사진 약 100장 확보</td><td>사람이 우클릭으로 저장할 시간이 없어 자동 수집</td></tr>
+    <tr><td class="nowrap">코드 출처</td><td>네이버 클라우드에 올려 둔 <code>img.py</code>를 그대로 복사해 VS Code(<code>D:\py</code> 등 원하는 위치)에 붙여넣음</td><td>코드는 수정하지 않고 사용</td></tr>
+    <tr><td class="nowrap">대상 확인</td><td>코드 제일 아래의 대상 사이트 URL을 브라우저로 열어 이미지 목록 확인</td><td>긁어올 영역을 눈으로 먼저 확인</td></tr>
+    <tr><td class="nowrap">실행 위치</td><td><b>로컬 윈도우</b>에서 실행</td><td>서버 부하·접속 기록 때문에 서버에서는 실행하지 않음 (아래)</td></tr>
+    <tr><td class="nowrap">라이브러리 성격</td><td><code>selenium</code> 등은 파이썬 일반 라이브러리</td><td>해킹 도구가 아님 — 원래 크롤링은 리눅스에 설치해 쓰기도 함</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>서버에서 실행하면</th><th>결과</th></tr></thead><tbody>
+    <tr><td class="nowrap">부하</td><td>서버 전체에 큰 로드가 걸려 다른 작업이 느려짐</td></tr>
+    <tr><td class="nowrap">기록</td><td>접속 기록이 서버 IP로 남아 상대 서버가 “우리 쪽이 공격당했다”고 판단할 수 있음</td></tr>
+    <tr><td class="nowrap">트래픽</td><td>짧은 시간에 요청이 몰리면 디도스처럼 보임 — 집에서 많이 돌리면 IP가 막히고 신고 대상이 됨</td></tr>
+    <tr><td class="nowrap">결론</td><td>크롤링은 내 PC에서, 서버는 이미 받은 파일만 처리</td></tr>
+    </tbody></table></div>
+
+    <h3>준비 — 윈도우 VS Code 터미널(PowerShell)</h3>
+    <div class="code"><pre><code><span class="c"># [윈도우 PC · PowerShell · D:\py]</span>
+<span class="c"># pip 자체를 최신으로 — 실패하면 python.exe -m pip … 형태로 실행</span>
+python3 -m pip install --upgrade pip
+<span class="c"># selenium=브라우저 자동 제어 / webdriver-manager=브라우저 드라이버 자동 설치·관리 / requests=HTTP 요청</span>
+pip install selenium webdriver-manager requests
+<span class="c"># 배포된 보조 모듈 — 아래 표 참고</span>
+pip install my_custom_module</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td><code>pip 26.3</code> 설치 성공 메시지</td><td>버전 숫자는 시점에 따라 다름</td></tr>
+    <tr><td class="nowrap"><code>my_custom_module</code></td><td>강사가 배포한 보조 모듈 — “IP를 숨겨 회사 연락을 피한다”는 설명은 공개 배포처로 확인되지 않음</td><td>공개 패키지가 아니어서 설치가 실패할 수 있음 → 실습은 <code>img.py</code> 실행까지가 핵심</td></tr>
+    <tr><td class="nowrap">드라이버</td><td><code>webdriver-manager</code>가 브라우저 버전에 맞는 드라이버를 받아 줌</td><td>드라이버를 직접 내려받아 경로를 잡지 않아도 됨</td></tr>
+    </tbody></table></div>
+
+    <h3>호출부와 실행</h3>
+    <div class="code"><pre><code><span class="c"># [윈도우 PC · VS Code · img.py 파일 아래쪽 호출부]</span>
+<span class="c"># 첫 인자=대상 사이트 주소 / save_dir=저장 폴더 / max_images=수집 장수(기본 20)</span>
+download_unsplash_images("https://unsplash.com/s/photos/travel", save_dir="travel_images", max_images=20)</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [윈도우 PC · PowerShell · D:\py]</span>
+<span class="c"># 실행하면 브라우저가 자동으로 열려 스스로 스크롤하며 이미지를 내려받음</span>
+python img.py</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>인자</th><th>의미</th><th>실습 값</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>save_dir</code></td><td>이미지를 저장할 폴더 이름</td><td><code>travel_images</code></td></tr>
+    <tr><td class="nowrap"><code>max_images</code></td><td>최대 수집 장수</td><td>기본 20 → 100으로 올려 재실행</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>결과</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">저장 파일</td><td><code>travel_images</code> 폴더에 <code>travel_1.jpg</code>·<code>travel_2.jpg</code> … 순번으로 저장</td><td>사이트의 이미지를 긁어오는 동작이 크롤링</td></tr>
+    <tr><td class="nowrap">기본값 실행</td><td><code>max_images=20</code>이라 20장 수집</td><td>값을 바꾸지 않으면 기본값 적용</td></tr>
+    <tr><td class="nowrap">100으로 재실행</td><td>사이트의 더보기(Load more)가 끊겨 <b>33개</b>에서 멈춤</td><td>테스트용으로 33개를 그대로 사용</td></tr>
+    <tr><td class="nowrap">실행 중</td><td>건드리지 말고 기다림</td><td>브라우저를 조작하면 수집이 끊김</td></tr>
+    <tr><td class="nowrap">구조 의존</td><td>특정 이미지 영역만 잡도록 짜여 있음</td><td>사이트 구조가 바뀌면 코드도 고쳐야 함</td></tr>
+    <tr><td class="nowrap">차단 여부</td><td>이 사이트는 막지 않음 — 같은 방식으로 계속 수집 가능</td><td>사이트마다 정책이 다르므로 남용하지 않음</td></tr>
+    </tbody></table></div>
+
+    <h3>서버로 올리기</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>동작</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>주피터 랩에서 <code>data</code> 디렉터리로 이동</td><td><code>/opt/spark/data</code> — 호스트 <code>/home/spark-data</code>와 같은 폴더</td></tr>
+    <tr><td class="nowrap">2</td><td>업로드 버튼으로 <code>travel_images</code> 폴더를 통째로 올림</td><td>폴더 단위 업로드 지원</td></tr>
+    <tr><td class="nowrap">3</td><td>업로드 속도·이미지 표시 확인</td><td>빠르게 올라가고 썸네일이 정상 표시되면 성공</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">크롤링은 로컬에서 — 서버에서 돌리면 서버 로드와 접속 기록이 남아 상대 사이트에 공격으로 보이고, 짧은 시간에 몰리면 디도스처럼 판단되어 IP 차단·신고로 이어짐. 수집한 폴더는 주피터 업로드로 서버에 전달</div>
+
+    <ul class="facts"><li><strong>업로드 경로</strong><div>주피터 업로드와 파일 브라우저: 이 파일 14장</div></li><li><strong>볼륨</strong><div>서버에 올린 파일이 호스트 폴더에도 보이는지: 이 파일 22장</div></li><li><strong>서버 자원</strong><div>부하·메모리 판단: linux.html 12장</div></li></ul>
+  </section>
+
+  <!-- 30 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -2433,6 +2981,40 @@ docker start spark-master                            <span class="c"># 시작 �
           <tr class="group"><th colspan="2" scope="colgroup">마스터 (22장)</th></tr>
           <tr><td><code>docker run -d --name spark-master --hostname spark-master --network spark-net -p 8080:8080 -p 7077:7077 -p 8888:8888 spark-rocky9:3.5.3 /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --host spark-master --port 7077 --webui-port 8080</code></td><td>마스터 실행 (전체 옵션 설명은 22장). 자원 제한 전 연습 상태, 완료본 아님</td></tr>
           <tr><td><code>docker stop spark-master</code> / <code>docker start spark-master</code></td><td>중지·시작에 따라 UI 접속과 마스터 자동 재기동 확인</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">볼륨 연결·클러스터 재생성 (22장)</th></tr>
+          <tr><td><code>mkdir /home/spark-data</code></td><td>호스트 볼륨 폴더 — root 기준 절대 경로. 컨테이너 <code>/opt/spark/data</code>와 연결</td></tr>
+          <tr><td><code>docker stop</code> 이름들 → <code>docker rm</code> 이름</td><td>볼륨은 생성 시점에만 붙으므로 정지·삭제 후 재생성. 삭제 전 run 명령 메모장 보존</td></tr>
+          <tr><td><code>-v /home/spark-data:/opt/spark/data</code></td><td>바인드 마운트 — 콜론 필수, 이미지 이름 바로 앞. 양쪽이 같은 폴더를 보고 양방향 반영</td></tr>
+          <tr><td><code>docker exec -it spark-master /bin/bash</code> → <code>cd /opt/spark/data</code> → <code>vi test.txt</code> → 호스트 <code>ls -a /home/spark-data</code></td><td>마운트 검증 — 컨테이너에서 만든 파일이 호스트에, 호스트에서 지운 파일이 컨테이너에 반영</td></tr>
+          <tr><td><code>docker start spark-master</code> → <code>docker start spark-worker1 spark-worker2</code></td><td>재생성 후 기동 순서 — 마스터가 먼저, 워커 환경 <code>SPARK_WORKER_CORES=1</code>·<code>SPARK_WORKER_MEMORY=2G</code></td></tr>
+          <tr><td><code>df -m</code> / <code>df -h</code></td><td>디스크 여유 확인 — 파티션 구조·LVM·<code>/home</code> 낭비: linux.html 12장</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Spark 셸·앱 상태 (23장)</th></tr>
+          <tr><td><code>pyspark --master spark://spark-master:7077</code></td><td>마스터 컨테이너에서 셸 실행. 셸이 떠 있는 동안 8080 UI에 앱 표시(대기), <code>exit</code>하면 사라짐</td></tr>
+          <tr><td><code>jps</code></td><td>자바 프로세스 확인 — 마스터 컨테이너는 Master만. <code>pjs</code>·<code>psj</code>는 command not found</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">컨테이너 주피터 (24장)</th></tr>
+          <tr><td><code>pip3 install notebook</code> / <code>jupyter --version</code></td><td>root로 설치. client·core·server·lab·notebook 확인, ipywidgets·qtconsole은 없어도 무방</td></tr>
+          <tr><td><code>PYSPARK_PYTHON</code>=<code>python3</code> / <code>PYSPARK_DRIVER_PYTHON</code>=<code>jupyter</code> / <code>PYSPARK_DRIVER_PYTHON_OPTS</code>=<code>"notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root"</code></td><td><code>~/.bashrc</code> 3줄 — 등호 양옆 공백 금지, 옵션은 한 줄. Spark 3.5.x는 Python 3.8~3.11</td></tr>
+          <tr><td><code>source ~/.bashrc</code> → <code>pyspark</code></td><td>셸 대신 주피터 서버 기동 → <code>http://서버IP:8888</code>에 <code>?token=</code> 값으로 로그인</td></tr>
+          <tr><td>주피터 터미널 <code>Ctrl+C</code></td><td>서버가 꺼지고 재기동하면 토큰 새로 발급. 작업은 <code>/opt/spark</code>에서 <code>data</code>로 이동해 진행</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">csv·셸 모드 (25장)</th></tr>
+          <tr><td><code>unset PYSPARK_DRIVER_PYTHON PYSPARK_DRIVER_PYTHON_OPTS &amp;&amp; pyspark</code></td><td>주피터 변수를 해제하고 셸 모드 진입 — <code>.bashrc</code> 주석 처리로는 현재 세션에 반영되지 않음</td></tr>
+          <tr><td><code>spark.read.csv("/opt/spark/data/sample.csv", header=True, inferSchema=True)</code> → <code>df.show()</code></td><td>csv 읽기 — 경로는 컨테이너 기준, <code>header</code>=첫 행을 컬럼명, <code>inferSchema</code>=타입 추정</td></tr>
+          <tr><td>배너 <code>master = local[*]</code></td><td>클러스터가 아닌 로컬 실행 — 마스터 UI에 앱이 안 뜸. 마스터 UI 포트는 8080</td></tr>
+          <tr><td><code>sample.csv</code> 7행 (hong1~hong7)</td><td>id·name·money·sales, 콤마 구분 텍스트가 곧 csv. hong7 sales는 출력 표 기준 1800</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">파이썬 제출 (26장)</th></tr>
+          <tr><td><code>spark-submit --master local[*] rdd1.py</code></td><td><code>/opt/spark/data</code>에서 실행. <code>local[*]</code>=가용 코어 전부</td></tr>
+          <tr><td><code>Jupyter command jupyter-/opt/spark/data/rdd1.py not found</code></td><td><code>PYSPARK_DRIVER_PYTHON=jupyter</code> 때문 — <code>unset</code> 두 개 후 재제출</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Spark SQL·수치 함수 (27~28장)</th></tr>
+          <tr><td><code>from pyspark.sql import SparkSession</code> / <code>SparkSession.builder.appName("연습용").master("spark://spark-master:7077").getOrCreate()</code></td><td>Spark 코드의 첫 줄 세트. 기존 세션이 있으면 <code>master</code>가 무시될 수 있음</td></tr>
+          <tr><td><code>df.createOrReplaceTempView("sample")</code></td><td>메모리 위 임시 뷰 — 글로벌 뷰는 쓰지 않고, 뷰에는 <code>INSERT</code> 불가</td></tr>
+          <tr><td><code>spark.sql("""select round(avg(money)) as total_avg from sample""").show()</code></td><td>따옴표 3개 + <code>.show()</code> 고정 틀, SQL 문자열 안에 <code>#</code> 주석 금지</td></tr>
+          <tr><td><code>select * from sample order by id desc</code> / <code>max(money)</code></td><td>7행 · 평균 150171.0 · 최댓값 455000. 집계 결과에 원본 컬럼으로 <code>order by</code>를 붙이면 에러</td></tr>
+          <tr><td><code>FLOOR</code>(내림) / <code>CEIL</code>(올림) / <code>ROUND</code>(0.5 기준 반올림)</td><td>3.2 → 3·4·3 / 3.7 → 3·4·4. 평균 집계에서 선택에 따라 결과가 갈림</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">이미지 수집·크롤링 (29장)</th></tr>
+          <tr><td><code>python3 -m pip install --upgrade pip</code></td><td>윈도우 PowerShell — 실패하면 <code>python.exe -m pip …</code>로 실행</td></tr>
+          <tr><td><code>pip install selenium webdriver-manager requests</code></td><td>브라우저 제어·드라이버 자동 관리·HTTP 요청 — 로컬 PC에만 설치</td></tr>
+          <tr><td><code>python img.py</code></td><td><code>D:\py</code>에서 실행, 브라우저가 자동 스크롤. 기본 20장(개), 100 지정 시 33개에서 멈춤</td></tr>
+          <tr><td><code>download_unsplash_images(url, save_dir="travel_images", max_images=20)</code></td><td>호출부 인자 — 사이트 주소·저장 폴더·수집 장수. 서버에서는 실행 금지</td></tr>
         </tbody>
       </table>
     </div>
