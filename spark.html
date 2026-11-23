@@ -604,9 +604,14 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#spark-standalone">8. Standalone 운영 (기동·정지·워커 증감)</a></li>
         <li><a href="#spark-submit">9. spark-submit (제출·자원 배분)</a></li>
         <li><a href="#spark-examples">10. 예제 프로그램 (WordCount·PySpark)</a></li>
-        <li><a href="#spark-image">11. Spark 이미지 (Dockerfile·빌드)</a></li>
-        <li><a href="#spark-master">12. 마스터 컨테이너 기동·재시작</a></li>
-        <li><a href="#cheatsheet">13. 통합 명령어 치트시트</a></li>
+        <li><a href="#spark-python-libs">11. 파이썬 데이터 라이브러리·PySpark 구성</a></li>
+        <li><a href="#spark-python-install">12. 마스터·워커 파이썬 설치</a></li>
+        <li><a href="#spark-jupyter">13. PySpark 환경변수·JupyterLab 실행</a></li>
+        <li><a href="#spark-jupyter-use">14. JupyterLab 화면·노트북·커널</a></li>
+        <li><a href="#spark-jupyter-submit">15. Jupyter 제출·코어·메모리 한계</a></li>
+        <li><a href="#spark-image">16. Spark 이미지 (Dockerfile·빌드)</a></li>
+        <li><a href="#spark-master">17. 마스터 컨테이너 기동·재시작</a></li>
+        <li><a href="#cheatsheet">18. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -614,20 +619,20 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>Spark 통합 학습노트</h1>
-    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지와 마스터 기동까지, 워커는 다음 단계. 네트워크 명령: docker.html 9장</p>
+    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지와 마스터 기동까지, 워커는 다음 단계. 네트워크 명령: docker.html 9장</p>
 
     <div class="core-strip">
       <div>
         <div class="core-metric">개념 → 설치 → 운영</div>
-        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성 (3~7장) → 운영·제출·예제 (8~10장) → 컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile 이미지를 만들어 재사용 (11장)</p>
+        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성 (3~7장) → 운영·제출·예제 (8~10장) → PySpark·JupyterLab 연동 (11~15장) → 컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile 이미지를 만들어 재사용 (16장)</p>
       </div>
       <div>
         <div class="core-metric">7077 · 8080 · 8888</div>
-        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI, 8888 Jupyter, 8081 워커 UI (2장)</p>
+        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI, 8888 Jupyter(토큰 로그인, 재기동마다 토큰 변경), 8081 워커 UI (2장·13장)</p>
       </div>
       <div>
         <div class="core-metric">spark-net + --host</div>
-        <p class="core-desc">사용자 정의 네트워크의 이름 DNS로 <code class="n">spark://spark-master:7077</code> 연결. <code class="n">--ip</code>는 deprecated → <code class="n">--host</code> (12장)</p>
+        <p class="core-desc">사용자 정의 네트워크의 이름 DNS로 <code class="n">spark://spark-master:7077</code> 연결. <code class="n">--ip</code>는 deprecated → <code class="n">--host</code> (17장)</p>
       </div>
     </div>
 
@@ -642,9 +647,14 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#spark-standalone">8. Standalone 운영 (기동·정지·워커 증감)</a>
       <a href="#spark-submit">9. spark-submit (제출·자원 배분)</a>
       <a href="#spark-examples">10. 예제 프로그램 (WordCount·PySpark)</a>
-      <a href="#spark-image">11. Spark 이미지 (Dockerfile·빌드)</a>
-      <a href="#spark-master">12. 마스터 컨테이너 기동·재시작</a>
-      <a href="#cheatsheet">13. 통합 명령어 치트시트</a>
+      <a href="#spark-python-libs">11. 파이썬 데이터 라이브러리·PySpark 구성</a>
+      <a href="#spark-python-install">12. 마스터·워커 파이썬 설치</a>
+      <a href="#spark-jupyter">13. PySpark 환경변수·JupyterLab 실행</a>
+      <a href="#spark-jupyter-use">14. JupyterLab 화면·노트북·커널</a>
+      <a href="#spark-jupyter-submit">15. Jupyter 제출·코어·메모리 한계</a>
+      <a href="#spark-image">16. Spark 이미지 (Dockerfile·빌드)</a>
+      <a href="#spark-master">17. 마스터 컨테이너 기동·재시작</a>
+      <a href="#cheatsheet">18. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -657,7 +667,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
     <tr><td class="nowrap">정의</td><td><b>Apache Spark</b> = 서버(하드웨어) 자원을 모아 쓰는 <b>대규모 데이터 처리용 분산 데이터 처리 엔진</b></td><td>여러 서버의 코어·메모리를 나눠 한 작업을 처리하는 엔진 — 데이터베이스·웹 서버와 역할이 다름</td></tr>
-    <tr><td class="nowrap">과거의 진입 장벽</td><td>환경 설정과 서버별 마운트가 매우 어려움</td><td>지금은 구성이 유연해져 직접 설치·컨테이너 이미지 모두 가능 (3~7장·11장)</td></tr>
+    <tr><td class="nowrap">과거의 진입 장벽</td><td>환경 설정과 서버별 마운트가 매우 어려움</td><td>지금은 구성이 유연해져 직접 설치·컨테이너 이미지 모두 가능 (3~7장·16장)</td></tr>
     <tr><td class="nowrap">도입 판단</td><td>대규모로 처리할 일이 없는 회사는 구축 불필요</td><td>구축·운영에 비용만 발생 — 필요 없는 곳에 깔면 손해</td></tr>
     </tbody></table></div>
 
@@ -690,7 +700,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <tr><td class="nowrap">MLlib</td><td>분류·회귀·클러스터링 등 머신러닝 알고리즘, 대규모 머신러닝 파이프라인</td><td>개념만</td></tr>
     <tr><td class="nowrap">RDD</td><td>Spark의 가장 기초적인 분산 데이터 컬렉션(데이터셋)</td><td>실습에서 쓰는 부분 — 예제 프로그램이 RDD 연산 (10장)</td></tr>
     </tbody></table></div>
-    <ul class="facts"><li><strong>RDBMS 경험 질문</strong><div>MS SQL류 경험을 물으면 Spark SQL 이야기로 연결 — DataFrame을 SQL처럼 다루는 층</div></li><li><strong>옵션에 따라 결과가 달라짐</strong><div>같은 Spark라도 옵션을 어떻게 주느냐에 따라 결과·현상이 달라짐 — 이 노트에서 가장 중요한 사항. 자원 옵션: 9장</div></li><li><strong>실시간 분석</strong><div>Spark는 실시간 데이터 분석에도 쓰여 도입 사례가 많음</div></li><li><strong>PySpark·Jupyter</strong><div>별도 단계로 진행 — Jupyter 포트 <code>8888</code> (2장). 설치 작업은 클러스터 구성 이후 이어짐</div></li></ul>
+    <ul class="facts"><li><strong>RDBMS 경험 질문</strong><div>MS SQL류 경험을 물으면 Spark SQL 이야기로 연결 — DataFrame을 SQL처럼 다루는 층</div></li><li><strong>옵션에 따라 결과가 달라짐</strong><div>같은 Spark라도 옵션을 어떻게 주느냐에 따라 결과·현상이 달라짐 — 이 노트에서 가장 중요한 사항. 자원 옵션: 9장</div></li><li><strong>실시간 분석</strong><div>Spark는 실시간 데이터 분석에도 쓰여 도입 사례가 많음</div></li><li><strong>PySpark·Jupyter</strong><div>PySpark·JupyterLab 연동 — Jupyter 포트 <code>8888</code> (2장). 라이브러리 설치·환경변수·노트북·코어 실험: 이 파일 11~15장</div></li></ul>
 
     <h3>아키텍처 용어 — Master·Driver·Executor·Task</h3>
     <p>아키텍트가 쓰는 용어와 다른 부분이 있어 소통을 위해 정리 — 같은 대상을 다른 이름으로 부르는 경우가 많음.</p>
@@ -704,6 +714,39 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     </tbody></table></div>
     <div class="dg"><p class="dg-title">애플리케이션 실행 순서</p><div class="dg-flow"><div class="dg-node"><h4>① 제출</h4><p class="sub">spark-submit</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 드라이버</h4><p class="sub">main() 실행 · SparkContext</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 마스터</h4><p class="sub">executor 자원 할당</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ task 분배</h4><p class="sub">드라이버가 스케줄</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 연산</h4><p class="sub">executor가 코어·메모리로 실행</p></div></div><p class="dg-foot">드라이버가 main()을 실행하고 SparkContext로 task를 스케줄 — 마스터는 executor 자원을 할당하는 역할만 담당하고, executor(일꾼) 수를 확인해 각자 얼마나 가져갈지 계산하는 것이 task 할당</p></div>
     <div class="dg-bar warn">용어 구분 — Slave=Worker, Driver=전체 애플리케이션을 실행하는 총괄 프로세스, Executor=코어 단위 일꾼, Task=executor에 내려가는 작업 단위. 마스터는 start·stop과 자원 할당, 연산은 워커의 executor</div>
+
+    <h3>노드·클러스터 용어 — 개발자와 인프라</h3>
+    <p>같은 "노드"라도 분야마다 다른 대상을 가리켜 개발자와 이야기할 때 부딪힘 — 대화 전에 어느 쪽 의미인지 구분.</p>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>뜻</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">개발자의 노드</td><td>Node.js, 자료구조(링크드 리스트)의 노드</td><td>Node.js는 브라우저 밖에서 JavaScript를 실행하는 오픈소스 런타임 환경(언어는 JavaScript) — 스크립트 언어라는 표현은 정확하지 않음</td></tr>
+    <tr><td class="nowrap">인프라의 노드</td><td>분산 컴퓨팅 시스템(클러스터)을 이루는 <b>컴퓨터(서버) 1대</b> — master node·worker node</td><td>시스템을 이루는 한 부분(파트)</td></tr>
+    <tr><td class="nowrap">같은 말</td><td><code>worker node</code> = <code>slave node</code></td><td>연식 있는 인프라 담당자는 slave node로 부름</td></tr>
+    <tr><td class="nowrap">실습 서버</td><td>Node.js도 이미 설치돼 있음</td><td>개발자 관점과 무관 — 인프라 용어와 다른 층</td></tr>
+    <tr><td class="nowrap">두 의미</td><td>전혀 무관</td><td>개발자와 마스터·워커 이야기가 통하지 않고 부딪히는 이유</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>용어</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">클러스터</td><td>독립된 여러 대의 컴퓨터(노드)를 고속 네트워크로 연결해 하나처럼 쓰는 방식</td><td>노드=컴퓨터=서버. 마스터 노드=마스터 서버, 워커 노드 2개=워커 서버 2대 (2장)</td></tr>
+    <tr><td class="nowrap">노드의 역할</td><td>클러스터를 이루는 개별 머신</td><td>클러스터 전체를 제어·관리하는 두뇌 역할은 컨트롤 플레인(마스터 쪽 구성요소)이 맡음 — 출처: Kubernetes 문서</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>컨트롤 플레인 구성</th><th>설명</th></tr></thead><tbody>
+    <tr><td class="nowrap">API 서버</td><td>요청을 먼저 받은 뒤 워커로 보낼지 판단하는 소통 창구 — 워커 쪽에서는 하지 않음</td></tr>
+    <tr><td class="nowrap">etcd (분산 데이터)</td><td>클러스터의 <b>모든 상태를 기록하는 저장소</b> — 클러스터를 작동시키는 부분</td></tr>
+    <tr><td class="nowrap">스케줄러</td><td>새로운 작업을 <b>어느 워커 노드에 배치할지 결정</b></td></tr>
+    <tr><td class="nowrap">컨트롤러 매니저</td><td>클러스터가 원하는 정상(alive) 상태를 유지하는 감시·조절 장치</td></tr>
+    </tbody></table></div>
+    <p>이 네 가지는 <b>Kubernetes 컨트롤 플레인</b>의 구성요소 — 이 노트의 Spark Standalone 마스터에는 이런 구성이 없고 Master 프로세스가 자원 배분을 직접 함 (8장). 프레임워크 과정에서 다시 다루는 개념.</p>
+    <div class="table-wrap"><table>
+    <thead><tr><th>다른 분야</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">블록체인 노드</td><td>서버 한 대로 돌리기 어려울 만큼 연산이 많아, 각 컴퓨터를 네트워크로 연결해 체크·연산하는 구조</td></tr>
+    <tr><td class="nowrap">클러스터 바이러스</td><td>감염된 컴퓨터들을 연결해 하나의 시스템처럼 만든 것 — 해커가 다른 서버를 공격하는 데 이용</td></tr>
+    <tr><td class="nowrap">증상</td><td>CPU·메모리가 갑자기 쓰임 — CPU core를 몰래 사용</td></tr>
+    <tr><td class="nowrap">전파</td><td>링크를 타고 연결되며 주소를 가로채고, 컴퓨터가 아무것도 하지 않을 때 조작해 다른 바이러스를 옮기게 함</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 28강 52:37~53:30</div><p>"클러스터 바이러스"가 보안 분야의 정식 용어인지 — 영상 52분 37초~53분 30초 설명을 듣고 봇넷·크립토재킹 등 보안 자료로 대조</p></div>
+    <div class="dg-bar warn">노드 용어 — 인프라의 노드는 클러스터를 이루는 서버 1대(worker=slave). 개발자의 Node.js·자료구조 노드와 무관. 클러스터 전체 제어·관리는 컨트롤 플레인(Kubernetes)이고, Spark Standalone은 Master 프로세스가 자원 배분을 직접 담당</div>
 
     <ul class="facts"><li><strong>자원 계산·포트</strong><div>코어·메모리 배분 계산과 포트 표: 이 파일 2장</div></li><li><strong>클러스터 기동·운영</strong><div>마스터·워커 기동과 워커 증감: 이 파일 8장</div></li><li><strong>작업 제출</strong><div><code>spark-submit</code> 옵션과 자원 실험: 이 파일 9장</div></li></ul>
   </section>
@@ -733,7 +776,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>계획</strong></td><td>마스터 1개 + 워커 2개. 마스터는 워커로 쓰지 않고 워커끼리 연산, 입력 데이터는 CSV로 연결·실행·분석까지 확인 예정</td></tr>
-    <tr><td><strong>설치 방식</strong></td><td>서버 2대에 직접 설치(계정·SSH 키·hosts·tarball·환경변수·<code>spark-env.sh</code>) → 이 파일 3~7장 / 컨테이너 이미지로 설치(<code>Dockerfile</code>·마스터 기동) → 이 파일 11~12장</td></tr>
+    <tr><td><strong>설치 방식</strong></td><td>서버 2대에 직접 설치(계정·SSH 키·hosts·tarball·환경변수·<code>spark-env.sh</code>) → 이 파일 3~7장 / 컨테이너 이미지로 설치(<code>Dockerfile</code>·마스터 기동) → 이 파일 16~17장</td></tr>
     </tbody></table></div>
     <h3>Master·Worker 역할</h3>
     <div class="table-wrap"><table>
@@ -908,7 +951,7 @@ vi /etc/hosts   <span class="c"># root로 편집 (두 서버 모두 root로 전�
     <tr><td class="nowrap">같은 VPC</td><td>AWS·GCP에서도 <b>같은 VPC 안</b>의 서버끼리는 사설 IP로 Spark 통신 가능</td><td>마스터·워커가 같은 네트워크 그룹에 있어야 하는 조건이 VPC</td></tr>
     <tr><td class="nowrap">다른 VPC</td><td>VPC 피어링(VPC Peering)을 만들면 서로 다른 VPC도 사설 IP로 통신</td><td>피어링 없이 다른 VPC에 있는 서버는 사설 IP 직접 통신 불가 (출처: AWS VPC Peering 문서)</td></tr>
     </tbody></table></div>
-    <ul class="facts"><li><strong>자세한 실습</strong><div>계정·그룹 관리: linux.html 8장 / <code>su</code>·wheel: linux.html 7장 / SSH 키 인증 원리·<code>rsync</code>: linux.html 14장 / 컨테이너 네트워크로 같은 클러스터 구성: 이 파일 11~12장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div>계정·그룹 관리: linux.html 8장 / <code>su</code>·wheel: linux.html 7장 / SSH 키 인증 원리·<code>rsync</code>: linux.html 14장 / 컨테이너 네트워크로 같은 클러스터 구성: 이 파일 16~17장</div></li></ul>
   
 
   </section>
@@ -999,7 +1042,7 @@ ls -al                              <span class="c"># spark 및 하위 파일 �
     <tr><td class="nowrap">단계 완료</td><td>여기까지가 설치(압축 해제) 완료</td><td>설치만으로는 실행되지 않음 → 다음은 환경변수(5장)</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">설치 후 소유권 — <code>chown -R sparkuser:sparkuser /opt/spark</code>를 두 서버 모두에서 실행. 소유자가 root나 다른 계정으로 남으면 sparkuser가 <code>conf</code> 수정·스크립트 실행 불가. 설치는 root, 사용은 sparkuser</div>
-    <ul class="facts"><li><strong>자세한 실습</strong><div><code>tar</code> 옵션·gzip: linux.html 11장 / <code>chown -R</code>·권한: linux.html 7장 / <code>wget</code>·패키지: linux.html 13장 / 컨테이너에 같은 설치를 Dockerfile로: 이 파일 11장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div><code>tar</code> 옵션·gzip: linux.html 11장 / <code>chown -R</code>·권한: linux.html 7장 / <code>wget</code>·패키지: linux.html 13장 / 컨테이너에 같은 설치를 Dockerfile로: 이 파일 16장</div></li></ul>
   
 
   </section>
@@ -1082,7 +1125,7 @@ spark-submit --version    <span class="c"># Spark·JDK 버전 출력 (두 서버
     <tr><td class="nowrap">에러 시</td><td><code>spark-class: 줄 71: …/bin/java: 그런 파일이나 디렉터리가 없습니다</code></td><td><code>JAVA_HOME</code> 경로 문제 → 7장 트러블슈팅</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">환경변수 확인 — <code>source ~/.bashrc</code> 후 <code>spark-submit --version</code>에서 Spark 3.5.9와 OpenJDK 17이 <b>둘 다</b> 나와야 완료. <code>PATH</code>는 기존 값 뒤에 덧붙이고, <code>JAVA_HOME</code>은 <code>find</code>로 확인한 실제 경로</div>
-    <ul class="facts"><li><strong>자세한 실습</strong><div><code>find</code> 옵션: linux.html 16장 / <code>vi</code> 편집 키: linux.html 5장 / 컨테이너 이미지에서는 <code>ENV</code>로 같은 값 지정: 이 파일 11장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div><code>find</code> 옵션: linux.html 16장 / <code>vi</code> 편집 키: linux.html 5장 / 컨테이너 이미지에서는 <code>ENV</code>로 같은 값 지정: 이 파일 16장</div></li></ul>
   
 
   </section>
@@ -1167,7 +1210,7 @@ cd /opt/spark/sbin   <span class="c"># 실행 스크립트 위치로 이동</spa
     <div class="code"><pre><code><span class="c"># [마스터 · sparkuser]</span>
 /opt/spark/sbin/stop-all.sh   <span class="c"># 마스터·워커 종료 — 서버 전원을 끄기 전에 꼭 실행</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="dg-bar warn">클러스터 확인 — 8080은 마스터 IP, 8081은 각 서버 IP로 접속. 7077은 통신 전용이라 브라우저로 열리지 않는 것이 정상. 종료는 <code>stop-all.sh</code>로 먼저 하고 서버 전원 차단</div>
-    <ul class="facts"><li><strong>자세한 실습</strong><div>포트 역할·자원 설계: 이 파일 2장 / 같은 클러스터를 컨테이너로 구성한 사례: 이 파일 11~12장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div>포트 역할·자원 설계: 이 파일 2장 / 같은 클러스터를 컨테이너로 구성한 사례: 이 파일 16~17장</div></li></ul>
   
 
   </section>
@@ -1431,6 +1474,419 @@ spark-submit member.py   <span class="c"># 파일 안 .master()·.config() 설�
   </section>
 
   <!-- 11 -->
+  <section class="sec" id="spark-python-libs">
+    <h2>파이썬 데이터 라이브러리와 PySpark 구성</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 데이터를 다루는 라이브러리에서 Spark API까지</p><div class="dg-flow"><div class="dg-node"><h4>① pandas</h4><p class="sub">2차원 구조 데이터</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② numpy</h4><p class="sub">수치·다차원 배열</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ PySpark</h4><p class="sub">파이썬에서 Spark API</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ JupyterLab</h4><p class="sub">브라우저 노트북</p></div></div><p class="dg-foot">pandas·numpy는 데이터를 다루는 라이브러리, PySpark는 그 데이터를 Spark에서 처리하는 API, JupyterLab은 브라우저에서 코드를 실행하는 화면 — 리눅스에 기본 설치가 없어 마스터·워커에 직접 설치 (12장)</p></div>
+
+    <h3>데이터 분석 3대 라이브러리</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>라이브러리</th><th>역할</th><th>이 노트의 범위</th></tr></thead><tbody>
+    <tr><td class="nowrap">pandas</td><td>2차원 구조(행·열) 데이터를 다루는 데이터 분석 라이브러리 — 조작·연산·출력, 그래프 출력까지</td><td>중심 — DB(MySQL·PostgreSQL)에 연결해 핸들링 (아래)</td></tr>
+    <tr><td class="nowrap">numpy</td><td>수치 연산 라이브러리 — 다차원 배열을 빠르게 처리, 파이썬 메모리를 효율적으로 관리</td><td>중심 — pandas 설치 때 함께 설치 (12장)</td></tr>
+    <tr><td class="nowrap">matplotlib</td><td>그래프 라이브러리 — 선·막대·원 그래프, 산점도</td><td>다루지 않음 — 표·그래프 시각화는 에이전트·아키텍처 쪽 작업</td></tr>
+    </tbody></table></div>
+    <p><code>import</code>로 라이브러리를 로드하고 <code>as</code>(alias, 별칭)로 짧은 이름을 붙임. matplotlib도 같은 방식.</p>
+    <div class="code"><pre><code><span class="c"># [마스터 · JupyterLab 노트북 셀 · sparkuser]</span>
+import pandas as pd   <span class="c"># 데이터 조작 — pd라는 별칭</span>
+import numpy as np    <span class="c"># 수치 데이터 고속 처리 — np라는 별칭</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <p>코드는 직접 쓰기보다 생성 도구로 만든 코드를 실행하는 방식. 생성 도구가 넣어 준 위쪽 <code>import</code> 줄(<code>random</code> 등)도 같은 로드 방식.</p>
+
+    <h3>pandas — 2차원 구조 데이터</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">다루는 데이터</td><td>2차원 구조 데이터 — 표 형태의 조작·연산·출력</td><td>그래프 출력도 가능하지만 시각화는 이 노트의 범위 밖</td></tr>
+    <tr><td class="nowrap">학습 자료 읽기</td><td><code>csv</code>·<code>xlsx</code>·<code>xls</code> 파일을 절대경로로 읽는 방식이 학습 위주</td><td>대학·IT 전공 학습 중심 — Spark까지 다루는 실무에서는 취급하지 않음</td></tr>
+    <tr><td class="nowrap">이 노트의 방식</td><td>csv 대신 <b>DB(MySQL·PostgreSQL)에 연결해 핸들링</b></td><td>csv는 개발자 쪽 작업, 필요하면 별도 특강 대상</td></tr>
+    <tr><td class="nowrap">선행 지식</td><td><code>SELECT * FROM</code>·<code>JOIN</code> 등 쿼리문</td><td>모르면 같은 질문만 반복 — Spark까지 가면 특히 필수</td></tr>
+    <tr><td class="nowrap">면접 연결</td><td>파이썬 학습자에게 사용해 본 통계 라이브러리를 묻는 질문</td><td>pandas·numpy 경험으로 답할 수 있는 지점</td></tr>
+    </tbody></table></div>
+
+    <h3>numpy — 수치 연산</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">강점</td><td>다차원 배열을 빠르게 처리 — 앞서 배운 배열과 같은 개념</td><td>분산 데이터 처리에서 숫자 데이터 고속 처리에 사용</td></tr>
+    <tr><td class="nowrap">쓰는 이유</td><td>파이썬 메모리를 효율적으로 관리</td><td>서버에 설치하지 않으면 처리를 한참 기다리는 서버가 됨</td></tr>
+    <tr><td class="nowrap">역할 범위</td><td>라이브러리는 프로세스를 돌릴 때 돕는 보조 역할</td><td>연산 자체는 Spark 클러스터가 담당 (2장)</td></tr>
+    </tbody></table></div>
+
+    <h3>matplotlib — 그래프(다루지 않음)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">기능</td><td>선·막대·원 그래프, 산점도 등 도식화</td><td>표를 보기 좋게 만드는 작업은 주로 에이전트반·아키텍처 쪽</td></tr>
+    <tr><td class="nowrap">이 노트의 목적</td><td>메모리를 잘 관리해 빠르게 연산하고 빠르게 결과를 얻는 것</td><td>그래프는 목표가 아님 — pandas·numpy 중심</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 28강 17:36</div><p>"matplotlib이 표준 데이터 라이브러리 중 가장 쉽다"는 난이도 평가 — 주관적 평가라 공식 근거를 찾지 못함. 영상 17분 36초 구간을 직접 듣고 학습 자료로 확인</p></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 28강 17:30~18:00</div><p>"가장 어려운 라이브러리"로 가리킨 대상이 pandas인지 numpy인지 — 화면 지시 대상과 발화가 함께 있어야 확정 가능. 영상 17분 30초~18분 00초 구간 직접 확인</p></div>
+
+    <h3>Spark와의 관계 · 설치 범위</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">실행 기반</td><td>Spark는 주로 Scala로 작성돼 JVM 위에서 실행 — Java 17·21 등 JVM 필요, Java·Scala·Python·R API 제공</td><td>JVM은 Spark가 도는 바닥 — 5장에서 JAVA_HOME을 잡아 둔 이유</td></tr>
+    <tr><td class="nowrap">DB 연결</td><td><code>Maven Repository</code>에서 받은 라이브러리를 Spark에 연결해야 DB에 연결되고, 그 뒤 Spark가 연산(병렬 처리)</td><td>드라이버 jar를 붙이는 단계 — 라이브러리 없이는 DB 연결 자체가 안 됨</td></tr>
+    <tr><td class="nowrap">리눅스 기본 상태</td><td>pandas·numpy는 기본 설치돼 있지 않음</td><td>설치 명령을 따로 실행해야 함 (12장)</td></tr>
+    <tr><td class="nowrap">필수 여부</td><td>Spark 자체는 pandas·numpy 없이도 실행 — pandas·PyArrow는 pandas 연동 기능(<code>toPandas</code>·pandas UDF 등)에 필요한 선택 의존성</td><td>코드가 해당 라이브러리를 import할 때만 설치 필수 (출처: Spark pandas with Arrow 문서)</td></tr>
+    <tr><td class="nowrap">Windows(내 PC)</td><td>VS Code에서 쓰려면 Windows에도 따로 설치 — cmd·PowerShell에서 <code>pip</code>로 설치하거나 VS Code 확장 사용</td><td>리눅스와 같은 패키지, 설치 위치만 다름</td></tr>
+    <tr><td class="nowrap">이 노트의 범위</td><td>서버만 세팅, PC에는 설치하지 않음 — 만든 pandas 코드를 서버로 넘겨 실행</td><td>개발자는 서버 없이 PC에서 먼저 돌려 확인, 인프라 담당은 서버에서 바로 작업</td></tr>
+    </tbody></table></div>
+
+    <h3>PySpark · RDD · findspark · pyarrow</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>이름</th><th>설명</th><th>설치 대상·메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">JupyterLab<br>(<code>jupyter-lab</code>)</td><td>브라우저 기반 <b>대화형 데이터 분석·개발 환경</b> — Google Colab과 환경이 거의 같음</td><td>마스터만 (12장), 실행은 <code>pyspark</code>가 대신 (13장)</td></tr>
+    <tr><td class="nowrap">PySpark</td><td>파이썬에서 Spark API를 호출할 수 있게 해 주는 데이터프레임·RDD 제어 라이브러리</td><td>마스터·워커 모두 — 연산이 워커에서 이뤄짐</td></tr>
+    <tr><td class="nowrap">RDD</td><td><b>탄력적 분산 데이터셋</b>(Resilient Distributed Dataset) — 클러스터에서 대규모 데이터를 여러 컴퓨터에 나눠 병렬 처리. Spark에만 있는 용어, 약자의 마지막 D는 Dataset</td><td>예제 프로그램이 RDD 연산 (10장)</td></tr>
+    <tr><td class="nowrap">findspark</td><td>파이썬 스크립트·Jupyter 실행 시 <b>Spark 설치 경로를 자동 인식</b>하게 하는 보조 라이브러리 — 없으면 경로를 수동으로 잡아야 함(<code>find</code> 명령과 비슷한 역할)</td><td>마스터만 — JupyterLab의 의존 패키지가 아니라 별도 패키지라 같은 명령에 함께 지정</td></tr>
+    <tr><td class="nowrap">pyarrow</td><td>Apache Arrow 기반 라이브러리 — Spark에서 JVM과 Python 프로세스 사이의 데이터 전송(<code>toPandas</code>·pandas UDF 등)을 빠르게</td><td>워커 노드 사이 통신용이 아님 — 마스터·워커에 같은 이유로 설치</td></tr>
+    </tbody></table></div>
+    <p>Spark 구성 용어 — <b>드라이버</b>=총책임자, <b>executor</b>=일꾼. executor를 파이썬 코드에 설정해 투입할 일꾼 수를 정하고, 이 모두를 <b>JVM</b>(Java Virtual Machine) 프로세스가 담당. 용어 비교: 이 파일 1장.</p>
+    <div class="dg-bar warn">데이터 분석 3종 — pandas(2차원 구조 데이터)·numpy(수치·다차원 배열 고속 처리)·matplotlib(그래프, 다루지 않음). 리눅스에 기본 미설치라 마스터·워커 양쪽에 설치하고, pyarrow는 워커 간 통신이 아니라 JVM↔Python 전송용, findspark는 별도 패키지</div>
+
+    <ul class="facts"><li><strong>설치 실습</strong><div>root 3종·pip·<code>~/.local</code>·Jupyter 세트: 이 파일 12장</div></li><li><strong>실행·접속</strong><div>환경변수·<code>pyspark</code> 실행·토큰 로그인: 이 파일 13장</div></li><li><strong>자원 한계</strong><div>워커 가용 메모리 상한과 코어 실험: 이 파일 15장</div></li></ul>
+  </section>
+
+  <!-- 12 -->
+  <section class="sec" id="spark-python-install">
+    <h2>마스터·워커 파이썬 라이브러리 설치</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — root가 환경, 사용자가 라이브러리, Jupyter는 마스터만</p><div class="dg-flow"><div class="dg-node"><h4>① root 3종</h4><p class="sub">python3 · devel · pip</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② pip 설치</h4><p class="sub">pandas · numpy (양쪽)</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ ~/.local</h4><p class="sub">사용자별 설치 위치</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ Jupyter 세트</h4><p class="sub">jupyterlab·findspark는 마스터만</p></div></div><p class="dg-foot">파이썬 기본 환경은 root가, 라이브러리는 각 사용자가 설치 — pandas·numpy는 두 서버 동일, JupyterLab·findspark는 마스터만. 워커에 똑같이 깔면 메모리만 낭비</p></div>
+
+    <h3>작업 환경 — VS Code·Claude Code</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>도구</th><th>사용 방식</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">Claude Code</td><td>VS Code 터미널에서 <code>claude</code> 명령으로 실행</td><td>화면에 <code>auto mode on</code> 표시 — 대화에서 말한 "리뉴얼 모드"가 어느 모드인지 확인 필요</td></tr>
+    <tr><td class="nowrap">FTP 연결</td><td>VS Code에서 서버 <code>/home/sparkuser</code>에 FTP를 연결하면 저장한 파일이 바로 서버로 전송돼 Spark를 바로 실행</td><td>이 노트의 실습에서는 연결하지 않고 PuTTY와 <code>nano</code>로 파일 작성 (10장)</td></tr>
+    <tr><td class="nowrap">코드 확인</td><td>생성 도구가 만든 코드는 실행 전에 import·문법 확인</td><td>Run 전 확인 습관 — 10장 member.py의 import 누락 사례</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 28강 05:42~06:05</div><p>화면에는 <code>auto mode on</code>으로 표시되는데 대화에서는 "리뉴얼 모드"라고 말한 상태 — Claude Code의 어떤 모드인지 영상 05분 42초~06분 05초 구간을 직접 듣고 확인</p></div>
+
+    <h3>root 공통 — 파이썬 기본 환경 3종</h3>
+    <p>파이썬 기본 환경은 root가 세팅하며 일반 사용자는 불가. 마스터·워커 두 서버 모두 root로 실행.</p>
+    <div class="code"><pre><code><span class="c"># [마스터·워커 공통 · root · 두 서버 모두]</span>
+su                                   <span class="c"># 일반 사용자 → root 전환, 프롬프트가 #로 바뀌는지 확인</span>
+dnf install python3                  <span class="c"># 파이썬 3 — 이미 설치된 서버는 python 입력 시 버전 출력</span>
+dnf install python3-devel            <span class="c"># 개발용 패키지 — 미설치 상태라 설치</span>
+dnf install python3-pip              <span class="c"># pip — pandas·numpy 설치에 필수</span>
+python3 --version                    <span class="c"># 설치 확인 — 버전이 나오면 정상</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>패키지</th><th>역할</th><th>설치 전 상태</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>python3</code></td><td>파이썬 실행 환경</td><td>이미 설치 — <code>python</code> 입력 시 버전 출력</td></tr>
+    <tr><td class="nowrap"><code>python3-devel</code></td><td>개발용 헤더·빌드 도구</td><td>미설치 — 설치 필요</td></tr>
+    <tr><td class="nowrap"><code>python3-pip</code></td><td>pip 패키지 관리자</td><td>미설치 — pip가 없으면 pandas·numpy 설치 불가</td></tr>
+    </tbody></table></div>
+    <p>이 3개로 파이썬 핸들링 환경이 완성되며 추가 설치는 없음. Jupyter도 이 환경이 있어야 설치 가능. 워커에는 3개 모두 미설치 상태였으므로 <b>마스터·워커 둘 다</b> 설치.</p>
+    <div class="table-wrap"><table>
+    <thead><tr><th>순서</th><th>누가</th><th>작업</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>root</td><td>파이썬 3종 설치 — 마스터·워커 둘 다</td></tr>
+    <tr><td class="nowrap">2</td><td>sparkuser</td><td><code>/home/sparkuser</code>로 전환해 설치 시작 (root로는 라이브러리 설치 안 함)</td></tr>
+    <tr><td class="nowrap">3</td><td>sparkuser</td><td>pandas·numpy를 각 사용자 계정으로 설치</td></tr>
+    <tr><td class="nowrap">4</td><td>sparkuser</td><td>Jupyter 관련 패키지 — 마스터에만 추가</td></tr>
+    </tbody></table></div>
+
+    <h3>sparkuser 설치 — pandas·numpy</h3>
+    <p><code>/home/sparkuser</code>에서 sparkuser로 설치. pip 사용법은 <code>dnf</code>와 비슷 — <code>install</code> 뒤에 패키지명.</p>
+    <div class="code"><pre><code><span class="c"># [마스터·워커 공통 · sparkuser · /home/sparkuser]</span>
+pwd                            <span class="c"># 현재 위치 확인 — /home/sparkuser</span>
+pip3 install pandas            <span class="c"># pandas 설치 — numpy는 의존 패키지로 함께 설치됨</span>
+pip3 install pandas numpy      <span class="c"># 여러 패키지를 한 명령에 함께 지정하는 형태</span>
+pip3 install numpy             <span class="c"># 이미 설치됨 확인 — Requirement already satisfied</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">numpy 동반 설치</td><td>pandas 설치 때 numpy도 같이 깔림 — <code>pip3 install numpy</code>에서 이미 설치됨으로 표시</td><td>따로 설치할 필요 없음</td></tr>
+    <tr><td class="nowrap">정상 출력</td><td>빨간 줄 없이 깨끗하게 끝남</td><td>빨간 줄이 뜨면 같은 명령을 다시 실행</td></tr>
+    <tr><td class="nowrap">에러 사례</td><td><code>ReadTimeoutError: HTTPSConnectionPool(host='files.pythonhosted.org', port=443): Read timed out.</code> — 마스터·워커 양쪽에서 발생</td><td>다운로드 중 연결 시간 초과 — 재실행해서 설치됨</td></tr>
+    <tr><td class="nowrap">다운로드 시간</td><td><code>pyspark</code> 434.4 MB 등 대용량 패키지</td><td>설치가 끝날 때까지 그 터미널은 사용 불가</td></tr>
+    <tr><td class="nowrap">병행 작업</td><td>PuTTY 창을 새로 열어 접속해 다른 작업</td><td>기다리는 동안 서버 설정을 이어감</td></tr>
+    <tr><td class="nowrap">디스크</td><td>40GB를 신청해도 라이브러리와 이미지로 금방 참</td><td>여유 확인은 <code>df -h</code> — linux.html 12장</td></tr>
+    </tbody></table></div>
+
+    <h3>설치 위치 확인 — ~/.local</h3>
+    <div class="code"><pre><code><span class="c"># [마스터·워커 공통 · sparkuser · /home/sparkuser]</span>
+pwd      <span class="c"># 현재 위치 확인 — /home/sparkuser</span>
+ls -a    <span class="c"># 숨김 파일 확인 — 설치 전에는 .ssh 등만 보임</span>
+<span class="c"># (pip 설치 후 같은 명령 재실행)</span>
+ls -a    <span class="c"># .local 디렉터리가 새로 생겼는지 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>.local</code></td><td>사용자별 pip 설치 위치 — 안에 numpy·pandas 등이 들어감</td><td>지우면 아무것도 작동하지 않음</td></tr>
+    <tr><td class="nowrap"><code>.local</code>이 없을 때</td><td>엉뚱한 위치(다른 계정·root)에 설치한 상태</td><td>자기 계정을 확인해 다시 설치</td></tr>
+    <tr><td class="nowrap">적용 범위</td><td>sparkuser가 설치한 것은 sparkuser에만 적용</td><td>다른 사용자(예: apink)의 홈에는 없음 — 계정마다 따로 설치</td></tr>
+    </tbody></table></div>
+
+    <h3>워커에도 설치하는 이유 — 동기화</h3>
+    <p>연산(병렬 처리)이 워커에서 이뤄지므로 마스터에만 설치하고 워커에 빠뜨리면 워커가 pandas·numpy를 인식하지 못해 에러.</p>
+    <div class="table-wrap"><table>
+    <thead><tr><th>상황</th><th>하는 일</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">워커 미설치</td><td>워커에서 라이브러리 인식 실패 → 연산 단계에서 에러</td><td>연산은 워커가 담당 (2장)</td></tr>
+    <tr><td class="nowrap">워커가 늘 때</td><td>같은 설치 작업을 서버마다 반복</td><td>마스터에서 설치한 것을 각 서버로 자동 배포하는 <b>동기화</b>를 사용</td></tr>
+    <tr><td class="nowrap">동기화 도구</td><td><code>rsync</code> — 원격·로컬 파일 전송, 바뀐 부분만 전송</td><td>로드 밸런싱 도구가 아님. 이 노트에서는 명령을 쓰지 않고 개념만 — 자세한 실습: linux.html 14장</td></tr>
+    </tbody></table></div>
+
+    <h3>Jupyter 관련 패키지 — 마스터·워커 다름</h3>
+    <p>pandas·numpy까지는 마스터·워커가 <b>동일</b>, JupyterLab부터 달라짐 — 똑같이 깔면 메모리만 낭비.</p>
+    <div class="code"><pre><code><span class="c"># [마스터 · sparkuser · /home/sparkuser]</span>
+pip3 install --user jupyterlab pyspark findspark pyarrow   <span class="c"># Jupyter·PySpark 세트 — 한 줄로 설치</span>
+<span class="c"># [워커 · sparkuser · /home/sparkuser]</span>
+pip3 install --user pyspark pyarrow                        <span class="c"># Jupyter를 쓰지 않으므로 jupyterlab·findspark 제외</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>패키지</th><th>역할</th><th>설치 대상</th></tr></thead><tbody>
+    <tr><td class="nowrap">jupyterlab</td><td>브라우저 노트북 서버</td><td>마스터만</td></tr>
+    <tr><td class="nowrap">findspark</td><td>Spark 설치 경로 자동 인식</td><td>마스터만 — JupyterLab을 깐다고 같이 설치되지 않는 별도 패키지 (출처: findspark 저장소)</td></tr>
+    <tr><td class="nowrap">pyspark</td><td>파이썬에서 Spark API 호출</td><td>마스터·워커 모두</td></tr>
+    <tr><td class="nowrap">pyarrow</td><td>JVM↔Python 데이터 전송 가속</td><td>마스터·워커 모두</td></tr>
+    <tr><td class="nowrap">의존 패키지</td><td>jupyterlab 설치 시 <code>jupyter_server</code>·<code>nbconvert</code>·<code>tornado</code> 등이 대량 설치</td><td>설치 로그가 길어 정상 — 끝까지 기다림</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>--user</code>의 뜻</td><td>현재 디렉터리와 무관하게 사용자 설치 위치(<code>~/.local</code>)에 설치</td><td>홈 경로에서 실행해서 필요 없었던 것이 아님 — 엉뚱한 경로에서 실행해도 사용자 위치에 설치</td></tr>
+    <tr><td class="nowrap">자동 전환</td><td>일반 사용자는 시스템 site-packages에 쓸 수 없어 pip가 user 설치로 자동 전환(<code>Defaulting to user installation</code>)</td><td>권한 때문에 붙는 안내 문구 — 오류가 아님</td></tr>
+    <tr><td class="nowrap">실수 사례</td><td><code>pyspark</code> 미설치 상태로 실행했다가 뒤늦게 확인 → <code>Ctrl+C</code>로 정지</td><td>마스터·워커 모두 <code>pip install --user pyspark</code>로 설치하고 재실행 (필수)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">설치 대상 — root는 <code>python3</code>·<code>python3-devel</code>·<code>python3-pip</code> 3종, sparkuser는 pip로 pandas·numpy. JupyterLab·findspark는 마스터만, pyspark·pyarrow는 마스터·워커 모두. 설치는 <code>~/.local</code>(사용자별)이라 계정마다 따로 해야 하고, <code>.local</code>이 없으면 엉뚱한 계정에 설치한 것</div>
+    <div class="dg-bar warn">설치 실패 대응 — 빨간 줄이 뜨면 같은 명령 재실행, <code>ReadTimeoutError … Read timed out.</code>도 재실행으로 해결. 대용량 다운로드 중에는 그 터미널을 쓸 수 없으니 PuTTY 새 창으로 병행</div>
+
+    <ul class="facts"><li><strong>패키지 설치 기초</strong><div><code>dnf</code> 설치·검색·삭제: linux.html 13장</div></li><li><strong>디스크·메모리 확인</strong><div><code>df -h</code>·<code>free -h</code>: linux.html 12장</div></li><li><strong>다음 단계</strong><div>환경변수와 JupyterLab 실행·접속: 이 파일 13장</div></li></ul>
+  </section>
+
+  <!-- 13 -->
+  <section class="sec" id="spark-jupyter">
+    <h2>PySpark 환경변수와 JupyterLab 실행·접속</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — .bashrc 세 줄이 pyspark를 JupyterLab으로 바꿈</p><div class="dg-flow"><div class="dg-node"><h4>① .bashrc 3줄</h4><p class="sub">PYSPARK_* 설정</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② source</h4><p class="sub">즉시 반영</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ pyspark 실행</h4><p class="sub">1g · 4코어</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 토큰 로그인</h4><p class="sub">8888 · token</p></div></div><p class="dg-foot">환경변수 세 줄이 <code>pyspark</code> 실행을 JupyterLab으로 바꿔 줌 — 실행한 디렉터리가 파일 브라우저 기준이라 자기 홈에서 실행하고, 토큰은 재기동마다 바뀜</p></div>
+
+    <h3>마스터 — ~/.bashrc 설정</h3>
+    <p><code>vi ~/.bashrc</code>로 맨 아래로 이동, 5장에서 넣은 <code>SPARK_HOME</code>·<code>PATH</code>·<code>JAVA_HOME</code>(java-17-openjdk) 아래에 이어서 추가.</p>
+    <div class="code"><pre><code><span class="c"># [마스터 · sparkuser · ~/.bashrc 파일 안]</span>
+<span class="c"># 기존 SPARK_HOME·PATH·JAVA_HOME 줄은 그대로 두고 그 아래에 추가</span>
+<span class="c"># PYSPARK_PYTHON: PySpark가 실제로 쓸 파이썬 파일 경로 — dnf 설치 python3는 /usr/bin/python3로 고정</span>
+<span class="c"># (소스 설치 파이썬은 --prefix로 정한 경로를 넣음)</span>
+export PYSPARK_PYTHON=/usr/bin/python3
+<span class="c"># PYSPARK_DRIVER_PYTHON: pyspark 실행 시 드라이버 대신 띄울 프로그램 — jupyter로 지정</span>
+export PYSPARK_DRIVER_PYTHON=jupyter
+<span class="c"># PYSPARK_DRIVER_PYTHON_OPTS: 위 프로그램에 넘길 옵션 — lab=JupyterLab 실행</span>
+<span class="c"># --ip=0.0.0.0=모든 주소에서 접속 허용 / --port=8888=접속 포트 / --no-browser=서버라 브라우저를 띄우지 않음</span>
+<span class="c"># 세 옵션은 한 줄에 쓰고 =로 연결 (줄이 나뉘거나 띄어 쓰면 옵션으로 인식되지 않음)</span>
+export PYSPARK_DRIVER_PYTHON_OPTS='lab --ip=0.0.0.0 --port=8888 --no-browser'</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">경로 확인</td><td><code>PYSPARK_PYTHON</code> 값은 <code>find</code>로 실제 파일 위치를 확인해 넣음</td><td><code>find</code> 사용법: linux.html 16장</td></tr>
+    <tr><td class="nowrap"><code>lab</code></td><td>JupyterLab 실행</td><td>jupyter가 아니라 JupyterLab을 띄우는 옵션</td></tr>
+    <tr><td class="nowrap"><code>--ip=0.0.0.0</code></td><td>모든 주소에서 접속 허용</td><td>사설망 실습 전제 — 외부에 열어 둘 주소 범위가 넓어짐</td></tr>
+    <tr><td class="nowrap"><code>--port=8888</code></td><td>접속 포트 8888</td><td>2장 포트 표와 같은 값</td></tr>
+    <tr><td class="nowrap">오타</td><td>옵션 이름·<code>=</code> 표기를 틀리면 Jupyter가 뜨지 않음</td><td>줄 전체를 한 줄로 유지</td></tr>
+    <tr><td class="nowrap">반영</td><td>저장 후 <code>source</code> — MySQL의 <code>flush privileges</code>와 같은 위치의 핵심 단계</td><td>저장만 하면 현재 셸에는 적용되지 않음</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · sparkuser]</span>
+source ~/.bashrc   <span class="c"># 저장한 환경변수를 현재 셸에 즉시 반영</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <h3>워커 — ~/.bashrc 한 줄</h3>
+    <p>워커 서버에 새로 접속 → <code>sparkuser</code>로 <code>vi ~/.bashrc</code> → <code>:set number</code>로 줄 번호 표시 → 맨 아래 Java 설정 밑에 한 줄만 추가.</p>
+    <div class="code"><pre><code><span class="c"># [워커 · sparkuser · ~/.bashrc 파일 안]</span>
+<span class="c"># 워커는 JupyterLab을 설치하지 않았으므로 파이썬 경로 한 줄만 추가 (오타 주의)</span>
+export PYSPARK_PYTHON=/usr/bin/python3</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">한 줄만</td><td>워커는 Jupyter를 설치하지 않았으므로 랩·Jupyter 연결 설정 불필요</td><td>필요 없는 변수를 넣으면 워커에서 spark-submit 실행이 꼬임 (15장 unset)</td></tr>
+    <tr><td class="nowrap">저장 후</td><td><code>source ~/.bashrc</code>로 반영</td><td>재접속하면 자동 적용</td></tr>
+    <tr><td class="nowrap">계정 권한</td><td>5장에서 <code>sparkuser</code>를 <code>wheel</code> 그룹으로 바꿔 둔 덕에 일반 사용자로도 편집·실행이 수월</td><td><code>wheel</code>·<code>sudo</code>: linux.html 7장</td></tr>
+    </tbody></table></div>
+
+    <h3>JupyterLab 실행 — pyspark</h3>
+    <div class="code"><pre><code><span class="c"># [마스터 · sparkuser · /home/sparkuser]</span>
+<span class="c"># 실행 디렉터리가 Jupyter 파일 브라우저의 기준 경로 — 반드시 자기 홈에서 실행</span>
+<span class="c"># --master: 작업을 던질 마스터 주소 (8080 UI에서 복사)</span>
+<span class="c"># --executor-memory 1g: executor 하나의 메모리 — 2g도 가능하지만 남는 여유가 없어 1g</span>
+<span class="c"># --total-executor-cores 4: 전체에서 쓸 코어 — 6코어 중 4개만 사용 (전부 쓰면 안 됨)</span>
+pyspark --master spark://192.168.222.2:7077 --executor-memory 1g --total-executor-cores 4</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">줄 바꿈</td><td>명령이 길면 <code>\</code>로 줄을 나눠 씀</td><td>옵션 이름 오타가 가장 흔한 실패 원인</td></tr>
+    <tr><td class="nowrap">출력</td><td>JupyterLab 서버 주소와 <b>토큰이 포함된 URL</b>이 터미널에 출력</td><td>이 URL의 토큰으로 로그인</td></tr>
+    <tr><td class="nowrap">터미널 점유</td><td>서버가 도는 동안 그 터미널은 입력 불가</td><td>다른 작업은 PuTTY 창을 새로 열어 실행</td></tr>
+    <tr><td class="nowrap">자원 점유</td><td>실행하는 동안 지정한 코어·메모리를 Jupyter가 풀로 점유</td><td>다른 앱은 남은 자원만 씀 (15장)</td></tr>
+    </tbody></table></div>
+
+    <h3>접속 — 토큰 로그인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>화면</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>브라우저</td><td><code>192.168.222.2:8888</code> 접속 → 로그인 화면(Password or token)</td></tr>
+    <tr><td class="nowrap">2</td><td>토큰 입력</td><td>터미널 URL의 <code>token=</code> 뒤 긴 문자열을 붙여넣고 <code>Log in</code></td></tr>
+    <tr><td class="nowrap">3</td><td>복사·붙여넣기</td><td>마우스 오른쪽 클릭 또는 <code>Ctrl+C</code>(복사) / <code>Ctrl+V</code>(붙여넣기)</td></tr>
+    <tr><td class="nowrap">4</td><td>토큰 변경</td><td>서버를 껐다 켜면 토큰이 계속 바뀌고 로그인 세션도 초기화</td></tr>
+    <tr><td class="nowrap">5</td><td>Master UI</td><td><code>PySparkShell</code> = Jupyter가 띄운 Spark 앱</td></tr>
+    <tr><td class="nowrap">6</td><td>실행 전 상태</td><td>접속 직후 <code>PySparkShell</code>이 보여도 코드를 실행하기 전까지 워커는 움직이지 않음</td></tr>
+    </tbody></table></div>
+
+    <h3>종료와 실행 경로</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">종료</td><td>마스터 터미널에서 <code>Ctrl+C</code> → <code>y</code> → Jupyter 서버 shutdown</td><td>종료 후 새로고침하면 <code>Server Connection Error</code></td></tr>
+    <tr><td class="nowrap">실행 경로</td><td>Jupyter를 실행한 디렉터리가 파일 브라우저의 기준 경로</td><td><code>/opt/spark</code> 같은 엉뚱한 경로에서 실행하면 내 파일이 보이지 않음</td></tr>
+    <tr><td class="nowrap">해결</td><td><code>Ctrl+C</code> → <code>y</code>로 종료 → <code>/home/sparkuser</code>에서 다시 실행</td><td>무조건 자기 디렉터리에서 실행</td></tr>
+    <tr><td class="nowrap">재실행 직후</td><td>새로고침하면 서버 연결 에러가 잠깐 뜬 뒤 다시 작동</td><td>토큰도 새로 발급되므로 새 URL로 로그인</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">Jupyter 실행 — 자기 홈(<code>/home/sparkuser</code>)에서 <code>pyspark --master … --executor-memory 1g --total-executor-cores 4</code>. 토큰은 재기동마다 바뀌고 세션도 초기화, 종료는 <code>Ctrl+C</code> → <code>y</code>. 종료 후 새로고침의 <code>Server Connection Error</code>는 정상</div>
+
+    <ul class="facts"><li><strong>환경변수 기초</strong><div><code>~/.bashrc</code>·<code>source</code>·<code>JAVA_HOME</code>: 이 파일 5장</div></li><li><strong>포트</strong><div>8888 Jupyter·8080 UI·7077 통신: 이 파일 2장</div></li><li><strong>화면 사용</strong><div>노트북·셀·커널: 이 파일 14장</div></li></ul>
+  </section>
+
+  <!-- 14 -->
+  <section class="sec" id="spark-jupyter-use">
+    <h2>JupyterLab 화면·노트북·커널</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 노트북 만들고, 실행하고, 남기고, 정리</p><div class="dg-flow"><div class="dg-node"><h4>① Notebook</h4><p class="sub">Launcher에서 생성</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 셀 실행</h4><p class="sub">Ctrl+Enter</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 저장</h4><p class="sub">Ctrl+S → .ipynb</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>④ 내보내기</h4><p class="sub">Executable Script</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 커널 정리</h4><p class="sub">Shut Down · (kill)</p></div></div><p class="dg-foot">노트북은 <code>.ipynb</code>(JSON)로 저장하고 <code>.py</code>로 내보내 가져감 — 창을 닫아도 커널은 남아 메모리를 계속 점유하므로 Shut Down Kernel이나 <code>(kill)</code>로 정리</p></div>
+
+    <h3>화면 구성</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>영역</th><th>내용</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">파일 브라우저</td><td>왼쪽에 소스 파일 표시</td><td>View 메뉴로 열고 닫기</td></tr>
+    <tr><td class="nowrap">Launcher</td><td>새 노트북·터미널을 고르는 화면</td><td>닫아도 <code>+</code> 버튼으로 다시 열림</td></tr>
+    <tr><td class="nowrap">Settings</td><td>다크모드·화이트 테마, 브라켓 등</td><td>바꿀 필요 없음 — Language는 한국어 미지원(영어만)</td></tr>
+    <tr><td class="nowrap">pyspark 터미널</td><td>Jupyter 안 Terminal에서도 명령 실행 가능</td><td>pyspark 서버 터미널 자체는 건드릴 수 없음 — 정지하려면 <code>Ctrl+C</code></td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>Launcher 항목</th><th>설명</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">Notebook</td><td>코드 셀과 그 아래 결과 출력</td><td>이 노트에서 쓸 것 — 데이터 분석 작업의 중심</td></tr>
+    <tr><td class="nowrap">Console</td><td>vi 편집기와 비슷한 콘솔 모드</td><td>거의 쓰지 않음</td></tr>
+    <tr><td class="nowrap">Terminal</td><td>리눅스에 바로 접속 — <code>ls -al</code> 등 명령이 그대로 실행</td><td><code>spark-submit</code> 실행에 사용 (15장)</td></tr>
+    <tr><td class="nowrap">Text·Markdown·Python File</td><td>각 형식의 파일 생성</td><td>파이썬 파일 업로드와 함께 사용</td></tr>
+    <tr><td class="nowrap">Help</td><td>도움말</td><td>—</td></tr>
+    </tbody></table></div>
+
+    <h3>노트북 저장·실행</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">확장자</td><td><code>.ipynb</code> — Jupyter에서 만든 노트북 파일</td><td>서버 개발자·인프라 담당자의 테스트 용도</td></tr>
+    <tr><td class="nowrap">파일 형식</td><td>JSON 형식의 노트북 문서 — <code>jupyter nbconvert --execute</code> 등으로 명령줄 실행도 가능</td><td><code>python</code>·<code>spark-submit</code>으로 직접 돌리는 스크립트 파일이 아니라는 뜻</td></tr>
+    <tr><td class="nowrap">우측 도구</td><td>Property Inspector의 Common Tools·Advanced Tools는 메타데이터 배열</td><td><code>.ipynb</code>가 JSON 파일인 이유</td></tr>
+    <tr><td class="nowrap">저장</td><td><code>Ctrl+S</code> → 이름 입력(예 <code>test</code>) → <code>Rename and Save</code> → <code>test.ipynb</code></td><td>디스크 모양 아이콘이 보이면 아직 저장하지 않은 상태</td></tr>
+    <tr><td class="nowrap">셀 실행</td><td><code>Ctrl+Enter</code>, 실행 중이면 <code>Running</code>(뱅글뱅글) 표시</td><td>결과가 셀 아래에 출력</td></tr>
+    <tr><td class="nowrap">자원 점유</td><td>pyspark로 띄웠으므로 Jupyter가 도는 동안 지정한 코어·메모리를 풀로 점유</td><td>다른 앱과 자원을 나눠 쓰지 못함 (15장)</td></tr>
+    <tr><td class="nowrap">셀 추가·삭제</td><td>아래 <code>+</code>(add cell)로 추가, 필요 없는 셀은 코드를 지우면 사라짐</td><td>—</td></tr>
+    <tr><td class="nowrap">업로드·다운로드</td><td>파이썬 파일 올리기·현재 파일 내려받기 아이콘</td><td>PuTTY로 옮기지 않고 파일을 주고받는 경로</td></tr>
+    <tr><td class="nowrap">VS Code로 열기</td><td>내려받은 <code>.ipynb</code>는 Jupyter 형태로 열리고 화면이 다름</td><td>Enter를 쳐도 결과가 나오지 않음</td></tr>
+    </tbody></table></div>
+
+    <h3>.ipynb → .py 변환</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">변환</td><td><code>File</code> → <code>Save and Export Notebook As</code> → <code>Executable Script</code></td><td><code>.py</code>가 다운로드되고 VS Code에서 열 수 있음</td></tr>
+    <tr><td class="nowrap">이유</td><td>Jupyter 파일은 파이썬에서 바로 핸들링할 수 없음</td><td><code>.py</code>로 저장해 가져가는 방식</td></tr>
+    <tr><td class="nowrap">외부 접속</td><td>주소·토큰만 알면 집·PC방에서도 접속해 파이썬 코드 작성</td><td>개발자가 Jupyter를 설치하는 이유</td></tr>
+    <tr><td class="nowrap">활용도</td><td>개발자 쪽 도구</td><td>인프라 담당은 활용도가 낮아 전문적으로 쓰지 않음</td></tr>
+    </tbody></table></div>
+
+    <h3>실습 코드 — 리스트·함수·람다</h3>
+    <div class="code"><pre><code><span class="c"># [마스터 · JupyterLab 노트북 셀 · sparkuser]</span>
+data = [5,3,10,1,22,63,37,55]
+data.sort()     <span class="c"># 리스트를 오름차순으로 정렬 (원본 변경)</span>
+print(data)     <span class="c"># 결과: [1, 3, 5, 10, 22, 37, 55, 63]</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · JupyterLab 노트북 셀 · sparkuser]</span>
+def a(k,j):        <span class="c"># 함수 정의 — def 뒤에 함수명, 괄호 안에 매개변수</span>
+    return k*j     <span class="c"># 두 값을 곱해 반환</span>
+print(a(10,30))    <span class="c"># 호출 결과: 300</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · JupyterLab 노트북 셀 · sparkuser]</span>
+add = lambda a,b : a + b   <span class="c"># 람다 — 이름 없는 함수, a+b를 반환</span>
+print(add(1,3))            <span class="c"># 호출 결과: 4</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>실행</th><th>결과</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">리스트 정렬</td><td><code>[1, 3, 5, 10, 22, 37, 55, 63]</code></td><td><code>sort()</code>는 원본 리스트를 바꿈</td></tr>
+    <tr><td class="nowrap">함수</td><td>300</td><td>함수 정의·호출이 정상 동작</td></tr>
+    <tr><td class="nowrap">람다</td><td>4</td><td>람다도 정상 작동</td></tr>
+    <tr><td class="nowrap">실수 1</td><td><code>dnf a(k,j)</code>로 입력 → <code>SyntaxError: invalid syntax</code></td><td>함수 정의 키워드는 <code>def</code></td></tr>
+    <tr><td class="nowrap">실수 2</td><td><code>def</code>로 고쳤지만 콜론(<code>:</code>)을 빼서 또 에러</td><td>정의 줄 끝 <code>:</code> 필수</td></tr>
+    <tr><td class="nowrap">에러 확인</td><td>메시지에 몇 번째 <code>line</code>인지 표시</td><td>줄 번호로 바로 찾아 수정</td></tr>
+    </tbody></table></div>
+
+    <h3>커널(Kernel) 관리</h3>
+    <p>에러가 빨간 글씨로 쏟아지거나 워커가 연산 중 잘못 죽어 <b>쓰레기 스레드가 메모리에 남을 때</b> 커널을 초기화.</p>
+    <div class="table-wrap"><table>
+    <thead><tr><th>동작</th><th>결과</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">Restart Kernel / Reset · and Clear</td><td>기존 작업을 모두 정지하고 커널을 새로 생성</td><td>에러가 쌓여 로드가 걸린 상태를 깔끔하게 정리</td></tr>
+    <tr><td class="nowrap">Shut Down Kernel</td><td>해당 커널(실행 세션)만 종료</td><td>Jupyter 서버는 계속 실행 — 서버 종료는 터미널에서 <code>Ctrl+C</code> → <code>y</code></td></tr>
+    <tr><td class="nowrap">노트북 창 닫기</td><td><code>PySparkShell</code>은 계속 돌며 메모리를 계속 잡음</td><td>저장하지 않은 내용은 메모리에만 존재</td></tr>
+    <tr><td class="nowrap">정리 1</td><td>파일 목록에서 우클릭 → <code>Move to Trash</code>(삭제) 또는 <code>Shut Down Kernel</code></td><td>Running 목록이 줄어듦</td></tr>
+    <tr><td class="nowrap">정리 2</td><td>Spark Master UI의 Running Applications 오른쪽 <code>(kill)</code> 링크</td><td>작업 강제 종료 — 자원 반환 (15장)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">커널과 메모리 — 노트북 창을 닫아도 <code>PySparkShell</code>은 살아 메모리를 계속 잡음. Shut Down Kernel은 커널만 종료하고 Jupyter 서버는 그대로, 서버 종료는 <code>Ctrl+C</code> → <code>y</code>. 남은 작업은 8080 UI의 <code>(kill)</code>로 정리</div>
+
+    <ul class="facts"><li><strong>실행·접속</strong><div>JupyterLab 실행·토큰 로그인: 이 파일 13장</div></li><li><strong>제출·자원</strong><div>Jupyter 터미널의 <code>spark-submit</code>과 코어 실험: 이 파일 15장</div></li><li><strong>셸 문법</strong><div>함수·조건문·반복문: shell.html 4~5장</div></li></ul>
+  </section>
+
+  <!-- 15 -->
+  <section class="sec" id="spark-jupyter-submit">
+    <h2>Jupyter에서 작업 제출과 코어·메모리 한계</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 점유된 자원 때문에 WAITING, 코어를 낮춰 해결</p><div class="dg-flow"><div class="dg-node"><h4>① Jupyter 점유</h4><p class="sub">4코어 · 1g</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 제출</h4><p class="sub">Cores 0 · WAITING</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ unset</h4><p class="sub">환경변수 2개 해제</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>④ 코어 낮춤</h4><p class="sub">Jupyter 4 → 2</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ RUNNING</h4><p class="sub">Cores 4 · 1024.0 MiB</p></div></div><p class="dg-foot">Jupyter가 먼저 코어·메모리를 잡으면 다른 앱은 <code>WAITING</code> — Jupyter 터미널에서는 <code>unset</code> 두 줄이 필요하고, 코어를 낮춰 재시작하면 <code>member.py</code>가 4코어로 <code>RUNNING</code></p></div>
+
+    <h3>실습 클러스터 자원 (마스터 UI)</h3>
+    <p>코어·메모리는 <b>마스터 UI</b>에서 확인 — 특히 워커별 사용 가능 메모리가 중요. 합계는 Alive Workers 2, Cores 6 Total(서버마다 3코어씩 올린 값), Memory 9.1 GiB Total.</p>
+    <div class="table-wrap"><table>
+    <thead><tr><th>워커</th><th>코어</th><th>가용 메모리</th><th>VM 메모리</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>192.168.222.3</code></td><td>3</td><td>2.6 GiB</td><td>3GB급</td></tr>
+    <tr><td class="nowrap"><code>192.168.222.2</code> (마스터와 같은 IP)</td><td>3</td><td>6.5 GiB</td><td>8GB급</td></tr>
+    </tbody></table></div>
+
+    <h3>워커 가용 메모리가 상한</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>결과·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">초과 지정</td><td>지정한 메모리가 워커 가용량을 넘으면 에러 — 예: <code>4g</code>·<code>3g</code> 지정, 2.6 GiB 워커에는 3GB도 들어가지 않음</td><td>워커가 4GB를 쓰지 못해 처리 중 멈춤</td></tr>
+    <tr><td class="nowrap">실사용 상한</td><td>실제로 쓸 수 있는 메모리는 가장 작은 워커 기준 약 2GB</td><td>더 큰 서버가 있어도 워커 때문에 2GB까지</td></tr>
+    <tr><td class="nowrap">초과 시 동작</td><td>executor 메모리가 워커 가용 메모리(<code>SPARK_WORKER_MEMORY</code>, 기본값 전체 메모리 − 1GiB)를 넘으면 그 워커에 executor가 할당되지 않음 → 앱이 <code>WAITING</code>으로 자원 대기</td><td><code>Initial job has not accepted any resources</code> 경고가 반복 — 프로세스가 죽는 것이 아님 (출처: Spark Standalone 문서, Databricks KB)</td></tr>
+    <tr><td class="nowrap">해결</td><td>메모리를 늘리는 수밖에 없음</td><td>이 상태에서는 다른 방법이 없고 계속 발생</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>표기</th><th>UI 표시</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>1g</code></td><td><code>1024.0 MiB</code> (=1GB)</td><td>1g는 MiB로 표시</td></tr>
+    <tr><td class="nowrap"><code>2g</code> 이상</td><td><code>2.0 GiB</code></td><td>2g부터 GiB 단위로 표시</td></tr>
+    <tr><td class="nowrap">단위 해석</td><td>같은 값이 단위만 바뀌어 보임</td><td>1 GiB = 1024 MiB — 수치가 커 보여도 단위 차이</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>show()</code>와 메모리</td><td><code>show()</code>는 기본 20행만 출력 — 결과 출력과 <code>collect</code>에도 드라이버 메모리가 쓰임</td><td>"최소 1GB" 같은 고정 요구량은 문서에 없음 — 출력 행 수·collect하는 데이터량과 <code>spark.driver.memory</code> 설정에 따라 필요량이 달라짐 (출처: PySpark DataFrame.show 문서)</td></tr>
+    <tr><td class="nowrap">판단 기준</td><td>많이 출력·수집할수록 메모리 필요량 증가</td><td>고정 수치 대신 데이터량으로 판단</td></tr>
+    </tbody></table></div>
+
+    <h3>Jupyter 터미널에서 spark-submit — 환경변수 충돌</h3>
+    <p>10장에서 만든 <code>member.py</code>(파일 브라우저에 보임)를 Jupyter의 Terminal(<code>File</code> → <code>New</code> → <code>Terminal</code>)에서 <code>spark-submit member.py</code>로 실행하면 <b>에러</b>.</p>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">원인</td><td>Jupyter 소속 터미널이라 <code>PYSPARK_DRIVER_PYTHON</code>·<code>PYSPARK_DRIVER_PYTHON_OPTS</code>(jupyter) 환경변수가 걸려 있음</td><td>Spark 앱을 실행하려는데 드라이버가 Jupyter로 바뀌어 있는 상태 — 일반 PuTTY에서는 그냥 실행됨</td></tr>
+    <tr><td class="nowrap">해결</td><td>환경변수 두 개를 해제하고 재실행 (탭 자동완성 사용)</td><td>Jupyter를 껐다 켜면 <b>무조건 다시</b> 해제</td></tr>
+    <tr><td class="nowrap">실행 주체</td><td>root가 아니라 <code>sparkuser</code>로 그대로 실행</td><td>계정 전환 없이 Jupyter 터미널에서 실행</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · JupyterLab Terminal · sparkuser · /home/sparkuser]</span>
+unset PYSPARK_DRIVER_PYTHON        <span class="c"># 드라이버를 jupyter로 바꾸는 설정 해제</span>
+unset PYSPARK_DRIVER_PYTHON_OPTS   <span class="c"># Jupyter 실행 옵션 해제</span>
+spark-submit member.py             <span class="c"># 파이썬으로 만든 Spark 앱 제출</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <h3>코어·메모리 부족 실험</h3>
+    <p>Jupyter(<code>PySparkShell</code>)가 코어·메모리를 이미 잡은 상태에서 <code>member.py</code> 실행 — 코드의 executor 메모리는 <code>2g</code>.</p>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>한 일</th><th>결과</th><th>원인·해석</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>Jupyter 실행 상태에서 <code>spark-submit member.py</code></td><td>Master UI에 <code>MemberAverageAge</code> 앱, <code>Cores 0</code>·<code>Memory per Executor 2.0 GiB</code>·<code>WAITING</code></td><td>자원을 받지 못해 대기</td></tr>
+    <tr><td class="nowrap">2</td><td>터미널·워커 코어 확인</td><td>자원 미할당 WARN 반복, 워커 코어 <code>0</code></td><td>Jupyter가 코어·메모리를 이미 점유해 남은 것이 없음</td></tr>
+    <tr><td class="nowrap">3</td><td><code>(kill)</code>로 강제 종료 → <code>member.py</code>의 executor 메모리 <code>2g</code> → <code>1g</code>로 변경·저장 → 재실행</td><td>partition까지 나오고 상위 10명 출력 단계는 못 하고 종료</td><td>Jupyter가 코어 4개를 잡아 남은 코어가 2개뿐이라 작업 불가</td></tr>
+    <tr><td class="nowrap">4</td><td>Jupyter 종료 후 코어를 4 → <b>2</b>(메모리 <code>1g</code>)로 낮춰 재시작</td><td>재실행 순서 진행</td><td>Jupyter가 잡는 자원을 줄여 여유 확보</td></tr>
+    <tr><td class="nowrap">5</td><td>최종 재실행</td><td><code>MemberAverageAge</code> <code>Cores 4</code>·<code>Memory per Executor 1024.0 MiB</code>·<code>RUNNING</code></td><td>코드 설정 <code>spark.executor.memory</code>=<code>1g</code>, <code>spark.executor.cores</code>=<code>2</code> → executor 2개 × 코어 2 = 4코어</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · sparkuser · /home/sparkuser]</span>
+<span class="c"># 코어 4 → 2, 메모리 1g로 낮춰 Jupyter 재시작</span>
+pyspark --master spark://192.168.222.2:7077 --executor-memory 1g --total-executor-cores 2</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · JupyterLab Terminal · sparkuser · /home/sparkuser]</span>
+<span class="c"># 재실행 순서 — 8080 UI를 새로고침해 Running에 도는 앱이 없는지 먼저 확인</span>
+unset PYSPARK_DRIVER_PYTHON        <span class="c"># Jupyter를 껐다 켰으므로 해제를 다시 실행</span>
+unset PYSPARK_DRIVER_PYTHON_OPTS
+spark-submit member.py             <span class="c"># Running Applications에 앱 표시되면 정상</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>최종 화면</th><th>값</th><th>해석</th></tr></thead><tbody>
+    <tr><td class="nowrap">Cores</td><td>4</td><td>executor 2개 × 코어 2 — 코어 수만큼 할당했기 때문</td></tr>
+    <tr><td class="nowrap">Memory per Executor</td><td><code>1024.0 MiB</code></td><td>코드의 <code>spark.executor.memory</code>=<code>1g</code>가 반영</td></tr>
+    <tr><td class="nowrap">상태</td><td><code>RUNNING</code></td><td>자원을 받아 연산 중</td></tr>
+    <tr><td class="nowrap">결론</td><td>CPU 코어도, 메모리도 많은 것이 가장 좋음</td><td>이 클러스터에는 GPU가 없음 — 여러 작업을 함께 돌리려면 자원 증설이 답</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">워커 가용 메모리 상한 — 지정 메모리가 워커 가용량(가장 작은 워커 약 2GB)을 넘으면 executor가 할당되지 않고 <code>WAITING</code>·<code>Initial job has not accepted any resources</code> 경고만 반복. <code>1g</code>는 <code>1024.0 MiB</code>, <code>2g</code>부터 <code>2.0 GiB</code>로 표기</div>
+    <div class="dg-bar warn">자원 경합 — Jupyter가 코어·메모리를 점유한 상태에서는 다른 앱이 <code>Cores 0</code>·<code>WAITING</code>. Jupyter 터미널의 <code>spark-submit</code>은 <code>unset</code> 두 변수가 필요하고, 해결은 Jupyter 코어를 낮춰 재시작. 코어·메모리를 최대로 잡으면 같은 서버의 다른 서비스까지 멈춤 (10장)</div>
+
+    <ul class="facts"><li><strong>제출 옵션·자원 실험</strong><div><code>--total-executor-cores</code>·<code>--executor-cores</code>와 실패 사례: 이 파일 9장</div></li><li><strong>코드 설정</strong><div><code>member.py</code>의 <code>.master()</code>·<code>.config()</code>: 이 파일 10장</div></li><li><strong>Jupyter 화면</strong><div>노트북·터미널·커널: 이 파일 14장</div></li></ul>
+  </section>
+
+  <!-- 16 -->
   <section class="sec" id="spark-image">
     <h2>Spark 3.5.3 이미지: Dockerfile 작성·빌드·검증</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — Spark를 이미지에 미리 설치</p><div class="dg-flow"><div class="dg-node"><h4>① 기존 파일 백업</h4><p class="sub">mv Dockerfile Dockerfile_backup</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 베이스 점검</h4><p class="sub">java -version → 없음이 정상</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ Dockerfile</h4><p class="sub">Java 17 · Spark 3.5.3</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 빌드</h4><p class="sub">docker build -t spark-rocky9:3.5.3 .</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>⑤ 검증</h4><p class="sub">java -version · python3 --version</p></div></div></div>
@@ -1496,7 +1952,7 @@ docker run --rm spark-rocky9:3.5.3 python3 --version <span class="c"># Python 3 
 
   </section>
 
-  <!-- 12 -->
+  <!-- 17 -->
   <section class="sec" id="spark-master">
     <h2>마스터 컨테이너 기동·재시작</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — 마스터를 사용자 정의 네트워크에서 기동</p><div class="dg-flow"><div class="dg-node"><h4>① 점유 확인</h4><p class="sub">docker ps</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② docker run</h4><p class="sub">--network spark-net · -p 7077:7077</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ spark-class Master</h4><p class="sub">--host spark-master</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 확인</h4><p class="sub">UI Status ALIVE · 버전 3.5.3</p></div></div></div>
@@ -1528,7 +1984,7 @@ docker start spark-master                            <span class="c"># 시작 �
 
   </section>
 
-  <!-- 13 -->
+  <!-- 18 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -1586,15 +2042,46 @@ docker start spark-master                            <span class="c"># 시작 �
           <tr><td><code>nano member.py</code></td><td>VS Code에서 복사한 코드 붙여넣기 — 저장 <code>Ctrl+O</code>, 종료 <code>Ctrl+X</code></td></tr>
           <tr><td><code>.master("spark://192.168.222.2:7077")</code> / <code>.config("spark.executor.memory","2g")</code> / <code>.config("spark.executor.cores","2")</code></td><td>코드에서 마스터·자원 지정 — 기본 <code>local[*]</code>는 로컬 실행</td></tr>
           <tr><td><code>.config("spark.cores.max","2")</code></td><td>앱 전체 코어 상한 — 최대값 지정 사고 방지</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">파이썬 환경·설치 (12장)</th></tr>
+          <tr><td><code>dnf install python3</code> / <code>python3-devel</code> / <code>python3-pip</code></td><td>파이썬 기본 환경 3종 — root, 마스터·워커 양쪽. Jupyter도 이 환경 위에 설치</td></tr>
+          <tr><td><code>pip3 install pandas</code> / <code>pip3 install pandas numpy</code></td><td>sparkuser, 설치 위치 <code>~/.local</code>. numpy는 pandas와 함께 설치됨</td></tr>
+          <tr><td><code>pip3 install --user jupyterlab pyspark findspark pyarrow</code></td><td><b>마스터만</b> — Jupyter·PySpark 세트를 한 줄로</td></tr>
+          <tr><td><code>pip3 install --user pyspark pyarrow</code></td><td><b>워커</b> — jupyterlab·findspark 제외</td></tr>
+          <tr><td><code>pip install --user pyspark</code></td><td>미설치 상태로 실행했을 때 마스터·워커 모두 재설치</td></tr>
+          <tr><td><code>ls -a</code></td><td>설치 후 <code>.local</code> 생성 확인 — 없으면 다른 계정에 설치한 것</td></tr>
+          <tr><td><code>ReadTimeoutError: … Read timed out.</code></td><td>files.pythonhosted.org 다운로드 실패 — 같은 명령 재실행으로 해결</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">PySpark 환경변수·Jupyter 실행 (13장)</th></tr>
+          <tr><td><code>export PYSPARK_PYTHON=/usr/bin/python3</code></td><td><code>~/.bashrc</code> 맨 아래 — 마스터·워커 둘 다</td></tr>
+          <tr><td><code>export PYSPARK_DRIVER_PYTHON=jupyter</code></td><td>마스터만 — 드라이버를 Jupyter로</td></tr>
+          <tr><td><code>export PYSPARK_DRIVER_PYTHON_OPTS='lab --ip=0.0.0.0 --port=8888 --no-browser'</code></td><td>마스터만, 한 줄로. <code>lab</code>·<code>--ip</code>·<code>--port</code>·<code>--no-browser</code></td></tr>
+          <tr><td><code>source ~/.bashrc</code></td><td>저장한 환경변수를 현재 셸에 즉시 반영</td></tr>
+          <tr><td><code>pyspark --master spark://192.168.222.2:7077 --executor-memory 1g --total-executor-cores 4</code></td><td>JupyterLab 서버 + Spark 실행 — 자기 홈에서, 6코어 중 4개만</td></tr>
+          <tr><td>브라우저 <code>192.168.222.2:8888</code> + <code>token=</code></td><td>로그인 화면에 터미널 URL의 토큰 붙여넣기 — 토큰은 재기동마다 변경</td></tr>
+          <tr><td><code>Ctrl+C</code> → <code>y</code></td><td>Jupyter 서버 종료 — 이후 새로고침은 <code>Server Connection Error</code></td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Jupyter 화면·노트북 (14장)</th></tr>
+          <tr><td>Launcher <code>Notebook</code></td><td>코드 셀과 아래 결과 출력 — 데이터 분석 작업의 중심</td></tr>
+          <tr><td><code>Ctrl+Enter</code> / <code>Ctrl+S</code></td><td>셀 실행 / 저장(<code>Rename and Save</code> → <code>test.ipynb</code>)</td></tr>
+          <tr><td><code>File → Save and Export Notebook As → Executable Script</code></td><td><code>.ipynb</code>(JSON) → <code>.py</code> 내보내기</td></tr>
+          <tr><td>Kernel → <code>Restart Kernel</code> / <code>Reset</code> · and Clear</td><td>기존 작업 정지 후 커널 새로 생성 — 쓰레기 스레드·로드 정리</td></tr>
+          <tr><td><code>Shut Down Kernel</code> / <code>Move to Trash</code></td><td>커널만 종료·파일 삭제 → Running 목록 감소. Jupyter 서버는 계속 실행</td></tr>
+          <tr><td>8080 UI <code>(kill)</code></td><td>Running Applications의 강제 종료 링크 — 남은 <code>PySparkShell</code> 정리</td></tr>
+          <tr><td><code>SyntaxError: invalid syntax</code></td><td><code>def</code> 대신 <code>dnf</code>로 입력·콜론(<code>:</code>) 누락 — 메시지의 line 번호로 수정</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Jupyter 제출·자원 실험 (15장)</th></tr>
+          <tr><td><code>unset PYSPARK_DRIVER_PYTHON</code> / <code>unset PYSPARK_DRIVER_PYTHON_OPTS</code></td><td>Jupyter Terminal에서 <code>spark-submit</code> 전 필수 — 재기동 때마다 다시</td></tr>
+          <tr><td><code>spark-submit member.py</code></td><td>Jupyter Terminal에서 파이썬 Spark 앱 제출</td></tr>
+          <tr><td><code>Initial job has not accepted any resources</code></td><td>워커 가용 메모리 초과·<code>WAITING</code> 반복 — 프로세스가 죽는 것이 아님</td></tr>
+          <tr><td><code>SPARK_WORKER_MEMORY</code></td><td>워커 가용 메모리 — 기본값 전체 메모리 − 1GiB, 가장 작은 워커 약 2GB가 상한</td></tr>
+          <tr><td><code>1024.0 MiB</code> / <code>2.0 GiB</code></td><td>executor 메모리 <code>1g</code> / <code>2g</code> 이상의 UI 표기</td></tr>
+          <tr><td><code>pyspark … --total-executor-cores 2</code></td><td>Jupyter 코어를 4 → 2로 낮춰 재시작 — <code>member.py</code>가 Cores 4·RUNNING</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">네트워크 (자세히: docker.html 9장)</th></tr>
           <tr><td><code>docker network ls</code> / <code>docker network create spark-net</code></td><td>네트워크 목록 확인 / Spark 이름 DNS용 사용자 정의 네트워크 생성</td></tr>
           <tr><td><code>docker network inspect spark-net</code> / <code>docker network rm spark-net</code></td><td>서브넷·게이트웨이·컨테이너 IP 확인 / 미사용 네트워크 삭제</td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">이미지</th></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">이미지 (16장)</th></tr>
           <tr><td><code>mv Dockerfile Dockerfile_backup</code></td><td>이전 Dockerfile을 보존하고 새 Spark Dockerfile 작성 준비</td></tr>
           <tr><td><code>docker build -t spark-rocky9:3.5.3 .</code></td><td>현재 폴더 Dockerfile로 Spark 3.5.3 이미지 빌드</td></tr>
           <tr><td><code>docker run --rm spark-rocky9:3.5.3 java -version</code> / <code>javac -version</code> / <code>python3 --version</code></td><td>이미지 내부 Java·컴파일러·Python 설치 검증, <code>python</code> 대신 <code>python3</code></td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">마스터</th></tr>
-          <tr><td><code>docker run -d --name spark-master --hostname spark-master --network spark-net -p 8080:8080 -p 7077:7077 -p 8888:8888 spark-rocky9:3.5.3 /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --host spark-master --port 7077 --webui-port 8080</code></td><td>마스터 실행 (전체 옵션 설명은 12장). 자원 제한 전 연습 상태, 완료본 아님</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">마스터 (17장)</th></tr>
+          <tr><td><code>docker run -d --name spark-master --hostname spark-master --network spark-net -p 8080:8080 -p 7077:7077 -p 8888:8888 spark-rocky9:3.5.3 /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --host spark-master --port 7077 --webui-port 8080</code></td><td>마스터 실행 (전체 옵션 설명은 17장). 자원 제한 전 연습 상태, 완료본 아님</td></tr>
           <tr><td><code>docker stop spark-master</code> / <code>docker start spark-master</code></td><td>중지·시작에 따라 UI 접속과 마스터 자동 재기동 확인</td></tr>
         </tbody>
       </table>
