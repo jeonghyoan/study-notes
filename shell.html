@@ -592,20 +592,20 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
   <aside class="side">
     <nav aria-label="목차 (사이드)">
       <p class="side-title">목차</p>
-      <ol><li><a href="#sec-shellscript">1. Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</a></li><li><a href="#sec-shellcond">2. Shell 조건문·입력 (if · elif · 비교 연산자 · 논리 연산자 · read)</a></li><li><a href="#sec-shellloop">3. Shell 반복문·배열 (for · while · until · 배열 · 이중 반복문 · break)</a></li><li><a href="#cheatsheet">4. 통합 명령어 치트시트</a></li></ol>
+      <ol><li><a href="#sec-shellscript">1. Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</a></li><li><a href="#sec-shellcond">2. Shell 조건문·입력 (if · elif · 비교 연산자 · 논리 연산자 · read)</a></li><li><a href="#sec-shellloop">3. Shell 반복문·배열 (for · while · until · 배열 · 이중 반복문 · break)</a></li><li><a href="#sec-shellfunc">4. Shell 함수·선택문 (case · 함수 선언·인자 · 지역/전역 변수 · systemctl is-active · 배열 응용)</a></li><li><a href="#cheatsheet">5. 통합 명령어 치트시트</a></li></ol>
     </nav>
   </aside>
   <main class="main">
 
   <header>
     <h1>Shell 스크립트 통합 학습노트</h1>
-    <p class="deck">범위: Shell 스크립트 작성(1번 줄 <code>#!/bin/bash</code>·첫 스크립트 <code>test.sh</code>·실행 권한 <code>chmod 700</code>·<code>./</code> 실행과 <code>bash</code> 실행 차이·오류 줄 찾기) · 변수(<code>이름=값</code>·<code>$변수</code>)·산술(<code>$(( ))</code>·<code>$( )</code>와 차이·<code>=</code> 양옆 띄어쓰기 금지) · 실무형 <code>test3.sh</code>(서버 정보 출력) · Shell 조건문(<code>if</code>·<code>elif</code>·<code>else</code>·<code>fi</code>·비교 연산자 <code>=</code>·<code>-eq</code>·<code>(( ))</code>·<code>&amp;&amp;</code>·<code>||</code>·<code>read</code> 입력) · Shell 반복문·배열(<code>for</code>·<code>while</code>·<code>until</code>·배열·이중 반복문·<code>break</code>) · 통합 명령어 치트시트. 내용이 추가될 때마다 범위가 늘어남.</p>
+    <p class="deck">범위: Shell 스크립트 작성(1번 줄 <code>#!/bin/bash</code>·첫 스크립트 <code>test.sh</code>·실행 권한 <code>chmod 700</code>·<code>./</code> 실행과 <code>bash</code> 실행 차이·오류 줄 찾기) · 변수(<code>이름=값</code>·<code>$변수</code>)·산술(<code>$(( ))</code>·<code>$( )</code>와 차이·<code>=</code> 양옆 띄어쓰기 금지) · 실무형 <code>test3.sh</code>(서버 정보 출력) · Shell 조건문(<code>if</code>·<code>elif</code>·<code>else</code>·<code>fi</code>·비교 연산자 <code>=</code>·<code>-eq</code>·<code>(( ))</code>·<code>&amp;&amp;</code>·<code>||</code>·<code>read</code> 입력) · Shell 반복문·배열(<code>for</code>·<code>while</code>·<code>until</code>·배열·이중 반복문·<code>break</code>) · Shell 함수·선택문(<code>case</code>·함수 선언·호출·인자 <code>$1</code>·<code>local</code>·<code>systemctl is-active</code>·명령 결과 <code>$( )</code>·셸에서 MySQL 접속·배열+함수 응용) · 통합 명령어 치트시트. 내용이 추가될 때마다 범위가 늘어남.</p>
     <div class="core-strip">
       <div><div class="core-metric">1번 줄 #!/bin/bash → chmod 700 → ./실행</div><p class="core-desc">스크립트는 1번 줄 <code>#!/bin/bash</code>부터 쓴다(첫 줄을 비우지 않음) — <code>#</code>를 빠뜨리면 1번 줄 오류. <code>./파일.sh</code>는 <code>x</code> 권한이 있어야 실행되고 <code>bash 파일.sh</code>는 읽기(<code>r</code>)만 있어도 실행 → <code>chmod 700</code>을 먼저. 변수는 <code>이름=값</code>에 <code>=</code> 양옆 띄어쓰기 금지, 계산은 괄호 두 겹 <code>$(( ))</code>(한 겹 <code>$( )</code>는 명령 실행이라 오류).</p></div>
-      <div><div class="core-metric">if [ 조건 ]; then · -eq · &amp;&amp; · || · read</div><p class="core-desc">조건문은 <code>if [ 조건 ]; then</code> → <code>elif</code> → <code>else</code> → <code>fi</code>로 닫고, <code>[ ]</code> 안은 값·연산자 사이를 전부 한 칸씩 띄움. 같다는 <code>=</code> 하나, 숫자 비교는 <code>-eq</code>·<code>-ge</code>, 실무는 <code>(( ))</code> 산술 조건에 <code>&amp;&amp;</code>(모두)·<code>||</code>(하나라도). 입력은 <code>echo -n</code> + <code>read</code>로 같은 줄에서 받고 <code>$변수</code>로 사용.</p></div>
-      <div><div class="core-metric">for · while · until · 배열 0부터 · break</div><p class="core-desc">반복은 <code>for</code>(값 목록·<code>(( ))</code>)·<code>while</code>(증가를 본문 안)·<code>until</code>(종료 조건) — <code>done</code>이 빠지면 문법 오류, 증가식을 빼면 무한 루프. 배열은 번호 0부터 <code>${#d[@]}</code> − 1까지, 순회는 <code>for in</code>, <code>break</code>로 강제 종료.</p></div>
+      <div><div class="core-metric">if [ 조건 ]; then · -eq · &amp;&amp; · || · read</div><p class="core-desc">조건문은 <code>if [ 조건 ]; then</code> → <code>elif</code> → <code>else</code> → <code>fi</code>로 닫고, <code>[ ]</code> 안은 값·연산자 사이를 전부 한 칸씩 띄움. 같다는 <code>=</code> 하나, 숫자 비교는 <code>-eq</code>·<code>-ge</code>, 실무는 <code>(( ))</code> 산술 조건에 <code>&amp;&amp;</code>(모두)·<code>||</code>(하나라도). 입력은 <code>echo -n</code> + <code>read</code>로 같은 줄에서 받고 <code>$변수</code>로 사용. 리눅스 명령도 조건이 됨 — <code>if systemctl is-active --quiet "$dm"; then</code>은 종료 코드 0이면 then.</p></div>
+      <div><div class="core-metric">for · while · until · 배열 · break · 함수 · case</div><p class="core-desc">반복은 <code>for</code>(값 목록·<code>(( ))</code>)·<code>while</code>(증가를 본문 안)·<code>until</code>(종료 조건) — <code>done</code>이 빠지면 문법 오류, 증가식을 빼면 무한 루프. 배열은 번호 0부터 <code>${#d[@]}</code> − 1까지, 순회는 <code>for in</code>, <code>break</code>로 강제 종료. <code>case</code>는 <code>esac</code>로 닫고 각 파트는 <code>;;</code>, 함수는 괄호를 비우고 인자를 <code>$1</code>·<code>$2</code>로 받으며 호출은 선언 아래.</p></div>
     </div>
-    <nav class="toc" aria-label="목차"><a href="#sec-shellscript">1. Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</a><a href="#sec-shellcond">2. Shell 조건문·입력 (if · elif · 비교 연산자 · 논리 연산자 · read)</a><a href="#sec-shellloop">3. Shell 반복문·배열 (for · while · until · 배열 · 이중 반복문 · break)</a><a href="#cheatsheet">4. 통합 명령어 치트시트</a></nav>
+    <nav class="toc" aria-label="목차"><a href="#sec-shellscript">1. Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</a><a href="#sec-shellcond">2. Shell 조건문·입력 (if · elif · 비교 연산자 · 논리 연산자 · read)</a><a href="#sec-shellloop">3. Shell 반복문·배열 (for · while · until · 배열 · 이중 반복문 · break)</a><a href="#sec-shellfunc">4. Shell 함수·선택문 (case · 함수 선언·인자 · 지역/전역 변수 · systemctl is-active · 배열 응용)</a><a href="#cheatsheet">5. 통합 명령어 치트시트</a></nav>
   </header>
 
   <section class="sec" id="sec-shellscript"><h2>Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</h2><div class="dg"><p class="dg-title">한눈에 보기 — 작성 → 실행 권한 → 실행 → 출력</p><div class="dg-flow"><div class="dg-node "><h4>① vi test.sh</h4><p class="sub">1번 줄 <code>#!/bin/bash</code></p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② chmod 700</h4><p class="sub">x 없으면 실행 불가</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ ./test.sh</h4><p class="sub"><code>bash test.sh</code>는 r 만 있어도 실행</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 변수·<code>$(( ))</code></h4><p class="sub"><code>=</code> 양옆 띄우면 오류</p></div></div><p class="dg-foot">인프라 담당자가 직접 코드를 짜는 영역이 쉘 스크립트 — WAS의 <code>startup.sh</code>·<code>shutdown.sh</code>도 같은 스크립트</p></div>
@@ -821,7 +821,7 @@ chmod 700 test8.sh             <span class="c"># 실행 권한 부여</span>
 ./test8.sh                     <span class="c"># userid : 뒤에 mega 입력 → Hi~ mega 님</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
 <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>echo -n</code></td><td><strong>줄바꿈을 하지 않는</strong> 옵션</td><td>입력이 바로 옆 같은 줄(<code>userid : mega</code>)에서 받아짐</td></tr><tr><td class="nowrap"><code>read 변수</code></td><td>키보드 입력을 읽어 변수(<code>username</code>)에 임시로(캐시처럼) 저장</td><td>아래 줄에서 <code>$username</code>으로 값 사용</td></tr><tr><td class="nowrap">실행</td><td><code>userid : </code> 뒤에 <code>mega</code> 입력 → <code>Hi~ mega 님</code></td><td>입력 전에는 그 줄에서 대기</td></tr><tr><td class="nowrap">실무 1</td><td>"가동할 데몬 명을 입력하세요" → 입력한 이름의 데몬을 바로 실행시키는 쉘</td><td>read로 받은 값을 조건문·systemctl에 넘김</td></tr><tr><td class="nowrap">실무 2</td><td>호스팅·AWS·GCP 회원가입 → 그 아이디로 서버가 자동 생성 = 쉘로 만드는 것</td><td>가입한 아이디로 자동으로 <code>useradd</code>가 작동</td></tr></tbody></table></div>
 <div class="dg-bar warn">read는 앞의 <code>echo -n</code>과 한 쌍 — 줄바꿈이 있으면 입력이 다음 줄에서 받아짐. 받은 값은 아래에서 <code>$변수</code>로 사용</div>
-<ul class="facts"><li><strong>실행 권한·변수·산술</strong><div><code>#!/bin/bash</code>·<code>chmod 700</code>·<code>$(( ))</code>: 이 파일 1장</div></li><li><strong>오류 줄 편집</strong><div>vi <code>:set number</code>·<code>:wq</code>: linux.html 5장</div></li><li><strong>조건에 따라 데몬 기동</strong><div><code>systemctl start</code>·자동 시작 설정: httpd.html 3장</div></li><li><strong>기동·정지 스크립트</strong><div><code>startup.sh</code>·<code>shutdown.sh</code>: was.html 5장</div></li><li><strong>반복문·배열</strong><div>같은 명령을 여러 값에 반복(for·while)·배열 순회: 이 파일 3장</div></li></ul></section>
+<ul class="facts"><li><strong>실행 권한·변수·산술</strong><div><code>#!/bin/bash</code>·<code>chmod 700</code>·<code>$(( ))</code>: 이 파일 1장</div></li><li><strong>오류 줄 편집</strong><div>vi <code>:set number</code>·<code>:wq</code>: linux.html 5장</div></li><li><strong>조건에 따라 데몬 기동</strong><div><code>systemctl start</code>·자동 시작 설정: httpd.html 3장</div></li><li><strong>기동·정지 스크립트</strong><div><code>startup.sh</code>·<code>shutdown.sh</code>: was.html 5장</div></li><li><strong>반복문·배열</strong><div>같은 명령을 여러 값에 반복(for·while)·배열 순회: 이 파일 3장</div></li><li><strong>값 분기·함수</strong><div><code>case</code>·함수 선언과 호출·인자·<code>local</code>: 이 파일 4장</div></li></ul></section>
 
   <section class="sec" id="sec-shellloop">
 <h2>Shell 반복문·배열 (for · while · until · 배열 · 이중 반복문 · break)</h2>
@@ -1033,8 +1033,290 @@ done                            <span class="c"># 반복문 종료</span>
 <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td>1 … 30</td><td>31에서 break가 걸려 echo 전에 빠져나감. <code>b&gt;=30</code>이면 30에서 걸려 29까지만 출력</td></tr><tr><td class="nowrap">사용 범위</td><td><strong><code>break</code>는 for·while 모두 사용, 반복문 전용</strong></td><td>조건문(if)에는 없음</td></tr></tbody></table></div>
 <div class="table-wrap"><table><thead><tr><th>실수 사례</th><th>코드</th><th>결과</th></tr></thead><tbody><tr><td class="nowrap">조건 방향 반대</td><td><code>b&lt;30</code>에서 break</td><td><code>b=1</code>에서 바로 정지 — 출력 없음</td></tr><tr><td class="nowrap">echo를 if 안에</td><td><code>b&gt;30</code>으로 고치고 echo를 if 안에 둠</td><td>31만 출력 — 조건이 맞을 때만 찍음</td></tr><tr><td class="nowrap">정상</td><td>echo를 if 밖(break 뒤)으로 옮기고 안쪽 echo는 <code>#</code> 주석</td><td>1~30 출력</td></tr></tbody></table></div>
 <div class="dg-bar warn">break는 조건이 맞는 순간 반복문 밖으로 — echo가 if 안이면 break가 걸린 값만, if 밖이면 걸리기 전 값까지 출력. 조건 안·밖 위치가 결과를 바꿈</div>
-<ul class="facts"><li><strong>실행 권한·변수·산술</strong><div><code>#!/bin/bash</code>·<code>chmod 700</code>·<code>$(( ))</code>: 이 파일 1장</div></li><li><strong>조건문·분기</strong><div><code>if</code>·<code>elif</code>·비교 연산자·<code>read</code>: 이 파일 2장</div></li><li><strong>여러 데몬을 차례로 기동</strong><div><code>systemctl start</code>·자동 시작 설정: httpd.html 3장</div></li><li><strong>기동·정지 스크립트</strong><div><code>startup.sh</code>·<code>shutdown.sh</code>: was.html 5장</div></li><li><strong>마스터·워커 포트 통일</strong><div><code>/etc/my.cnf</code>의 <code>port = 3306</code>과 재시작: mysql.html 14장</div></li></ul>
+<ul class="facts"><li><strong>실행 권한·변수·산술</strong><div><code>#!/bin/bash</code>·<code>chmod 700</code>·<code>$(( ))</code>: 이 파일 1장</div></li><li><strong>조건문·분기</strong><div><code>if</code>·<code>elif</code>·비교 연산자·<code>read</code>: 이 파일 2장</div></li><li><strong>여러 데몬을 차례로 기동</strong><div><code>systemctl start</code>·자동 시작 설정: httpd.html 3장</div></li><li><strong>기동·정지 스크립트</strong><div><code>startup.sh</code>·<code>shutdown.sh</code>: was.html 5장</div></li><li><strong>마스터·워커 포트 통일</strong><div><code>/etc/my.cnf</code>의 <code>port = 3306</code>과 재시작: mysql.html 14장</div></li><li><strong>배열을 함수·조건문과 함께</strong><div>데몬 3개 일괄 start/stop(<code>process()</code> + <code>for in</code>): 이 파일 4장</div></li></ul>
 </section>
+
+  <section class="sec" id="sec-shellfunc">
+    <h2>Shell 함수·선택문 (case · 함수 선언·인자 · 지역/전역 변수 · systemctl is-active · 배열 응용)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 값 분기 → 함수 정의 → 인자 전달 → 명령으로 판단 → 일괄 제어</p><div class="dg-flow"><div class="dg-node "><h4>① case</h4><p class="sub">값 하나 선택 · <code>esac</code>로 닫음</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 함수 선언 → 호출</h4><p class="sub">선언은 위, 호출은 아래</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ 인자 <code>$1</code>·<code>$2</code> · <code>local</code></h4><p class="sub">선언 괄호는 비움</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>④ if + 리눅스 명령</h4><p class="sub"><code>is-active</code> 종료 코드로 판단</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 배열 + 함수 + for</h4><p class="sub">데몬 3개 일괄 start/stop</p></div></div><p class="dg-foot">스크립트가 길어질수록 같은 코드는 함수로 묶고, 여러 값은 case·배열로 처리 — 손으로 반복하던 명령이 파일 하나로 줄어듦</p></div>
+
+    <h3>실습 환경과 스크립트 파일 순서</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실습 서버</td><td><code>master</code> VM (CentOS 계열)</td><td>파일 경로·데몬 이름이 서버마다 다름 — 앞 장의 실습 서버 그대로</td></tr><tr><td class="nowrap">사용자</td><td>일반 사용자 <code>blue2</code>, 관리 작업은 root(<code>apink</code>에서 <code>su</code>)</td><td>데몬 제어는 root 권한 필요 — 이 장 중반부터는 root로 실행</td></tr><tr><td class="nowrap">작성·실행 순서</td><td><code>vi 파일명.sh</code> → 첫 줄 <code>#!/bin/bash</code> → <code>chmod 700 파일명.sh</code> → <code>./파일명.sh</code></td><td>1장의 흐름 그대로 — <code>x</code> 권한이 없으면 <code>./</code> 실행이 안 됨</td></tr><tr><td class="nowrap">퍼미션 <code>7XX</code></td><td>소유자만 실행 가능, 다른 사용자는 실행 불가</td><td><code>700</code> = 소유자 <code>rwx</code>, 그룹·기타 권한 없음</td></tr><tr><td class="nowrap">파일명 자동완성</td><td>Tab 자동완성은 파일명만 됨</td><td>셸 문법은 자동완성이 없어 <strong>외워야 함</strong></td></tr><tr><td class="nowrap">앞 장 문법 재사용</td><td><code>read</code>·<code>if</code>는 2장, 배열·<code>for</code>는 3장</td><td>이 장은 그 위에 함수·case·배열 응용을 얹음</td></tr></tbody></table></div>
+    <ul class="facts"><li><strong>실습 파일 순서</strong><div><code>test15.sh</code>(case) → <code>fn1.sh</code>(함수 선언·순서) → <code>fn2.sh</code>(인자) → <code>fn3.sh</code>·<code>fn4.sh</code>(지역/전역, 포트 예제) → <code>fn5.sh</code>(합계 문제) → <code>fn6.sh</code>(데몬 start/stop) → <code>fn7.sh</code>·<code>dm1.sh</code>(is-active, mysql) → <code>dm2.sh</code>(응용 문제)</div></li><li><strong>이번 범위 밖</strong><div>페도라 계열 리눅스, NTP 명령어, 포트로 접속하는 내용 — 셸로 쓸 수 있는 것만 다룸</div></li><li><strong><code>find</code>·<code>tree</code></strong><div><code>find -exec</code>·<code>-name</code> 같은 것은 셸 문법이 아니라 리눅스 자체 명령이라 셸 장에 넣지 않음</div></li></ul>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 24강 26:09</div><p>"타임라인"까지가 책의 절반이라는 설명에서 그 단어가 가리키는 정확한 목차 항목 — 음성이 불명확하므로 영상 26분 09초 부근을 직접 확인</p></div>
+
+    <h3>선택문 case — 값 하나로 분기 (test15.sh)</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">쓰는 자리</td><td>여러 값 중 하나를 골라 분기 — 다른 언어의 <code>switch</code>에 해당</td><td>셸에는 <code>switch</code>라는 단어가 없고 <code>case</code> ~ <code>esac</code>으로 씀</td></tr><tr><td class="nowrap">헷갈림 방지</td><td>파일 첫머리에 <code>###switch</code> 주석</td><td>주석이라 실행에는 영향 없음 — 나중에 볼 때 대응 관계가 바로 보임</td></tr><tr><td class="nowrap"><code>read</code></td><td>사용자 입력을 읽어 변수에 저장</td><td>2장의 <code>read</code>와 같음 — 이 장에서는 <code>-p</code> 형태를 씀</td></tr><tr><td class="nowrap"><code>read -p "문구" 변수명</code></td><td>프롬프트 문구를 줄바꿈 없이 출력한 뒤 입력을 받아 곧바로 변수에 저장</td><td>줄을 내리는 옵션이 아님. 필수 옵션도 아니라 <code>echo -n</code> + <code>read</code>로 나눠 써도 됨</td></tr><tr><td class="nowrap">문구 안 괄호</td><td><code>(httpd, nginx, postgres)</code></td><td>그냥 화면에 출력되는 안내 표시 — 문법 요소 아님</td></tr><tr><td class="nowrap">한글 입력</td><td>화면에서 어설프게 입력됨</td><td>이 파일은 영어로 작성 — 실습 결과가 깨지지 않게</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+vi test15.sh
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test15.sh 파일 안]</span>
+#!/bin/bash
+<span class="c">###switch</span>                  <span class="c"># 셸에는 switch가 없어 case로 쓴다는 표시</span>
+read -p "select the daemon to run? (httpd, nginx, postgres)" dm   <span class="c"># 입력값을 변수 dm에 저장</span>
+case "$dm" in                  <span class="c"># dm 값으로 분기 시작</span>
+  "httpd")                     <span class="c"># 값 + 닫는 괄호 → 한 파트 시작</span>
+    echo "httpd service"       <span class="c"># 해당 값일 때 실행 (보기 편하게 들여쓰기)</span>
+    ;;                         <span class="c"># 한 파트 종료 (세미콜론 두 번)</span>
+  "nginx")
+    echo "nginx service"
+    ;;
+  "postgres")
+    echo "postgres service"
+    ;;
+  *)                           <span class="c"># default — 어느 값도 아닐 때 (따옴표 없이 * 만)</span>
+    echo "error"
+    ;;
+esac                           <span class="c"># case 종료 (반드시 닫아야 함, 안 닫으면 문법 오류)</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 test15.sh            <span class="c"># 실행 권한 부여</span>
+./test15.sh                    <span class="c"># 실행 직후 입력 대기 → nginx 입력 시 nginx service</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>문법 요소</th><th>역할</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>case "$dm" in</code></td><td>분기 시작 — 비교할 값을 적음</td><td>값은 쌍따옴표로 감쌈</td></tr><tr><td class="nowrap"><code>"값")</code></td><td>한 파트의 조건</td><td>값과 닫는 괄호를 붙여 씀</td></tr><tr><td class="nowrap"><code>;;</code></td><td>파트 종료</td><td>세미콜론 두 개 — 빠지면 다음 파트와 이어져 오류</td></tr><tr><td class="nowrap"><code>*)</code></td><td>default — 어느 값도 아닐 때</td><td>따옴표 없이 <code>*</code> 하나</td></tr><tr><td class="nowrap"><code>esac</code></td><td>case 종료</td><td><code>case</code>를 거꾸로 쓴 이름 — 없으면 문법 오류</td></tr></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>확인</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td>실행 직후 입력 <strong>대기 상태</strong> → <code>nginx</code> 입력 시 <code>nginx service</code>, 엉뚱한 값 입력 시 default의 <code>error</code></td><td><code>httpd</code> 등 다른 값도 같은 방식으로 동작 — 어느 파트가 실행됐는지로 값이 맞았는지 확인</td></tr><tr><td class="nowrap">구조 확인</td><td>vi에서 <code>:set nu</code>로 줄 번호를 띄움</td><td>줄 번호가 있으면 <code>;;</code>·<code>esac</code> 짝이 눈에 보임</td></tr></tbody></table></div>
+    <div class="dg-bar warn">case는 <code>esac</code>로 닫고 각 파트는 <code>;;</code>로 끝냄 — default는 따옴표 없는 <code>*</code> 하나. <code>esac</code>가 빠지면 실행 전에 문법 오류</div>
+    <ul class="facts"><li><strong>입력</strong><div><code>read</code>·<code>if</code>의 기본기는 이 파일 2장</div></li><li><strong>조건문 전체 뼈대</strong><div><code>if</code>·<code>elif</code>·<code>else</code>·<code>fi</code>: 이 파일 2장</div></li></ul>
+
+    <h3>함수 선언과 호출 — 선언이 먼저 (fn1.sh)</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">함수</td><td>명령 묶음에 이름을 붙여 두고, 이름을 부르면(<strong>호출</strong>) 실행되게 하는 것</td><td>파일명 <code>fn1.sh</code>의 <code>fn</code>은 function의 약자</td></tr><tr><td class="nowrap">선언과 실행</td><td>선언만으로는 실행되지 않고 <strong>호출해야 작동</strong></td><td>선언은 붙여 두기, 실제 실행은 호출 줄에서</td></tr><tr><td class="nowrap">선언 형식 2가지</td><td><code>function 이름 { ... }</code> / <code>이름() { ... }</code></td><td>어느 쪽을 써도 됨 — 같은 셸 함수 정의 문법이고 <code>function</code> 예약어만 선택 사항. 셸에는 메소드·클래스 개념 없음</td></tr><tr><td class="nowrap">중괄호 <code>{ }</code></td><td>이번에 처음 사용</td><td><code>if</code>·<code>for</code>에서는 쓰지 않았음 — 함수 본문 묶음</td></tr><tr><td class="nowrap">같은 이름 두 개</td><td>맨 마지막에 선언된 함수만 작동</td><td>이름 중복 회피 — <code>abc</code>·<code>bbb</code>로 나눠 각각 호출</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · fn1.sh 파일 안]</span>
+#!/bin/bash
+function abc {                  <span class="c"># function 예약어를 쓰는 선언 형식</span>
+  echo "abc fn"                 <span class="c"># 호출되면 실행될 내용</span>
+}
+abc()  {                        <span class="c"># 예약어 없이 괄호만 쓰는 선언 형식 (같은 함수 정의)</span>
+  echo "()fn"                   <span class="c"># 이름이 abc로 같아 위 선언을 덮어씀</span>
+}
+abc                             <span class="c"># 호출 = 함수 이름을 그대로 입력</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 fn1.sh                <span class="c"># 실행 권한 부여</span>
+./fn1.sh                        <span class="c"># 결과 — 호출한 함수의 출력</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · fn1.sh 파일 안 · 이름을 바꾼 경우]</span>
+function abc {                  <span class="c"># 이름이 겹치지 않게 나눈 선언</span>
+  echo "abc fn"
+}
+bbb()  {                        <span class="c"># abc 대신 bbb로 이름을 바꾼 함수</span>
+  echo "()fn"
+}
+abc                             <span class="c"># abc — 첫 번째 함수 실행 → abc fn</span>
+bbb                             <span class="c"># bbb — 두 번째 함수 실행 → ()fn</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">선언 위치</td><td>호출 줄보다 위 — 보통 스크립트 위쪽에 선언을 모음</td><td>읽기 순서상 선언이 먼저 실행돼 이름이 등록됨</td></tr><tr><td class="nowrap"><code>read</code> 다음 줄</td><td>선언을 <code>read</code> 다음에 두어도 됨</td><td>호출보다 위이면 순서는 상관없음</td></tr><tr><td class="nowrap">읽는 방식</td><td>셸은 <strong>위에서부터 한 줄씩</strong> 차례로 읽고 실행</td><td>셸·파이썬 같은 스크립트 언어의 특징. 모든 언어가 그런 것은 아니고, 자바스크립트는 함수 선언이 끌어올려져(호이스팅) 선언보다 위에서 호출해도 됨</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · fn1.sh 파일 안 · 실수 사례]</span>
+#!/bin/bash
+abc                             <span class="c"># 선언보다 위에서 호출 → 아직 함수를 읽기 전</span>
+<span class="c">#function abc {</span>                <span class="c"># 선언부를 주석으로 가림</span>
+<span class="c">#  echo "abc fn"</span>
+<span class="c">#}</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+./fn1.sh                        <span class="c"># ./fn1.sh: 줄 2: abc: 명령을 찾을 수 없음</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">함수는 선언보다 아래에서 호출 — 셸은 위에서부터 읽으므로 위에서 부르면 <code>abc: 명령을 찾을 수 없음</code>. 함수를 먼저 만들고 호출은 마지막에</div>
+
+    <h3>함수에 인자 전달 (fn2.sh)</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">선언 괄호 <code>()</code></td><td><strong>비워 둠</strong> — 다른 언어처럼 매개변수를 괄호에 쓰지 않음</td><td>셸이 매개변수를 상관하지 않는 것이 아니라, 괄호가 빈 문법인 것. 인자는 위치 매개변수로 받음</td></tr><tr><td class="nowrap">값 전달</td><td>호출할 때 함수 <strong>이름 뒤에 한 칸씩 띄워</strong> 인자값으로 전달</td><td><code>abc "hong" "master"</code> — 따옴표로 감싸면 공백이 있어도 한 값</td></tr><tr><td class="nowrap">함수 안에서 받기</td><td><code>$1</code>(첫 번째 값), <code>$2</code>(두 번째 값)</td><td>번호는 항상 1부터 — 함수마다 새로 1부터 시작</td></tr><tr><td class="nowrap">용어</td><td>매개변수(parameter) = 함수 정의 쪽 이름, 인자(argument) = 호출할 때 넘기는 값</td><td>서로 다른 용어 — 셸 문서는 <code>$1</code>·<code>$2</code>를 위치 매개변수(positional parameters)라 부름</td></tr><tr><td class="nowrap">변수로 받기</td><td><code>local nm=$1</code>처럼 변수에 담아 씀</td><td>보기 좋게 하는 방법일 뿐 강제 아님 — <code>$1</code>을 바로 출력해도 됨</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · fn2.sh 파일 안]</span>
+#!/bin/bash
+test1="aaa"                     <span class="c"># 전역 변수</span>
+abc() {
+  local nm=$1                   <span class="c"># 지역 변수 + 첫 번째 인자</span>
+  local role=$2                 <span class="c"># 지역 변수 + 두 번째 인자</span>
+  echo "$test1"                 <span class="c"># 함수 밖 전역 변수 출력</span>
+  echo "username : $nm, role : $role"
+}
+abc "hong" "master"             <span class="c"># 함수 호출 + 인자값 전달</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 fn2.sh
+./fn2.sh                        <span class="c"># aaa / username : hong, role : master</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>확인</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td><code>aaa</code> / <code>username : hong, role : master</code></td><td>첫 줄이 나온 것은 <code>$test1</code>이 전역 변수라 함수 안에서도 보이기 때문 — 전역/지역 차이는 아래 <strong>지역 변수·전역 변수</strong> 참고</td></tr><tr><td class="nowrap">인자 개수</td><td>필요한 만큼 <code>$3</code>·<code>$4</code>로 이어서 받음</td><td>넘기지 않은 번호는 빈 값</td></tr></tbody></table></div>
+    <div class="dg-bar warn">함수 괄호는 비우고 값은 호출 줄에서 한 칸씩 — 함수 안에서는 <code>$1</code>부터. <code>abc hong master</code>처럼 띄워 전달하고, 괄호에 <code>abc(hong)</code>처럼 쓰면 안 됨</div>
+
+    <h3>지역 변수·전역 변수 (fn3.sh · fn4.sh)</h3>
+    <div class="table-wrap"><table><thead><tr><th>구분</th><th>선언</th><th>사용 범위·주의</th></tr></thead><tbody><tr><td class="nowrap">전역 변수</td><td>함수 밖에서 <code>id="hong"</code>, 또는 함수 안에서 <code>local</code> 없이 대입</td><td>어디서든(다른 함수에서도) 사용 가능</td></tr><tr><td class="nowrap">지역 변수</td><td>함수 안에서 <code>local id="kim"</code></td><td>scope = 사용 범위. 주로 함수 안에서 사용. bash의 <code>local</code>은 그 함수와 <strong>그 함수가 호출하는 함수·명령</strong>에서도 보임(동적 스코프)</td></tr><tr><td class="nowrap">변수 선언 2가지</td><td>일반 선언 <code>test1=aaa</code> / <code>local test1=aaa</code></td><td>함수가 나오면서 차이가 생김 — 함수 밖에서는 <code>local</code>을 쓰지 않음</td></tr><tr><td class="nowrap">이름 짓기</td><td>변수 이름을 서로 다르게</td><td>같은 이름이 겹치면 지역·전역 중 무엇이 보이는지 헷갈림</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · fn3.sh 파일 안]</span>
+#!/bin/bash
+id="hong"                       <span class="c"># 전역 변수</span>
+fn_test() {
+  local id="kim"                <span class="c"># 전역과 같은 이름의 지역 변수</span>
+  echo "$id"                    <span class="c"># 지역 변수 값 출력</span>
+}
+fn_test                         <span class="c"># 함수 호출</span>
+echo "$id"                      <span class="c"># 전역 변수 값 출력</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+./fn3.sh                        <span class="c"># kim / hong</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>경우</th><th>결과</th><th>이유</th></tr></thead><tbody><tr><td class="nowrap"><code>local</code> 사용</td><td>함수 안 <code>kim</code>, 함수 밖 <code>hong</code></td><td>같은 이름이라도 함수 안에서는 지역 변수가 우선 — 전역 값을 가져다 쓰지 않음</td></tr><tr><td class="nowrap"><code>local</code> 없이 <code>id="park"</code></td><td><code>hong</code> / <code>park</code> / <code>park</code></td><td>함수 안 대입이 <strong>전역 변수 값</strong>을 바꿈 — 함수 앞·안·뒤에서 출력하면 이 순서(프로그램은 항상 순서대로 실행)</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · fn3.sh 파일 안 · local을 빼먹은 경우]</span>
+#!/bin/bash
+id="hong"                       <span class="c"># 전역 변수</span>
+fn_test() {
+  id="park"                     <span class="c"># local 없이 대입 → 전역 변수 값이 바뀜</span>
+  echo "$id"
+}
+echo "$id"                      <span class="c"># 함수 호출 전 — hong</span>
+fn_test                         <span class="c"># 함수 안 — park</span>
+echo "$id"                      <span class="c"># 함수 뒤 — park</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · fn4.sh 파일 안]</span>
+aaa() { local a=10; echo "$a"; }   <span class="c"># 지역 변수 a 선언 후 출력</span>
+bbb() { echo "$a"; }               <span class="c"># 다른 함수에서 a 출력</span>
+aaa
+bbb
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+./fn4.sh                        <span class="c"># 10 (aaa의 출력만 — bbb는 빈 값)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · fn4.sh 파일 안 · local 없이 선언한 경우]</span>
+aaa() { a=10; echo "$a"; }         <span class="c"># local 없이 선언 → 전역 변수</span>
+bbb() { echo "$a"; }               <span class="c"># 같은 변수를 다른 함수에서도 읽음</span>
+aaa
+bbb
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+./fn4.sh                        <span class="c"># 10 / 10</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>확인</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>local</code>일 때 <code>bbb</code></td><td>에러 없이 빈 값 — 화면에는 <code>10</code> 한 줄만 보임</td><td><code>aaa</code>가 끝난 뒤 <code>bbb</code>를 따로 호출했기 때문. <code>local</code> 변수는 선언한 함수가 호출하는 함수에서는 보임</td></tr><tr><td class="nowrap">다른 함수에서도 써야 할 때</td><td><code>local</code>을 붙이지 않고 <strong>전역 변수로 선언</strong></td><td><code>bbb</code>가 <code>10</code>을 읽는 쪽이 이 경우</td></tr></tbody></table></div>
+    <div class="dg-bar warn">같은 이름이면 <code>local</code>이 우선, <code>local</code>을 빼면 전역 값이 바뀜 — <code>hong</code>이 <code>park</code>로 변하는 실수가 여기서 남. 선언 위치와 <code>local</code> 여부를 먼저 확인</div>
+
+    <h3>종합 — 포트 입력을 함수 인자로 (fn4.sh 이어서)</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">시나리오</td><td>사용자에게 <strong>어떤 포트를 열지 물어보고</strong>, 입력한 포트를 열어 주는 형태</td><td>방화벽에서 포트를 여는 작업 — 포트 포워딩(들어온 포트를 다른 포트·호스트로 전달하는 NAT·리다이렉트)과 다름</td></tr><tr><td class="nowrap">값의 출처</td><td>FTP는 흔히 쓰는 21이 아니라 <strong>전날 설정해 둔 포트 값</strong>을 입력</td><td>이 서버의 vsftpd 포트는 9021 — 앞서 설정한 값 그대로</td></tr><tr><td class="nowrap">함수 역할</td><td>인자 두 개를 받아 각각 다른 문구를 출력</td><td>두 번째 <code>error</code>는 일부러 넣은 에러 문구 — 실제 실패가 아님</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · fn4.sh 파일 안 · 위쪽 aaa·bbb 아래에 이어서]</span>
+read -p "vsftp port : " pt      <span class="c"># vsftp 포트 입력</span>
+read -p "httpd port : " hpt     <span class="c"># httpd 포트 입력</span>
+port_open() {
+  echo "$1 open success"        <span class="c"># 첫 번째 인자 출력</span>
+  echo "$2 error"               <span class="c"># 두 번째 인자 출력 (일부러 에러 문구)</span>
+}
+port_open $pt $hpt              <span class="c"># 인자값 2개 전달</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+./fn4.sh                        <span class="c"># 7722, 8080 입력 → 7722 open success / 8080 error</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>확인</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실행 결과</td><td>입력 <code>7722</code>, <code>8080</code> → <code>7722 open success</code>, <code>8080 error</code></td><td>같은 <code>fn4.sh</code>에 이어 썼으므로 위쪽 <code>aaa</code>·<code>bbb</code> 결과(<code>10</code>, <code>10</code> — <code>local</code> 없이 고친 상태)가 먼저 출력됨</td></tr></tbody></table></div>
+
+    <h3>연습 — 함수로 합계 구하기 (fn5.sh)</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">문제</td><td>실행하자마자 <code>number1</code>·<code>number2</code>를 차례로 입력받고(예: 5, 4), <strong>함수를 사용하여</strong> <code>sum</code>(두 수의 합)을 출력</td><td>입력·함수·산술을 한 파일에 — 이 장까지 배운 것을 합치는 유형</td></tr><tr><td class="nowrap">산술</td><td><code>$(( $1 + $2 ))</code></td><td>산술은 괄호 두 겹 — 1장의 <code>$(( ))</code> 그대로, <code>$( )</code> 한 겹은 명령 실행이라 오류</td></tr><tr><td class="nowrap">정답 기준</td><td>결과만 나오면 정답 — 해답과 달라도 작동하면 맞음</td><td>풀이는 하나가 아님(함수 안에서 <code>echo $(( ))</code>만 해도 됨)</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · fn5.sh 파일 안]</span>
+#!/bin/bash
+read -p "number1 : " no1       <span class="c"># 첫 번째 수 입력</span>
+read -p "number2 : " no2       <span class="c"># 두 번째 수 입력</span>
+sums() {
+  local total=$(( $1 + $2 ))   <span class="c"># 산술 계산은 $(( 식 )) — 인자 두 개의 합</span>
+  echo $total                  <span class="c"># 결과 출력</span>
+}
+sums $no1 $no2                 <span class="c"># 인자값 2개 전달</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+./fn5.sh                       <span class="c"># 5, 4 입력 → 9</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <h3>종합 — 데몬 시작·중지 함수 (fn6.sh)</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · fn6.sh 파일 안]</span>
+#!/bin/bash
+read -p "daemon select (vsftpd, nginx) : " dm   <span class="c"># 데몬 이름 입력</span>
+read -p "start or stop (st, sp) : " act         <span class="c"># st=start, sp=stop</span>
+d_start() { systemctl start $1; }              <span class="c"># $1 = 데몬 이름</span>
+d_stop()  { systemctl stop  $1; }
+if [[ $act == "st" ]]; then                     <span class="c"># st 이면 start</span>
+  d_start "$dm"
+else                                            <span class="c"># else 뒤에는 조건식을 쓰지 않음</span>
+  d_stop "$dm"
+fi</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">입력</td><td>데몬은 <code>vsftpd</code>·<code>nginx</code> 중 선택, 두 번째 입력은 <code>st</code>(start) 또는 <code>sp</code>(stop)</td><td>화면 프롬프트 <code>start or stop (st, sp)</code>와 코드의 <code>d_start</code> 분기가 <code>st</code>=start, <code>sp</code>=stop을 가리킴</td></tr><tr><td class="nowrap">함수를 쓰는 이유</td><td>함수는 필요 없지만 <strong>연습을 위해</strong> 일부러 함수 2개로 나눔</td><td>start·stop 명령이 비슷해 함수로 묶는 감각을 익히는 예제</td></tr><tr><td class="nowrap">실수 사례</td><td><code>systemctl start $1</code>의 <code>$1</code>을 함수 밖에서 씀</td><td><code>$1</code>은 함수 안에서만 의미 — 반드시 함수 안에</td></tr></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>실행과 권한</th><th>화면·결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">일반 사용자 실행</td><td><code>blue2</code>로 <code>sp</code> 실행 → 인증 창 <code>AUTHENTICATING FOR org.freedesktop.systemd1.manage-units</code> → <code>Authenticating as: apink</code> → <code>Password:</code></td><td>데몬 제어는 <strong>root 권한</strong> 필요 — 일반 사용자에게는 암호를 묻는 창이 뜸</td></tr><tr><td class="nowrap">root로 실행</td><td><code>exit</code> 후 root 상태에서 <code>blue2</code> 디렉터리로 이동해 <code>./fn6.sh</code></td><td>root로 돌리면 인증 창 없이 바로 실행 — 빠르게 상태를 체크하는 용도</td></tr><tr><td class="nowrap">일반 사용자에게 권한 주기</td><td>root 권한을 주는 방법, sudo 계열</td><td>이 실습에서는 root로 전환하는 쪽을 씀</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+./fn6.sh                        <span class="c"># vsftpd + sp 입력 → AUTHENTICATING FOR … 인증 창</span>
+exit
+<span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+cd /home/blue2                  <span class="c"># blue2 디렉터리로 이동</span>
+./fn6.sh                        <span class="c"># root로 실행 → 인증 없이 동작</span>
+netstat -lnptu | grep "vsftpd"  <span class="c"># 리스닝 중인 포트 확인 — 이 서버의 vsftpd는 9021</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>확인</th><th>결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">첫 시도</td><td><code>vsftpd</code> + <code>sp</code> 입력 후에도 정지되지 않고 계속 <code>LISTEN</code></td><td>이 시점의 버그 — 조건 비교를 산술용 괄호로 쓴 것이 원인(아래)</td></tr><tr><td class="nowrap">포트 확인</td><td><code>netstat -lnptu | grep "vsftpd"</code> → 9021</td><td>정지가 됐는지 포트로 바로 판정 — 목록에 없으면 정지</td></tr></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>원인</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">잘못 쓴 괄호</td><td><code>if (( $act == "st" ))</code> — 산술 연산용 <code>(( ))</code>로 문자 <code>st</code>를 비교</td><td>산술 평가에서 문자열은 변수 이름으로 취급 → <code>st</code>·<code>sp</code>·아무 값이나 모두 <code>0 == 0</code>으로 <strong>참</strong></td></tr><tr><td class="nowrap">결과</td><td>항상 start 분기만 실행 → stop이 안 됨</td><td>에러 없이 조용히 틀림 — 그래서 포트 확인이 필요</td></tr><tr><td class="nowrap">문자 비교</td><td><code>[[ $act == "st" ]]</code> — 대괄호 2개</td><td>문자는 반드시 이 형태. <code>[ ]</code> 하나에서도 문자 비교는 <code>=</code></td></tr><tr><td class="nowrap">숫자 비교</td><td><code>(( ))</code> 괄호 2개, 또는 <code>[ ]</code>에서 <code>-eq</code></td><td><code>-eq</code>는 숫자 전용 — 문자 비교에 쓰지 않음</td></tr></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>수정 후 확인</th><th>결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>sp</code> 실행</td><td><code>netstat | grep</code> 결과 없음 → 정지</td><td>LISTEN이 사라지면 stop 분기가 실행된 것</td></tr><tr><td class="nowrap"><code>st</code> 실행</td><td>9021 <code>LISTEN</code> → 기동</td><td>입력값에 맞게 정상 동작</td></tr></tbody></table></div>
+    <div class="dg-bar warn">문자 비교는 <code>[[ ]]</code>, 숫자 비교는 <code>(( ))</code> — <code>(( ))</code>에 문자를 넣으면 모든 값이 0으로 계산돼 항상 참. 그래서 stop이 안 되고 에러도 안 남</div>
+
+    <h3>systemctl is-active와 if에 명령 넣기 (fn7.sh)</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">준비</td><td>일반 사용자는 데몬을 제어할 수 없어 이후 실습은 <strong>root로 진행</strong></td><td>상태 조회는 일반 사용자도 되지만, 이어지는 실습이 제어라 root로 통일</td></tr><tr><td class="nowrap">명령</td><td><code>systemctl is-active 데몬명</code></td><td>작동 중이면 <code>active</code>, 정지면 <code>inactive</code> — 셸 스크립트에서 쓰려고 배우는 문법</td></tr><tr><td class="nowrap">결과</td><td><code>vsftpd</code> → <code>active</code>, <code>httpd</code> → <code>inactive</code></td><td>상태 문자열이 그대로 출력됨</td></tr><tr><td class="nowrap"><code>--quiet</code></td><td>화면에 <code>active</code>·<code>inactive</code> 출력을 하지 않음</td><td>옵션을 빼면 <code>inactive</code> 등이 출력됨. 결과는 출력이 아니라 <strong>종료 코드</strong>로 전달</td></tr><tr><td class="nowrap">종료 코드</td><td>active면 0, 아니면 0이 아닌 값(비활성은 LSB 규약상 3)</td><td>0/1이 아님 — <code>if</code>는 0을 참으로 읽으므로 판단에는 문제 없음</td></tr></tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 24강 64:39</div><p>"이거는 일반 사용자가 못합니다"가 start/stop 제어만 가리키는지 <code>is-active</code>까지 포함하는지 — <code>blue2</code>로 <code>systemctl is-active vsftpd</code>를 직접 실행해 확인</p></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+systemctl is-active vsftpd   <span class="c"># 데몬 작동 상태 확인 → active</span>
+systemctl is-active httpd    <span class="c"># → inactive</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · root · fn7.sh 파일 안]</span>
+#!/bin/bash
+read -p "작동 여부를 확인하고자 하는 데몬명을 입력하세요 : " dm
+<span class="c">#if 조건문 리눅스 명령어를 사용할 수 있음</span>
+if systemctl is-active --quiet "$dm"; then   <span class="c"># 명령 결과가 참(종료 코드 0)이면 then</span>
+  echo "해당 데몬은 정상 작동중 입니다."
+else
+  echo "해당 데몬은 정지 중입니다."
+fi</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>확인</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">핵심</td><td><code>if</code> 조건에 리눅스 명령어를 그대로 쓸 수 있음</td><td>명령의 성공·실패(종료 코드)가 곧 조건 — 명령을 몰라도 상태 확인은 안 됨</td></tr><tr><td class="nowrap">함수 사용</td><td>상태를 <strong>확인만</strong> 하므로 함수를 쓰지 않음</td><td>여러 단계를 묶을 때만 함수 — 한 줄짜리는 그대로 쓰는 편이 짧음</td></tr><tr><td class="nowrap">실행 결과</td><td><code>mysqld</code> → 정상 작동 중, <code>nginx</code> 등 죽은 데몬 → 정지 중, <code>postgres</code> → 정지 중(<code>inactive</code>)</td><td><code>mysqld</code>는 살아 있고 <code>nginx</code>·<code>postgres</code>는 꺼져 있는 서버 상태</td></tr><tr><td class="nowrap">중요도</td><td><code>--quiet</code>은 몰라도 되고 <strong>작동 여부 확인</strong>이 가장 중요</td><td>문자열이 필요하면 옵션을 빼고, 판단만 하면 <code>--quiet</code></td></tr></tbody></table></div>
+    <div class="dg-bar warn">명령의 종료 코드가 곧 if 조건 — active면 0이라 then. <code>--quiet</code>은 출력만 막고 결과는 종료 코드로 넘김(비활성은 3, 0/1 아님)</div>
+
+    <h3>명령 결과를 변수에 담기 (dm1.sh)</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">실수 사례</td><td><code>result=systemctl is-active nginx</code> 뒤에 <code>echo "$result"</code> → 에러</td><td><code>./dm1.sh: 줄 2: is-active: 명령어를 찾을 수 없음</code></td></tr><tr><td class="nowrap">에러 원인</td><td><code>result=systemctl is-active nginx</code>가 "변수 지정 + <code>is-active</code>를 명령으로 실행"으로 해석됨</td><td><code>-</code>가 뺄셈으로 읽혀서가 아님. 변수 지정 뒤에는 공백이 오는 순간 그다음 단어가 명령이 됨</td></tr><tr><td class="nowrap">해결</td><td>명령 전체를 <code>$( )</code>로 묶음</td><td>명령 치환 — 실행 결과(출력 문자열)가 변수 값이 됨</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · dm1.sh 파일 안 · 실수 사례]</span>
+#!/bin/bash
+result=systemctl is-active nginx   <span class="c"># 변수 지정 + is-active를 명령으로 실행</span>
+echo "$result"                     <span class="c"># is-active: 명령어를 찾을 수 없음</span>
+<span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · dm1.sh 파일 안 · 고친 형태]</span>
+result=$(systemctl is-active nginx)   <span class="c"># 명령 실행 결과를 변수에 담음</span>
+echo "$result"                        <span class="c"># active 또는 inactive 문자열 출력</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">명령 결과를 담을 때는 <code>$( )</code> — <code>result=systemctl …</code>처럼 띄우면 변수 지정과 명령 실행으로 갈라져 <code>command not found</code></div>
+
+    <h3>셸에서 MySQL 접속과 DB 명령 (dm1.sh 이어서)</h3>
+    <div class="table-wrap"><table><thead><tr><th>명령 형태</th><th>동작</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>mysql -u root -p</code></td><td>실행하면 <code>Enter password:</code>로 물음</td><td>비밀번호가 명령 기록·<code>ps</code>에 남지 않아 안전 — 실무 권장 형태</td></tr><tr><td class="nowrap"><code>mysql -u root -p'비밀번호'</code></td><td><code>-p</code> 뒤에 공백 없이 붙여 자동 입력</td><td>작은따옴표로 감쌈. <code>ps</code> 등으로 비밀번호가 노출될 수 있어 안전하지 않음 — mysql이 <code>mysql: [Warning] Using a password on the command line interface can be insecure</code> 경고를 띄움</td></tr><tr><td class="nowrap"><code>mysql -u root -p'비밀번호' DB이름</code></td><td>한 칸 띄운 값을 DB 이름으로 읽어 그 DB로 바로 접속</td><td><code>-p</code> 뒤에 공백을 두면 비밀번호가 아니라 <strong>DB 이름</strong>으로 인식 → <code>Unknown database '…'</code> 또는 <code>Access denied</code></td></tr><tr><td class="nowrap">접속 후</td><td><code>mysql&gt;</code> 프롬프트에서 실습</td><td>접속해서 바로 체크하는 방식 — 관리를 빠르게 하는 용도</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+mysql -u root -p                     <span class="c"># Enter password: 프롬프트에서 입력</span>
+mysql -u root -p'비밀번호'            <span class="c"># -p 뒤 공백 없이 붙임 → 경고와 함께 접속</span>
+mysql -u root -p'비밀번호' mega_info  <span class="c"># 한 칸 띄운 값을 DB 이름으로 → 해당 DB로 바로 접속</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root]</span>
+show databases;                        <span class="c">-- DB 목록 확인</span>
+use mega_info;                         <span class="c">-- DB 선택</span>
+show tables;                           <span class="c">-- 테이블 목록 확인</span>
+create table aaa (idx int not null);   <span class="c">-- 테이블 생성</span>
+show tables;                           <span class="c">-- 생성 확인</span>
+exit                                   <span class="c">-- 종료</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>확인</th><th>결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>show databases;</code></td><td><code>information_schema</code>, <code>mega_info</code>, <code>performance_schema</code></td><td>이 서버에 있는 DB 세 개</td></tr><tr><td class="nowrap"><code>use mega_info;</code></td><td><code>Database changed</code></td><td>이후 명령이 mega_info 안에서 실행됨</td></tr><tr><td class="nowrap"><code>show tables;</code></td><td><code>Empty set</code></td><td>테이블이 없어 <code>create table</code>로 직접 생성</td></tr></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>외부(원격) 접속</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">명령</td><td><code>mysql -u 사용자 -p'비밀번호' -h 서버IP</code></td><td>긴급하게 외부에서 바로 접속해야 할 때 쓰는 형태</td></tr><tr><td class="nowrap"><code>-u</code></td><td>접속 계정 — 전날 만든 계정 <code>mega_re</code></td><td><code>root</code>는 윈도우 IP에서 접속 불가</td></tr><tr><td class="nowrap"><code>-h</code></td><td>host — 접속할 서버(윈도우 쪽 IP)</td><td>서버 주소를 빼면 로컬(<code>localhost</code>)로 접속</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+mysql -u mega_re -p'비밀번호' -h 윈도우IP   <span class="c"># 원격 접속 — root로는 안 되고 mega_re로는 접속</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">root 원격 불가</td><td><code>root</code>를 로컬(<code>localhost</code>)로만 만들어 둠</td><td>계정의 host 범위 문제 — 계정·호스트 권한은 mysql.html 11장</td></tr><tr><td class="nowrap">별도 계정</td><td><code>mega_re</code> 같은 계정으로는 접속됨</td><td>계정마다 접속 가능한 host가 다름</td></tr></tbody></table></div>
+    <div class="dg-bar warn"><code>-p</code>와 비밀번호는 붙여 쓰고 공백을 두지 않음 — 공백이 있으면 비밀번호가 아니라 DB 이름으로 읽혀 <code>Unknown database</code>. 명령줄 비밀번호는 <code>ps</code>에 노출</div>
+
+    <h3>응용 — 데몬 3개 일괄 시작·중지 (dm2.sh)</h3>
+    <div class="table-wrap"><table><thead><tr><th>요구사항</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">사용 문법</td><td>조건문·배열·반복문·함수를 전부 사용</td><td>이 장까지 배운 것을 모두 합치는 문제</td></tr><tr><td class="nowrap">대상 데몬</td><td><code>nginx</code>, <code>postgresql</code>, <code>vsftpd</code> — <strong>순서 중요</strong></td><td>MySQL은 제외 — 배열 순서대로 기동·정지</td></tr><tr><td class="nowrap">질문</td><td>실행하면 "데몬을 가동(st) 및 중지(sp) :"로 물음</td><td>문구는 문제 문서의 한글을 그대로</td></tr><tr><td class="nowrap"><code>st</code></td><td><code>systemctl start nginx</code>, <code>systemctl start postgresql</code>, <code>systemctl start vsftpd</code>를 <strong>차례로</strong></td><td>문제 문서에는 <code>systemctl nginx start</code> 형태로 적혀 있었지만 올바른 순서는 <code>systemctl [OPTIONS] COMMAND [UNIT]</code></td></tr><tr><td class="nowrap"><code>sp</code></td><td>같은 순서로 <strong>모두 정지</strong></td><td>정지도 배열 순서 그대로</td></tr><tr><td class="nowrap">목록 처리</td><td>데몬 목록은 <strong>배열</strong>, <strong>반복문으로 한꺼번에</strong> 순서대로</td><td>스크립트 하나로 순식간에 처리 — 서버 수가 늘어도 목록만 추가</td></tr></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>풀이 방식</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">선택</td><td><code>if</code>로도 <code>case</code>로도 가능 — 결과 동일</td><td>2장의 <code>if</code>, 이 장의 <code>case</code> 중 편한 쪽</td></tr><tr><td class="nowrap">반복</td><td><code>for in</code>을 쓰든 안 쓰든 정답</td><td>배열 전체를 순서대로 도는 것이 목적</td></tr><tr><td class="nowrap">함수</td><td>함수 없이 조건문 안에서 바로 처리해도 맞음</td><td>이 풀이는 배운 것을 모두 쓰려고 함수까지 사용 — 억지로 꼬아 짜는 코드는 좋지 않음</td></tr><tr><td class="nowrap">배열</td><td>일반 변수는 값 하나만 유지(<code>j=1</code> 후 <code>j=10</code>이면 1이 사라짐), 배열은 변수 하나에 여러 값</td><td>괄호 <code>( )</code> = 배열을 만들겠다는 선언. 데몬 이름은 오타가 나면 에러라 정확히 입력</td></tr><tr><td class="nowrap">입력 + 조건</td><td><code>st</code>·<code>sp</code> 외의 값에 대비해 <code>else</code>로 오류 안내</td><td>필수는 아니지만 오타를 잡아 줌</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · root · dm2.sh 파일 안]</span>
+#!/bin/bash
+dm=("nginx" "postgresql" "vsftpd")   <span class="c"># 괄호 = 배열 선언</span>
+process() {
+  for z in "${dm[@]}"; do            <span class="c"># 배열의 모든 원소를 z에 하나씩 넣으며 반복</span>
+    systemctl $1 $z                  <span class="c"># $1 = start/stop, $z = 현재 데몬</span>
+  done                               <span class="c"># for 종료</span>
+}
+read -p "데몬을 가동(st) 및 중지(sp) : " in   <span class="c"># 안내 문구는 문제 문서의 한글을 복사</span>
+if [[ $in == "st" ]]; then
+  process "start"                    <span class="c"># 인자 start 전달</span>
+elif [[ $in == "sp" ]]; then
+  process "stop"                     <span class="c"># 인자 stop 전달</span>
+else
+  echo "해당 정보가 올바르지 않습니다"
+fi</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>코드 포인트</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">중복 줄이기</td><td><code>st</code>용 <code>for</code>와 <code>sp</code>용 <code>for</code>를 각각 쓰면 같은 코드를 두 번 쓴 것</td><td><code>process()</code> 하나에 <code>for</code>를 <strong>한 번만</strong> 쓰고 인자로 start·stop을 넘김</td></tr><tr><td class="nowrap"><code>"${dm[@]}"</code></td><td>배열의 <strong>모든 원소</strong>로 확장되는 표기</td><td>원소 개수는 <code>${#dm[@]}</code> — 개별 원소는 <code>${dm[0]}</code>처럼 번호로(0부터)</td></tr><tr><td class="nowrap">셸 문법</td><td>배열은 3장, <code>for</code>는 3장, <code>if</code>는 2장</td><td>이 장의 함수와 합쳐진 형태</td></tr></tbody></table></div>
+    <div class="dg-bar warn">배열 + 함수 + <code>for</code> — 같은 코드를 두 번 쓰지 않고 <code>process "start"</code>·<code>process "stop"</code> 인자로 분기. <code>"${dm[@]}"</code>는 전체 원소, 개수는 <code>${#dm[@]}</code></div>
+    <div class="table-wrap"><table><thead><tr><th>점검 순서</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">원칙</td><td>셸에서 <strong>제일 중요한 것은 점검</strong> — 한 번에 다 짜지 않음</td><td>여기까지 짰을 때 정상 동작하는지 먼저 확인한 뒤 다음 코드를 추가</td></tr><tr><td class="nowrap">1차 점검</td><td><code>for</code>를 완성하기 전에 임시로 <code>echo</code>를 넣어 <code>st</code> → <code>1</code>, <code>sp</code> → <code>2</code>, 그 외 → else 메시지 확인</td><td>조건문이 정확한지 먼저 — 이때 에러가 없으면 조건은 맞음</td></tr><tr><td class="nowrap">에러가 날 때</td><td>문제가 없으면 다음 코드를 추가하고, 그때 에러가 나면 <strong>새로 추가한 부분이 원인</strong></td><td>한 번에 한 단계씩 늘려야 원인을 좁힐 수 있음</td></tr><tr><td class="nowrap">빈 함수</td><td>함수 본문에 아무것도 없으면 문법 오류(<code>예기치 않은 토큰 근처에 문법 오류</code>)</td><td>확인용으로 함수 안에 <code>echo "test"</code>를 넣어 둠</td></tr><tr><td class="nowrap">미완성 반복문</td><td>아직 완성하지 않은 <code>for … in; do … done</code> 부분은 <code>#</code>으로 주석 처리</td><td>함수 뼈대 <code>process()</code>와 <code>done</code>까지만 먼저 잡아 둠</td></tr><tr><td class="nowrap">호출 연결</td><td>조건이 맞으면 <code>process</code>에 인자를 던지는 부분까지 확인</td><td>배열 반복은 아직 안 돌린 상태 — 단계별 확인</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · root · dm2.sh 파일 안 · 1차 점검]</span>
+#!/bin/bash
+dm=("nginx" "postgresql" "vsftpd")
+process() {
+  echo "test"                     <span class="c"># 함수 본문을 비워 두면 문법 오류 → 확인용 출력</span>
+<span class="c">#  for z in "${dm[@]}"; do       # 아직 완성 전인 반복문은 주석 처리</span>
+<span class="c">#    systemctl $1 $z</span>
+<span class="c">#  done</span>
+}
+read -p "데몬을 가동(st) 및 중지(sp) : " in
+if [[ $in == "st" ]]; then
+  echo "1"                        <span class="c"># start 자리 확인</span>
+elif [[ $in == "sp" ]]; then
+  echo "2"                        <span class="c"># stop 자리 확인</span>
+else
+  echo "해당 정보가 올바르지 않습니다"
+fi
+<span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+./dm2.sh                          <span class="c"># st → 1, sp → 2, 그 외 → else 메시지</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+netstat -lntu                    <span class="c"># 리스닝 중인 포트 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>결과 확인</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">방법 선택</td><td><code>systemctl is-active</code>(<code>active</code>) 또는 포트 확인</td><td><strong>포트를 보는 것이 제일 빠름</strong> — 떴으면 떴고, 안 떴으면 안 뜬 것</td></tr><tr><td class="nowrap"><code>st</code></td><td>80(nginx), 5432(postgresql), 9021(vsftpd)이 <code>LISTEN</code></td><td>포트를 알고 있어야 바로 확인 가능</td></tr><tr><td class="nowrap"><code>sp</code></td><td>80, 5432, 9021이 목록에서 사라짐 → 모두 정지</td><td>세 개가 한꺼번에 빠지면 배열·반복이 순서대로 돈 것</td></tr></tbody></table></div>
+    <ul class="facts"><li><strong>실행 권한·변수·산술</strong><div><code>#!/bin/bash</code>·<code>chmod 700</code>·<code>$(( ))</code>: 이 파일 1장</div></li><li><strong>조건문·입력</strong><div><code>if</code>·<code>elif</code>·<code>read</code>: 이 파일 2장</div></li><li><strong>반복문·배열</strong><div><code>for</code>·배열 선언·<code>${#d[@]}</code>: 이 파일 3장</div></li><li><strong>데몬 기동·자동 시작</strong><div><code>systemctl start</code>·자동 시작 설정: httpd.html 3장</div></li><li><strong>기동·정지 스크립트</strong><div><code>startup.sh</code>·<code>shutdown.sh</code>: was.html 5장</div></li><li><strong>MySQL 계정·원격 접속</strong><div>계정 host·GRANT·DBeaver 원격 접속: mysql.html 11장</div></li></ul>
+  </section>
 
   <section class="sec" id="cheatsheet"><h2>통합 명령어 치트시트</h2><p>이 카테고리에서 나온 명령어를 영역별로 모음. 내용이 추가되면 해당 영역 묶음 아래에 줄을 추가.</p><div class="table-wrap"><table class="cheat"><thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead><tbody><tr class="group"><th colspan="2" scope="colgroup">Shell 스크립트</th></tr><tr><td><code>#!/bin/bash</code></td><td>스크립트 1번 줄에 반드시 (첫 줄을 비우지 않음)</td></tr><tr><td><code>chmod 700 파일.sh</code></td><td>실행 권한 부여. 없으면 <code>./파일.sh</code>가 실행되지 않음</td></tr><tr><td><code>./파일.sh</code> / <code>bash 파일.sh</code></td><td>x 권한 필요 / 읽기(r)만 있어도 실행. 결과는 같음</td></tr><tr><td><code>변수=값</code> / <code>$변수</code></td><td>변수 선언 / 값 호출. <code>=</code> 양옆 띄어쓰기 금지, 변수는 마지막 값 하나만 유지</td></tr><tr><td><code>$((a + b))</code></td><td>산술 계산 — 괄호 두 겹. <code>$a+$b</code>는 문자로 붙고 <code>$(a+b)</code>는 명령 실행으로 오류</td></tr><tr><td>오류 확인</td><td><code>./test2.sh: 2: userid: …</code>처럼 몇 번째 줄인지 알려 줌 — 그 줄을 고침</td></tr><tr><td><code>if [ 조건 ]; then … fi</code></td><td>조건문 — <code>[ ]</code> 안은 <code>[</code>·값·연산자·값·<code>]</code> 사이를 전부 한 칸씩 띄움. 조건이 맞을 때만 then 아래 실행</td></tr><tr><td><code>=</code> / <code>==</code></td><td>문자열 비교는 <code>=</code> 하나. <code>==</code>도 같다로 동작하지만 POSIX 표준이 아닌 Bash 확장</td></tr><tr><td><code>-eq</code> <code>-ne</code> <code>-gt</code> <code>-ge</code> <code>-lt</code> <code>-le</code></td><td>숫자 비교 (equal·not equal·greater·greater or equal·less·less or equal). 문자열 비교 <code>=</code>와 섞지 않음</td></tr><tr><td><code>elif [ 조건 ]; then</code> / <code>else</code></td><td>또 다른 조건 (여러 개 가능, <code>then</code> 필수) / if의 무조건 반대 — else에는 조건을 넣지 않음</td></tr><tr><td><code>(( a &gt;= 100 ))</code></td><td>산술 조건 — <code>-eq</code> 대신 <code>&gt;</code>·<code>&gt;=</code>·<code>==</code> 사용, 공백 무관, 변수 <code>$</code> 생략 가능, 같다는 <code>==</code></td></tr><tr><td><code>&amp;&amp;</code> / <code>||</code></td><td>AND(두 조건 모두 맞음) / OR(하나라도 맞음). 조건문에 쓰고 else에는 넣지 않음</td></tr><tr><td><code>read 변수</code> / <code>echo -n</code></td><td>키보드 입력을 변수에 저장 / 줄바꿈 없이 출력해 같은 줄에서 입력 받기. 받은 값은 <code>$변수</code>로 사용</td></tr><tr><td>오류 줄 찾기</td><td><code>:set number</code>로 줄 번호를 보고 오류 줄을 기점으로 <b>위쪽</b>만 확인 — 아래는 실행되지 않은 상태</td></tr><tr class="group"><th colspan="2" scope="colgroup">Shell 반복문·배열 (for · while · until · break)</th></tr>
 <tr><td><code>for a in {1..5}; do … done</code></td><td>값 목록 반복 — <code>{5..1}</code>은 역순 자동. <code>done</code>이 빠지면 문법 오류</td></tr>
@@ -1048,6 +1330,21 @@ done                            <span class="c"># 반복문 종료</span>
 <tr><td><code>declare -A server_matrix</code></td><td>2차 배열(연관 배열). 선언 없이 <code>[0,1]</code> 키를 쓰면 산술식으로 계산돼 다른 칸과 겹쳐 값이 덮어써짐</td></tr>
 <tr><td><code>a % 2 == 0</code></td><td>나머지 — 짝수 판별(홀수는 1). 3의 배수는 <code>% 3 == 0</code>, 8000~8050 짝수 포트 26개 생성에 사용</td></tr>
 <tr><td><code>break</code></td><td>반복문 강제 종료(for·while 전용, 조건문에는 없음). echo가 if 안이면 break 건 값만, if 밖이면 그 전 값까지 출력</td></tr>
+<tr class="group"><th colspan="2" scope="colgroup">Shell 함수·선택문 (case · 함수 · is-active)</th></tr>
+<tr><td><code>case "$dm" in … esac</code></td><td>값 분기 — 다른 언어의 switch. 각 파트 <code>"값")</code> ~ <code>;;</code>, default는 따옴표 없는 <code>*)</code>. <code>esac</code>가 빠지면 문법 오류</td></tr>
+<tr><td><code>read -p "문구" 변수</code></td><td>프롬프트 문구를 줄바꿈 없이 출력하고 입력값을 변수에 저장 — 줄을 내리는 옵션이 아님. <code>echo -n</code> + <code>read</code>와 같은 역할</td></tr>
+<tr><td><code>function 이름 { }</code> / <code>이름() { }</code></td><td>같은 함수 정의 문법 — <code>function</code> 예약어는 선택. 선언만으로 실행되지 않고 호출은 반드시 선언 아래(위에서 호출하면 <code>명령을 찾을 수 없음</code>)</td></tr>
+<tr><td><code>이름 인자1 인자2</code> / <code>$1</code> <code>$2</code></td><td>호출 줄에서 한 칸씩 띄워 전달하고 함수 안에서 <code>$1</code>부터 받음 — 선언 괄호 <code>()</code>는 비움. 넘기지 않은 번호는 빈 값</td></tr>
+<tr><td><code>local 변수=값</code></td><td>함수 안 지역 변수. 같은 이름이면 지역이 우선, <code>local</code>을 빼면 전역 값이 바뀜. 선언한 함수가 호출하는 함수에서도 보임</td></tr>
+<tr><td><code>[[ $act == "st" ]]</code></td><td>문자 비교는 대괄호 2개 — 산술용 <code>(( $act == "st" ))</code>에 문자를 넣으면 모두 0으로 계산돼 항상 참(에러 없이 stop이 안 됨)</td></tr>
+<tr><td><code>[ "$a" = "b" ]</code> / <code>[ "$a" -eq 5 ]</code></td><td>문자열은 <code>=</code>, 숫자는 <code>-eq</code> — <code>-eq</code>는 숫자 전용이라 문자 비교에 쓰지 않음</td></tr>
+<tr><td><code>systemctl is-active 데몬</code> / <code>--quiet</code></td><td>작동 중 <code>active</code>·정지 <code>inactive</code> 출력 / 출력 없이 종료 코드만 (active면 0, 비활성은 3)</td></tr>
+<tr><td><code>if 시스템명령; then</code></td><td><code>if</code> 조건에 리눅스 명령을 그대로 — 종료 코드 0이면 then. 상태 확인만 할 때는 함수를 쓰지 않음</td></tr>
+<tr><td><code>result=$(systemctl is-active nginx)</code></td><td>명령 결과를 변수에. <code>result=systemctl …</code>처럼 띄우면 <code>is-active</code>를 명령으로 실행해 <code>command not found</code></td></tr>
+<tr><td><code>mysql -u root -p</code> / <code>-p'비밀번호'</code> / <code>-h IP</code></td><td>프롬프트로 입력(안전) / <code>-p</code>에 붙여 자동 입력(<code>ps</code> 노출 위험·경고) / 원격 서버 지정. <code>-p</code> 뒤 공백이면 그 값은 DB 이름 → <code>Unknown database</code></td></tr>
+<tr><td><code>dm=("nginx" "postgresql" "vsftpd")</code> / <code>for z in "${dm[@]}"</code></td><td>배열 선언 / 모든 원소 순회 — 개수는 <code>${#dm[@]}</code>. 함수 인자로 start·stop을 넘겨 <code>for</code>를 한 번만 씀</td></tr>
+<tr><td><code>netstat -lntu</code> / <code>netstat -lnptu | grep "vsftpd"</code></td><td>리스닝 중인 포트 확인 — 포트로 데몬 상태를 제일 빠르게 판정(80 nginx·5432 postgresql·9021 vsftpd)</td></tr>
+<tr><td><code>:set nu</code> / <code>:set number</code></td><td>vi에서 줄 번호 표시 — <code>;;</code>·<code>esac</code>·<code>fi</code> 짝과 오류 줄을 눈으로 확인</td></tr>
 </tbody></table></div></section>
 
   </main>
