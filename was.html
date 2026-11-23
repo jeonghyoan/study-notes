@@ -655,6 +655,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <tr><td class="nowrap">root가 관리하면</td><td>일반 사용자는 정지도 못 하고 계속 root에게 요청해야 함</td><td>개발자가 직접 재배포·정지를 해야 하는 일이 잦음</td></tr>
       <tr><td class="nowrap">실무</td><td>회사에서도 세팅 비용을 받고 해 주고, WAS 세팅 후 FTP를 열어 주면 개발자가 알아서 파일을 업로드</td><td>인프라는 포트·환경만 열어 주는 역할</td></tr>
     </tbody></table></div>
+    <ul class="facts"><li><strong>파이썬 API 서버</strong><div>Tomcat(Java)과 다른 스택 — FastAPI·uvicorn으로 REST API 서버를 띄우고 포트를 여는 절차(9999·<code>--workers</code>·SELinux·방화벽): fastapi.html 3·5·8장</div></li><li><strong>WAS 포트 3개</strong><div>8005·8080·8443의 역할과 셧다운 포트 중복: 이 파일 2장</div></li></ul>
 
     <h3>내려받기·압축 해제 (apink)</h3>
     <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>

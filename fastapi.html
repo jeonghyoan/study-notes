@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FastAPI 통합 학습노트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #FFFFFF;
+  --paper-alt: #F4F6F8;
+  --ink: #0F172A;
+  --ink2: #273449;
+  --mute: #5B6779;
+  --hair: #CBD5E1;
+  --hair-soft: #E2E8F0;
+  --accent: #0B63CE;
+  --accent-text: #074799;
+  --accent-soft: #EEF4FC;
+  --fix: #B45309;
+  --fix-text: #7C2D12;
+  --fix-soft: #FFF7EC;
+  --fix-line: #F3D9B5;
+  --code-bg: #F5F7FA;
+  --code-line: #E2E8F0;
+  --comment: #6B7A90;
+  --sidebar: 240px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+    --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+    --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+    --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121821; --paper-alt: #18202B; --ink: #E8EDF4; --ink2: #C3CCD8; --mute: #8D99AA;
+  --hair: #334155; --hair-soft: #263140; --accent: #5AA2F5; --accent-text: #8EC1FF; --accent-soft: #16263A;
+  --fix: #E3954A; --fix-text: #F5BE86; --fix-soft: #2A1F14; --fix-line: #4A3520;
+  --code-bg: #0D131B; --code-line: #263140; --comment: #7D8A9C;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; scroll-padding-top: 24px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  line-height: 1.8;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Layout: sticky TOC + one readable column ---------- */
+.page {
+  display: grid;
+  grid-template-columns: var(--sidebar) minmax(0, 1fr);
+  gap: 0 48px;
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: 44px 48px 96px;
+}
+.side { position: relative; }
+.side nav {
+  position: sticky;
+  top: 28px;
+  padding-top: 6px;
+}
+.side .side-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mute);
+  margin: 0 0 10px;
+}
+.side ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1px solid var(--hair);
+  max-width: none;
+}
+.side li { margin: 0; font-size: 14px; line-height: 1.45; }
+.side a {
+  display: block;
+  padding: 7px 0 7px 14px;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  color: var(--mute);
+  text-decoration: none;
+}
+.side a:hover { color: var(--ink); }
+.side a.on {
+  color: var(--accent-text);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.main { min-width: 0; }
+
+/* Inline TOC only for narrow screens */
+.toc { display: none; }
+
+/* ---------- Typography ---------- */
+h1 {
+  margin: 0 0 18px;
+  font-size: clamp(30px, 3.6vw, 42px);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--ink);
+}
+.deck {
+  margin: 0 0 8px;
+  font-size: 17.5px;
+  line-height: 1.75;
+  color: var(--ink2);
+  max-width: none;
+}
+h2 {
+  margin: 0 0 20px;
+  font-size: clamp(23px, 2.3vw, 28px);
+  line-height: 1.35;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.sec h2 {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+.sec h2::before {
+  content: counter(sec);
+  counter-increment: sec;
+  flex: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: var(--accent-text);
+  min-width: 1.4em;
+}
+.main { counter-reset: sec; }
+
+h3 {
+  margin: 40px 0 12px;
+  font-size: 19px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--ink);
+}
+p {
+  margin: 0 0 16px;
+  font-size: 16.5px;
+  color: var(--ink2);
+  max-width: none;
+}
+strong { color: var(--ink); font-weight: 700; }
+a { color: var(--accent-text); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+code {
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  color: var(--ink);
+  padding: 1px 6px;
+  border: 1px solid var(--code-line);
+  border-radius: 4px;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Code blocks ---------- */
+.code {
+  position: relative;
+  margin: 14px 0 22px;
+}
+pre {
+  margin: 0;
+  padding: 16px 20px;
+  background: var(--code-bg);
+  border: 1px solid var(--code-line);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink);
+  tab-size: 4;
+}
+code.n { white-space: nowrap; }
+pre code {
+  background: transparent; padding: 0; border: 0; border-radius: 0;
+  font-size: inherit; word-break: normal; white-space: pre;
+}
+pre .c { color: var(--comment); }
+.copy {
+  position: absolute;
+  top: 8px; right: 8px;
+  font: 600 12px/1 'IBM Plex Sans', 'Noto Sans KR', sans-serif;
+  padding: 6px 9px;
+  color: var(--mute);
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0;
+}
+.code:hover .copy, .copy:focus-visible { opacity: 1; }
+.copy.done { color: var(--accent-text); border-color: var(--accent); opacity: 1; }
+@media (hover: none) { .copy { opacity: 1; } }
+
+/* ---------- Sections ---------- */
+.sec {
+  margin-top: 88px;
+  padding-top: 32px;
+  border-top: 2px solid var(--ink);
+}
+.split { display: block; }
+.split-left p { max-width: none; }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 36px;
+  margin-top: 8px;
+}
+/* 코드가 들어간 묶음은 좁아지지 않게 한 줄로 쌓기 */
+.grid-2:has(pre) { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 32px; }
+
+.strip-item {
+  padding-top: 4px;
+}
+.strip-item > h3 {
+  margin: 28px 0 10px;
+  font-size: 17.5px;
+  padding-left: 12px;
+  border-left: 3px solid var(--hair);
+  line-height: 1.4;
+}
+.grid-2:not(:has(pre)) .strip-item {
+  background: var(--paper-alt);
+  padding: 4px 22px 8px;
+  border-radius: 8px;
+}
+.grid-2:not(:has(pre)) .strip-item > h3 { border-left: 0; padding-left: 0; margin-top: 18px; }
+
+/* ---------- Hero ---------- */
+header { padding-bottom: 8px; }
+.core-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 32px;
+}
+.core-strip > div {
+  padding: 18px 18px 16px;
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 8px 8px;
+}
+.core-metric {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--accent-text);
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.core-desc { font-size: 15px; line-height: 1.7; color: var(--ink2); margin: 0; }
+
+/* ---------- Lists ---------- */
+ul, ol { margin: 8px 0 20px; padding-left: 22px; max-width: none; }
+li { margin-bottom: 12px; font-size: 16px; line-height: 1.8; color: var(--ink2); }
+li::marker { color: var(--mute); }
+.wide-list { max-width: none; }
+ol.wide-list > li { padding-left: 4px; }
+
+/* ---------- Callouts ---------- */
+.note-fix, .note-verify {
+  margin: 22px 0 26px;
+  padding: 16px 22px 6px;
+  border-radius: 8px;
+  max-width: none;
+}
+.note-fix { background: var(--fix-soft); border: 1px solid var(--fix-line); border-left: 4px solid var(--fix); }
+.note-verify { background: var(--accent-soft); border: 1px solid var(--hair-soft); border-left: 4px solid var(--accent); }
+.note-fix .tag, .note-verify .tag {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.note-fix .tag { color: var(--fix-text); }
+.note-verify .tag { color: var(--accent-text); }
+.note-fix p, .note-verify p {
+  margin: 0;
+  padding: 10px 0 12px;
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--ink2);
+  max-width: none;
+}
+.note-fix p + p { border-top: 1px dashed var(--fix-line); }
+.note-fix p > strong:first-child,
+.note-verify p > strong:first-child { display: block; margin-bottom: 2px; }
+.note-fix p > strong:first-child { color: var(--fix-text); }
+
+/* ---------- Tables ---------- */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 26px 0 28px;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 15px; text-align: left; line-height: 1.65; }
+thead th {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper-alt);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--hair);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--hair-soft);
+  vertical-align: top;
+  color: var(--ink2);
+}
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--paper-alt); }
+.num, .nowrap { white-space: nowrap; }
+td.nowrap:not(:has(code)) { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; }
+tr.group th {
+  text-align: left;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--hair);
+  border-top: 1px solid var(--hair);
+}
+tbody tr.group:first-child th { border-top: 0; }
+.cheat td:first-child { width: 46%; }
+.cheat td:first-child code { overflow-wrap: anywhere; }
+
+/* ---------- Definition list ---------- */
+dl.open-dl { margin: 14px 0 20px; display: grid; grid-template-columns: minmax(170px, 240px) minmax(0, 1fr); }
+dl.open-dl dt { padding: 10px 16px 10px 0; border-top: 1px solid var(--hair-soft); font-weight: 600; font-size: 15px; color: var(--ink); }
+dl.open-dl dd { margin: 0; padding: 10px 0; border-top: 1px solid var(--hair-soft); font-size: 15px; color: var(--ink2); }
+
+/* ---------- Figures ---------- */
+figure { margin: 36px 0; padding: 0; }
+figure .fig-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 14px; line-height: 1.5; }
+figure svg.diagram {
+  width: 100%; height: auto; display: block;
+  background: #FFFFFF;
+  border: 1px solid var(--hair);
+  border-radius: 8px;
+  padding: 10px;
+}
+figcaption { margin-top: 10px; font-size: 14px; color: var(--mute); line-height: 1.6; }
+
+blockquote.pull { margin: 36px 0; padding: 0 0 0 22px; border-left: 3px solid var(--ink); font-size: clamp(20px, 2.2vw, 24px); line-height: 1.5; font-weight: 600; color: var(--ink); max-width: none; }
+
+/* ---------- Exam band ---------- */
+.band {
+  margin-top: 88px;
+  padding: 36px 32px 28px;
+  background: var(--paper-alt);
+  border: 1px solid var(--hair);
+  border-top: 3px solid var(--accent);
+  border-radius: 0 0 10px 10px;
+}
+.band > p { max-width: none; }
+.exam-list {
+  counter-reset: exam;
+  list-style: none;
+  padding: 0;
+  margin: 20px 0 0;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.exam-list li {
+  counter-increment: exam;
+  position: relative;
+  margin: 0;
+  padding: 16px 0 16px 48px;
+  border-top: 1px solid var(--hair);
+  font-size: 16px;
+  line-height: 1.8;
+}
+.exam-list li::before {
+  content: counter(exam, decimal-leading-zero);
+  position: absolute;
+  left: 0; top: 17px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-text);
+}
+.exam-list li > strong:first-child { display: block; margin-bottom: 2px; }
+
+/* ---------- Key-value fact lists ---------- */
+ul.facts {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 24px;
+  max-width: none;
+  border-top: 1px solid var(--hair-soft);
+}
+ul.facts > li {
+  display: grid;
+  grid-template-columns: 9.5em minmax(0, 1fr);
+  gap: 2px 20px;
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--hair-soft);
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+ul.facts > li > strong:first-child { color: var(--ink); font-weight: 700; }
+ul.facts > li > div { color: var(--ink2); }
+ul.facts ul { margin: 0; padding-left: 18px; }
+ul.facts ul li { margin: 0 0 4px; font-size: 15.5px; }
+li > ul { margin: 6px 0 4px; }
+li > ul > li { margin-bottom: 4px; font-size: 15.5px; }
+td ul { margin: 0; padding-left: 16px; max-width: none; }
+td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
+.opts td:nth-child(2) { min-width: 13em; }
+@media (max-width: 760px) {
+  ul.facts > li { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- HTML diagrams (깨지지 않는 반응형 도식) ---------- */
+.dg {
+  margin: 26px 0 30px;
+  padding: 22px;
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  background: var(--paper-alt);
+}
+.dg-title { font-size: 16.5px; font-weight: 700; color: var(--ink); margin: 0 0 16px; line-height: 1.5; }
+.dg-flow { display: flex; align-items: stretch; }
+.dg-flow > .dg-node, .dg-flow > .dg-stack { flex: 1 1 0; min-width: 0; }
+.dg-stack { display: flex; flex-direction: column; gap: 12px; }
+.dg-node {
+  background: var(--paper);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.dg-node.key { border: 2px solid var(--ink); }
+.dg-node.accent { border: 1.5px solid var(--accent); }
+.dg-node.ghost { border: 1.5px dashed var(--hair); background: transparent; color: var(--mute); }
+.dg-node h4 { margin: 0 0 2px; font-size: 15px; line-height: 1.45; font-weight: 700; color: var(--ink); }
+.dg-node.accent h4 { color: var(--accent-text); }
+.dg-node .sub {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px; color: var(--mute);
+  margin: 0 0 8px; overflow-wrap: anywhere;
+}
+.dg-node ul { list-style: none; padding: 0; margin: 0; max-width: none; }
+.dg-node li { margin: 0 0 6px; font-size: 14px; line-height: 1.6; color: var(--ink2); }
+.dg-node li:last-child { margin-bottom: 0; }
+.dg-node .grp { padding-top: 8px; margin-top: 8px; border-top: 1px solid var(--hair-soft); }
+.dg-node .lbl { display: block; font-weight: 700; font-size: 13.5px; color: var(--ink); }
+.dg-node .num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; margin-right: 6px; border-radius: 50%;
+  background: var(--accent); color: var(--paper); font-size: 13px; font-weight: 700;
+  vertical-align: 1px;
+}
+.port { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: var(--accent-text); overflow-wrap: anywhere; }
+.dg-arrow {
+  flex: 0 0 64px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 0 4px;
+  color: var(--accent-text); font-size: 12px; font-weight: 700; text-align: center; line-height: 1.3;
+}
+.dg-arrow::before { content: "→"; font-size: 24px; line-height: 1; color: var(--accent); }
+.dg-foot { margin: 14px 0 0; font-size: 14px; line-height: 1.65; color: var(--mute); max-width: none; }
+.dg-foot strong { color: var(--ink2); }
+
+.dg-compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.dg-panel { background: var(--paper); border: 1px solid var(--hair); border-radius: 10px; padding: 16px 18px 18px; }
+.dg-panel > h4 { margin: 0 0 12px; font-size: 16px; font-weight: 700; color: var(--ink); }
+.dg-panel > h4 span { font-weight: 500; color: var(--mute); font-size: 14px; }
+.dg-grid { display: grid; gap: 10px; }
+.dg-grid.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dg-grid.c2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.dg-panel .dg-node { padding: 10px 12px; }
+.dg-panel .dg-node h4 { font-size: 14px; }
+.dg-panel .dg-node li { font-size: 13.5px; margin-bottom: 3px; }
+.dg-host { border: 2px solid var(--ink); border-radius: 10px; padding: 12px; }
+.dg-host > .host-h { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0 0 2px; }
+.dg-host > .host-s { font-size: 13px; color: var(--mute); margin: 0 0 10px; }
+.dg-bar {
+  display: block;
+  margin: 10px 0 0; padding: 8px 12px;
+  border-radius: 8px; background: var(--paper-alt);
+  font-size: 13.5px; line-height: 1.55; color: var(--ink2);
+}
+.dg-bar.warn { background: var(--fix-soft); color: var(--fix-text); }
+.dg-bar.ok { background: var(--accent-soft); color: var(--accent-text); }
+.dg-down { text-align: center; color: var(--accent); font-size: 13px; font-weight: 700; margin: 8px 0; }
+
+.spec { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 14px 0 12px; }
+.spec > div { border: 1px solid var(--hair); border-radius: 10px; padding: 12px 14px; background: var(--paper); }
+.spec .k { font-size: 13px; font-weight: 700; color: var(--mute); }
+.spec .v { font-size: 15.5px; font-weight: 700; color: var(--ink); line-height: 1.45; margin: 2px 0; }
+.spec .d { font-size: 13px; color: var(--mute); line-height: 1.55; overflow-wrap: anywhere; }
+.rules { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; padding: 0; list-style: none; max-width: none; }
+.rules li {
+  margin: 0; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--hair); background: var(--paper);
+  font-size: 14px; line-height: 1.5; color: var(--ink2);
+}
+
+@media (max-width: 980px) {
+  .dg-flow { flex-direction: column; }
+  .dg-arrow { flex-basis: auto; padding: 6px 0; flex-direction: row; gap: 8px; }
+  .dg-arrow::before { content: "↓"; font-size: 20px; }
+  .dg-compare, .spec { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .dg { padding: 14px; }
+  .dg-grid.c3 { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .page { display: block; padding: 36px 24px 80px; }
+  .side { display: none; }
+  .main { margin: 0 auto; }
+  .toc {
+    display: block;
+    margin: 32px 0 0;
+    padding: 16px 20px;
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    background: var(--paper-alt);
+    font-size: 15px;
+  }
+  .toc a { display: block; padding: 5px 0; color: var(--ink2); text-decoration: none; }
+  .toc a:hover { color: var(--accent-text); text-decoration: underline; }
+}
+@media (max-width: 760px) {
+  .page { padding: 28px 18px 64px; }
+  .grid-2, .grid-3, .core-strip { grid-template-columns: minmax(0, 1fr); }
+  dl.open-dl { grid-template-columns: 1fr; }
+  dl.open-dl dt { padding-bottom: 2px; }
+  dl.open-dl dd { border-top: 0; padding-top: 2px; }
+  .sec, .band { margin-top: 64px; }
+  .band { padding: 28px 18px 20px; }
+  .note-fix, .note-verify { padding: 14px 16px 4px; }
+  p { font-size: 16px; }
+  pre { font-size: 12.5px; padding: 14px 14px; }
+  .cheat td:first-child { width: auto; }
+  table { min-width: 640px; }
+}
+@media print {
+  .side, .copy { display: none !important; }
+  .page { display: block; }
+}
+</style>
+</head>
+<body>
+<button id="themeBtn" type="button" aria-label="라이트/다크 모드 전환" style="position:fixed;top:12px;right:14px;z-index:60;padding:6px 12px;font:600 13px/1 inherit;font-family:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--hair);border-radius:999px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15)">다크</button>
+<style>@media print{#themeBtn{display:none}}</style>
+
+<div class="page">
+  <aside class="side">
+    <nav aria-label="목차 (사이드)">
+      <p class="side-title">목차</p>
+      <ol>
+        <li><a href="#api-concept">1. API 개념과 HTTP 메서드</a></li>
+        <li><a href="#data-formats">2. 응답 형식 — JSON·XML·CSV</a></li>
+        <li><a href="#rest-fastapi">3. REST·RESTful과 FastAPI</a></li>
+        <li><a href="#use-cases">4. FastAPI 활용 분야 3가지</a></li>
+        <li><a href="#install">5. 설치 — fastapi·uvicorn·nest_asyncio</a></li>
+        <li><a href="#first-app">6. 앱 객체·라우트 — 기본 코드</a></li>
+        <li><a href="#jupyter-run">7. Jupyter에서 가동 (문제 많음)</a></li>
+        <li><a href="#py-run">8. .py 파일로 가동 (권장)</a></li>
+        <li><a href="#routes">9. 라우트 추가와 접근 제어</a></li>
+        <li><a href="#cheatsheet">10. 통합 명령어 치트시트</a></li>
+      </ol>
+    </nav>
+  </aside>
+  <main class="main">
+
+  <header>
+    <h1>FastAPI 통합 학습노트</h1>
+    <p class="deck">FastAPI 통합 학습노트 · 범위: API 개념(HTTP 메서드 GET·POST·PUT·DELETE → 백엔드 DB 처리 → JSON/XML 응답) → 뷰 테이블(가상 테이블·Materialized View) → 응답 형식 JSON·XML·CSV → REST·RESTful·FastAPI 정의와 프레임워크 계보 → 활용 3분야(모델 서빙·클러스터 브리지·파이프라인 대시보드) → <code class="n">pip3</code> 설치(<code class="n">fastapi</code>·<code class="n">uvicorn</code>·<code class="n">nest_asyncio</code>, 마스터·워커) → 기본 코드(앱 객체·데코레이터·경로 파라미터) → Jupyter 가동(<code class="n">uvicorn.Config</code>·<code class="n">Server</code>·<code class="n">asyncio.create_task</code>) → <code class="n">.py</code> 파일 가동(<code class="n">uvicorn main:app --host --port</code>·<code class="n">reload</code>) → 경로 파라미터 접근 제어. 연결 파일: spark.html(PySpark·JupyterLab·마스터 포트), mysql.html(조회·뷰), was.html(Java WAS와 API 서버의 차이)</p>
+
+    <div class="core-strip">
+      <div>
+        <div class="core-metric">GET · POST · PUT · DELETE</div>
+        <p class="core-desc">API는 <strong>통신 창구</strong> — 요청 4개를 받아 백엔드가 DB를 조회하고 JSON·XML로 돌려줌. 응답을 받으려면 <strong>포트가 열려</strong> 있어야 하고, 포트 충돌이 나면 기동 실패. 개방은 인프라 담당자와 협의 (1·3장)</p>
+      </div>
+      <div>
+        <div class="core-metric">uvicorn main:app</div>
+        <p class="core-desc">실행은 <code class="n">uvicorn</code>, 인자는 <strong>파일명:변수명</strong>. <code class="n">--host</code> 마스터 IP <code class="n">--port 9999</code>, 배포는 <code class="n">--workers N</code>. Jupyter 가동은 <code class="n">nest_asyncio</code>가 필요하고 <code class="n">.py</code> 파일 실행이 정석 (5·7·8장)</p>
+      </div>
+      <div>
+        <div class="core-metric">9999 LISTEN · 200 OK</div>
+        <p class="core-desc"><code class="n">netstat -lntpu</code>에 <code class="n">9999</code> LISTEN·프로세스 <code class="n">python</code>이 보이면 가동. 로그의 <code class="n">Uvicorn running on ...</code>·<code class="n">200 OK</code>가 정상 신호. 파일 이름 <code class="n">fastapi.py</code>는 금지 (6·8장)</p>
+      </div>
+    </div>
+
+    <nav class="toc" aria-label="목차">
+      <a href="#api-concept">1. API 개념과 HTTP 메서드</a>
+      <a href="#data-formats">2. 응답 형식 — JSON·XML·CSV</a>
+      <a href="#rest-fastapi">3. REST·RESTful과 FastAPI</a>
+      <a href="#use-cases">4. FastAPI 활용 분야 3가지</a>
+      <a href="#install">5. 설치 — fastapi·uvicorn·nest_asyncio</a>
+      <a href="#first-app">6. 앱 객체·라우트 — 기본 코드</a>
+      <a href="#jupyter-run">7. Jupyter에서 가동 (문제 많음)</a>
+      <a href="#py-run">8. .py 파일로 가동 (권장)</a>
+      <a href="#routes">9. 라우트 추가와 접근 제어</a>
+      <a href="#cheatsheet">10. 통합 명령어 치트시트</a>
+    </nav>
+  </header>
+
+  <!-- 1 -->
+  <section class="sec" id="api-concept">
+    <h2>API 개념과 HTTP 메서드</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 요청 4개를 받아 JSON·XML로 돌려주는 창구</p><div class="dg-flow"><div class="dg-node"><h4>① 클라이언트 요청</h4><p class="sub">GET · POST · PUT · DELETE</p></div><div class="dg-arrow">포트</div><div class="dg-node key"><h4>② 백엔드 처리</h4><p class="sub">DB 쿼리 · 조건 확인</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 응답</h4><p class="sub">JSON · XML</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 창구 유지</h4><p class="sub">포트 개방 · 키 발급</p></div></div><p class="dg-foot">API는 정의 암기보다 <strong>통신</strong>으로 이해 — 요청이 들어오면 백엔드가 DB를 조회해 결과를 돌려주고, 그 창구는 포트로 열려 있음</p></div>
+
+    <h3>정의와 동작</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정의</td><td>API = <b>Application Programming Interface</b> — 프로그램끼리 값을 주고받는 창구</td><td>정의를 외우는 문제는 나오지 않음 — <b>통신</b>으로 이해</td></tr>
+    <tr><td class="nowrap">요청 규약</td><td>HTTP 요청 통신 규약 <code>GET</code>·<code>POST</code>·<code>PUT</code>·<code>DELETE</code> (+ <code>PATCH</code> 등)</td><td>이 4가지만 알면 됨</td></tr>
+    <tr><td class="nowrap">처리</td><td>요청을 보내면 <b>백엔드</b>가 DB 쿼리 등으로 처리 → 결과(JSON/XML)를 돌려줌</td><td>응답 형식은 2장</td></tr>
+    <tr><td class="nowrap">만드는 이유</td><td>영화진흥위원회가 외부에 자기 DB(MySQL) 접근을 열어 줄 수는 없음 → <b>DB 값을 가져와 JSON으로 뿌려 주는 창구</b>를 만든 것</td><td>API 사용자는 테이블 구조·계정을 몰라도 값만 받음</td></tr>
+    <tr><td class="nowrap">CSV 제공처</td><td>XML/JSON 생성이 번거로워 DB를 엑셀(CSV)로 올려 둔 경우</td><td>요즘 API는 JSON/XML이 기본 — 형식 비교 2장</td></tr>
+    <tr><td class="nowrap">포트</td><td>API 서버도 <b>포트를 열어야</b> 외부에서 접근 가능</td><td>개방은 인프라 담당자와 협의가 필요한 일 — 3장</td></tr>
+    </tbody></table></div>
+
+    <h3>메서드 4개 — 같은 동작의 SQL 대응</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>메서드</th><th>역할</th><th>대응하는 SQL</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>GET</code></td><td>값을 조회해 가져옴</td><td><code>SELECT</code></td></tr>
+    <tr><td class="nowrap"><code>POST</code></td><td>값을 보내 새로 등록</td><td><code>INSERT</code></td></tr>
+    <tr><td class="nowrap"><code>PUT</code></td><td>값을 보내 수정</td><td><code>UPDATE</code></td></tr>
+    <tr><td class="nowrap"><code>DELETE</code></td><td>값을 지정해 삭제</td><td><code>DELETE</code></td></tr>
+    </tbody></table></div>
+    <p>표준 예시 — 메서드와 SQL의 대응은 HTTP·SQL 표준 관례를 정리한 것. 브라우저 주소창으로 테스트할 수 있는 것은 <code>GET</code>뿐이고, <code>POST</code>는 폼에서 값이 넘어와야 함 (9장).</p>
+
+    <h3>응답 값의 출처 — 베이스 테이블과 뷰 테이블</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">베이스 테이블</td><td>실제 데이터를 저장하는 일반 테이블</td><td>데이터가 디스크에 있는 실체</td></tr>
+    <tr><td class="nowrap">뷰 테이블</td><td><b>가상 테이블</b> — 데이터를 디스크에 따로 저장하지 않고, 복잡한 <code>JOIN</code> 쿼리를 간단히 호출하게 만든 것</td><td>API가 조인 결과를 짧은 쿼리로 꺼내는 통로</td></tr>
+    <tr><td class="nowrap">장점</td><td>긴 조인문을 한 번에 호출하고 원하는 컬럼만 출력</td><td>호출하는 쪽 쿼리가 짧아져 실수·노출이 줄어듦</td></tr>
+    <tr><td class="nowrap">속도</td><td>일반 뷰는 <b>쿼리문을 저장해 둔 가상 테이블</b>이라 호출할 때마다 원본 쿼리가 실행됨 → <b>속도 이점이 있는 구조가 아님</b></td><td>목적은 편의·보안·재사용. 결과까지 저장해 빠르게 조회하는 것은 <b>Materialized View</b> — MySQL 8.0 Reference Manual(CREATE VIEW)</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c">-- [마스터 · MySQL 프롬프트 · hong]</span>
+<span class="c">-- 회원·포인트 테이블을 매번 길게 조인하는 대신 뷰로 묶어 짧게 호출 — API가 이 결과를 JSON으로 뿌림</span>
+SELECT a.mid, a.user, b.money FROM member a JOIN point b WHERE a.mid = b.mid;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts"><li><strong>조회·뷰 실습</strong><div>SELECT 문법과 테이블 조회: mysql.html 9장</div></li><li><strong>뷰와 API 응답</strong><div>이 파일 9장 — 조회 결과를 반환 자리에 넣는 방식</div></li></ul>
+
+    <div class="dg-bar warn">API = 통신 — 요청 규약은 <code>GET</code>·<code>POST</code>·<code>PUT</code>·<code>DELETE</code> 4개. 요청을 받은 백엔드가 DB를 조회해 JSON/XML로 응답하고, 그 창구는 포트로 열려 있음. 뷰는 속도를 위한 저장이 아니라 조인문을 묶어 두는 편의 장치 — 결과 저장은 Materialized View</div>
+  </section>
+
+  <!-- 2 -->
+  <section class="sec" id="data-formats">
+    <h2>응답 형식 — JSON·XML·CSV</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 태그(XML)·key-value(JSON)·표(CSV)</p><div class="dg-flow"><div class="dg-node"><h4>① XML</h4><p class="sub">&lt;color&gt;blue&lt;/color&gt;</p><ul><li>태그 이름을 직접 정함</li><li>SGML 파생</li></ul></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② JSON</h4><p class="sub">{"key": "value"}</p><ul><li>AI가 선호</li><li>객체 + 배열</li></ul></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>③ CSV</h4><p class="sub">엑셀 표 · 쉼표 구분</p><ul><li>XML/JSON 만들기 번거로울 때</li><li>갱신 불가</li></ul></div></div><p class="dg-foot">요즘 API의 기본 응답은 JSON·XML — 같은 데이터를 태그로 감싸면 XML, 중괄호·대괄호로 묶으면 JSON</p></div>
+
+    <h3>XML과 JSON 비교</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>XML</th><th>JSON</th></tr></thead><tbody>
+    <tr><td class="nowrap">형태</td><td><b>태그</b>로 데이터 표현</td><td>key-value <b>배열/객체</b> 형태</td></tr>
+    <tr><td class="nowrap">만드는 법</td><td>태그 이름을 자기가 정함 (보통 테이블 <b>컬럼명</b>으로)</td><td>중괄호 · 대괄호 중첩</td></tr>
+    <tr><td class="nowrap">AI 선호</td><td></td><td><b>JSON을 더 선호</b></td></tr>
+    <tr><td class="nowrap">같은 값의 예</td><td><code>&lt;color&gt;blue&lt;/color&gt;</code></td><td><code>{"color": "blue"}</code> (표준 예시)</td></tr>
+    </tbody></table></div>
+
+    <h3>XML — 태그를 직접 만들면 끝</h3>
+    <div class="code"><pre><code><span class="c">&lt;!-- [마스터 · /home/spark/color.xml 파일 안 · spark] --&gt;</span>
+<span class="c">&lt;!-- 태그 이름을 자기가 정함 — 보통 DB 테이블의 컬럼명과 같게 맞춤 --&gt;</span>
+&lt;color&gt;blue&lt;/color&gt;
+&lt;food&gt;삼겹살&lt;/food&gt;
+&lt;fruit&gt;peach&lt;/fruit&gt;
+&lt;country&gt;korea&lt;/country&gt;
+<span class="c">&lt;!-- 태그를 한 줄에 이어 붙여도 같은 형식 --&gt;</span>
+&lt;이름&gt;홍길동&lt;/이름&gt;&lt;나이&gt;35&lt;/나이&gt;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts"><li><strong>행 늘리기</strong><div>같은 태그 묶음을 반복하면 여러 행 — 컬럼명을 태그로 두면 표와 1:1 대응</div></li><li><strong>계보</strong><div>XML = <b>SGML</b>에서 파생된 마크업 언어. HTML도 SGML 계열이며 XML이 HTML에서 나온 것이 아님 — W3C XML 1.0 스펙</div></li><li><strong>JSON 구조</strong><div>JSON은 <b>객체(key-value)와 배열</b>로 이루어진 데이터 형식 — 배열만 있는 형식이 아님. RFC 8259(ECMA-404)</div></li></ul>
+
+    <h3>CSV — 표를 그대로 올린 형식</h3>
+    <ul class="facts"><li><strong>쓰는 곳</strong><div>XML/JSON 생성이 번거로운 제공처가 DB를 엑셀(CSV)로 올려 둔 경우</div></li><li><strong>한계</strong><div>행을 고치거나 지우는 갱신이 안 되는 일방향 형식 — API 응답으로 쓰기엔 JSON/XML이 기본</div></li><li><strong>공공데이터</strong><div>영화진흥위원회처럼 API로 JSON을 주는 곳은 키를 받아 호출 — 키 사용 예는 9장, 호출 실습은 spark.html 18장</div></li></ul>
+
+    <div class="dg-bar warn">데이터 형식 — JSON은 AI가 선호하고 <b>객체 + 배열</b> 구조(RFC 8259), XML은 <b>태그</b>로 표현하며 태그 이름은 보통 컬럼명, SGML 파생. CSV는 XML/JSON 생성이 번거로울 때 쓰는 표 형식으로 갱신 불가</div>
+  </section>
+
+  <!-- 3 -->
+  <section class="sec" id="rest-fastapi">
+    <h2>REST·RESTful과 FastAPI</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 자원을 주소로 가져오는 원칙 위에 서버를 세움</p><div class="dg-flow"><div class="dg-node"><h4>① REST</h4><p class="sub">자원을 URI로 지정</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② RESTful</h4><p class="sub">URI · 메서드 · 무상태</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ FastAPI</h4><p class="sub">파이썬 프레임워크</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 포트 개방</h4><p class="sub">인프라 담당자 협의</p></div></div><p class="dg-foot">원칙은 문서·설계 이야기이고, 실제로 접속되려면 포트를 열어야 함 — 면접에서 원칙과 포트 개방 절차를 함께 묻는 이유</p></div>
+
+    <h3>REST와 RESTful</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">면접 단골</td><td>REST / RESTful API를 구축할 때 <b>포트를 어떻게 여는지</b></td><td>원칙 설명만 하고 포트·인프라 협의를 빼면 답이 반쪽</td></tr>
+    <tr><td class="nowrap">REST API</td><td>웹에 존재하는 자원을 <b>주소(URI)로 지정해 가져오는 아키텍처 스타일</b></td><td>특정 라이브러리·제품 이름이 아니라 설계 원칙</td></tr>
+    <tr><td class="nowrap">표현 방식 두 가지</td><td><code>abc.co.kr/bbb.html?key=API키</code>(쿼리 파라미터 — 영화진흥위원회 방식) / <code>abc.co.kr/bbb/키값</code>(경로에 값)</td><td>둘 다 자원을 주소로 가리키는 방식 — 이 차이로 REST와 RESTful이 갈리지 않음</td></tr>
+    <tr><td class="nowrap">RESTful</td><td>REST 원칙(<b>자원 URI · HTTP 메서드 · 무상태</b> 등)을 지킨 API를 가리키는 말</td><td>Roy Fielding 박사 논문(2000) — 쿼리 파라미터 사용 여부가 기준이 아님</td></tr>
+    <tr><td class="nowrap">포트</td><td>REST든 RESTful이든 서버가 뜨려면 <b>포트를 열어야</b> 함</td><td>인프라 담당자와 협의가 필요한 일 — 자기 마음대로 열 수 없음</td></tr>
+    </tbody></table></div>
+
+    <h3>FastAPI의 자리</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정의</td><td>파이썬으로 <b>REST API 서버를 빠르게 구축하는 프레임워크</b></td><td>"Fast"는 말 그대로 빠르다는 뜻</td></tr>
+    <tr><td class="nowrap">언어</td><td>파이썬 전용</td><td>자바·닷넷 쪽에서는 FastAPI를 거의 못 씀. Node.js 등 다른 언어로도 API 서버 구축은 가능</td></tr>
+    <tr><td class="nowrap">자바 계보</td><td>자바 웹 프레임워크 → Spring → Spring Boot</td><td>같은 역할을 자바에서 하는 조합</td></tr>
+    <tr><td class="nowrap">파이썬 계보</td><td><b>Django</b>(대표 기본 프레임워크) · <b>Flask</b>(예전에 많이 씀) · <b>FastAPI</b></td><td>Django·Flask를 먼저 배운 사람이 FastAPI로 오는 흐름</td></tr>
+    <tr><td class="nowrap">다음 단계</td><td>MLOps는 이후에 다룸 — 이 앞 단계인 API 상식을 알아야 연결됨</td><td>핵심 조합은 <b>FastAPI + Spark</b> (Spark: spark.html 1~2장)</td></tr>
+    </tbody></table></div>
+
+    <div class="dg-bar warn">REST·RESTful 구분 — REST는 자원을 URI로 가져오는 <b>아키텍처 스타일</b>, RESTful은 그 원칙(URI·메서드·무상태)을 지킨 API. 쿼리 파라미터를 쓰는지로 갈리지 않음. 면접에서는 두 용어에 더해 <b>포트 개방·인프라 협의</b>까지 답해야 완성</div>
+    <div class="dg-bar warn">FastAPI의 자리 — 파이썬 전용 프레임워크(자바·닷넷에서는 거의 못 씀). 같은 역할의 자바 계보는 Spring → Spring Boot, 파이썬은 Django·Flask 이후 FastAPI. 이 환경의 핵심 조합은 FastAPI + Spark</div>
+  </section>
+
+  <!-- 4 -->
+  <section class="sec" id="use-cases">
+    <h2>FastAPI 활용 분야 3가지</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 모델·클러스터·파이프라인을 밖으로 잇는 창구</p><div class="dg-flow"><div class="dg-node"><h4>① 모델 서빙</h4><p class="sub">MLlib · PySpark</p><ul><li>예측 요청을 실시간 처리</li></ul></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 클러스터 브리지</h4><p class="sub">마스터 옆 API 서버</p><ul><li>분석 결과·파일 접근</li></ul></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>③ 파이프라인 대시보드</h4><p class="sub">배치 상태 · 로그</p><ul><li>관리자 웹의 REST API</li></ul></div></div><p class="dg-foot">세 분야 모두 FastAPI가 "창구" 역할 — 무거운 연산은 Spark가 하고, 요청·응답은 API가 받음</p></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>분야</th><th>하는 일</th><th>관련 기술·메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">실시간 머신러닝·딥러닝 모델 서빙</td><td>분산 학습 모델로 대규모 데이터 학습·배치 처리 → 실시간으로 들어오는 <b>예측 요청</b>을 웹 API로 처리</td><td>Spark <b>MLlib</b>·<b>PySpark</b> (spark.html 1장)</td></tr>
+    <tr><td class="nowrap">분산 클러스터 ↔ 외부 시스템 브리지</td><td>마스터 노드(또는 별도 API 서버)에 FastAPI를 띄워 외부 웹 서비스·클라이언트가 <b>Spark 분석 결과/데이터 파일에 접근하는 창구</b> 역할</td><td>클러스터 안팎을 잇는 계층 — 내부 포트를 직접 열지 않게 함</td></tr>
+    <tr><td class="nowrap">데이터 파이프라인 모니터링·제어 대시보드 백엔드</td><td>PySpark 배치 작업 상태 확인, 수집 로그·업로드 파일을 관리하는 관리자 웹 인터페이스의 REST API</td><td>운영 화면의 뒤에서 도는 API — 배치 실패를 사람이 빨리 봄</td></tr>
+    </tbody></table></div>
+
+    <div class="dg-bar warn">활용 3분야 — ① 실시간 모델 서빙(MLlib·PySpark) ② 분산 클러스터와 외부를 잇는 브리지(Spark 결과·파일 접근 창구) ③ 파이프라인 모니터링·제어 대시보드의 REST API 백엔드</div>
+  </section>
+
+  <!-- 5 -->
+  <section class="sec" id="install">
+    <h2>설치 — fastapi·uvicorn·nest_asyncio</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 마스터·워커에 엔진과 실행기, 마스터에 주피터용 패치</p><div class="dg-flow"><div class="dg-node"><h4>① fastapi</h4><p class="sub">마스터 · 워커</p><ul><li>API 기본 엔진</li></ul></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② uvicorn</h4><p class="sub">마스터 · 워커</p><ul><li>앱을 실행하는 서버</li></ul></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>③ nest_asyncio</h4><p class="sub">마스터만</p><ul><li>주피터 이벤트 루프 충돌 해결</li></ul></div></div><p class="dg-foot">계정은 <code>spark</code>, 홈에 들어간 상태에서 설치 — 워커도 터미널을 하나 더 띄워 같은 두 패키지를 설치</p></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>패키지</th><th>설치 위치</th><th>설명</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>fastapi</code></td><td>마스터 · 워커</td><td>API 기본 엔진. <code>get</code>/<code>post</code>/<code>put</code>/<code>delete</code> 사용</td></tr>
+    <tr><td class="nowrap"><code>uvicorn</code></td><td>마스터 · 워커</td><td>앱을 <b>실행</b>하는 서버. 배포 시 서버 성능을 위해 멀티프로세스 <code>--workers N</code> 사용 (예 : 워커 3개 → <code>--workers 3</code>)</td></tr>
+    <tr><td class="nowrap"><code>nest_asyncio</code></td><td><b>마스터만</b></td><td>주피터에서 이미 도는 이벤트 루프 때문에 동기 환경에서 비동기 코드를 실행할 때 나는 <code>RuntimeError</code> 해결</td></tr>
+    </tbody></table></div>
+
+    <div class="code"><pre><code><span class="c"># [마스터·워커 공통 · spark]</span>
+pip3 install fastapi uvicorn   <span class="c"># 엔진 + 실행기 — 두 서버 모두 설치 (워커는 터미널 하나 더 띄워 실행)</span>
+<span class="c"># [마스터 · spark]</span>
+pip3 install nest_asyncio      <span class="c"># 주피터용 — 주피터가 도는 마스터에만</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <h3>워커에 설치하는 경우와 아닌 경우</h3>
+    <ul class="facts"><li><strong>기본</strong><div>실습은 마스터·워커 둘 다 설치 — 워커에서도 API를 띄워 볼 수 있게</div></li><li><strong>마스터만 설치</strong><div>워커 노드에서 <b>백그라운드 작업 서버</b>(RQ·Celery·메시지 큐 등)를 돌릴 때는 마스터에만 API 라이브러리 설치</div></li><li><strong>백그라운드 작업 서버</strong><div>Celery 등은 수업에서 다루지 않음 — 경력자·사수가 담당하고 신입에게 맡기지 않는 영역 (포트 위험이 큼)</div></li></ul>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 30강 38:00~40:59</div><p>백그라운드 작업 도구로 언급된 이름 중 RQ·Celery 외 나머지 단어가 정확히 무엇인지 — 메시지 큐 계열 도구 이름은 음성만으로 확정하지 않고 영상 38분~40분대를 직접 확인</p></div>
+
+    <div class="dg-bar warn">실행기 이름 — <code>uvicorn</code>("유니콘" 아님). 배포는 멀티프로세스 <code>--workers N</code>(워커 3개 → <code>--workers 3</code>). 주피터용 <code>nest_asyncio</code>는 <b>마스터에만</b>, <code>fastapi</code>·<code>uvicorn</code>은 마스터·워커 둘 다</div>
+  </section>
+
+  <!-- 6 -->
+  <section class="sec" id="first-app">
+    <h2>앱 객체·라우트 — 기본 코드</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 앱 객체를 만들고 데코레이터로 주소를 붙임</p><div class="dg-flow"><div class="dg-node"><h4>① 파일 이름</h4><p class="sub">test_api.py</p><ul><li>fastapi.py 금지</li></ul></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 앱 객체</h4><p class="sub">app = FastAPI()</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 라우트</h4><p class="sub">@app.get("/경로")</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ JSON 응답</h4><p class="sub">return {키: 값}</p></div></div><p class="dg-foot">함수가 돌려준 dict가 그대로 JSON이 됨 — 경로에 <code>{id}</code>를 두면 주소의 값을 인자로 받음</p></div>
+
+    <ul class="facts"><li><strong>파일 이름</strong><div>파일 이름을 <code>fastapi.py</code>로 하면 안 됨 — 라이브러리 이름과 중복돼 에러. <code>test_api</code> 같은 다른 이름 사용</div></li><li><strong>샘플 코드</strong><div>예제 코드·Spark 자료는 주말에 슬라이드로 배포 — 다시 따라 치지 않고 복사해서 자기 환경 값만 바꿔 확인</div></li><li><strong>실행 주체</strong><div>설치한 <code>spark</code> 계정의 홈에서 작성·실행</div></li><li><strong>주피터용 import</strong><div>Jupyter에서 돌릴 때는 <code>asyncio</code>·<code>nest_asyncio</code>·<code>uvicorn</code> import가 추가로 필요 (7장)</div></li></ul>
+
+    <div class="code"><pre><code><span class="c"># [마스터 · /home/spark/test_api.py 파일 안 · spark]</span>
+#!/usr/bin/env python3
+from fastapi import FastAPI
+<span class="c"># 주피터에서 실행할 때만 필요한 import — .py로 돌릴 때는 uvicorn만 사용 (7·8장)</span>
+import asyncio, nest_asyncio, uvicorn
+
+<span class="c"># 기본 엔진 — 클래스를 불러 app 변수에 넣음. 라우트는 이 객체에 붙임</span>
+app = FastAPI()
+
+<span class="c"># 데코레이터(@ = annotation) : GET 메서드 + URI "/" 등록 → 루트 주소 요청을 이 함수가 처리</span>
+@app.get("/")
+def read_root():
+    <span class="c"># dict를 돌려주면 FastAPI가 JSON으로 변환 — {"msg": "..."} 형태가 그대로 응답</span>
+    return {"msg": "서버 오픈되었습니다"}
+
+<span class="c"># 경로에 파라미터 id — /data/홍 처럼 주소 끝의 값을 함수 인자로 받음</span>
+@app.get("/data/{id}")
+def read_item(id: str):                  <span class="c"># int=숫자만, str=문자</span>
+    <span class="c"># 받은 값을 키 두 개로 돌려줌 — f-string으로 문장 안에 값 삽입</span>
+    return {"값": id, "데이터 출력": f"데이터 값은 {id}"}</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <h3>확인과 오류 대응</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">데코레이터</td><td><code>@app.get</code>·<code>@app.post</code>·<code>@app.put</code>·<code>@app.delete</code>로 메서드·경로를 지정</td><td>메서드마다 데코레이터가 따로 — 4개가 HTTP 메서드와 1:1 (1장)</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td><code>http://IP:포트/</code> → <code>{"msg":"서버 오픈되었습니다"}</code> / <code>http://IP:포트/data/홍</code> → <code>{"값":"홍","데이터 출력":"데이터 값은 홍"}</code></td><td>브라우저에 반환값이 JSON으로 출력되면 통신 성공</td></tr>
+    <tr><td class="nowrap">오류가 날 때</td><td>에러 줄을 보고 <b>오타부터</b> 의심</td><td>경로·함수명·따옴표 오타가 대부분</td></tr>
+    <tr><td class="nowrap">포트는 열렸는데 안 뜰 때</td><td>리눅스 <b>SELinux / 방화벽</b>이 켜져 있으면 막힘</td><td>수업 환경은 전부 off — 실서버에서는 개방 정책 확인 (3장)</td></tr>
+    </tbody></table></div>
+
+    <div class="dg-bar warn">파일 이름 — <code>fastapi.py</code>는 라이브러리와 이름이 겹쳐 에러. <code>test_api.py</code>·<code>main.py</code>처럼 다른 이름. 라우트는 <code>@app.get("/경로")</code> 데코레이터로 붙이고, 함수가 돌려준 dict가 JSON 응답이 됨</div>
+  </section>
+
+  <!-- 7 -->
+  <section class="sec" id="jupyter-run">
+    <h2>Jupyter에서 가동 (문제 많음)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 이미 도는 이벤트 루프와 부딪히는 구조</p><div class="dg-flow"><div class="dg-node"><h4>① 증상</h4><p class="sub">멈춤 · 안 뜸 · 됐다 안 됨</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 원인</h4><p class="sub">루프 충돌 · 모듈명 · 포트</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 조치</h4><p class="sub">nest_asyncio · kill · 권한</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 우회</h4><p class="sub">Config + Server + task</p></div></div><p class="dg-foot">주피터는 서버를 오래 붙잡아 두기 어려운 환경 — 그래서 <code>.py</code> 파일 실행이 권장 (8장)</p></div>
+
+    <h3>증상과 원인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">증상</td><td>처음 코드 <code>if __name__ == "__main__": uvicorn.run("test_api:app", host="0.0.0.0", port=9999, reload=True)</code>로 가동하면 <b>멈추거나 안 뜨거나 됐다 안 됐다</b> 반복</td><td>같은 코드를 <code>.py</code>로 돌리면 정상 (8장)</td></tr>
+    <tr><td class="nowrap">원인 1 — 이벤트 루프</td><td>주피터는 <b>이미 이벤트 루프가 돌고 있는 환경</b>이라 <code>uvicorn.run()</code>(내부에서 새 루프 시작)과 충돌</td><td><code>nest_asyncio</code> + 비동기 태스크 방식이 필요 — <code>RuntimeError</code>의 출처</td></tr>
+    <tr><td class="nowrap">원인 2 — 모듈 이름</td><td><code>uvicorn.run("main:app")</code>처럼 <b>모듈 이름 문자열</b>로 지정하면 주피터에는 그 이름의 모듈이 없어 못 찾고 에러</td><td>객체(<code>app</code>)를 직접 넘겨 해결</td></tr>
+    <tr><td class="nowrap">원인 3 — 포트 충돌</td><td>이전에 돌던 서버·spark 앱이 남아 있으면 9999를 못 잡음</td><td>먼저 kill — 마스터 Web UI의 Running Applications 전부 종료하고 <b>워커만 남기기</b></td></tr>
+    <tr><td class="nowrap">홈 권한</td><td>홈 디렉터리 권한을 <code>chmod 700</code> → <code>750</code>으로 변경</td><td>다른 계정·프로세스가 홈을 통과해야 서버 파일·모듈을 읽을 수 있음</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · spark]</span>
+chmod 750 /home/spark   <span class="c"># 홈 디렉터리 권한 700 → 750 (그룹에 읽기·통과 허용)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 30강 88:00~89:59</div><p>권한 변경에 나온 값(700→750)을 <b>어느 경로</b>에 적용했는지 — 마스터 홈인지 특정 디렉터리인지 음성만으로 확정할 수 없어 영상 88분~89분대를 직접 확인</p></div>
+
+    <h3>주피터용 최종 코드</h3>
+    <div class="code"><pre><code><span class="c"># [마스터 · JupyterLab 노트북 셀 · spark]</span>
+import nest_asyncio, asyncio, uvicorn
+nest_asyncio.apply()                     <span class="c"># 이미 도는 이벤트 루프에 중첩 허용 — 비동기 충돌 해결</span>
+
+<span class="c"># app 객체를 직접 전달 — "모듈명:app" 문자열 대신이라 주피터에서 모듈을 찾지 못하는 문제가 없음</span>
+config = uvicorn.Config(app, host="0.0.0.0", port=9999, log_level="info")
+server = uvicorn.Server(config)
+asyncio.create_task(server.serve())      <span class="c"># 비동기 서버를 task로 등록 — 셀이 끝나도 서버가 계속 돎</span>
+print("FastAPI 서버가 background로 구동되었습니다.")</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts"><li><strong>서버 두 종류</strong><div>서버는 동기·비동기 두 종류이고, 여기서는 비동기 서버를 task로 등록</div></li><li><strong>정상 신호</strong><div>로그의 빨간 글씨가 전부 에러는 아님 — <code>Uvicorn running on ...</code>이 보이면 정상, <code>200 OK</code>가 찍히면 통신이 정확히 된 것</div></li><li><strong>종료</strong><div>주피터 Kernel <code>Shutdown</code>을 누르면 서버가 죽고 포트가 끊김 — 새로고침하면 접속 불가</div></li></ul>
+
+    <div class="dg-bar warn">주피터 가동 — 이벤트 루프가 이미 도는 환경이라 <code>uvicorn.run()</code>은 충돌. <code>nest_asyncio.apply()</code> + <code>uvicorn.Config(app, ...)</code> + <code>uvicorn.Server</code> + <code>asyncio.create_task(server.serve())</code>로 띄우고, 가동 전 <b>기존 서버·앱을 kill</b>해 포트 충돌을 없앰</div>
+  </section>
+
+  <!-- 8 -->
+  <section class="sec" id="py-run">
+    <h2>.py 파일로 가동 (권장)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 주피터 코드를 정리해 리눅스에서 실행</p><div class="dg-flow"><div class="dg-node"><h4>① 복사</h4><p class="sub">노트북 → main.py</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 삭제</h4><p class="sub">주피터 전용 import · task</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 실행부</h4><p class="sub">uvicorn.run("main:app")</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 가동 확인</h4><p class="sub">9999 LISTEN · python</p></div></div><p class="dg-foot">주피터와 파이썬 실행은 같은 코드라도 다름 — 코드는 주피터에서 짜더라도 <code>.py</code>로 만들어 리눅스에서 실행하는 것이 정석</p></div>
+
+    <h3>파일 만들기 — 지울 부분과 실행부</h3>
+    <ol class="wide-list">
+      <li><strong>노트북 코드를 <code>main.py</code>로 복사</strong> — 파일은 <code>spark</code> 계정 홈에 둠</li>
+      <li><strong>주피터 전용 부분 삭제</strong> — <code>nest_asyncio</code>·<code>asyncio</code> import, <code>Config</code>/<code>Server</code>/<code>create_task</code> 부분, 중복 복사된 코드</li>
+      <li><strong>맨 아래에 실행부 추가</strong> — 파일을 직접 실행할 때만 서버가 뜨게 함</li>
+      <li><strong>실행 명령을 주석으로 남기기</strong> — 나중에 바로 쓸 수 있게 맨 아래에 적어 둠</li>
+    </ol>
+    <div class="code"><pre><code><span class="c"># [마스터 · /home/spark/main.py 파일 안 · spark]</span>
+<span class="c"># 이 파일을 직접 실행할 때만 아래가 실행됨 — 다른 파일에서 import할 때는 서버가 뜨지 않음</span>
+if __name__ == "__main__":
+    <span class="c"># uvicorn으로 포트를 열어 FastAPI 웹서버 가동</span>
+    uvicorn.run(
+        "main:app",            <span class="c"># 파일명(main.py) : 변수명(app) — 파일명이 바뀌면 앞부분도 바꿈</span>
+        host="0.0.0.0",        <span class="c"># 모든 인터페이스에 바인딩 → 외부 접속 가능</span>
+        port=9999,             <span class="c"># 서버 포트 — 실행 전에 비어 있어야 함</span>
+        reload=True,           <span class="c"># 소스가 바뀌면 자동 반영 (껐다 켜지 않아도 됨)</span>
+    )</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · /home/spark/main.py 파일 안 · spark]</span>
+<span class="c"># 리눅스(shell)에서 실행하는 방법 — 파일 맨 아래에 주석으로 남겨 두면 나중에 그대로 사용</span>
+# uvicorn main:app --host 192.168.222.2 --port 9999</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts"><li><strong>reload 한계</strong><div><code>reload=True</code>가 있어도 <b>새 함수·경로를 추가</b>했을 때 인식이 안정적이지 않음 → <code>Ctrl+C</code>로 끄고 다시 실행 권장</div></li><li><strong>주석의 IP</strong><div>예시 IP는 실습 환경의 마스터 IP — 자기 서버 IP로 바꿔 적음 (spark.html 2장)</div></li></ul>
+
+    <h3>실행 — 홈에서 포트를 확인하고 가동</h3>
+    <div class="code"><pre><code><span class="c"># [마스터 · spark · /home/spark]</span>
+cd ~                                              <span class="c"># main.py가 있는 홈으로 이동 — 다른 경로에서 실행하면 모듈을 못 찾음</span>
+netstat -lntpu                                    <span class="c"># 실행 전 포트 확인 — 9999가 없어야 함</span>
+uvicorn main:app --host 192.168.222.2 --port 9999 <span class="c"># 서버 가동 (대안 : python3 main.py)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>main:app</code></td><td>앞의 <code>main</code>은 <b>파일명</b> — 파일명이 <code>test.py</code>면 <code>test:app</code></td><td>자바에서 파일명·클래스명이 같아야 하는 것과 비슷한 규칙</td></tr>
+    <tr><td class="nowrap"><code>--host</code></td><td>마스터 서버 IP</td><td>실습 환경 IP는 수강생마다 다름 (spark.html 2장)</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td>브라우저 새로고침 → JSON 출력</td><td><code>Ctrl+C</code>로 종료하면 접속 불가(서버 거부)</td></tr>
+    <tr><td class="nowrap">가동 확인</td><td>터미널 하나 더 열어 <code>netstat -lntpu</code> → <b>9999 LISTEN</b>, 프로세스 이름이 <b>python</b></td><td>포트가 안 보이면 기동 실패 또는 다른 프로세스가 선점</td></tr>
+    <tr><td class="nowrap">여러 서버</td><td>같은 방식으로 파일·포트를 더 만들면 서버를 여러 개 열 수 있음</td><td>포트가 겹치면 뒤에 띄운 서버가 실패 — 포트 충돌 주의</td></tr>
+    </tbody></table></div>
+
+    <div class="dg-bar warn">실행과 확인 — <code>uvicorn main:app --host IP --port 9999</code>의 인자는 <b>파일명:변수명</b>. <code>netstat -lntpu</code>에 <b>9999 LISTEN·프로세스 python</b>이면 가동, <code>200 OK</code>가 통신 정상. <code>reload=True</code>는 소스 변경 자동 반영이지만 새 라우트는 재시작이 안전</div>
+  </section>
+
+  <!-- 9 -->
+  <section class="sec" id="routes">
+    <h2>라우트 추가와 접근 제어</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 주소의 값을 받아 조건으로 걸러냄</p><div class="dg-flow"><div class="dg-node"><h4>① 경로 파라미터</h4><p class="sub">/login/{id}</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 조건 비교</h4><p class="sub">id != 허락한아이디</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 통과</h4><p class="sub">{"배열 출력": "aabbcc"}</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 차단</h4><p class="sub">유효하지 않은 API</p></div></div><p class="dg-foot">API 키를 경로로 받아 <code>if</code>로 거르는 최소한의 접근 제어 — 영화진흥위원회 API의 키 검사와 같은 구조</p></div>
+
+    <div class="code"><pre><code><span class="c"># [마스터 · /home/spark/main.py 파일 안 · spark]</span>
+<span class="c"># 경로 파라미터 id — 브라우저에서 /login/값 으로 호출</span>
+@app.get("/login/{id}")
+def login(id: str):
+    <span class="c"># 허락한 ID만 통과 — 키 검사에 해당하는 조건</span>
+    if id != "허락한아이디":
+        return {"데이터": "유효하지 않은 API입니다"}   <span class="c"># 조건으로 접근 제한</span>
+    <span class="c"># 통과했을 때만 데이터 반환 — 키 : 값 형태</span>
+    return {"배열 출력": "aabbcc"}</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <ul class="facts"><li><strong>key의 의미</strong><div>반환값의 <code>key</code>는 영화진흥위원회 JSON의 key와 같은 개념 — 값에 이름을 붙여 내보내는 역할</div></li><li><strong>접근 제어</strong><div>허락한 ID가 아니면 데이터를 안 내주는 식으로 <code>if</code> 접근 제어 가능</div></li><li><strong>DB 연결</strong><div>이 값을 <b>MySQL에서 끌어와 반환 자리에 부으면</b> 영화진흥위원회처럼 배열이 쭉 나옴 — 조회: mysql.html 9장, 공공 API 적재·조회: spark.html 18~19장</div></li><li><strong>POST 미검증</strong><div><code>POST</code>는 지금 테스트 불가 — HTML 폼에서 값이 넘어와야 하기 때문. 이후 <b>VS Code + 바이브 코딩(AI)으로 HTML을 만들어</b> 테스트 예정</div></li></ul>
+
+    <div class="dg-bar warn">경로 파라미터 접근 제어 — <code>/login/{id}</code>로 받은 값을 <code>if</code>로 비교해 허락한 ID만 데이터를 돌려주는 구조가 API 키 검사의 최소형. <code>GET</code>만 브라우저로 테스트 가능하고 <code>POST</code>는 폼이 있어야 함</div>
+
+    <ul class="facts"><li><strong>관련 파일</strong><div>WAS(Tomcat)와 API 서버의 차이·포트 개방: was.html 1~2장 / Spark 마스터·워커 포트·Jupyter: spark.html 2·13장 / MySQL 조회·뷰: mysql.html 9장</div></li></ul>
+  </section>
+
+  <!-- 10 -->
+  <section class="sec" id="cheatsheet">
+    <h2>통합 명령어 치트시트</h2>
+    <p>영역별 모음. 모든 명령의 실행 위치·주체는 코드 블록 첫 줄 표기(<code class="n">마스터</code>·<code class="n">워커</code>, <code class="n">spark</code>) 기준.</p>
+    <div class="table-wrap">
+      <table class="cheat">
+        <thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead>
+        <tbody>
+          <tr class="group"><th colspan="2" scope="colgroup">API·HTTP (1~3장)</th></tr>
+          <tr><td><code>GET</code> / <code>POST</code> / <code>PUT</code> / <code>DELETE</code></td><td>HTTP 요청 통신 규약 4개 — 조회·등록·수정·삭제. 요청을 받은 백엔드가 DB를 조회해 JSON/XML로 응답</td></tr>
+          <tr><td><code>SELECT a.mid, a.user, b.money FROM member a JOIN point b WHERE a.mid = b.mid;</code></td><td>뷰로 묶어 두는 조인 예 — 뷰는 디스크 저장이 없는 가상 테이블이라 호출마다 원본 쿼리 실행</td></tr>
+          <tr><td><code>&lt;color&gt;blue&lt;/color&gt;</code> / <code>{"color": "blue"}</code></td><td>같은 값의 XML·JSON 표기 — XML은 태그(보통 컬럼명), JSON은 key-value. AI는 JSON 선호</td></tr>
+          <tr><td>REST / RESTful</td><td>REST=자원을 URI로 가져오는 아키텍처 스타일, RESTful=원칙(URI·메서드·무상태)을 지킨 API. 포트 개방은 인프라 담당자 협의</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">설치 (5장)</th></tr>
+          <tr><td><code>pip3 install fastapi uvicorn</code></td><td>엔진 + 실행기 — 마스터·워커 둘 다, <code>spark</code> 계정 홈에서 실행</td></tr>
+          <tr><td><code>pip3 install nest_asyncio</code></td><td>주피터 전용 — 마스터에만. 이벤트 루프 충돌로 나는 <code>RuntimeError</code> 해결</td></tr>
+          <tr><td><code>uvicorn ... --workers 3</code></td><td>배포 시 멀티프로세스 — 서버 성능을 위해 워커 수만큼 프로세스 생성</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">기본 코드·라우트 (6·9장)</th></tr>
+          <tr><td><code>app = FastAPI()</code></td><td>API 기본 엔진 — 클래스 인스턴스를 <code>app</code> 변수에 두고 라우트를 붙임</td></tr>
+          <tr><td><code>@app.get("/")</code> / <code>@app.post(...)</code> / <code>@app.put(...)</code> / <code>@app.delete(...)</code></td><td>데코레이터로 메서드·경로 등록. 함수가 돌려준 dict가 JSON 응답</td></tr>
+          <tr><td><code>@app.get("/data/{id}")</code> → <code>def read_item(id: str)</code></td><td>경로 파라미터 — <code>int</code>=숫자만, <code>str</code>=문자. <code>http://IP:포트/data/홍</code>으로 확인</td></tr>
+          <tr><td><code>@app.get("/login/{id}")</code> + <code>if id != "허락한아이디": return {"데이터": "유효하지 않은 API입니다"}</code></td><td>키 검사형 접근 제어 — 통과 시에만 <code>{"배열 출력": "aabbcc"}</code> 반환</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">주피터 가동 (7장)</th></tr>
+          <tr><td><code>nest_asyncio.apply()</code></td><td>이미 도는 이벤트 루프에 중첩 허용 — <code>uvicorn.run()</code> 충돌 해결</td></tr>
+          <tr><td><code>config = uvicorn.Config(app, host="0.0.0.0", port=9999, log_level="info")</code></td><td>모듈 문자열 대신 <code>app</code> 객체 직접 전달 — 주피터에서 모듈을 못 찾는 문제 회피</td></tr>
+          <tr><td><code>server = uvicorn.Server(config)</code> / <code>asyncio.create_task(server.serve())</code></td><td>비동기 서버를 task로 등록 — 셀이 끝나도 background로 구동</td></tr>
+          <tr><td><code>chmod 750 /home/spark</code></td><td>홈 디렉터리 권한 700 → 750 — 서버가 파일·모듈을 읽도록 그룹에 통과 허용</td></tr>
+          <tr><td>Kernel <code>Shutdown</code></td><td>서버가 죽고 포트가 끊김 — 새로고침하면 접속 불가</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">.py 파일 가동 (8장)</th></tr>
+          <tr><td><code>if __name__ == "__main__": uvicorn.run("main:app", host="0.0.0.0", port=9999, reload=True)</code></td><td>직접 실행할 때만 서버 기동. <code>reload=True</code>=소스 변경 자동 반영, 새 라우트는 재시작 권장</td></tr>
+          <tr><td><code>cd ~</code> / <code>netstat -lntpu</code></td><td>main.py가 있는 홈으로 이동, 실행 전 9999가 없는지 확인</td></tr>
+          <tr><td><code>uvicorn main:app --host 192.168.222.2 --port 9999</code></td><td>서버 가동 — <code>main</code>=파일명, <code>app</code>=변수명. 대안 <code>python3 main.py</code></td></tr>
+          <tr><td><code>python3 main.py</code></td><td>실행부(<code>__main__</code>)로 직접 기동하는 대안 — 같은 <code>uvicorn.run</code> 설정 사용</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">오류·확인 (6~8장)</th></tr>
+          <tr><td><code>RuntimeError</code> (이벤트 루프)</td><td>동기 환경에서 비동기 코드 실행 시 발생 — <code>nest_asyncio.apply()</code>로 해결</td></tr>
+          <tr><td>모듈을 찾지 못함</td><td><code>uvicorn.run("main:app")</code>의 모듈명이 실제 파일·위치와 다를 때 — 객체 직접 전달 또는 홈에서 실행</td></tr>
+          <tr><td><code>Uvicorn running on http://0.0.0.0:9999</code></td><td>가동 정상 신호 — 빨간 글씨가 전부 에러는 아님</td></tr>
+          <tr><td><code>200 OK</code></td><td>통신이 정확히 된 상태 — 브라우저에 JSON 출력</td></tr>
+          <tr><td><code>localhost:9999</code> 접속 거부</td><td>서버가 죽었거나(창 닫음·<code>Ctrl+C</code>·Kernel Shutdown) 포트를 못 잡음 — 프로세스·포트 확인</td></tr>
+          <tr><td>SELinux · 방화벽</td><td>포트가 열려도 화면이 안 뜨는 원인 — 수업 환경은 off, 실서버는 개방 정책 확인</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  </main>
+</div>
+
+<script>
+(function () {
+  // 코드 복사
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.parentElement.querySelector('pre').innerText;
+      var done = function () {
+        btn.textContent = '복사됨'; btn.classList.add('done');
+        setTimeout(function () { btn.textContent = '복사'; btn.classList.remove('done'); }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+      } else { fallback(text); done(); }
+    });
+  });
+  function fallback(t) {
+    var ta = document.createElement('textarea'); ta.value = t;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  // 현재 읽는 섹션을 목차에 표시
+  var links = Array.prototype.slice.call(document.querySelectorAll('.side a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function spy() {
+    var y = window.scrollY + window.innerHeight * 0.3, idx = 0;
+    secs.forEach(function (el, i) { if (el && el.offsetTop <= y) idx = i; });
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) idx = secs.length - 1;
+    links.forEach(function (a, i) { a.classList.toggle('on', i === idx); });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+})();
+</script>
+<script>
+(function () {
+  var r = document.documentElement, b = document.getElementById('themeBtn');
+  function cur() {
+    var t = r.getAttribute('data-theme');
+    if (t) return t;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function apply(t) {
+    r.setAttribute('data-theme', t);
+    b.textContent = t === 'dark' ? '라이트' : '다크';
+  }
+  try { var s = localStorage.getItem('note-theme'); if (s) r.setAttribute('data-theme', s); } catch (e) {}
+  apply(cur());
+  b.addEventListener('click', function () {
+    var n = cur() === 'dark' ? 'light' : 'dark';
+    apply(n);
+    try { localStorage.setItem('note-theme', n); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
