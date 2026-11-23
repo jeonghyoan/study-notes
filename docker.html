@@ -1293,7 +1293,7 @@ docker images</code></pre><button class="copy" type="button" aria-label="코드 
     <tr><td><strong>다른 YAML 파일</strong></td><td><ul><li>기본 파일 = <code>compose.yaml</code>, 다른 파일은 <code>-f &lt;파일&gt;</code></li><li><code>up</code>한 파일과 같은 <code>-f</code> 값으로 <code>ps</code>·<code>logs</code>·<code>down</code> 실행 → 파일을 생략하면 기본 파일이 선택돼 엉뚱한 프로젝트를 내릴 수 있음</li></ul></td></tr>
     <tr><td><strong>파일 분리</strong></td><td><ul><li>서비스가 많으면 서비스별 YAML 파일을 두고 <code>-f</code>로 선택 (예: <code>cp compose.yaml cloud_compose.yaml</code> 후 필요한 부분만 관리)</li><li>기본 파일명을 바꿔 두면(<code>compose___.yaml</code>) 인자 없는 compose 명령이 실패 → 기본 선택에 따른 실수 감소. 단 파일명 변경만으로 접근 권한·비밀값이 보호되지는 않음</li></ul></td></tr>
     <tr><td><strong>비밀값</strong></td><td>YAML에 평문 비밀번호가 있으면 GitHub 공개 저장소는 물론, 계정 탈취 위험이 있는 비공개 저장소에도 올리지 않음 → 실습 파일은 root 권한으로 관리, GitHub 계정에는 MFA</td></tr>
-    <tr><td><strong>실습 전제</strong></td><td><ul><li>Compose 폴더 <code>~/yaml</code>, 설정 파일 폴더 <code>~/rds</code></li><li>직접 만든 <code>mariadb11</code>(<code>mariadb:11.4-ubi9</code>, <code>3309→3306</code>)과 <code>mysql8</code>(<code>dhi.io/mysql:8</code>)은 Compose 서비스 목록과 별개 → 자세한 실습: mysql.html 2~4장</li></ul></td></tr>
+    <tr><td><strong>실습 전제</strong></td><td><ul><li>Compose 폴더 <code>~/yaml</code>, 설정 파일 폴더 <code>~/rds</code></li><li>직접 만든 <code>mariadb11</code>(<code>mariadb:11.4-ubi9</code>, <code>3309→3306</code>)과 <code>mysql8</code>(<code>dhi.io/mysql:8</code>)은 Compose 서비스 목록과 별개 → 자세한 실습: mysql.html 10~12장</li></ul></td></tr>
     <tr><td><strong>실습 화면의 서비스 값</strong></td><td>별도 MariaDB 예: 서비스 <code>mariadb</code>, 컨테이너 <code>testmdb</code>, 이미지 <code>mariadb:11.4-ubi9</code>, <code>7306:3306</code>, 연습 비밀번호 <code>MYSQL_ROOT_PASSWORD=a1234</code> (webserver 값은 위 compose.yaml 블록 참고)</td></tr>
     </tbody></table></div>
     <div class="note-verify">
@@ -1347,7 +1347,7 @@ docker compose -f postgre.yaml down</code></pre><button class="copy" type="butto
     <tr><td><strong>요약</strong></td><td>DB 데이터 경로를 이름 있는 볼륨(<code>pgdata</code>)에 연결 → 컨테이너를 지우고 다시 만들어도 데이터 유지(컨테이너 교체와 데이터 생명주기 분리)</td></tr>
     <tr><td><strong>Docker 쪽 명령</strong></td><td><code>docker volume create pgdata</code> → <code>docker run ... -v pgdata:/var/lib/postgresql/data ...</code> → Compose에서는 <code>volumes:</code>에 <code>external: true</code>로 선언 (외부 볼륨은 미리 존재해야 함)</td></tr>
     <tr><td><strong>설정 파일 왕복</strong></td><td><code>docker cp 컨테이너:파일 호스트경로</code>로 꺼내 수정 → <code>docker cp</code>로 되돌림 → <code>docker restart</code>로 반영</td></tr>
-    <tr><td><strong>자세한 실습</strong></td><td>postgresql.html 1~3장 (이미지·볼륨·접속·인증·설정 파일)</td></tr>
+    <tr><td><strong>자세한 실습</strong></td><td>postgresql.html 16~18장 (이미지·볼륨·접속·인증·설정 파일)</td></tr>
     </tbody></table></div>
 
   
@@ -1656,7 +1656,7 @@ SHOW DATABASES;</code></pre><button class="copy" type="button" aria-label="코�
     <div class="dg-bar warn">MySQL 계정 생성(표준 예시) — <code class="n">CREATE DATABASE</code> → <code class="n">CREATE USER 'mega'@'%'</code> → <code class="n">GRANT</code>. <code class="n">'%'</code>여야 DBeaver 같은 외부 접속 가능. VirtualBox <code class="n">Mysql-C</code>(3306)를 추가하고 DBeaver는 포트만 <code class="n">3306</code>. 비밀번호는 연습값이며 실무 금지</div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>연결 파일</strong></td><td>Docker Hub 이미지(<code>dhi.io/mysql:8</code>)로 띄운 MySQL 컨테이너의 문자셋·설정·백업·복구 실습: mysql.html 3·6장</td></tr>
+    <tr><td><strong>연결 파일</strong></td><td>Docker Hub 이미지(<code>dhi.io/mysql:8</code>)로 띄운 MySQL 컨테이너의 문자셋·설정·백업·복구 실습: mysql.html 11·14장</td></tr>
     </tbody></table></div>
 
     <h3>WAS 컨테이너 (요약)</h3>
@@ -2153,7 +2153,7 @@ docker network rm spark-net             <span class="c"># 미사용 네트워크
           <tr><td><code>docker compose ps</code> / <code>docker compose logs</code> / <code>logs -f</code></td><td>Compose 서비스 목록 / 오류 로그 / 실시간 로그 추적</td></tr>
           <tr><td><code>docker compose -f &lt;파일&gt; up -d</code> / <code>down</code></td><td>지정 YAML 프로젝트 실행·정리; 올린 파일과 같은 파일을 지정</td></tr>
           <tr><td><code>docker cp &lt;컨테이너&gt;:&lt;파일&gt; &lt;호스트&gt;</code> / <code>docker cp &lt;호스트 파일&gt; &lt;컨테이너&gt;:&lt;디렉터리&gt;/</code></td><td>설정 파일을 호스트로 꺼내고 수정본을 PGDATA로 되돌림</td></tr>
-          <tr><td><code>docker volume create pgdata</code> / <code>-v pgdata:/var/lib/postgresql/data</code></td><td>이름 있는 볼륨 생성 / 컨테이너 데이터 경로에 연결 → 컨테이너를 지워도 데이터 유지 (자세한 실습: postgresql.html 1장)</td></tr>
+          <tr><td><code>docker volume create pgdata</code> / <code>-v pgdata:/var/lib/postgresql/data</code></td><td>이름 있는 볼륨 생성 / 컨테이너 데이터 경로에 연결 → 컨테이너를 지워도 데이터 유지 (자세한 실습: postgresql.html 16장)</td></tr>
           <tr><td><code>docker cp &lt;컨테이너&gt;:&lt;파일&gt; &lt;호스트&gt;</code> / <code>docker cp &lt;호스트 파일&gt; &lt;컨테이너&gt;:&lt;디렉터리&gt;/</code></td><td>컨테이너 설정 파일을 호스트로 꺼내 수정 → 되돌린 뒤 <code>docker restart</code>로 반영</td></tr>
           <tr><td><code>mv compose.yaml compose___.yaml</code></td><td>기본 파일 자동 선택을 막아 <code>-f</code> 없는 compose 명령 실수 방지</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">포트 게시·네트워크 진단</th></tr>
