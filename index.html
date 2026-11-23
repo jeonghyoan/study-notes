@@ -12,7 +12,7 @@
 html, body { margin:0; padding:0; height:100%; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif; }
 body { display:flex; flex-direction:column; }
 .topbar { position:sticky; top:0; z-index:10; background:var(--bg); border-bottom:1px solid var(--hair); padding:6px 10px; display:flex; align-items:center; gap:8px; }
-.tabs { display:flex; gap:5px; overflow-x:auto; flex:1; scrollbar-width:none; padding:2px 0; }
+.tabs { display:flex; gap:5px; overflow-x:auto; flex:1; scrollbar-width:none; padding:2px 12px 2px 0; -webkit-mask-image:linear-gradient(to right,#000 92%,transparent 100%); mask-image:linear-gradient(to right,#000 92%,transparent 100%); }
 .tabs::-webkit-scrollbar { display:none; }
 .tab { border:1px solid var(--hair); background:var(--bg2); color:var(--mute); padding:4px 10px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap; line-height:1.4; }
 .tab.active { background:var(--acc-soft); color:var(--acc); border-color:var(--acc); }
@@ -67,7 +67,9 @@ iframe { flex:1; width:100%; border:0; background:var(--bg); }
     "  .core-strip{margin-top:12px !important;gap:10px !important;}",
     "  .core-strip>div{padding:12px 14px !important;}",
     "  .core-metric{font-size:15px !important;margin-bottom:4px !important;}",
-    "  .core-desc{font-size:12.5px !important;line-height:1.5 !important;}",
+    "  .core-desc{font-size:12.5px !important;line-height:1.55 !important;}",
+    "  .core-bullets{margin:4px 0 0 !important;padding-left:16px !important;}",
+    "  .core-bullets li{font-size:12.5px !important;line-height:1.5 !important;margin-bottom:5px !important;color:var(--ink2) !important;}",
     "  .toc{margin:16px 0 0 !important;padding:12px 14px !important;font-size:13.5px !important;}",
     "  .toc a{padding:4px 0 !important;}",
     "  pre{font-size:11.8px !important;padding:10px 12px !important;line-height:1.5 !important;white-space:pre !important;overflow-x:auto !important;word-break:normal !important;overflow-wrap:normal !important;}",
@@ -93,6 +95,27 @@ iframe { flex:1; width:100%; border:0; background:var(--bg); }
       var s=doc.createElement("style"); s.id="sn-mobile-polish"; s.textContent=mobileCSS;
       doc.head.appendChild(s);
     }
+    doc.querySelectorAll(".core-desc").forEach(function(el){
+      if(el.dataset.bulletized) return;
+      el.dataset.bulletized="1";
+      var raw=el.innerHTML;
+      var parts=raw.split(/\(\d+(?:[~·,-]\d+)*장\)\.?\s*/);
+      var tags=raw.match(/\(\d+(?:[~·,-]\d+)*장\)/g);
+      if(tags && tags.length>=2){
+        var ul=doc.createElement("ul"); ul.className="core-bullets";
+        for(var i=0;i<tags.length;i++){
+          var txt=(parts[i]||"").trim();
+          if(!txt) continue;
+          var li=doc.createElement("li");
+          li.innerHTML=txt+" <b>"+tags[i]+"</b>";
+          ul.appendChild(li);
+        }
+        if(parts[tags.length] && parts[tags.length].trim()){
+          var li=doc.createElement("li"); li.innerHTML=parts[tags.length].trim(); ul.appendChild(li);
+        }
+        el.replaceWith(ul);
+      }
+    });
     var cs=doc.querySelector(".core-strip");
     if(cs && !doc.querySelector(".core-toggle") && window.innerWidth<=760){
       var cb=doc.createElement("button"); cb.type="button"; cb.className="core-toggle"; cb.textContent="핵심 요약 3장 보기 ▾";
