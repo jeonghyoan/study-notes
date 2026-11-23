@@ -654,7 +654,8 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#spark-sqlalchemy">58. SQLAlchemy 엔진으로 PostgreSQL 연결</a></li>
         <li><a href="#spark-result-long">59. Spark 결과 값 변환과 응용문제</a></li>
         <li><a href="#spark-torch">60. Spark 컨테이너에 PyTorch·임베딩 라이브러리 설치</a></li>
-        <li><a href="#cheatsheet">61. 통합 명령어 치트시트</a></li>
+        <li><a href="#spark-vector-read">61. 벡터 컬럼 SELECT를 Spark로 읽기</a></li>
+        <li><a href="#cheatsheet">62. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -662,7 +663,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>Spark 통합 학습노트</h1>
-    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → pandas UDF 실습·오류 대응(설정 3종·<code class="n">show</code> 기준·pyarrow·<code class="n">p90</code>) → 공공 API(영화진흥위원회) JSON으로 MySQL 적재(INSERT SQL·<code class="n">count(*)</code>) → Spark JDBC 연동(<code class="n">mysql-connector-j</code> JAR·6옵션·<code class="n">show(5)</code>) → 박스오피스 집계(<code class="n">shuffle.partitions</code>·<code class="n">numPartitions</code>) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지 → 마스터·워커 기동까지(사용자 정의 네트워크) → 컨테이너 클러스터 운영(호스트 폴더 볼륨 연결·재생성·실행 중 포트 추가) → Spark 셸·주피터(<code class="n">notebook</code> 설치·<code class="n">PYSPARK_*</code> 3줄·토큰 로그인) → <code class="n">spark.read.csv</code>·<code class="n">spark-submit</code> → Spark SQL(임시 뷰·<code class="n">floor</code>·<code class="n">ceil</code>·<code class="n">round</code>) → 웹 크롤링 이미지 수집 → PySpark 코드로 전환(마스터·워커 <code class="n">numpy</code>·<code class="n">pandas</code>·<code class="n">pyarrow</code> 설치·<code class="n">spark1</code> 노트북·실무는 주피터를 별도 서버로) → 파이썬 문법(<code class="n">from</code>·<code class="n">as</code>·<code class="n">read_</code> 계열) → 기본 코드 템플릿(<code class="n">globals</code> 체크·<code class="n">SparkSession.builder</code>·<code class="n">getOrCreate</code>·<code class="n">spark.stop()</code> 위아래) → 고스트 세션(<code class="n">Running Application</code> 잔존·<code class="n">try/except</code> 안전 종료) → 컨테이너 시간대(<code class="n">date</code>·<code class="n">chrony</code>·<code class="n">timedatectl</code>·<code class="n">/etc/localtime</code> 심볼릭 링크) → 2차원 배열(<code class="n">createDataFrame</code>·<code class="n">schema</code>) → 조회·집계(<code class="n">filter</code>·<code class="n">where</code>·<code class="n">select</code>·<code class="n">groupBy</code>·<code class="n">sum</code>) → 실습 csv(<code class="n">product.csv</code>) → 조건 조합·집계 복습과 <code class="n">spark.sql</code> 이식 → 실행 중 컨테이너에 API 포트(<code class="n">11111</code>) 추가 → <code class="n">travel_api.py</code> FastAPI(<code class="n">DictCursor</code>·<code class="n">&#42;&#42;</code> 언패킹·<code class="n">fetchall</code>)와 경로 파라미터(<code class="n">/travel/{ea}</code>·<code class="n">limit 0, %s</code>) → Spark가 API를 <code class="n">requests</code>로 호출해 임시 뷰로 <code class="n">spark.sql</code> 실행 → PostgreSQL 연동 준비(Debian trixie·알파인 구분·<code class="n">rds_psql</code>·5432·JDBC jar 42.6.2) → 사용자·DB·권한(<code class="n">create user</code>·<code class="n">owner</code>·<code class="n">grant</code>) → 인코딩(UTF8·<code class="n">pg_encoding_to_char</code>) → 스키마·<code class="n">search_path</code>(<code class="n">set</code>·<code class="n">alter user</code>) → DBeaver 적재·컬럼명 11개 → PostgreSQL SELECT(<code class="n">ilike</code>·<code class="n">limit offset</code>·<code class="n">concat</code>·<code class="n">concat_ws</code>·<code class="n">replace</code>) → 권한 회수 <code class="n">REVOKE</code>·<code class="n">\c</code> 전환 → <code class="n">psycopg2-binary</code>·<code class="n">psycopg[binary]</code> → <code class="n">psycopg2.connect</code>의 <code class="n">options</code>로 스키마 지정해 pandas 경유 Spark 연동 → SQLAlchemy 엔진(<code class="n">create_engine</code>·<code class="n">dispose</code>·<code class="n">with connect</code>)으로 조회 → 결과 <code class="n">long</code> 변환과 숙박 제외 집계(28건). 네트워크 명령: docker.html 9장, 볼륨·포트 설정 이론: docker.html 10장, PostgreSQL 설정·인증·백업: postgresql.html</p>
+    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → pandas UDF 실습·오류 대응(설정 3종·<code class="n">show</code> 기준·pyarrow·<code class="n">p90</code>) → 공공 API(영화진흥위원회) JSON으로 MySQL 적재(INSERT SQL·<code class="n">count(*)</code>) → Spark JDBC 연동(<code class="n">mysql-connector-j</code> JAR·6옵션·<code class="n">show(5)</code>) → 박스오피스 집계(<code class="n">shuffle.partitions</code>·<code class="n">numPartitions</code>) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지 → 마스터·워커 기동까지(사용자 정의 네트워크) → 컨테이너 클러스터 운영(호스트 폴더 볼륨 연결·재생성·실행 중 포트 추가) → Spark 셸·주피터(<code class="n">notebook</code> 설치·<code class="n">PYSPARK_*</code> 3줄·토큰 로그인) → <code class="n">spark.read.csv</code>·<code class="n">spark-submit</code> → Spark SQL(임시 뷰·<code class="n">floor</code>·<code class="n">ceil</code>·<code class="n">round</code>) → 웹 크롤링 이미지 수집 → PySpark 코드로 전환(마스터·워커 <code class="n">numpy</code>·<code class="n">pandas</code>·<code class="n">pyarrow</code> 설치·<code class="n">spark1</code> 노트북·실무는 주피터를 별도 서버로) → 파이썬 문법(<code class="n">from</code>·<code class="n">as</code>·<code class="n">read_</code> 계열) → 기본 코드 템플릿(<code class="n">globals</code> 체크·<code class="n">SparkSession.builder</code>·<code class="n">getOrCreate</code>·<code class="n">spark.stop()</code> 위아래) → 고스트 세션(<code class="n">Running Application</code> 잔존·<code class="n">try/except</code> 안전 종료) → 컨테이너 시간대(<code class="n">date</code>·<code class="n">chrony</code>·<code class="n">timedatectl</code>·<code class="n">/etc/localtime</code> 심볼릭 링크) → 2차원 배열(<code class="n">createDataFrame</code>·<code class="n">schema</code>) → 조회·집계(<code class="n">filter</code>·<code class="n">where</code>·<code class="n">select</code>·<code class="n">groupBy</code>·<code class="n">sum</code>) → 실습 csv(<code class="n">product.csv</code>) → 조건 조합·집계 복습과 <code class="n">spark.sql</code> 이식 → 실행 중 컨테이너에 API 포트(<code class="n">11111</code>) 추가 → <code class="n">travel_api.py</code> FastAPI(<code class="n">DictCursor</code>·<code class="n">&#42;&#42;</code> 언패킹·<code class="n">fetchall</code>)와 경로 파라미터(<code class="n">/travel/{ea}</code>·<code class="n">limit 0, %s</code>) → Spark가 API를 <code class="n">requests</code>로 호출해 임시 뷰로 <code class="n">spark.sql</code> 실행 → PostgreSQL 연동 준비(Debian trixie·알파인 구분·<code class="n">rds_psql</code>·5432·JDBC jar 42.6.2) → 사용자·DB·권한(<code class="n">create user</code>·<code class="n">owner</code>·<code class="n">grant</code>) → 인코딩(UTF8·<code class="n">pg_encoding_to_char</code>) → 스키마·<code class="n">search_path</code>(<code class="n">set</code>·<code class="n">alter user</code>) → DBeaver 적재·컬럼명 11개 → PostgreSQL SELECT(<code class="n">ilike</code>·<code class="n">limit offset</code>·<code class="n">concat</code>·<code class="n">concat_ws</code>·<code class="n">replace</code>) → 권한 회수 <code class="n">REVOKE</code>·<code class="n">\c</code> 전환 → <code class="n">psycopg2-binary</code>·<code class="n">psycopg[binary]</code> → <code class="n">psycopg2.connect</code>의 <code class="n">options</code>로 스키마 지정해 pandas 경유 Spark 연동 → SQLAlchemy 엔진(<code class="n">create_engine</code>·<code class="n">dispose</code>·<code class="n">with connect</code>)으로 조회 → 결과 <code class="n">long</code> 변환과 숙박 제외 집계(28건) → PyTorch·임베딩 라이브러리 설치(60장) → 벡터 컬럼 SELECT를 pandas 경유 Spark로 읽기(<code class="n">create_engine</code>·<code class="n">read_sql</code>·<code class="n">createDataFrame</code>, 61장). 네트워크 명령: docker.html 9장, 볼륨·포트 설정 이론: docker.html 10장, PostgreSQL 설정·인증·백업: postgresql.html</p>
 
     <div class="core-strip">
       <div>
@@ -740,7 +741,8 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#spark-sqlalchemy">58. SQLAlchemy 엔진으로 PostgreSQL 연결</a>
       <a href="#spark-result-long">59. Spark 결과 값 변환과 응용문제</a>
       <a href="#spark-torch">60. Spark 컨테이너에 PyTorch·임베딩 라이브러리 설치</a>
-      <a href="#cheatsheet">61. 통합 명령어 치트시트</a>
+      <a href="#spark-vector-read">61. 벡터 컬럼 SELECT를 Spark로 읽기</a>
+      <a href="#cheatsheet">62. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -5319,7 +5321,97 @@ pip install --no-cache-dir sentence-transformers scikit-learn psycopg2-binary</c
     </tbody></table></div>
     <div class="dg-bar warn">마스터에만 설치하면 워커에서 도는 태스크가 임베딩 모델을 찾지 못함 — PyTorch·sentence-transformers·scikit-learn·psycopg2-binary를 마스터와 워커 양쪽에 같은 명령으로 설치</div>
 
-    <ul class="facts"><li><strong>벡터 테이블·검색</strong><div>vector(2) 테이블·정렬 연산자(<code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>·<code>&lt;#&gt;</code>)·거리 지표: postgresql.html 21~23장</div></li><li><strong>임베딩 개념</strong><div>벡터·임베딩·모델 차원(1536·512~768): postgresql.html 22장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code>와 마스터·워커 구분: 이 파일 22장</div></li><li><strong>PostgreSQL 드라이버</strong><div><code>psycopg2-binary</code>·<code>psycopg[binary]</code> 설치 이력: 이 파일 56장</div></li></ul>
+    <ul class="facts"><li><strong>벡터 테이블·검색</strong><div>vector(2) 테이블·정렬 연산자(<code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>·<code>&lt;#&gt;</code>)·거리 지표: postgresql.html 21~23장</div></li><li><strong>벡터 검색·임베딩 입력</strong><div>연산자별 결과·<code>movie_data vector(384)</code>·<code>SentenceTransformer</code>·모델 교체: postgresql.html 24~26장</div></li><li><strong>벡터 SELECT 읽기</strong><div>노트북 vb1에서 <code>read_sql</code>·<code>createDataFrame</code>: 이 파일 61장</div></li><li><strong>임베딩 개념</strong><div>벡터·임베딩·모델 차원(1536·512~768): postgresql.html 22장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code>와 마스터·워커 구분: 이 파일 22장</div></li><li><strong>PostgreSQL 드라이버</strong><div><code>psycopg2-binary</code>·<code>psycopg[binary]</code> 설치 이력: 이 파일 56장</div></li></ul>
+  </section>
+
+  <!-- 61 -->
+  <section class="sec" id="spark-vector-read">
+    <h2>벡터 컬럼 SELECT를 Spark로 읽기</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 노트북 vb1 → SparkSession → create_engine → read_sql → createDataFrame</p><div class="dg-flow">
+      <div class="dg-node"><h4>① vb1</h4><p class="sub">Untitled → Rename</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② 세션</h4><p class="sub">spark://spark-master:7077</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ 엔진</h4><p class="sub">postgresql+psycopg2</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ read_sql</h4><p class="sub">text(query)</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ show</h4><p class="sub">truncate=False</p></div></div>
+      <p class="dg-foot">벡터 컬럼이 있어도 읽는 구조는 같음 — SQL이 DBeaver에서 되면 여기서도 되고, 다른 점은 스키마 경로 확인</p></div>
+
+    <h3>준비</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">터미널</td><td>컨테이너 접속 창(<code>spark-master</code>·<code>spark-worker1</code>)은 <code>exit</code>로 빠져나옴</td><td>PySpark는 Jupyter 노트북에서 실행 — 셸과 노트북을 섞지 않음</td></tr>
+    <tr><td class="nowrap">클러스터 확인</td><td>Master 웹 화면(<code>192.168.222.5:8080</code>)에서 Workers·Running Applications 확인</td><td>워커가 0이면 실행해도 태스크가 돌 자리가 없음</td></tr>
+    <tr><td class="nowrap">노트북</td><td>JupyterLab(<code>192.168.222.5:8888</code>)에서 새 노트북 <code>vb1.ipynb</code>(vector DB 약자) — <code>Untitled.ipynb</code>를 Rename으로 저장</td><td>코드는 지난번 spark 7번 노트북의 앞부분을 그대로 가져옴</td></tr>
+    <tr><td class="nowrap">import</td><td><code>pandas</code>는 <code>read_sql</code> 때문에 필요 — 쓰는 것만 가져옴</td><td><code>requests</code>는 이 실습에서 필요 없음</td></tr>
+    <tr><td class="nowrap">종료</td><td>맨 마지막 <code>spark.stop()</code>은 반드시 넣음</td><td>안 넣으면 세션이 남아 Master 화면에 앱이 계속 표시됨 (33장)</td></tr>
+    </tbody></table></div>
+
+    <h3>SparkSession 생성</h3>
+<div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · Jupyter 노트북 vb1 · root]</span>
+<span class="c"># 노트북에 spark 가 이미 있으면 먼저 stop 하고 새로 생성</span>
+if 'spark' in globals():
+    try:
+        spark.stop()
+    except:
+        pass
+
+spark = SparkSession.builder \
+    .appName("vector DB 유사도 검사") \
+    .master("spark://spark-master:7077") \
+    .config("spark.driver.host","spark-master") \
+    .getOrCreate()</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>.appName</code></td><td>앱 이름(자유) — Master 화면 Workers·Running Applications에 이 이름으로 표시</td><td>“유사도 검사”가 떠 있어야 정상 실행 중</td></tr>
+    <tr><td class="nowrap"><code>.master</code></td><td>연결할 Spark Master 주소</td><td>컨테이너 이름 DNS로 접속 (22장)</td></tr>
+    <tr><td class="nowrap"><code>.config</code></td><td><code>spark.driver.host</code>를 <code>spark-master</code>로 지정</td><td>드라이버가 워커에서 찾을 수 있는 호스트 이름이어야 함</td></tr>
+    <tr><td class="nowrap">재실행</td><td><code>globals()</code> 확인으로 기존 세션을 먼저 정리</td><td>같은 셀을 여러 번 실행해도 세션이 쌓이지 않음</td></tr>
+    </tbody></table></div>
+
+    <h3>PostgreSQL 연결과 SELECT</h3>
+<div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · Jupyter 노트북 vb1 · root]</span>
+<span class="c"># 지난번 연결 방식 그대로 (sqlalchemy 의 create_engine import 필요)</span>
+dbinfo = create_engine(
+    "postgresql+psycopg2://mg:a1234@192.168.222.5/mg",
+    <span class="c"># 스키마 경로 — 없으면 기본 경로에서 테이블을 못 찾음</span>
+    connect_args={"options":"-c search_path=mg_schema,public"}
+)
+print("와~~ 연결됨!!")
+
+<span class="c"># postgresql.html 24장 SQL 그대로 — 벡터 컬럼도 select 문으로 읽음</span>
+query = "select title, cate_emd &lt;-&gt; '[1,1]' as ce from movie order by cate_emd &lt;-&gt; '[1,1]'"
+
+<span class="c"># with 사용 → close 불필요</span>
+with dbinfo.connect() as conn:
+    pdf = pd.read_sql(text(query), con=conn)    <span class="c"># 쿼리 결과를 pandas DataFrame 으로 읽음</span>
+
+df = spark.createDataFrame(pdf)   <span class="c"># pandas → Spark DataFrame</span>
+df.show(truncate=False)           <span class="c"># show() 기본 20행, False 면 내용 안 잘림</span>
+
+spark.stop()</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">SQL 재사용</td><td>postgresql.html 24장 SQL 문법이 그대로 들어감 — SQL에서 안 되면 여기서도 안 됨</td><td>먼저 DBeaver에서 확인하고 노트북으로 옮김</td></tr>
+    <tr><td class="nowrap"><code>with</code> 미사용 시</td><td>DB 연결을 <code>close</code> 해야 함</td><td>안 하면 연결이 계속 connecting 상태로 남음</td></tr>
+    <tr><td class="nowrap">pgvector 패키지</td><td>파이썬에서 별도 vector 라이브러리를 import하지 않음</td><td>PostgreSQL 안의 extension이라 서버가 계산</td></tr>
+    <tr><td class="nowrap">바뀌는 것</td><td>벡터를 써도 연결 코드는 크게 달라지지 않음 — 가장 중요한 건 스키마 확인</td><td>테이블이 <code>mg_schema</code>에 있는지 먼저 확인</td></tr>
+    <tr><td class="nowrap"><code>read_sql</code></td><td>select 전용 — insert는 연결 아래 구조가 다르고 값은 반복문으로 돌려야 함</td><td>insert 형태: 이 파일 56장, postgresql.html 25장</td></tr>
+    <tr><td class="nowrap">거리 값 컬럼</td><td><code>as ce</code>로 붙인 거리 값도 일반 숫자 컬럼처럼 DataFrame에 들어감</td><td>정렬은 DB에서 끝난 상태로 도착</td></tr>
+    </tbody></table></div>
+
+    <h3>실행 결과</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>확인 지점</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">Spark 화면</td><td>Shift+Enter 후 Worker 아래에 “유사도 검사” 앱이 표시</td><td>앱이 안 뜨면 세션 생성 단계부터 확인</td></tr>
+    <tr><td class="nowrap">출력</td><td><code>와~~ 연결됨!!</code> 다음에 결과 표(<code>title</code>·<code>ce</code> 컬럼)</td><td>벡터 값 자체가 아니라 거리 값이 표시됨</td></tr>
+    <tr><td class="nowrap">대조</td><td>DBeaver를 옆에 띄워 같은 결과가 나오는지 비교</td><td>순서와 거리 값이 같아야 정상</td></tr>
+    <tr><td class="nowrap">다른 연결 방식</td><td>JDBC 등 다른 방식으로도 벡터는 동작</td><td>이 실습은 엔진 + pandas 경유(58장) 방식을 씀</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">read_sql은 select 전용 — insert·update·delete는 <code>psycopg2</code>의 <code>cursor.execute</code> + <code>commit</code>. 벡터 컬럼도 조회는 일반 컬럼과 같고, 결과 순서는 DB의 <code>order by</code>가 결정</div>
+    <ul class="facts">
+    <li><strong>벡터 SQL·연산자</strong><div>검색 문법·연산자별 순서·거리 값 조회: postgresql.html 24장</div></li>
+    <li><strong>임베딩 입력·모델 교체</strong><div><code>movie_data</code>·<code>SentenceTransformer</code>·사용자 문장 검색: postgresql.html 25~26장</div></li>
+    <li><strong>연결 코드</strong><div><code>create_engine</code>·<code>with connect</code>·<code>text()</code>: 이 파일 58장</div></li>
+    </ul>
   </section>
 
   <section class="sec" id="cheatsheet">
@@ -5647,6 +5739,12 @@ pip install --no-cache-dir sentence-transformers scikit-learn psycopg2-binary</c
           <tr><td><code>pip install --no-cache-dir torch</code></td><td>NVIDIA(CUDA) 있는 집 PC용 — Linux는 기본 CUDA 빌드, Windows·macOS는 CPU 전용이라 CUDA는 <code>--index-url …/whl/cu…</code> 지정</td></tr>
           <tr><td><code>Retrying … Network is unreachable</code></td><td>워커 설치 중 네트워크 경고 — 재시도가 끝날 때까지 기다리면 정상 설치</td></tr>
           <tr><td>용량</td><td>PyTorch wheel 184MB + 의존성·임베딩 라이브러리 — 디스크 80GB 기준, 30~40GB는 부족</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">벡터 SELECT 읽기 (61장)</th></tr>
+          <tr><td>노트북 <code>vb1</code> — <code>Untitled.ipynb</code>를 Rename, 터미널은 <code>exit</code></td><td>PySpark는 Jupyter에서 실행, Master 8080에서 Workers·Running Applications 확인, 마지막 <code>spark.stop()</code> 필수</td></tr>
+          <tr><td><code>SparkSession.builder.appName("vector DB 유사도 검사").master("spark://spark-master:7077").config("spark.driver.host","spark-master").getOrCreate()</code></td><td>세션 생성 — <code>globals()</code>로 기존 <code>spark</code>를 먼저 stop, 앱 이름이 Master 화면에 표시</td></tr>
+          <tr><td><code>create_engine("postgresql+psycopg2://mg:a1234@192.168.222.5/mg", connect_args={"options":"-c search_path=mg_schema,public"})</code></td><td>postgresql.html 24장 SQL을 그대로 옮김 — 스키마 경로가 없으면 테이블을 못 찾음</td></tr>
+          <tr><td><code>with dbinfo.connect() as conn:</code> → <code>pd.read_sql(text(query), con=conn)</code></td><td><code>with</code>면 close 불필요, <code>read_sql</code>은 select 전용</td></tr>
+          <tr><td><code>df = spark.createDataFrame(pdf)</code> → <code>df.show(truncate=False)</code></td><td>pandas → Spark, 기본 20행·<code>False</code>면 안 잘림. 결과 <code>와~~ 연결됨!!</code> + 거리 값 표</td></tr>
         </tbody>
       </table>
     </div>
