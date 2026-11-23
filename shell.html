@@ -592,20 +592,20 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
   <aside class="side">
     <nav aria-label="목차 (사이드)">
       <p class="side-title">목차</p>
-      <ol><li><a href="#sec-shellscript">1. Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</a></li><li><a href="#sec-shellcond">2. Shell 조건문·입력 (if · elif · 비교 연산자 · 논리 연산자 · read)</a></li><li><a href="#sec-shellloop">3. Shell 반복문·배열 (for · while · until · 배열 · 이중 반복문 · break)</a></li><li><a href="#sec-shellfunc">4. Shell 함수·선택문 (case · 함수 선언·인자 · 지역/전역 변수 · systemctl is-active · 배열 응용)</a></li><li><a href="#cheatsheet">5. 통합 명령어 치트시트</a></li></ol>
+      <ol><li><a href="#sec-shellscript">1. Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</a></li><li><a href="#sec-shellcond">2. Shell 조건문·입력 (if · elif · 비교 연산자 · 논리 연산자 · read)</a></li><li><a href="#sec-shellloop">3. Shell 반복문·배열 (for · while · until · 배열 · 이중 반복문 · break)</a></li><li><a href="#sec-shellfunc">4. Shell 함수·선택문 (case · 함수 선언·인자 · 지역/전역 변수 · systemctl is-active · 배열 응용)</a></li><li><a href="#sec-date">5. 날짜·시간 다루기 (date — 포맷 서식 · 날짜 계산 · 백업 파일 이름)</a></li><li><a href="#sec-backup">6. 백업 스크립트 (cp -a 속성 유지 · rsync 동기화 · 날짜 폴더 자동 백업 · 경로 실수)</a></li><li><a href="#sec-cron">7. 작업 스케줄 자동 실행 (crontab — 5필드 · crond · 백업·삭제 스케줄)</a></li><li><a href="#sec-shellops">8. 셸로 설치·실행 자동화 (dnf install -y · exec)</a></li><li><a href="#cheatsheet">9. 통합 명령어 치트시트</a></li></ol>
     </nav>
   </aside>
   <main class="main">
 
   <header>
     <h1>Shell 스크립트 통합 학습노트</h1>
-    <p class="deck">범위: Shell 스크립트 작성(1번 줄 <code>#!/bin/bash</code>·첫 스크립트 <code>test.sh</code>·실행 권한 <code>chmod 700</code>·<code>./</code> 실행과 <code>bash</code> 실행 차이·오류 줄 찾기) · 변수(<code>이름=값</code>·<code>$변수</code>)·산술(<code>$(( ))</code>·<code>$( )</code>와 차이·<code>=</code> 양옆 띄어쓰기 금지) · 실무형 <code>test3.sh</code>(서버 정보 출력) · Shell 조건문(<code>if</code>·<code>elif</code>·<code>else</code>·<code>fi</code>·비교 연산자 <code>=</code>·<code>-eq</code>·<code>(( ))</code>·<code>&amp;&amp;</code>·<code>||</code>·<code>read</code> 입력) · Shell 반복문·배열(<code>for</code>·<code>while</code>·<code>until</code>·배열·이중 반복문·<code>break</code>) · Shell 함수·선택문(<code>case</code>·함수 선언·호출·인자 <code>$1</code>·<code>local</code>·<code>systemctl is-active</code>·명령 결과 <code>$( )</code>·셸에서 MySQL 접속·배열+함수 응용) · 통합 명령어 치트시트. 내용이 추가될 때마다 범위가 늘어남.</p>
+    <p class="deck">범위: Shell 스크립트 작성(1번 줄 <code>#!/bin/bash</code>·첫 스크립트 <code>test.sh</code>·실행 권한 <code>chmod 700</code>·<code>./</code> 실행과 <code>bash</code> 실행 차이·오류 줄 찾기) · 변수(<code>이름=값</code>·<code>$변수</code>)·산술(<code>$(( ))</code>·<code>$( )</code>와 차이·<code>=</code> 양옆 띄어쓰기 금지) · 실무형 <code>test3.sh</code>(서버 정보 출력) · Shell 조건문(<code>if</code>·<code>elif</code>·<code>else</code>·<code>fi</code>·비교 연산자 <code>=</code>·<code>-eq</code>·<code>(( ))</code>·<code>&amp;&amp;</code>·<code>||</code>·<code>read</code> 입력) · Shell 반복문·배열(<code>for</code>·<code>while</code>·<code>until</code>·배열·이중 반복문·<code>break</code>) · Shell 함수·선택문(<code>case</code>·함수 선언·호출·인자 <code>$1</code>·<code>local</code>·<code>systemctl is-active</code>·명령 결과 <code>$( )</code>·· 셸에서 MySQL 접속·배열+함수 응용) · 날짜·시간(<code>date</code> 포맷 서식·<code>-d</code> 날짜 계산·<code>$( )</code>로 변수 저장) · 백업 스크립트(<code>cp -a</code> 속성 유지·<code>rsync -avz</code>·날짜 폴더 <code>file3.sh</code>·경로 실수) · 작업 스케줄(<code>crontab</code> 5필드·<code>crond</code>·백업·삭제 스케줄·1분 실습) · 셸로 설치·실행(<code>dnf install -y</code>·<code>exec</code>) · 통합 명령어 치트시트. 내용이 추가될 때마다 범위가 늘어남.</p>
     <div class="core-strip">
       <div><div class="core-metric">1번 줄 #!/bin/bash → chmod 700 → ./실행</div><p class="core-desc">스크립트는 1번 줄 <code>#!/bin/bash</code>부터 쓴다(첫 줄을 비우지 않음) — <code>#</code>를 빠뜨리면 1번 줄 오류. <code>./파일.sh</code>는 <code>x</code> 권한이 있어야 실행되고 <code>bash 파일.sh</code>는 읽기(<code>r</code>)만 있어도 실행 → <code>chmod 700</code>을 먼저. 변수는 <code>이름=값</code>에 <code>=</code> 양옆 띄어쓰기 금지, 계산은 괄호 두 겹 <code>$(( ))</code>(한 겹 <code>$( )</code>는 명령 실행이라 오류).</p></div>
       <div><div class="core-metric">if [ 조건 ]; then · -eq · &amp;&amp; · || · read</div><p class="core-desc">조건문은 <code>if [ 조건 ]; then</code> → <code>elif</code> → <code>else</code> → <code>fi</code>로 닫고, <code>[ ]</code> 안은 값·연산자 사이를 전부 한 칸씩 띄움. 같다는 <code>=</code> 하나, 숫자 비교는 <code>-eq</code>·<code>-ge</code>, 실무는 <code>(( ))</code> 산술 조건에 <code>&amp;&amp;</code>(모두)·<code>||</code>(하나라도). 입력은 <code>echo -n</code> + <code>read</code>로 같은 줄에서 받고 <code>$변수</code>로 사용. 리눅스 명령도 조건이 됨 — <code>if systemctl is-active --quiet "$dm"; then</code>은 종료 코드 0이면 then.</p></div>
-      <div><div class="core-metric">for · while · until · 배열 · break · 함수 · case</div><p class="core-desc">반복은 <code>for</code>(값 목록·<code>(( ))</code>)·<code>while</code>(증가를 본문 안)·<code>until</code>(종료 조건) — <code>done</code>이 빠지면 문법 오류, 증가식을 빼면 무한 루프. 배열은 번호 0부터 <code>${#d[@]}</code> − 1까지, 순회는 <code>for in</code>, <code>break</code>로 강제 종료. <code>case</code>는 <code>esac</code>로 닫고 각 파트는 <code>;;</code>, 함수는 괄호를 비우고 인자를 <code>$1</code>·<code>$2</code>로 받으며 호출은 선언 아래.</p></div>
+      <div><div class="core-metric">for · while · until · 배열 · break · 함수 · case</div><p class="core-desc">반복은 <code>for</code>(값 목록·<code>(( ))</code>)·<code>while</code>(증가를 본문 안)·<code>until</code>(종료 조건) — <code>done</code>이 빠지면 문법 오류, 증가식을 빼면 무한 루프. 배열은 번호 0부터 <code>${#d[@]}</code> − 1까지, 순회는 <code>for in</code>, <code>break</code>로 강제 종료. <code>case</code>는 <code>esac</code>로 닫고 각 파트는 <code>;;</code>, 함수는 괄호를 비우고 인자를 <code>$1</code>·<code>$2</code>로 받으며 호출은 선언 아래. 자동화는 <code>today=$(date +%Y%m%d)</code> → <code>cp -a</code>·<code>rsync -avz</code> → <code>crontab</code> 5필드(분 시 일 월 요일) 순서로 이어지고, 패키지 설치는 <code>dnf install -y</code>를 셸 한 파일에 모아 root로 실행.</p></div>
     </div>
-    <nav class="toc" aria-label="목차"><a href="#sec-shellscript">1. Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</a><a href="#sec-shellcond">2. Shell 조건문·입력 (if · elif · 비교 연산자 · 논리 연산자 · read)</a><a href="#sec-shellloop">3. Shell 반복문·배열 (for · while · until · 배열 · 이중 반복문 · break)</a><a href="#sec-shellfunc">4. Shell 함수·선택문 (case · 함수 선언·인자 · 지역/전역 변수 · systemctl is-active · 배열 응용)</a><a href="#cheatsheet">5. 통합 명령어 치트시트</a></nav>
+    <nav class="toc" aria-label="목차"><a href="#sec-shellscript">1. Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</a><a href="#sec-shellcond">2. Shell 조건문·입력 (if · elif · 비교 연산자 · 논리 연산자 · read)</a><a href="#sec-shellloop">3. Shell 반복문·배열 (for · while · until · 배열 · 이중 반복문 · break)</a><a href="#sec-shellfunc">4. Shell 함수·선택문 (case · 함수 선언·인자 · 지역/전역 변수 · systemctl is-active · 배열 응용)</a><a href="#sec-date">5. 날짜·시간 다루기 (date — 포맷 서식 · 날짜 계산 · 백업 파일 이름)</a><a href="#sec-backup">6. 백업 스크립트 (cp -a 속성 유지 · rsync 동기화 · 날짜 폴더 자동 백업 · 경로 실수)</a><a href="#sec-cron">7. 작업 스케줄 자동 실행 (crontab — 5필드 · crond · 백업·삭제 스케줄)</a><a href="#sec-shellops">8. 셸로 설치·실행 자동화 (dnf install -y · exec)</a><a href="#cheatsheet">9. 통합 명령어 치트시트</a></nav>
   </header>
 
   <section class="sec" id="sec-shellscript"><h2>Shell 스크립트 기초 (작성 · 실행 권한 · 변수 · 산술)</h2><div class="dg"><p class="dg-title">한눈에 보기 — 작성 → 실행 권한 → 실행 → 출력</p><div class="dg-flow"><div class="dg-node "><h4>① vi test.sh</h4><p class="sub">1번 줄 <code>#!/bin/bash</code></p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② chmod 700</h4><p class="sub">x 없으면 실행 불가</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ ./test.sh</h4><p class="sub"><code>bash test.sh</code>는 r 만 있어도 실행</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 변수·<code>$(( ))</code></h4><p class="sub"><code>=</code> 양옆 띄우면 오류</p></div></div><p class="dg-foot">인프라 담당자가 직접 코드를 짜는 영역이 쉘 스크립트 — WAS의 <code>startup.sh</code>·<code>shutdown.sh</code>도 같은 스크립트</p></div>
@@ -643,6 +643,20 @@ chmod 700 test2.sh      <span class="c"># 실행 권한 부여</span>
 ./test2.sh              <span class="c"># 실행 → Good</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
 <div class="table-wrap"><table><thead><tr><th>1번 줄 작성</th><th>결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">1번 줄을 비우고(엔터) 작성</td><td>작동은 함</td><td>오타가 전혀 없는데도 가끔 오작동 → 1번 줄부터 쓰는 습관</td></tr><tr><td class="nowrap"><code>#!</code> 뒤에 한 칸 띄움</td><td>실행됨</td><td>공백은 문제가 되지 않음</td></tr><tr><td class="nowrap"><code>#</code> 빠뜨림 (<code>!/bin/bash</code>)</td><td><code>./test2.sh: 1: !/bin/bash: …</code> 1번 줄 오류</td><td>그 아래 <code>echo</code>는 실행되어 <code>Good</code>은 출력됨</td></tr><tr><td class="nowrap"><code>!</code> 빠뜨림</td><td>실행됨</td><td>주석으로 처리되어도 쉘이 파일을 읽어 실행</td></tr></tbody></table></div>
 <div class="dg-bar warn">오류는 몇 번째 줄인지 알려줌 — <code>./test2.sh: 1:</code>처럼 나오면 그 줄을 찾아 고침. 첫 줄 <code>#!/bin/bash</code>를 아예 쓰지 않으면 오류가 많이 생기므로 기본으로 반드시 작성</div>
+<h3>쉐뱅 — 이 파일을 무엇으로 실행할지 알려 주는 1번 줄</h3>
+<div class="table-wrap"><table><thead><tr><th>표기</th><th>뜻</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>#!</code> + 인터프리터 경로</td><td>쉐뱅(Shebang) — 이 파일을 어떤 언어·프로그램으로 실행할지 알려 주는 선언</td><td>1번 줄에만 유효. <code>#</code>는 주석 기호라 실행기는 이 줄을 건너뛰고 경로만 읽음</td></tr><tr><td class="nowrap"><code>#!/bin/bash</code></td><td>bash로 실행 — 셸 스크립트의 기본</td><td>bash가 <code>/bin/bash</code>에 있는 배포판 기준</td></tr><tr><td class="nowrap"><code>#!/usr/bin/env python3</code></td><td>PATH에서 <code>python3</code>를 찾아 실행</td><td>파이썬 설치 위치가 서버마다 달라도 동작 — 경로를 고정하지 않는 방식</td></tr></tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · test.sh 파일 안]</span>
+#!/bin/bash                     <span class="c"># 이 파일을 bash로 실행하라는 선언 (쉐뱅)</span>
+echo "hi"                       <span class="c"># 2번 줄부터 본문</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<h3>chmod +x와 chmod 700 — 실행 권한을 누구에게 줄지</h3>
+<div class="table-wrap"><table><thead><tr><th>명령</th><th>결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>chmod +x file1.sh</code></td><td>user·group·other <strong>모두</strong>에게 x(실행) 부여</td><td>세 주체 전부에 실행 권한 — 자주 나오는 함정</td></tr><tr><td class="nowrap"><code>ls -al file1.sh</code></td><td>x가 세 칸 다 붙었는지 확인 (<code>-rwxr-xr-x</code>)</td><td>권한은 눈으로 확인하고 넘어감</td></tr><tr><td class="nowrap"><code>./file1.sh</code></td><td>스크립트 실행</td><td>x가 없으면 실행되지 않음</td></tr><tr><td class="nowrap"><code>chmod 700 파일.sh</code></td><td>소유자만 rwx — root(담당자)만 실행</td><td>게스트(other)까지 실행되게 두는 것은 보안상 좋지 않음 → 실무 정석</td></tr></tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
+chmod +x file1.sh    <span class="c"># user·group·other 모두에게 x 부여</span>
+ls -al file1.sh      <span class="c"># x 세 칸 확인</span>
+./file1.sh           <span class="c"># 실행</span>
+chmod 700 file1.sh   <span class="c"># 정석 — 소유자만 실행, 게스트 실행 차단</span>
+./file1.sh           <span class="c"># 이후 실행도 같은 방식</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="dg-bar warn">chmod +x는 user·group·other 모두에게 실행 권한 — 게스트까지 실행되므로 실무 스크립트는 chmod 700(담당자만)으로. 이후 실행은 <code>chmod 700 파일.sh</code> → <code>./파일.sh</code> 순서</div>
 <h3>변수</h3>
 <div class="table-wrap"><table><thead><tr><th>코드</th><th>의미</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>userid="홍"</code></td><td>변수 <code>userid</code>에 문자 <code>홍</code> 저장 (앞 = 변수명, 뒤 = 값)</td><td><b><code>=</code> 앞뒤 띄어쓰기 금지</b> — <code>userid = "홍"</code>이면 <code>./test2.sh: 2: userid: …</code> 2번 줄 오류 (100% 오류)</td></tr><tr><td class="nowrap"><code>echo "user $userid"</code></td><td><code>$</code> = 변수 호출 → 값 출력</td><td>변수는 값을 하나만 가짐</td></tr><tr><td class="nowrap"><code>echo "접속 사용자 $userid"</code></td><td>echo 문자열 안에서는 띄어써도 됨</td><td>띄어쓰기 제한은 <code>=</code>에만 적용</td></tr><tr><td class="nowrap"><code>userid=55</code></td><td>숫자 저장 → <code>55</code> 출력</td><td>숫자는 따옴표를 붙이지 않는 것이 정석</td></tr></tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
@@ -659,6 +673,18 @@ echo "user:$userid"
 <span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
 ./test2.sh                   <span class="c"># 출력: user 홍 / 접속 사용자 홍 / user apink / user:55</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
 <div class="table-wrap"><table><thead><tr><th>구분</th><th>내용</th><th>메모</th></tr></thead><tbody><tr><td class="nowrap">변수</td><td>계속 변할 수 있는 수 (값을 다시 넣으면 마지막 값만 남음)</td><td><code>userid="홍"</code> 다음 줄 <code>userid="apink"</code> → 최종 <code>apink</code> 출력</td></tr><tr><td class="nowrap">상수</td><td>절대 변하지 않는 값</td><td>상수 선언 방식도 따로 있음</td></tr><tr><td class="nowrap">문자·숫자</td><td>문자는 쌍따옴표 <code>"..."</code>로 쓰면 깔끔</td><td>숫자에 쌍따옴표를 붙여도(<code>userid="55"</code>) 계산은 되지만 숫자는 숫자대로 쓰는 것이 정석 — 엉뚱한 결과 방지</td></tr></tbody></table></div>
+<h3>명령 결과를 변수에 담기 — $( )</h3>
+<div class="table-wrap"><table><thead><tr><th>코드</th><th>결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>date</code> (그냥 쓰기)</td><td>스크립트에서 바로 실행·출력</td><td>리눅스 명령은 스크립트에 그대로 써도 출력됨 — <code>echo</code>로 감쌀 필요 없음</td></tr><tr><td class="nowrap"><code>today=$(date +%Y-%m-%d)</code></td><td>명령 결과를 변수에 저장</td><td><code>$( )</code>로 감싸야 결과가 안정적으로 들어감</td></tr><tr><td class="nowrap"><code>echo $time</code></td><td>변수에 담은 값 출력</td><td>변수에 받은 값은 저절로 출력되지 않음 — <code>echo</code>로 찍어야 보임</td></tr><tr><td class="nowrap"><code>today=date +%Y-%m-%d</code> (오류)</td><td><code>date</code>는 실행되고 <code>+%Y-%m-%d</code>를 명령으로 인식 → 명령을 찾을 수 없음</td><td>괄호를 빼면 옵션 부분이 명령 이름으로 읽힘 — 2·3번 줄에서 같은 오류</td></tr><tr><td class="nowrap">원칙</td><td>변수 없이 쓴 명령은 바로 출력 / 변수에 담으면 <code>$변수</code>로 쓰고 <code>echo</code>로 출력</td><td>옵션까지 포함해 변수에 들어감</td></tr></tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · blue2 · date1.sh 파일 안]</span>
+#!/bin/bash
+today=$(date +%Y-%m-%d)    <span class="c"># 명령 결과를 변수에 — 괄호 $( ) 필수</span>
+time=$(date +%H:%M:%S)
+echo $time                 <span class="c"># 변수는 echo로 찍어야 출력</span>
+<span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+chmod 700 date1.sh
+./date1.sh                 <span class="c"># 13:18:02 — 시:분:초가 출력되면 정상</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="dg-bar warn">명령 결과는 <code>$( )</code>로 받는다 — 괄호가 없으면 옵션을 명령으로 읽어 "명령을 찾을 수 없음". 변수에 담은 값은 <code>echo $변수</code>로만 보이고, <code>echo</code>는 파일 생성처럼 필요할 때만</div>
+
 <h3>산술 계산 — $(( ))</h3>
 <div class="table-wrap"><table><thead><tr><th>코드</th><th>결과</th><th>이유</th></tr></thead><tbody><tr><td class="nowrap"><code>userid=55</code>, <code>userid2=100</code> → <code>echo "$userid + $userid2"</code></td><td><code>55 + 100</code> 문자 그대로 출력</td><td>echo는 계산하지 않음</td></tr><tr><td class="nowrap"><code>num=userid+userid2</code> → <code>echo $num</code></td><td><code>userid+userid2</code> 글자 그대로</td><td><code>$</code>가 빠져 변수 호출이 아님</td></tr><tr><td class="nowrap"><code>num=$userid+$userid2</code></td><td><code>55+100</code> 문자로 출력</td><td>변수 값은 들어가지만 계산은 안 됨</td></tr><tr><td class="nowrap"><code>num=$userid + $userid2</code> (띄어씀)</td><td><code>./test2.sh: 7: +: …</code> 7번 줄 오류</td><td>띄어쓰기로 인자를 나눔</td></tr><tr><td class="nowrap"><code>num=$(userid+userid2)</code> (괄호 한 겹)</td><td><code>./test2.sh: 7: userid: …</code> 오류</td><td><code>$( )</code>는 명령 실행이라 <code>userid+userid2</code>를 명령으로 해석</td></tr><tr><td class="nowrap"><code>num=$((userid + userid2))</code></td><td><strong>계산됨 → 155</strong></td><td><code>$(( ))</code>가 산술 확장 (괄호 두 겹, 앞에 <code>$</code> 하나)</td></tr></tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $ · /home/blue2]</span>
@@ -1318,6 +1344,213 @@ netstat -lntu                    <span class="c"># 리스닝 중인 포트 확�
     <ul class="facts"><li><strong>실행 권한·변수·산술</strong><div><code>#!/bin/bash</code>·<code>chmod 700</code>·<code>$(( ))</code>: 이 파일 1장</div></li><li><strong>조건문·입력</strong><div><code>if</code>·<code>elif</code>·<code>read</code>: 이 파일 2장</div></li><li><strong>반복문·배열</strong><div><code>for</code>·배열 선언·<code>${#d[@]}</code>: 이 파일 3장</div></li><li><strong>데몬 기동·자동 시작</strong><div><code>systemctl start</code>·자동 시작 설정: httpd.html 3장</div></li><li><strong>기동·정지 스크립트</strong><div><code>startup.sh</code>·<code>shutdown.sh</code>: was.html 5장</div></li><li><strong>MySQL 계정·원격 접속</strong><div>계정 host·GRANT·DBeaver 원격 접속: mysql.html 11장</div></li></ul>
   </section>
 
+  <section class="sec" id="sec-date">
+    <h2>날짜·시간 다루기 (date — 포맷 서식 · 날짜 계산 · 백업 파일 이름)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 날짜를 원하는 모양으로 → 계산 → 파일 이름·삭제 조건</p><div class="dg-flow"><div class="dg-node"><h4>① date +포맷</h4><p class="sub">%Y-%m-%d · %Y%m%d</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 변수에 저장</h4><p class="sub">today=$(date +%Y%m%d)</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ -d 날짜 계산</h4><p class="sub">-7 day · 7 day</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 백업 폴더·삭제</h4><p class="sub">20261026_html · 7일 보관</p></div></div><p class="dg-foot">백업 파일에 "몇일 몇시에 백업했는지"를 남겨야 하므로 실무에서 가장 많이 쓰는 명령 — 날짜를 변수에 담아 폴더 이름과 삭제 조건에 함께 사용</p></div>
+
+    <h3>date 기본과 포맷 서식</h3>
+    <div class="table-wrap"><table><thead><tr><th>서식</th><th>의미</th><th>예</th></tr></thead><tbody><tr><td class="nowrap"><code>%Y</code></td><td>연</td><td><code>2026</code></td></tr><tr><td class="nowrap"><code>%m</code></td><td>월</td><td><code>10</code></td></tr><tr><td class="nowrap"><code>%d</code></td><td>일</td><td><code>26</code></td></tr><tr><td class="nowrap"><code>%H</code></td><td>시 (24시간)</td><td>—</td></tr><tr><td class="nowrap"><code>%M</code></td><td>분</td><td>—</td></tr><tr><td class="nowrap"><code>%S</code></td><td>초</td><td>—</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+date                  <span class="c"># 현재 날짜·시간</span>
+date +%Y-%m-%d        <span class="c"># 연-월-일 → 2026-10-26</span>
+date +%H:%M:%S        <span class="c"># 시:분:초 → 13:18:02</span>
+date +%Y%m%d          <span class="c"># 하이픈 없이 붙임 → 20261026</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>규칙</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>+포맷</code></td><td><code>date</code> 뒤에 <code>+</code>를 붙이고 서식 지정</td><td><code>+</code> 뒤에 공백을 두면 에러 — 붙여 씀</td></tr><tr><td class="nowrap">대소문자</td><td><code>%m</code>은 월, <code>%M</code>은 분</td><td>대소문자가 다른 값 — 서식은 정확히 씀</td></tr><tr><td class="nowrap">활용</td><td>백업 파일·폴더 이름에 백업 시각 표시</td><td>언제 백업된 파일인지 이름만 보고 판단</td></tr></tbody></table></div>
+
+    <h3>날짜 계산 — -d</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+date -d "7 day ago" +%Y-%m-%d    <span class="c"># 7일 전</span>
+date -d "-7 day"    +%Y-%m-%d    <span class="c"># 7일 전 — 실무에서 쓰는 방식</span>
+date -d "7 day"     +%Y-%m-%d    <span class="c"># 7일 후 — 부호가 없으면 뒤(미래)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">따옴표</td><td><code>-d</code> 뒤 문자열은 쌍따옴표로 묶음</td><td>공백이 들어간 문자열을 한 인자로 넘기기 위해</td></tr><tr><td class="nowrap"><code>+포맷</code> 위치</td><td>문자열 뒤에 한 칸 띄워 따로 씀</td><td>붙이면 날짜 문자열의 일부로 읽힘</td></tr><tr><td class="nowrap"><code>ago</code></td><td>전(과거)</td><td>숫자 앞 <code>-</code>로도 표현, <code>+</code>면 후, 부호가 없으면 후</td></tr><tr><td class="nowrap">계산 결과</td><td>26일 기준 7일 후 → 27·28·29·30·31·1·2 (다음 달 2일)</td><td>달을 넘어가면 다음 달 날짜로 계산</td></tr><tr><td class="nowrap">실무 표기</td><td><code>-7 day</code> / <code>7 day</code></td><td><code>ago</code>·<code>next</code> 같은 단어보다 마이너스·숫자가 읽기 쉬움</td></tr><tr><td class="nowrap">활용</td><td>7일 전 날짜를 변수에 담아 if 조건으로 비교 → 7일 지난 백업 삭제</td><td>일주일만 보관하는 정책을 스크립트로 처리 (삭제 검색은 find -mtime: linux.html 16장)</td></tr></tbody></table></div>
+
+    <h3>next 문법이 먹지 않는 서버</h3>
+    <div class="table-wrap"><table><thead><tr><th>형태</th><th>결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>date -d "+7 days next" +%Y-%m-%d</code></td><td>에러 — 7을 읽지 못한다는 표시</td><td>책에 나온 형태가 이 서버에서는 동작하지 않음</td></tr><tr><td class="nowrap"><code>+</code>를 빼거나 <code>s</code>를 빼는 변형</td><td>모두 에러</td><td>단어를 바꿔도 같음 — 문법 자체를 받지 않는 상태</td></tr><tr><td class="nowrap">터미널에서 직접 실행</td><td>스크립트 밖에서도 같은 에러</td><td>스크립트 문제가 아니라 date 명령의 해석 문제</td></tr><tr><td class="nowrap"><code>date -d "7 days" +%Y-%m-%d</code></td><td>정상 — 7일 후</td><td><code>next</code> 없이 숫자와 단위만 쓰면 됨</td></tr><tr><td class="nowrap">배포판 차이</td><td>같은 명령이 서버에 따라 다르게 동작</td><td>스크립트에 넣기 전에 그 서버에서 먼저 실행해 확인</td></tr></tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 25강 13:00~16:00</div><p>"+7 days next" 형태가 date 문법상 원래 에러인지 배포판 차이인지 — 다른 서버에서 <code>date -d "7 days next" +%Y-%m-%d</code>와 <code>next week</code> 같은 표기를 직접 실행해 확인</p></div>
+    <div class="dg-bar warn">날짜 계산은 <code>date -d "-7 day"</code>·<code>date -d "7 day"</code> 형태로 — ago·next 같은 단어는 서버에 따라 해석이 달라 스크립트가 그 줄에서 멈춤. <code>+포맷</code>은 한 칸 띄워 따로</div>
+
+    <ul class="facts"><li><strong>날짜를 변수에 담기</strong><div><code>today=$(date +%Y%m%d)</code> 표기와 <code>echo</code> 출력: 이 파일 1장</div></li><li><strong>날짜 폴더 백업</strong><div>오늘 날짜로 폴더를 만들어 복사하는 <code>file3.sh</code>: 이 파일 6장</div></li><li><strong>7일 보관 삭제</strong><div><code>-mtime</code> 부호와 삭제 조건: linux.html 16장</div></li><li><strong>스케줄로 매일 실행</strong><div>정해진 시각에 백업 스크립트 실행: 이 파일 7장</div></li></ul>
+  </section>
+
+  <section class="sec" id="sec-backup">
+    <h2>백업 스크립트 (cp -a 속성 유지 · rsync 동기화 · 날짜 폴더 자동 백업 · 경로 실수)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 원본·백업 경로 → 오늘 날짜 폴더 → 복사 → 결과 확인</p><div class="dg-flow"><div class="dg-node"><h4>① 경로 변수</h4><p class="sub">s_dir · b_dir</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 날짜 폴더</h4><p class="sub">mkdir "$b_dir/20261026_html"</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ cp -a / rsync -avz</h4><p class="sub">소유자·권한·시간 유지</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 결과 확인</h4><p class="sub">back 안 날짜 폴더 · 소유자 구분</p></div></div><p class="dg-foot">백업은 "복구했을 때 원래대로 돌아가는 것"이 목적 — 소유자·권한·수정 시간이 바뀌면 복구 후 원래 사용자가 파일을 다루지 못함</p></div>
+
+    <h3>백업 대상과 준비</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">원본</td><td><code>/home/aidata/html</code> — aidata 소유의 웹 디렉토리</td><td>서비스 디렉토리를 백업하는 상황을 가정</td></tr><tr><td class="nowrap">백업 위치</td><td><code>/home/blue2/back</code></td><td>받는 사용자(blue2) 홈 아래</td></tr><tr><td class="nowrap">back 소유자</td><td>blue2 계정으로 접속해 <code>mkdir</code> 후 <code>exit</code>로 root 복귀</td><td>root로 만들면 back이 root 소유가 되어 일반 사용자가 쓰지 못함</td></tr><tr><td class="nowrap">작업 위치·주체</td><td>root로 <code>/home/blue2</code>에서 진행</td><td>프롬프트(<code>#</code>/<code>$</code>)와 경로를 확인하고 명령 — root와 일반 사용자를 헷갈리면 소유자가 엉킴</td></tr><tr><td class="nowrap">디렉토리 복사</td><td><code>-r</code> 없이 <code>cp</code>하면 <code>cp: -r not specified; omitting directory '/home/aidata/html'</code></td><td>디렉토리는 재귀 옵션이 필요 (linux.html 6장)</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · blue2 · 프롬프트 $]</span>
+mkdir /home/blue2/back      <span class="c"># 백업 디렉토리 — blue2 소유로 만들어야 복구 때 권한 문제가 없음</span>
+exit                        <span class="c"># root로 복귀</span>
+<span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+cd /home/blue2              <span class="c"># 이후 작업 위치</span>
+pwd                         <span class="c"># /home/blue2 인지 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <h3>cp -r과 cp -a — 백업에 -a를 쓰는 이유</h3>
+    <div class="table-wrap"><table><thead><tr><th>옵션</th><th>소유자·그룹·권한·수정 시간</th><th>백업에서의 결과</th></tr></thead><tbody><tr><td class="nowrap"><code>cp -r</code></td><td>모두 명령을 실행한 사용자 기준으로 변경</td><td>root가 복사하면 소유자가 root, 날짜는 오늘 — 복구 후 aidata가 자기 파일을 수정하지 못함</td></tr><tr><td class="nowrap"><code>cp -a</code></td><td>모두 원본 그대로</td><td>원본을 750으로 바꿔 둔 상태면 복사본도 750, 원본 날짜가 10월 20일이면 복사본도 20일</td></tr></tbody></table></div>
+    <p>복사한 뒤 <code>ls -l</code>로 소유자·날짜·권한을 원본과 비교 — 이 비교가 백업 검수의 첫 단계. 실습 결과와 권한 비교 전체는 linux.html 6장.</p>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 # · /home/blue2]</span>
+cp -a /home/aidata/html /home/blue2/back   <span class="c"># 속성 유지 복사 — 소유자·그룹·권한·수정 시간까지 그대로</span>
+ls -l back                                 <span class="c"># 안 파일의 소유자·날짜·권한이 원본과 같은지 확인</span>
+rm -drf back/html                          <span class="c"># 실습 되돌리기 — 다음 실습을 위해 복사본 삭제</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">백업·복구는 <code>cp -a</code> — <code>cp -r</code>은 소유자·그룹·권한·수정 시간이 복사한 사람 기준으로 바뀌어, 되돌린 뒤 원래 사용자가 파일을 고치지 못함. 날짜가 바뀌면 언제 고친 파일인지도 따질 수 없음</div>
+
+    <h3>같은 백업을 rsync로</h3>
+    <p><code>file2.sh</code>의 cp 줄을 주석 처리하고 rsync로 교체 — 반복 실행하면 달라진 것만 보내고, 압축 전송(-z)으로 전송량을 줄임. 끝 슬래시가 "안의 내용만"이라는 규칙은 rsync 전용이며, cp는 끝 슬래시만으로 내용만 복사되지 않음(linux.html 6장).</p>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · root · file2.sh 파일 안]</span>
+#!/bin/bash
+#cp -a /home/aidata/html /home/blue2/back   <span class="c"># cp 방식은 주석 처리</span>
+rsync -avz /home/aidata/html/ /home/blue2/back/   <span class="c"># a 속성 유지 · v 진행 출력 · z 압축 전송</span>
+<span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+chmod 700 file2.sh
+./file2.sh</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>옵션</th><th>의미</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>-a</code></td><td>속성 유지 (권한·소유자·수정 시간·심볼릭 링크 포함, <code>-rlptgoD</code> 묶음)</td><td>ACL·확장 속성·하드링크는 포함하지 않아 <code>cp -a</code>와 완전히 같지는 않음 (linux.html 14장)</td></tr><tr><td class="nowrap"><code>-v</code></td><td>전송한 파일 목록 출력</td><td>굳이 쓰지 않아도 되고 실무에서는 <code>-az</code>만 쓰는 경우도 많음</td></tr><tr><td class="nowrap"><code>-z</code></td><td>전송 중 압축</td><td>가장 중요 — 파일이 크면 전송이 오래 걸리는데 압축으로 줄임</td></tr><tr><td class="nowrap"><code>-avz</code></td><td>세 옵션 묶음</td><td>이 정도만 알아도 웬만한 전송·동기화 처리</td></tr><tr><td class="nowrap">끝 슬래시</td><td>원본 뒤 <code>/</code>를 붙이면 html 안의 파일만 전송 (디렉토리 자체는 안 만듦)</td><td>붙이지 않으면 back 안에 html 디렉토리가 한 겹 생김</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+./file2.sh
+sending incremental file list   <span class="c"># 달라진 것만 보내는 증분 모드</span>
+./
+index2.html
+index3.html
+index5.html
+                                <span class="c"># sent 보낸 바이트 · received 받은 바이트 · 전송 속도</span>
+sent 321 bytes  received 76 bytes  794.00 bytes/sec
+total size is 71  speedup is 0.18   <span class="c"># speedup = 전체 크기 ÷ (보낸+받은) 비율 — 걸린 시간(초)이 아님</span>
+<span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+ls -a /home/blue2/back              <span class="c"># 소유자·퍼미션이 유지된 채 동기화된 것 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <p>speedup은 전체 크기 ÷ 실제 전송 바이트 — 1보다 크면 전체 크기보다 적게 보내 압축·증분 효과가 있었다는 뜻이고, 1보다 작으면 파일이 작아 프로토콜 부담이 더 컸다는 뜻(위 예는 71바이트를 보내는 데 397바이트 사용).</p>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+rsync -avz -e "ssh -p 22 -i /home/aidata/.ssh/id_rsa" /home/aidata/html/ aidata@192.168.222.3:/home/aidata/back/   <span class="c"># 원격 서버로 전송</span>
+<span class="c"># -e 뒤 쌍따옴표 안이 접속 명령 — ssh · -p 포트 · -i 인증 키</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>상황</th><th>옵션</th><th>이유</th></tr></thead><tbody><tr><td class="nowrap">같은 서버 안</td><td><code>-av</code>로 충분</td><td>네트워크를 건너지 않아 압축 이득이 작음</td></tr><tr><td class="nowrap">다른 서버(원격·로드밸런싱 쪽)</td><td><code>-avz</code> (가끔 v 없이 <code>-az</code>)</td><td>압축 전송으로 전송 시간을 줄이는 것이 유리</td></tr><tr><td class="nowrap"><code>-e "ssh -p 22 -i 키"</code></td><td><code>-e</code> ssh, <code>-p</code> 포트, <code>-i</code> 키 파일</td><td>키 인증이 되어 있으면 패스워드 없이 전송</td></tr><tr><td class="nowrap">실시간 동기화</td><td><code>lsyncd</code> 데몬</td><td>셸로 만들 필요 없이 설정 파일(conf)로 처리, <code>/var/log/lsyncd</code>에 동기화 시점 기록 (linux.html 14장)</td></tr></tbody></table></div>
+
+    <h3>file3.sh — 날짜 폴더로 한 번에 백업</h3>
+    <p>셸의 거의 최종 단계 예시 — 이후는 함수 등을 조금씩 넣어 만드는 단계. 하는 일은 원본을 오늘 날짜 폴더로 복사하는 것. 시작 상태는 back 안을 모두 비운 상태(back 디렉토리 자체는 유지), root로 <code>/home/blue2</code>에서 진행.</p>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · root · file3.sh 파일 안]</span>
+#!/bin/bash
+s_dir="/home/aidata/html"                 <span class="c"># source dir — 원본 디렉토리</span>
+b_dir="/home/blue2/back"                  <span class="c"># backup dir — 백업 디렉토리 (스네이크 표기)</span>
+today=$(date +%Y%m%d)                     <span class="c"># 오늘 날짜 — 하이픈 없이 연월일</span>
+mkdir "$b_dir/${today}_html"              <span class="c"># 20261026_html 폴더 생성</span>
+cp -a "$s_dir"/* "$b_dir/${today}_html"   <span class="c"># 원본 안의 전부를 속성 유지로 복사 — *는 쌍따옴표 밖</span>
+<span class="c"># [호스트 리눅스 · root · 프롬프트 # · /home/blue2]</span>
+chmod 700 file3.sh
+./file3.sh                                <span class="c"># 에러 없이 끝나면 back 안에 날짜 폴더 생성</span>
+ls -l /home/blue2/back                    <span class="c"># 20261026_html 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>줄</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>s_dir</code>·<code>b_dir</code></td><td>원본·백업 경로를 변수로</td><td>경로를 한 곳에서만 고치면 되고 오타 위험이 줄어듦</td></tr><tr><td class="nowrap"><code>today=</code></td><td>날짜를 변수에 한 번 더 거쳐 만듦</td><td>같은 단어를 여러 번 쓰지 않으려는 것 — 변수 없이 직접 넣어도 되지만 권장</td></tr><tr><td class="nowrap"><code>+%Y%m%d</code></td><td><code>20261026</code> — 하이픈 없이 연월일</td><td>시·분·초까지 찍는 경우는 드묾 — 하루 두세 번 백업하면 넣고, 하루 한 번이면 용량이 커서 날짜까지</td></tr><tr><td class="nowrap"><code>${today}_html</code></td><td>변수 경계를 <code>${ }</code>로 구분 → <code>20261026_html</code></td><td><code>$today_html</code>로 쓰면 <code>today_html</code>이라는 다른 변수 이름으로 읽힘</td></tr><tr><td class="nowrap"><code>mkdir -p</code></td><td>상위 디렉토리까지 함께 생성</td><td>예: <code>back/aaa</code>를 만들 때 상위 <code>back</code>이 없으면 상위·하위를 함께 생성. 여기서는 back이 이미 있어 불필요</td></tr><tr><td class="nowrap"><code>"$s_dir"/*</code></td><td>안의 파일과 디렉토리가 모두 넘어감</td><td>별표는 쌍따옴표 밖 — 안에 넣으면 일반 문자로 취급</td></tr><tr><td class="nowrap">결과</td><td>디렉토리는 root 소유, 안의 파일은 aidata 소유, 날짜도 원본 그대로</td><td>디렉토리 전체를 복사해도 무방 — 확인은 파일 소유자·권한으로</td></tr></tbody></table></div>
+
+    <h3>경로 실수 1 — 슬래시가 두 번(//) 붙는 경우</h3>
+    <p><code>b_dir</code>을 <code>.../back/</code>처럼 끝에 <code>/</code>를 붙여 두고 <code>"$b_dir/..."</code>처럼 또 붙이면 <code>//</code>가 됨. 이때 "디렉토리를 찾을 수 없음" 에러가 나지만, POSIX 경로 규칙상 연속 슬래시는 하나와 같게 취급되므로 <code>//</code> 자체가 원인은 아님 — 원인은 경로 값 자체의 오류.</p>
+    <div class="table-wrap"><table><thead><tr><th>실수</th><th>결과</th><th>해결</th></tr></thead><tbody><tr><td class="nowrap"><code>b_dir="/home/blue2/back/"</code> + <code>"$b_dir/${today}_html"</code></td><td><code>/home/blue2/back//20261026_html</code> — 경로가 어긋나면 디렉토리를 찾을 수 없음</td><td>둘 중 하나만 남김 — <code>b_dir</code> 끝 <code>/</code>를 뺌</td></tr><tr><td class="nowrap">슬래시를 넣은 채 뒤에 또 붙이기</td><td>같은 실수 반복</td><td>경로를 변수로 만들 때 끝 슬래시를 두지 않는 습관</td></tr></tbody></table></div>
+
+    <h3>경로 실수 2 — mkdir 경로가 back 밖</h3>
+    <p>다시 실행하면 "디렉토리를 만들 수 없음 / 파일이 있음" — 첫 실행 때 경로가 잘못돼 back 밖(blue2 홈)에 날짜 폴더가 이미 만들어졌기 때문. 결과 위치는 <code>back</code> 안이어야 함.</p>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 # · /home/blue2]</span>
+ls -l                       <span class="c"># 날짜 폴더가 back 밖에 만들어졌는지 확인</span>
+rm -drf 20261026_html       <span class="c"># 잘못 만든 폴더 삭제</span>
+<span class="c"># file3.sh 수정 — mkdir에 $b_dir를 붙여 back 안에 만들도록</span>
+mkdir "$b_dir/${today}_html"</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">백업 스크립트 점검 네 가지 — ① 프롬프트와 현재 경로 ② <code>b_dir</code> 끝 슬래시 ③ mkdir에 <code>$b_dir</code> 포함 ④ 결과가 back 안 날짜 폴더인지. 오타 하나로 엉뚱한 디렉토리가 생기므로 기호를 하나씩 확인</div>
+
+    <ul class="facts"><li><strong>cp -a와 cp -r 비교 실습</strong><div>소유자·권한·수정 시간이 바뀌는 원리: linux.html 6장</div></li><li><strong>rsync 옵션과 원격 전송</strong><div><code>-avz</code>·끝 슬래시·<code>-e "ssh -p -i"</code>·lsyncd: linux.html 14장</div></li><li><strong>오늘 날짜 만들기</strong><div><code>date +%Y%m%d</code>·<code>-d</code> 계산: 이 파일 5장</div></li><li><strong>매일 자동 백업</strong><div>백업 스크립트를 크론에 등록: 이 파일 7장</div></li></ul>
+  </section>
+
+  <section class="sec" id="sec-cron">
+    <h2>작업 스케줄 자동 실행 (crontab — 5필드 · crond · 백업·삭제 스케줄)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 스케줄 등록 → 데몬 시작 → 시각에 자동 실행 → 결과 확인</p><div class="dg-flow"><div class="dg-node"><h4>① crontab -e</h4><p class="sub">vi로 스케줄 등록</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 5필드</h4><p class="sub">분 시 일 월 요일 + 파일</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ systemctl start crond</h4><p class="sub">active (running)</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 결과 확인</h4><p class="sub">crontab -l · 백업 폴더</p></div></div><p class="dg-foot">셸을 잘 짜 두고 크론으로 연결하면 담당자가 앉아 있지 않아도 백업·복구가 이어짐 — 셸이 먼저, 스케줄이 다음</p></div>
+
+    <h3>crontab이 하는 일</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">개념</td><td>리눅스의 작업 스케줄을 담당하는 데몬 (작업 스케줄러)</td><td>정해진 시간에 셸 파일을 자동 실행</td></tr><tr><td class="nowrap">전제</td><td>실행할 셸이 먼저 완성돼 있어야 함</td><td>스케줄은 셸을 부르는 역할만 — 셸이 실패하면 스케줄도 실패</td></tr><tr><td class="nowrap">결과</td><td>담당자가 확인하지 않아도 그 시각에 백업이 실행</td><td>백업·삭제·설치 같은 반복 작업을 사람 손에서 떼어 냄</td></tr><tr><td class="nowrap">단위</td><td>사용자별 crontab — root의 스케줄은 root 권한으로 실행</td><td>시스템 전체 작업은 root crontab에 등록</td></tr></tbody></table></div>
+
+    <h3>명령 3가지</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+crontab -e     <span class="c"># 신규 작업 스케줄 등록·수정 (vi 편집기로 열림)</span>
+crontab -l     <span class="c"># 등록된 스케줄 목록 출력</span>
+crontab -r     <span class="c"># 현재 사용자의 스케줄 전부 초기화 — 실무에서 쓰면 심각한 사고</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">사용 범위</td><td><code>-e</code>·<code>-l</code>은 root 전용이 아니라 사용자별 명령</td><td>일반 사용자도 자기 스케줄을 편집·조회 — 실행 권한은 그 사용자 기준</td></tr><tr><td class="nowrap">허용 제어</td><td>사용 가능 여부는 <code>/etc/cron.allow</code>·<code>/etc/cron.deny</code> 파일로 결정</td><td>allow에 있으면 허용, deny에 있으면 차단</td></tr><tr><td class="nowrap"><code>-r</code></td><td>스케줄 전체 삭제</td><td>한 줄만 지우려면 <code>-e</code>에서 그 줄을 지우거나 <code>#</code>으로 주석 처리</td></tr></tbody></table></div>
+
+    <h3>crond 데몬 시작</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+systemctl start crond       <span class="c"># 레드햇 계열(Rocky·CentOS) 서비스명 — d까지 붙음</span>
+systemctl status crond      <span class="c"># active (running) 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">데몬 이름</td><td>레드햇 계열은 <code>crond</code>(d까지), 우분투·데비안은 <code>cron</code></td><td>배포판마다 서비스 이름이 다름</td></tr><tr><td class="nowrap">서비스 파일</td><td><code>crond.service</code></td><td><code>crontab.service</code>라는 이름은 없음 — 그 이름으로는 시작 실패</td></tr><tr><td class="nowrap">시작 상태</td><td>부팅 후 정지해 있는 경우가 많음</td><td><code>start</code> 후 <code>status</code>로 active (running) 확인</td></tr><tr><td class="nowrap">수정 반영</td><td>스케줄을 저장하면 재시작 없이 바로(실시간) 적용</td><td>한 번 start한 뒤 restart하는 경우는 웬만해선 없음</td></tr><tr><td class="nowrap">멈추기</td><td><code>systemctl stop crond</code> 또는 그 줄 앞에 <code>#</code></td><td>그대로 두면 계속 실행 (예: 매시 19분)</td></tr></tbody></table></div>
+    <div class="dg-bar warn">레드햇 계열 데몬명은 <code>crond</code>, 우분투·데비안은 <code>cron</code> — 서비스 파일은 <code>crond.service</code>. 스케줄 수정은 저장 즉시 적용이라 restart가 필요 없음</div>
+
+    <h3>스케줄 형식 — 5필드 + 실행 대상</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · crontab -e 파일 안 · root]</span>
+<span class="c"># 순서: 분 시 일 월 요일, 그 뒤에 실행할 파일 경로</span>
+*  *  *  *  *   /home/blue2/file2.sh</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>필드</th><th>범위</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">분</td><td>0~59 (0이면 매시 정각)</td><td>가장 자주 쓰는 단위 — 실습에서 결과를 빨리 보려면 여기 값을 노림</td></tr><tr><td class="nowrap">시</td><td>0~23 (24시는 00)</td><td>0시 = 자정</td></tr><tr><td class="nowrap">일</td><td>1~31</td><td>31일로 지정하면 28·30일까지인 달은 그날이 없어 백업이 안 됨 — 회사에서는 15·20·25일처럼 매달 있는 날 기준</td></tr><tr><td class="nowrap">월</td><td>1~12</td><td>특정 달에만 도는 스케줄에 사용</td></tr><tr><td class="nowrap">요일</td><td>0~7 (0과 7이 일요일, 1 월 … 6 토)</td><td>7이 헷갈리면 0~6만 사용</td></tr><tr><td class="nowrap"><code>*</code></td><td>매(모든 값)</td><td>해당 필드를 제한하지 않음</td></tr><tr><td class="nowrap"><code>-</code></td><td>범위 (언제부터 언제까지)</td><td>예: <code>1-5</code> = 월~금</td></tr><tr><td class="nowrap"><code>*/n</code></td><td>n 단위마다</td><td>일 필드에 쓰면 달마다 1일부터 다시 시작</td></tr></tbody></table></div>
+
+    <h3>예시 읽기</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · crontab -e 파일 안 · root]</span>
+<span class="c"># 10월 한 달, 매주 금요일 밤 11시 — 11월에는 돌지 않음</span>
+0 23 * 10 5
+<span class="c"># 5분마다 실행</span>
+*/5 * * * *
+<span class="c"># 월~금 아침 9시 정각</span>
+0 9 * * 1-5
+<span class="c"># 1·4·7…일에 밤 11시 — 3일 간격처럼 보이지만 달이 바뀌면 1일부터 다시</span>
+0 23 */3 * *
+<span class="c"># 같은 날짜 기준 밤 10시 — 디렉토리 백업용</span>
+0 22 */3 * *</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>표기</th><th>실제 실행</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>0 23 * 10 5</code></td><td>10월의 금요일 23시 0분</td><td>월과 요일이 함께 걸리면 두 조건 모두 맞아야 실행</td></tr><tr><td class="nowrap"><code>*/5 * * * *</code></td><td>매시 0·5·10…분</td><td>5분 간격</td></tr><tr><td class="nowrap"><code>0 9 * * 1-5</code></td><td>평일 9시</td><td>요일 범위 표기</td></tr><tr><td class="nowrap"><code>*/3</code> (일 필드)</td><td>1·4·7…31일 — 달이 바뀌면 다시 시작</td><td>정확히 3일 간격이 아님 — 28·29·30·31일 뒤에 1일이 오면 간격이 짧아짐</td></tr></tbody></table></div>
+
+    <h3>백업·삭제 스케줄 운용</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>이유</th></tr></thead><tbody><tr><td class="nowrap">두 줄로 나누는 이유</td><td>22시 줄은 디렉토리를 모두 백업(압축), 23시 줄은 데이터베이스 압축 백업</td><td>디렉토리와 DB 백업을 같은 시간에 하면 서비스에 문제가 생김</td></tr><tr><td class="nowrap">부하</td><td>데이터 하나 700MB 정도, 이런 서비스가 수십 개 → 백업 중 CPU가 순간 80~90%, 메모리도 사용</td><td>그 상태에서 DB까지 백업하면 웹 접속 로딩이 계속 걸림</td></tr><tr><td class="nowrap">시간대</td><td>용량이 큰 백업은 새벽(사용자가 없는 시간)</td><td>백업은 서비스에 영향을 많이 주는 작업</td></tr><tr><td class="nowrap">삭제 줄</td><td>스케줄에 삭제 셸도 함께 등록 — <code>find</code>의 <code>-mtime</code>로 지난 파일 검색 후 삭제</td><td>보관 기간이 지난 백업이 쌓이면 디스크가 참</td></tr><tr><td class="nowrap">보관 기간</td><td>7일 보관이면 삭제 조건도 <code>-mtime +7</code></td><td>3일 기준으로 지우면 7일 보관이 되지 않음 — 백업 주기와 보관 기간을 따로 계산</td></tr><tr><td class="nowrap">공지 예</td><td>"3일에 한 번 디렉토리 백업 및 DB 백업이 시행되며 보관은 7일 기준으로 합니다"</td><td>서비스 안내에 이렇게 적고 7일이 지나면 자동 삭제</td></tr><tr><td class="nowrap">다른 프로그램</td><td>크론 줄에는 셸뿐 아니라 파이썬·<code>.java</code> 파일 실행 줄도 넣을 수 있음</td><td>정해진 시각에 무엇이든 실행 가능</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · crontab -e 파일 안 · root]</span>
+<span class="c"># 3일 간격 밤 10시 — 디렉토리 압축 백업</span>
+0 22 */3 * *   /home/blue2/backup_dir.sh
+<span class="c"># 3일 간격 밤 11시 — DB 압축 백업 (디렉토리 백업과 시간을 나눔)</span>
+0 23 */3 * *   /home/blue2/backup_db.sh
+<span class="c"># 표준 예시 — 매일 새벽 4시, 7일 지난 백업 삭제 (경로·보관일은 서비스 기준으로 수정)</span>
+0 4 * * *      find /home/blue2/back -mtime +7 -exec rm -rf {} \;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">디렉토리 백업과 DB 백업은 시간을 나눈다 — 같은 시각에 겹치면 CPU·메모리가 차서 서비스가 버벅임. 보관 7일이면 삭제 조건도 <code>-mtime +7</code>로 맞춤</div>
+
+    <h3>실습 — file2.sh를 1분 뒤에 실행</h3>
+    <div class="table-wrap"><table><thead><tr><th>순서</th><th>할 일</th><th>확인·이유</th></tr></thead><tbody><tr><td class="nowrap">1</td><td>back 안을 완전히 비움</td><td>자동 실행 결과가 새로 생기는지 보려면 빈 상태에서 시작</td></tr><tr><td class="nowrap">2</td><td><code>crontab -e</code> → 처음엔 비어 있음 → 스케줄 한 줄 입력 후 분 칸을 <code>1</code>로</td><td>1분만 기다리면 결과를 볼 수 있음</td></tr><tr><td class="nowrap">3</td><td><code>systemctl start crond</code> → <code>status</code>로 active (running) → back에 <code>ls -l</code></td><td>아직 결과가 없는 것이 정상 — 실행 시각 전</td></tr><tr><td class="nowrap">4</td><td>1분 대기 후 확인</td><td>동작하지 않으면 <code>file2.sh</code> 경로 오타를 점검하고 <code>systemctl restart crond</code> 후 재확인</td></tr><tr><td class="nowrap">5</td><td>back을 다시 비우고 <code>crontab -e</code>의 분 칸을 <code>19</code>로 수정</td><td><code>date</code>가 13:18이면 곧 19분 — 그 시각을 노림</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · crontab -e 파일 안 · root]</span>
+<span class="c"># 매분 실행 — 실습에서는 분 칸을 1로 두고 결과 확인</span>
+* * * * * /home/blue2/file2.sh
+<span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+date                       <span class="c"># 13:18 — 19분을 노릴 시각 확인</span>
+systemctl status crond     <span class="c"># active (running)</span>
+crontab -l                 <span class="c"># 등록한 줄 확인</span>
+ls -l /home/blue2/back     <span class="c"># 13:19가 되면 결과 파일 생성</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>결과</th><th>의미</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>crontab: installing new crontab</code></td><td>저장이 정상 반영됐다는 출력</td><td>저장할 때 vi의 <code>:wq</code>로 나와야 함</td></tr><tr><td class="nowrap">분 칸 <code>19</code></td><td>매시간 19분마다 실행</td><td>시 칸이 <code>*</code>라 매시간 반복 — 결과가 계속 늘어남</td></tr><tr><td class="nowrap">결과가 없을 때</td><td>경로·권한·crond 상태 순서로 점검</td><td>셸을 손으로 실행해 먼저 정상인지 확인</td></tr><tr><td class="nowrap">스케줄이 잘못됐을 때</td><td><code>crontab -r</code>로 전체 초기화</td><td>실무에서 쓰면 정말 심각한 일 — 한 줄만 지우려면 <code>-e</code>에서 수정</td></tr></tbody></table></div>
+
+    <ul class="facts"><li><strong>5필드 순서</strong><div>분·시·일·월·요일, 요일 0·7 = 일요일: 이 장</div></li><li><strong>백업 스크립트 만들기</strong><div><code>file2.sh</code>·<code>file3.sh</code>와 경로 점검: 이 파일 6장</div></li><li><strong>삭제 조건</strong><div><code>find -mtime</code> 부호와 <code>+7</code>: linux.html 16장</div></li><li><strong>데몬 기동·자동 시작</strong><div><code>systemctl start</code>·<code>enable</code>: httpd.html 3장</div></li></ul>
+  </section>
+
+  <section class="sec" id="sec-shellops">
+    <h2>셸로 설치·실행 자동화 (dnf install -y · exec)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 설치 목록을 한 파일로 → root 실행 → 확인 → 프로세스 교체</p><div class="dg-flow"><div class="dg-node"><h4>① 설치 여부 확인</h4><p class="sub">rpm -qa | grep</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② dnf.sh</h4><p class="sub">dnf install -y 패키지</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ chmod 700 · ./</h4><p class="sub">root로 실행</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ exec</h4><p class="sub">현재 셸을 다른 프로그램으로</p></div></div><p class="dg-foot">설치해야 할 패키지가 여러 개면 하나씩 치지 않고 셸 한 파일로 처리 — 설치부터 세팅까지 이어서 자동화</p></div>
+
+    <h3>패키지 설치를 한 파일로 — dnf.sh</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">작성 위치</td><td>back 디렉토리가 아니라 blue2 홈에서 <code>vi dnf.sh</code></td><td>백업 실습을 하던 디렉토리가 아니라 작업 홈에서 관리</td></tr><tr><td class="nowrap">실행 주체</td><td>root</td><td>일반 사용자는 dnf 실행 불가 — 권한 거부</td></tr><tr><td class="nowrap"><code>-y</code></td><td>확인 질문 없이 <strong>바로 설치</strong></td><td>자동화에서 질문에 멈추지 않게 하는 옵션</td></tr><tr><td class="nowrap">실행 순서</td><td><code>chmod 700 dnf.sh</code> → <code>./dnf.sh</code></td><td>진행·다운로드 목록이 나오며 설치</td></tr><tr><td class="nowrap">실무</td><td>패키지를 하나씩 치지 않고 이런 식으로 한 방에 처리</td><td>필요한 것 설치부터 이후 세팅까지 셸로 이어 두면 명령을 일일이 치지 않아도 됨</td></tr><tr><td class="nowrap">확장</td><td>여러 패키지를 한 파일에 나열 — mysql, httpd(아파치), <code>dnf update -y</code> 등</td><td>root에서 실행해 두면 기다리기만 하면 설치가 끝남</td></tr><tr><td class="nowrap">특정 버전</td><td>셸에서 그 버전을 모듈로 <strong>enable</strong> 한 뒤 <code>-y</code>로 자동 설치</td><td>버전이 고정돼야 하는 서비스에 사용</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · root · /home/blue2 · dnf.sh 파일 안]</span>
+#!/bin/bash
+dnf install -y mysql      <span class="c"># 확인 질문 없이 설치</span>
+dnf install -y nodejs     <span class="c"># node.js의 패키지명은 nodejs — 이름이 다르면 의존성 오류</span>
+<span class="c"># [호스트 리눅스 · root · 프롬프트 # · /home/blue2]</span>
+chmod 700 dnf.sh
+./dnf.sh                  <span class="c"># 진행·다운로드 목록이 출력되며 설치</span>
+rpm -qa | grep "nodejs"   <span class="c"># 설치 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table><thead><tr><th>확인</th><th>결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>rpm -qa | grep "node"</code></td><td>설치 전에는 아무것도 출력되지 않음</td><td>dnf로 설치한 패키지도 rpm 목록에 들어감</td></tr><tr><td class="nowrap">설치 후</td><td>패키지 이름-버전-릴리스 형태로 출력</td><td>이름이 정확히 <code>nodejs</code>인지 확인</td></tr><tr><td class="nowrap">이름이 모호할 때</td><td>의존성 오류·후보 목록</td><td>패키지 이름·의존성 오류·module: linux.html 13장</td></tr></tbody></table></div>
+
+    <h3>exec — 현재 셸을 다른 프로그램으로 바꿈</h3>
+    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">뜻</td><td>셸 내장 명령 — 현재 셸 프로세스를 다른 프로그램으로 교체</td><td>새 프로세스를 띄우는 것이 아니라 지금 셸 자리를 바꿔 앉힘</td></tr><tr><td class="nowrap">find -exec와 구분</td><td><code>find -exec</code>는 찾은 파일마다 명령을 실행하는 find의 액션</td><td>이름만 같고 서로 다른 기능 — 셸의 <code>exec</code>는 프로세스 교체</td></tr><tr><td class="nowrap">실습 파일</td><td><code>dnf.sh</code>의 dnf 줄을 <code>#</code>으로 막고 <code>exec top</code> 추가</td><td>스크립트가 끝난 뒤 셸이 남지 않고 top 화면으로 바뀜</td></tr><tr><td class="nowrap">결과</td><td><code>TEST~</code> 출력 후 바로 top(CPU 할당 화면) 실행</td><td>top을 끝내면 세션도 함께 끝남</td></tr><tr><td class="nowrap"><code>exec ntsysv</code> vs <code>ntsysv</code></td><td>차이가 거의 없음</td><td>단독 실행도 같은 프로그램을 띄움</td></tr><tr><td class="nowrap">일반 사용자의 실수</td><td>명령을 실행하지 못하고 <strong>접속이 끊김</strong></td><td>권한 때문이 아니라 셸이 그 명령으로 바뀌었는데 실행에 실패해 세션이 사라지는 것 — root 작업에서만 사용</td></tr><tr><td class="nowrap">현재 위치</td><td>지금도 유효한 내장 명령</td><td>데몬 기동·감시처럼 셸을 넘겨주는 자리에 사용</td></tr></tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · vi 입력 모드 · root · dnf.sh 파일 안]</span>
+#!/bin/bash
+#dnf install -y nodejs     <span class="c"># 실습을 위해 주석 처리</span>
+echo "TEST~~~~~~~~~~~~"
+exec top                   <span class="c"># 현재 셸을 top으로 교체 — top을 끝내면 세션 종료</span>
+<span class="c"># [호스트 리눅스 · root · 프롬프트 #]</span>
+./dnf.sh                   <span class="c"># TEST~ 출력 후 top 화면으로 전환</span>
+exec ntsysv                <span class="c"># 서비스 설정 화면으로 교체 (q로 종료)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">exec는 셸을 다른 프로그램으로 바꾸는 내장 명령 — find -exec(파일마다 명령 실행)와 다른 기능. 일반 사용자가 쓰면 실행 실패와 함께 접속이 끊기므로 root 작업에서만</div>
+
+    <ul class="facts"><li><strong>패키지 이름·의존성 오류</strong><div><code>dnf install node*</code>·<code>nodejs</code>·<code>--skip-broken</code>·module: linux.html 13장</div></li><li><strong>설치 후 서비스 기동</strong><div><code>systemctl start</code>·<code>enable</code>로 포트 열기: httpd.html 3장</div></li><li><strong>실행 권한</strong><div><code>chmod 700</code>과 <code>./</code> 실행: 이 파일 1장</div></li><li><strong>스케줄로 실행</strong><div>설치·백업 셸을 정해진 시각에 실행: 이 파일 7장</div></li></ul>
+  </section>
+
   <section class="sec" id="cheatsheet"><h2>통합 명령어 치트시트</h2><p>이 카테고리에서 나온 명령어를 영역별로 모음. 내용이 추가되면 해당 영역 묶음 아래에 줄을 추가.</p><div class="table-wrap"><table class="cheat"><thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead><tbody><tr class="group"><th colspan="2" scope="colgroup">Shell 스크립트</th></tr><tr><td><code>#!/bin/bash</code></td><td>스크립트 1번 줄에 반드시 (첫 줄을 비우지 않음)</td></tr><tr><td><code>chmod 700 파일.sh</code></td><td>실행 권한 부여. 없으면 <code>./파일.sh</code>가 실행되지 않음</td></tr><tr><td><code>./파일.sh</code> / <code>bash 파일.sh</code></td><td>x 권한 필요 / 읽기(r)만 있어도 실행. 결과는 같음</td></tr><tr><td><code>변수=값</code> / <code>$변수</code></td><td>변수 선언 / 값 호출. <code>=</code> 양옆 띄어쓰기 금지, 변수는 마지막 값 하나만 유지</td></tr><tr><td><code>$((a + b))</code></td><td>산술 계산 — 괄호 두 겹. <code>$a+$b</code>는 문자로 붙고 <code>$(a+b)</code>는 명령 실행으로 오류</td></tr><tr><td>오류 확인</td><td><code>./test2.sh: 2: userid: …</code>처럼 몇 번째 줄인지 알려 줌 — 그 줄을 고침</td></tr><tr><td><code>if [ 조건 ]; then … fi</code></td><td>조건문 — <code>[ ]</code> 안은 <code>[</code>·값·연산자·값·<code>]</code> 사이를 전부 한 칸씩 띄움. 조건이 맞을 때만 then 아래 실행</td></tr><tr><td><code>=</code> / <code>==</code></td><td>문자열 비교는 <code>=</code> 하나. <code>==</code>도 같다로 동작하지만 POSIX 표준이 아닌 Bash 확장</td></tr><tr><td><code>-eq</code> <code>-ne</code> <code>-gt</code> <code>-ge</code> <code>-lt</code> <code>-le</code></td><td>숫자 비교 (equal·not equal·greater·greater or equal·less·less or equal). 문자열 비교 <code>=</code>와 섞지 않음</td></tr><tr><td><code>elif [ 조건 ]; then</code> / <code>else</code></td><td>또 다른 조건 (여러 개 가능, <code>then</code> 필수) / if의 무조건 반대 — else에는 조건을 넣지 않음</td></tr><tr><td><code>(( a &gt;= 100 ))</code></td><td>산술 조건 — <code>-eq</code> 대신 <code>&gt;</code>·<code>&gt;=</code>·<code>==</code> 사용, 공백 무관, 변수 <code>$</code> 생략 가능, 같다는 <code>==</code></td></tr><tr><td><code>&amp;&amp;</code> / <code>||</code></td><td>AND(두 조건 모두 맞음) / OR(하나라도 맞음). 조건문에 쓰고 else에는 넣지 않음</td></tr><tr><td><code>read 변수</code> / <code>echo -n</code></td><td>키보드 입력을 변수에 저장 / 줄바꿈 없이 출력해 같은 줄에서 입력 받기. 받은 값은 <code>$변수</code>로 사용</td></tr><tr><td>오류 줄 찾기</td><td><code>:set number</code>로 줄 번호를 보고 오류 줄을 기점으로 <b>위쪽</b>만 확인 — 아래는 실행되지 않은 상태</td></tr><tr class="group"><th colspan="2" scope="colgroup">Shell 반복문·배열 (for · while · until · break)</th></tr>
 <tr><td><code>for a in {1..5}; do … done</code></td><td>값 목록 반복 — <code>{5..1}</code>은 역순 자동. <code>done</code>이 빠지면 문법 오류</td></tr>
 <tr><td><code>for ((b=0; b&lt;10; b++))</code></td><td>산술형 for — 시작·범위·증감을 괄호 안에. <code>b+=2</code>·<code>b-=2</code>로 간격 조절, <code>b-2</code>는 값이 안 바뀌어 무한 루프</td></tr>
@@ -1345,6 +1578,29 @@ netstat -lntu                    <span class="c"># 리스닝 중인 포트 확�
 <tr><td><code>dm=("nginx" "postgresql" "vsftpd")</code> / <code>for z in "${dm[@]}"</code></td><td>배열 선언 / 모든 원소 순회 — 개수는 <code>${#dm[@]}</code>. 함수 인자로 start·stop을 넘겨 <code>for</code>를 한 번만 씀</td></tr>
 <tr><td><code>netstat -lntu</code> / <code>netstat -lnptu | grep "vsftpd"</code></td><td>리스닝 중인 포트 확인 — 포트로 데몬 상태를 제일 빠르게 판정(80 nginx·5432 postgresql·9021 vsftpd)</td></tr>
 <tr><td><code>:set nu</code> / <code>:set number</code></td><td>vi에서 줄 번호 표시 — <code>;;</code>·<code>esac</code>·<code>fi</code> 짝과 오류 줄을 눈으로 확인</td></tr>
+<tr class="group"><th colspan="2" scope="colgroup">Shell 날짜·백업 (date · cp -a · rsync)</th></tr>
+<tr><td><code>date</code> / <code>date +%Y-%m-%d</code> / <code>+%Y%m%d</code></td><td>현재 시각 / 연-월-일(2026-10-26) / 붙여 쓴 20261026. <code>+</code> 뒤에 공백이면 에러 — <code>%Y</code> 연 · <code>%m</code> 월 · <code>%d</code> 일 · <code>%H</code> 시 · <code>%M</code> 분 · <code>%S</code> 초</td></tr>
+<tr><td><code>date -d "-7 day"</code> / <code>date -d "7 day"</code></td><td>7일 전 / 7일 후 — 쌍따옴표로 묶고 <code>+포맷</code>은 한 칸 띄움. ago·next는 서버에 따라 에러</td></tr>
+<tr><td><code>today=$(date +%Y%m%d)</code></td><td>명령 결과를 변수에 — <code>echo $today</code>로 출력. 괄호를 빼면 옵션을 명령으로 읽어 "명령을 찾을 수 없음"</td></tr>
+<tr><td><code>chmod +x 파일.sh</code></td><td>user·group·other 모두에게 x 부여 — 게스트까지 실행되므로 실무는 <code>chmod 700</code></td></tr>
+<tr><td><code>cp -a 원본 대상</code></td><td>속성 유지 복사(소유자·그룹·권한·수정 시간). <code>cp -r</code>은 복사한 사용자 기준으로 바뀜 → linux.html 6장</td></tr>
+<tr><td><code>rsync -avz 원본/ 대상/</code></td><td>동기화 — a 속성 유지 · v 진행 출력 · z 압축 전송(가장 중요). 끝 슬래시는 안의 내용만(rsync 전용)</td></tr>
+<tr><td><code>rsync -avz -e "ssh -p 22 -i 키" 원본 사용자@IP:경로</code></td><td>원격 전송 — <code>-e</code> ssh · <code>-p</code> 포트 · <code>-i</code> 키. 다른 서버로 보낼 때 <code>-z</code></td></tr>
+<tr><td>speedup</td><td>전체 크기 ÷ (보낸+받은) 비율 — 걸린 시간이 아님. 1보다 크면 적게 보낸 것</td></tr>
+<tr><td><code>mkdir "$b_dir/${today}_html"</code> / <code>"$s_dir"/*</code></td><td>날짜 폴더 생성(변수 경계는 <code>${ }</code>) / 원본 안의 전부 복사 — <code>*</code>는 쌍따옴표 밖</td></tr>
+<tr><td><code>b_dir="/home/blue2/back"</code> (끝 슬래시 없이)</td><td>경로 변수에 끝 <code>/</code>를 두고 뒤에 또 붙이면 <code>//</code> — 디렉토리를 찾을 수 없음</td></tr>
+<tr class="group"><th colspan="2" scope="colgroup">Shell 작업 스케줄 (crontab)</th></tr>
+<tr><td><code>crontab -e</code> / <code>-l</code> / <code>-r</code></td><td>스케줄 등록·수정(vi) / 목록 / 전체 초기화 — 사용자별 명령, 허용은 cron.allow·cron.deny</td></tr>
+<tr><td><code>systemctl start crond</code> / <code>status crond</code></td><td>레드햇 계열 데몬은 <code>crond</code>(우분투·데비안은 <code>cron</code>) — <code>crond.service</code>, active (running) 확인</td></tr>
+<tr><td>5필드 <code>분 시 일 월 요일</code></td><td>분 0~59 · 시 0~23 · 일 1~31 · 월 1~12 · 요일 0~7(0·7 일요일). 뒤에 실행할 파일 경로</td></tr>
+<tr><td><code>*/5 * * * *</code> / <code>0 9 * * 1-5</code> / <code>0 23 * 10 5</code></td><td>5분마다 / 평일 9시 / 10월 금요일 23시 — <code>*</code> 매, <code>-</code> 범위, <code>*/n</code> n 단위</td></tr>
+<tr><td><code>0 22 */3 * *</code> · <code>0 23 */3 * *</code></td><td>디렉토리 백업(22시)과 DB 백업(23시)을 나눔 — 일 필드 <code>*/3</code>은 1·4·7…일, 달마다 리셋</td></tr>
+<tr><td><code>find /home/blue2/back -mtime +7 -exec rm -rf {} \;</code></td><td>보관 7일 삭제 줄(표준 예시) — 보관일과 같은 값을 <code>-mtime</code>에 사용</td></tr>
+<tr><td><code>crontab: installing new crontab</code></td><td>저장 반영 출력. 수정은 재시작 없이 즉시 적용, 잘못된 스케줄은 <code>crontab -r</code>로 초기화</td></tr>
+<tr class="group"><th colspan="2" scope="colgroup">Shell 설치·프로세스 교체 (dnf · exec)</th></tr>
+<tr><td><code>dnf install -y 패키지</code></td><td>확인 질문 없이 설치 — root만, 스크립트로 여러 패키지를 한 방에. 이름·의존성 오류는 linux.html 13장</td></tr>
+<tr><td><code>rpm -qa | grep "node"</code></td><td>설치 여부 확인 — dnf로 설치한 패키지도 rpm 목록에 포함</td></tr>
+<tr><td><code>exec 명령</code></td><td>현재 셸을 그 프로그램으로 교체 — find -exec와 다름. 일반 사용자가 쓰면 실행 실패와 함께 접속 끊김</td></tr>
 </tbody></table></div></section>
 
   </main>
