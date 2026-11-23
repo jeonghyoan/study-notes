@@ -605,16 +605,17 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#least-privilege">12. 접속 위치별 최소 권한과 사용자 관리</a></li>
         <li><a href="#local-dump-restore">13. mysqldump 백업과 복구</a></li>
         <li><a href="#daemon-ops">14. 데몬 재시작·고스트·포트 변경</a></li>
-        <li><a href="#cheatsheet">15. 통합 명령어 치트시트</a></li>
+        <li><a href="#replica">15. 마스터·워커 복제(Replica)와 동기화 점검</a></li>
+        <li><a href="#cheatsheet">16. 통합 명령어 치트시트</a></li>
   </ol></nav></aside>
   <main class="main">
   <header>
     <h1>MySQL 통합 학습노트</h1>
-    <p class="deck">MySQL 통합 학습노트 · 범위: Docker Hardened Image 기반 MySQL 컨테이너로 관리형 DB(RDS형)의 접속·문자셋 설정·장애 대응·백업과 복구 흐름 → MariaDB 11.4 연결 수·timeout·메모리 설정 → DB 분류·DBeaver·CentOS 패키지(dnf) 설치와 3306 포트 개방 → 로컬 서버 직접 설치본(MySQL 8.0.46)의 my.cnf·문자셋·기본 조회 → DB·테이블·데이터 생성·삭제 → root 패스워드·사용자·호스트·GRANT·DBeaver 원격 접속 → 접속 위치별 최소 권한·권한 테이블·사용자 삭제 사고 대응 → root로 mysqldump 백업과 mysql 복구 → 데몬 재시작·고스트 프로세스 정리·포트 변경(10000)과 포트포워딩 → 마스터·워커 포트 통일(3306). 화면 값은 실습 관찰값. 컨테이너·Compose 기본: docker.html 4·5장</p>
+    <p class="deck">MySQL 통합 학습노트 · 범위: Docker Hardened Image 기반 MySQL 컨테이너로 관리형 DB(RDS형)의 접속·문자셋 설정·장애 대응·백업과 복구 흐름 → MariaDB 11.4 연결 수·timeout·메모리 설정 → DB 분류·DBeaver·CentOS 패키지(dnf) 설치와 3306 포트 개방 → 로컬 서버 직접 설치본(MySQL 8.0.46)의 my.cnf·문자셋·기본 조회 → DB·테이블·데이터 생성·삭제 → root 패스워드·사용자·호스트·GRANT·DBeaver 원격 접속 → 접속 위치별 최소 권한·권한 테이블·사용자 삭제 사고 대응 → root로 mysqldump 백업과 mysql 복구 → 데몬 재시작·고스트 프로세스 정리·포트 변경(10000)과 포트포워딩 → 마스터·워커 포트 통일(3306) → 마스터·워커 복제(Replica) 설정과 동기화 점검. 화면 값은 실습 관찰값. 컨테이너·Compose 기본: docker.html 4·5장</p>
     <div class="core-strip">
       <div><div class="core-metric">컨테이너 ≠ RDS</div><p class="core-desc">Docker MySQL 실습 = 관리형 DB의 접속·운영 흐름을 연습하는 모형. 운영 방식·관리 책임은 다름 (1장)</p></div>
       <div><div class="core-metric">로그 → 설정 수정</div><p class="core-desc"><code>docker logs</code>로 원인·오류값 확인 → 호스트에서 설정 수정 → <code>docker cp</code> → <code>docker restart</code> → 접속·상태 검증 (3장)</p></div>
-      <div><div class="core-metric">백업은 컨테이너 밖</div><p class="core-desc"><code>mysqldump</code> 결과를 호스트로 복사해 별도 보관. 오류가 있으면 파일 존재만으로 성공 판정 금지 → 종료 코드·복원으로 확인 (6장) 서버에 직접 설치하는 방식은 <code>dnf search mysql*</code>·<code>dnf info</code>로 <code>mysql-server</code> 유무 확인 → <code>dnf install mysql*</code> → <code>systemctl start mysqld.service</code> → <code>netstat -lnp</code>로 3306 확인 (8장). 설치 후에는 <code>/etc/my.cnf</code>·문자셋 확인 → <code>ALTER USER</code>로 root 패스워드 → <code>CREATE USER</code>(localhost·%·IP)와 <code>GRANT</code> → DBeaver <code>allowPublicKeyRetrieval=true</code> 순서 (9~11장). 접속 위치별 최소 권한·권한 테이블·사용자 재생성 순서(12장) → root로 <code>mysqldump</code> 백업과 <code>mysql</code> 복구, 복구 전 <code>create database</code> 필수(13장).</p></div>
+      <div><div class="core-metric">백업은 컨테이너 밖</div><p class="core-desc"><code>mysqldump</code> 결과를 호스트로 복사해 별도 보관. 오류가 있으면 파일 존재만으로 성공 판정 금지 → 종료 코드·복원으로 확인 (6장) 서버에 직접 설치하는 방식은 <code>dnf search mysql*</code>·<code>dnf info</code>로 <code>mysql-server</code> 유무 확인 → <code>dnf install mysql*</code> → <code>systemctl start mysqld.service</code> → <code>netstat -lnp</code>로 3306 확인 (8장). 설치 후에는 <code>/etc/my.cnf</code>·문자셋 확인 → <code>ALTER USER</code>로 root 패스워드 → <code>CREATE USER</code>(localhost·%·IP)와 <code>GRANT</code> → DBeaver <code>allowPublicKeyRetrieval=true</code> 순서 (9~11장). 접속 위치별 최소 권한·권한 테이블·사용자 재생성 순서(12장) → root로 <code>mysqldump</code> 백업과 <code>mysql</code> 복구, 복구 전 <code>create database</code> 필수(13장). 마스터의 변경을 워커가 자동으로 따라가는 복제(Replica)는 계정·바이너리 로그·연결 위치를 순서대로 맞추는 것이 핵심(15장).</p></div>
     </div>
     <nav class="toc" aria-label="목차">
       <a href="#rds-model">1. RDS형 구성·실습 기준</a>
@@ -631,7 +632,8 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#least-privilege">12. 접속 위치별 최소 권한과 사용자 관리</a>
       <a href="#local-dump-restore">13. mysqldump 백업과 복구</a>
       <a href="#daemon-ops">14. 데몬 재시작·고스트·포트 변경</a>
-      <a href="#cheatsheet">15. 통합 명령어 치트시트</a>
+      <a href="#replica">15. 마스터·워커 복제(Replica)와 동기화 점검</a>
+      <a href="#cheatsheet">16. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -2141,6 +2143,7 @@ select host, db, user from db;</code></pre><button class="copy" type="button" ar
     <li><strong>서버 설치</strong><div>dnf 설치·기동·3306 포트 개방: 이 파일 8장(<code>sec-install</code>)</div></li>
     <li><strong>권한 최소화</strong><div>ALL 대신 접속 위치별 SELECT·INSERT만 주는 방식과 사용자 삭제·재생성 순서: 이 파일 12장</div></li>
     <li><strong>백업·복구</strong><div>사용자를 정리한 뒤 root로 덤프하고 복구: 이 파일 13장</div></li>
+    <li><strong>복제용 계정</strong><div>워커 IP를 호스트로 둔 계정과 <code>replication slave</code> 권한의 쓰임: 이 파일 15장</div></li>
     </ul>
 
   </section>
@@ -2379,6 +2382,7 @@ create user 'ollama'@'localhost' identified by 'b1234';</code></pre><button clas
     <tr><td class="nowrap">동기화 기술</td><td>마스터→워커 동기화는 MySQL 복제(replication) 기능</td><td>오토 스케일링과 별개 — 레플리카는 읽기 부하 분산(scale-out)에 쓰이고 서버 자동 증감과 무관</td></tr>
     <tr><td class="nowrap">사고 대응</td><td>마스터가 해킹당해 박살 나면 셧다운하고 워커(레플리카)를 마스터로 승격해 운영</td><td>개인정보가 있으면 뉴스·검찰 조사로 이어지므로 인프라 담당자의 판단이 필요</td></tr>
     <tr><td class="nowrap">증상</td><td>워커가 연결된 상태에서 사용자 생성이 안 되거나 워커가 계속 비어 있으면 원인 파악이 어려움</td><td>지금 배우는 절차를 순서대로 정확히 해야 나중에 워커 핸들링이 편해짐</td></tr>
+    <tr><td class="nowrap">연결 방법</td><td>실제 마스터·워커 연결 설정과 에러 조치는 이 파일 15장</td><td>설정(<code>server-id</code>·<code>log-bin</code>)·계정·<code>change replication source to</code>·<code>show slave status</code> 순서</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">레플리카 — 마스터의 계정·권한 변경이 워커로 복제되어 어긋나면 서버 에러. 워커를 임의로 건드리지 말고 마스터에서 순서대로 다시. 동기화는 복제 기능이고 오토 스케일링과 무관</div>
 
@@ -2606,6 +2610,7 @@ exit</code></pre><button class="copy" type="button" aria-label="코드 복사">�
     <li><strong>사용자·권한</strong><div>백업 전 계정·권한 정리와 삭제 사고 순서: 이 파일 12장</div></li>
     <li><strong>테이블 생성</strong><div>DB·테이블·데이터 생성과 AI 활용 기본: 이 파일 10장</div></li>
     <li><strong>문자셋</strong><div>백업 파일을 다른 문자셋 서버로 옮길 때 확인할 <code>my.cnf</code> 문자셋 4파트: 이 파일 9장</div></li>
+    <li><strong>복제 초기 데이터</strong><div><code>mysqldump</code>를 파이프로 워커에 넘기는 실무 방식과 옵션 의미: 이 파일 15장</div></li>
     </ul>
 
   </section>
@@ -2797,11 +2802,415 @@ netstat -lnptu                     <span class="c"># 3306 LISTEN 확인</span></
     <ul class="facts">
     <li><strong>포트 개방·자동 시작</strong><div>포트포워딩 기본 규칙과 <code>ntsysv</code> 자동 시작: 이 파일 8장</div></li>
     <li><strong>가상 네트워크·고정 IP</strong><div>NAT·호스트 전용 어댑터와 포트포워딩 개념: linux.html 2장</div></li>
+    <li><strong>복제 시작 조건</strong><div>마스터·워커 설정과 <code>show slave status</code>로 연결 확인: 이 파일 15장</div></li>
     <li><strong>서버 여러 대 순차 처리</strong><div>데몬 목록을 배열로 돌려 <code>systemctl</code>을 반복 실행: shell.html 3장</div></li><li><strong>같은 포트 변경</strong><div>PostgreSQL의 <code>postgresql.conf</code> port 설정: postgresql.html 6장</div></li>
     </ul>
   </section>
 
   <!-- 15 -->
+  <section class="sec" id="replica">
+    <h2>마스터 · 워커 복제(Replica)와 동기화 점검</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 마스터 설정에서 워커 동기화 확인까지</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 마스터 설정</h4><p class="sub">my.cnf 편집</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② 계정·권한</h4><p class="sub">복제 grant</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ 상태 기록</h4><p class="sub">File 값 기록</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ 워커 연결</h4><p class="sub">마스터 IP</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 동기화 확인</h4><p class="sub">IO·SQL Yes</p></div>
+    </div><p class="dg-foot">두 서버에 같은 DB·계정을 준비하고, 워커가 마스터의 바이너리 로그를 읽어 변경을 따라가는 구조. 에러가 나면 마스터와 워커 상태를 나란히 비교</p></div>
+
+    <h3>복제 개념과 실습 전제</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">레플리카</td><td>마스터에서 만든 데이터를 워커가 자동으로 따라오는 <b>오토 백업</b> 기술 — DB 백업 서버를 만들 때 사용</td><td>파일 동기화(rsync·lsyncd, linux.html 14장)와 달리 <b>데이터베이스 동기화</b> — 설정과 원리가 DB 쪽에 있음</td></tr>
+    <tr><td class="nowrap">로드 밸런싱과 구분</td><td>복제 = 데이터 복사본을 만드는 기술. 로드 밸런싱 = 요청을 여러 서버에 나눠 보내는 것</td><td>복제만으로 요청 분산이 되지 않음 — 읽기 요청을 나누려면 프록시·라우팅 같은 별도 구성이 필요 (로드 밸런싱 정의: linux.html 14장)</td></tr>
+    <tr><td class="nowrap">DB 버전</td><td>소스(마스터)와 같은 버전, 또는 워커가 더 높은 버전일 때 복제 지원</td><td>MySQL 마스터에 MariaDB 워커는 맞지 않음. 개발자가 요청한 DB(예: MariaDB, MySQL 5.5.65)가 워커에 없으면 도커·쿠버네티스 같은 <b>가상화</b>로 같은 버전을 장착 — <b>비용이 큼</b></td></tr>
+    <tr><td class="nowrap">포트</td><td>마스터와 워커 포트가 서로 달라도 됨 (예: 마스터 3306, 워커 13306)</td><td>워커 연결 설정에서 마스터 포트를 <code>source_port</code>로 따로 지정. 실습은 두 서버 모두 3306으로 통일해 둔 상태 (14장)</td></tr>
+    <tr><td class="nowrap">IP 기록</td><td>마스터·워커 IP를 어딘가에 적어 두고 명령마다 어느 서버인지 확인</td><td>헷갈리면 반대 서버에서 명령을 쳐서 증상만 늘어남</td></tr>
+    <tr><td class="nowrap">외부 노출</td><td>윈도우 IP(10.x 대역)는 쓰지 않고 내부 대역(192.168.222.x)에서만 연결</td><td>워커까지 외부에 열리면 위험하고, 뚫리면 <b>복구도 백업도 안 됨</b> → 워커는 외부 접근이 안 되게 숨김</td></tr>
+    <tr><td class="nowrap">워커 작업 금지</td><td>워커에서는 테이블도 만들지 않고 데이터 변경도 하지 않음 — 마스터를 그대로 따라감</td><td>워커에 직접 만들면 마스터와 어긋나 동기화 에러 (12장 레플리카 환경의 위험)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">레플리카 — 마스터의 변경을 워커가 자동으로 따라가는 오토 백업(DB 동기화)이고 요청 분산과는 별개. 버전은 소스 이상 워커까지 지원, 포트는 달라도 되며, 워커에는 직접 쓰지 않음</div>
+
+    <h3>마스터 설정 — /etc/my.cnf</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">편집</td><td><code>vi /etc/my.cnf</code> → <code>:set number</code>로 줄 번호를 띄우고 <code>[mysqld]</code> 영역에 추가</td><td><code>[mysql]</code>·<code>[client]</code> 그룹도 있지만 복제 설정을 읽는 곳은 <code>[mysqld]</code>. mysqld = MySQL <b>D</b>aemon, 그룹이 없으면 직접 입력 (그룹 규칙: 9장)</td></tr>
+    <tr><td class="nowrap">위치</td><td><code>port</code> 아래에 네 줄을 추가</td><td>다른 그룹에 넣으면 서버가 읽지 않아 설정이 무효</td></tr>
+    <tr><td class="nowrap">저장</td><td><code>:wq</code>로 저장하고 종료</td><td>오타 시 기동 실패 → 14장 재시작·로그 확인 순서</td></tr>
+    <tr><td class="nowrap">재가동 시점</td><td>설정만 바꾼 채 재가동하지 않고 DB·계정을 먼저 만든 뒤(이 절 다음) 재가동</td><td>강의가 그 순서로 진행 — <code>testdb</code> 준비와 설정 반영을 한 번에 끝냄</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/my.cnf 파일 안 · root · master 서버]</span>
+[mysqld]
+<span class="c"># 서버 포트 — 워커와 같은 3306 (다르면 워커 쪽 source_port로 지정)</span>
+port=3306
+<span class="c"># 서버 번호 — 1 = 원본 마스터, 워커는 2, 추가 워커는 3</span>
+server-id=1
+<span class="c"># 바이너리 로그 기록 — 워커가 이 로그를 읽어 변경을 따라감</span>
+log-bin=mysql-bin
+<span class="c"># 복제 대상 DB — 여기 적은 DB만 동기화</span>
+binlog_do_db=testdb
+<span class="c"># 기록 단위 — row = 변경된 행 단위 (기본값, 가장 안정)</span>
+binlog_format=row</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>server-id</code></td><td>복제에 참여하는 서버의 식별 번호 — 1 = 오리지널 마스터, 워커 2, 추가 워커 3</td><td>서버마다 달라야 마스터가 어느 워커인지 구분 — 같은 번호면 복제가 꼬임</td></tr>
+    <tr><td class="nowrap"><code>log-bin</code></td><td>바이너리 로그 기록을 켜고 파일 접두어를 <code>mysql-bin</code>으로 지정</td><td>실제 파일은 <code>mysql-bin.000001</code>처럼 번호가 붙음 → 이 파일명과 위치(Position)를 워커에 넘김</td></tr>
+    <tr><td class="nowrap"><code>binlog_do_db</code></td><td>동기화할 DB 지정 — 여기 적은 DB만 복제</td><td>다른 DB를 만들어도 <b>하나도 작동하지 않음</b>. 여러 DB는 DB마다 한 줄씩 추가(예: <code>mega_db</code>) — 공식 문서도 DB마다 옵션을 반복해 쓰도록 설명 (MySQL 8.0 Reference Manual — Replication Rules, Database Options)</td></tr>
+    <tr><td class="nowrap">모든 DB 복제</td><td>그 줄 앞에 <code>#</code>을 붙이거나 줄을 삭제</td><td>모든 DB를 핸들링. 실습은 테스트 DB만 동기화</td></tr>
+    <tr><td class="nowrap"><code>binlog_format</code></td><td><code>row</code> = <code>select *</code>·<code>desc</code>에서 보이는 행(개수) 단위 기록</td><td>변경 단위 중 안정성 최고. statement(문장) 방식은 기록량이 작은 대신 서버마다 결과가 달라질 수 있는 불일치 위험이 있어, MySQL 8.0의 기본값이 ROW — 생략해도 되지만 명시해 둠</td></tr>
+    <tr><td class="nowrap">별표(<code>*</code>)</td><td><code>binlog_do_db=*</code>처럼 와일드카드로 전체 DB를 지정하는 방식</td><td>공식 매뉴얼에서 와일드카드 허용 근거를 찾지 못함 — 전체는 줄 삭제·주석이 안전 (아래 확인 항목)</td></tr>
+    </tbody></table></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 23강 07:17~07:23</div>
+      <p><strong>binlog_do_db에 별표를 쓰면 전체 DB가 되는지</strong>같은 강의 70:55~71:08에서는 줄 삭제·주석으로 설명이 달라짐. 공식 매뉴얼에서 <code>binlog_do_db</code>가 와일드카드를 받는다는 근거를 찾지 못했고(커뮤니티 사례도 불가, 패턴 지정은 <code>replicate-wild-do-table</code> 같은 테이블 옵션 계열) → 전체 DB는 줄 삭제·주석이 안전. 별표 동작 여부는 서버에서 직접 실행해 <code>show master status</code>의 <code>Binlog_Do_DB</code> 값으로 확인</p>
+    </div>
+    <div class="dg-bar warn">복제 범위 — <code>binlog_do_db</code>에 적은 DB만 동기화되고 다른 DB는 무시. 여러 DB는 줄마다 추가, 전체는 주석·삭제. 기록은 행 단위(row)라 문장 단위(statement)보다 결과 불일치 위험이 작음</div>
+
+    <h3>마스터에서 DB · 계정 생성</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">접속</td><td><code>mysql -u root -p</code>로 마스터 root 접속 (화면 Server version: 8.0.46)</td><td>마스터 작업을 다 끝낸 뒤 워커를 진행 — 순서를 섞으면 어느 서버가 틀렸는지 알기 어려움</td></tr>
+    <tr><td class="nowrap">계정 3종</td><td>① <code>'hong'@'localhost'</code> ② <code>'hong'@'%'</code> ③ <code>'hong'@'192.168.222.3'</code>(워커 IP)</td><td>③은 동기화용 — <code>localhost</code> 자리에 <b>워커 IP</b>를 넣은 계정. ②는 외부 개발자 접속용</td></tr>
+    <tr><td class="nowrap">삭제 시점</td><td>개발이 끝나면 ②는 지우고 ③은 <b>지우지 않음</b></td><td>③은 계속 동기화 중 — 지우면 복제가 끊김</td></tr>
+    <tr><td class="nowrap">문법</td><td>사용자는 따옴표로 감싸고 <code>@</code> 뒤에 <code>localhost</code>/IP/<code>%</code>, <code>testdb.*</code>의 <code>*</code> = 모든 테이블</td><td>같은 사용자라도 호스트가 다르면 별개 계정 (11장)</td></tr>
+    <tr><td class="nowrap">실무 적용</td><td>이 계정·grant 문법은 실제 클라우드 서버에서도 그대로 사용</td><td>로컬 실습 전용 문법이 아님</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root · master]</span>
+<span class="c">-- 자동 백업(동기화) 대상 DB</span>
+create database testdb;
+<span class="c">-- 계정·권한 테이블이 있는 시스템 DB</span>
+use mysql;
+<span class="c">-- 서버 내부 접속용 계정</span>
+create user 'hong'@'localhost' identified by 'a1234';
+<span class="c">-- 외부 개발자 접속용 계정 (개발이 끝나면 삭제)</span>
+create user 'hong'@'%' identified by 'a1234';
+<span class="c">-- 워커 IP 전용 계정 — 동기화 담당</span>
+create user 'hong'@'192.168.222.3' identified by 'a1234';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts">
+    <li><strong>연습값</strong><div><code>a1234</code>는 강의 연습용 패스워드 — 실제 서버는 계정마다 다른 강한 패스워드</div></li>
+    <li><strong>같은 사용자·다른 호스트</strong><div>계정 3개는 서로 다른 계정 3개로 취급 — 하나의 계정에 호스트를 여러 개 붙이는 문법이 아님</div></li>
+    </ul>
+
+    <h3>권한 부여와 재가동</h3>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root · master]</span>
+<span class="c">-- DB와 계정 매칭 — testdb.* 의 * 는 모든 테이블</span>
+grant all privileges on testdb.* to 'hong'@'localhost';
+grant all privileges on testdb.* to 'hong'@'%';
+grant all privileges on testdb.* to 'hong'@'192.168.222.3';
+<span class="c">-- 권한 적용</span>
+flush privileges;
+<span class="c">-- 복제 권한 — 워커(슬레이브)가 마스터의 바이너리 로그를 읽도록 허용</span>
+grant replication slave on *.* to 'hong'@'192.168.222.3';
+<span class="c">-- 권한 적용</span>
+flush privileges;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>replication slave</code></td><td><code>slave</code> = 워커 — 동기화할 서버가 마스터에 접근하도록 허용하는 권한</td><td>허용하지 않으면 복제 작동 자체가 불가능. <code>*.*</code>는 글로벌 범위라 <code>use</code> 불필요</td></tr>
+    <tr><td class="nowrap">재가동 1</td><td><code>systemctl stop mysqld.service</code> → <code>systemctl start mysqld.service</code></td><td>환경설정을 바꿨으니 완전히 내렸다가 올림 — 에러가 안 나야 정상</td></tr>
+    <tr><td class="nowrap">재가동 2</td><td>시작 후 화면이 멈춘 것처럼 보이면 <code>Ctrl + C</code>로 빠져나와 <code>netstat -lntup</code>로 3306 확인</td><td>PC에서 서버 여러 대를 돌려 버벅이는 증상 — 포트로 정상 판단 (14장)</td></tr>
+    <tr><td class="nowrap">restart 한 번</td><td>클라우드(GCP·AWS)는 메모리 할당이 많아 <code>restart</code> 한 번으로 충분</td><td>로컬 VM은 버벅여서 stop·start를 나눠 침</td></tr>
+    <tr><td class="nowrap">프로세스 권한</td><td>재접속 후 <code>grant process on *.* to 'hong'@'localhost'</code>, <code>'hong'@'%'</code> → <code>flush privileges</code></td><td><code>use</code> 불필요(글로벌 권한). 워커 IP 사용자는 이 권한을 주지 않음. 따로 치지 말고 한꺼번에 넣는 편이 간단</td></tr>
+    </tbody></table></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 23강 24:05~25:35</div>
+      <p><strong>PROCESS 권한이 복제에 필요한지</strong>공식 문서는 복제 전용 계정에 <code>REPLICATION SLAVE</code> 권한만 있으면 된다고 설명 (MySQL 9.0·8.0 Manual — Creating a User for Replication). <code>PROCESS</code>는 복제 연결에 필요한 권한이 아니고 서버 상태·프로세스 목록 조회에 쓰는 권한. 화면에서도 권한을 준 직후 <code>show master status</code>를 확인할 뿐 PROCESS와 복제의 연결은 설명하지 않음 → 권한을 준 뒤 <code>show slave status</code>의 <code>Last_IO_Error</code>가 비어 있으면 정상</p>
+    </div>
+    <div class="dg-bar warn">마스터 준비 — 계정은 호스트별 3개, 동기화 계정에는 <code>replication slave</code> 필수. 설정 반영은 stop·start 후 3306 확인까지가 한 세트이고, 복제에 필요한 권한은 <code>replication slave</code> 하나</div>
+
+    <h3>마스터 상태 확인 — show master status</h3>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root · master]</span>
+<span class="c">-- 마스터의 바이너리 로그 파일·위치와 복제 대상 DB</span>
+show master status;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">화면 값</td><td>File = <code>mysql-bin.000001</code>, Position = <code>752</code>, Binlog_Do_DB = <code>testdb</code>, Executed_Gtid_Set은 비어 있음</td><td>이 값이 뜨면 정상 — 아무것도 안 뜨면 앞 단계(설정·계정·재가동)가 꼬인 것이라 처음부터 다시</td></tr>
+    <tr><td class="nowrap">기록</td><td>File 이름과 Position 번호를 메모장에 복사</td><td>워커의 <code>change replication source to</code>에 그대로 입력해야 함</td></tr>
+    <tr><td class="nowrap">변동</td><td>서버 재가동·테이블 생성으로 File 번호와 Position이 바뀜</td><td>수강생마다 숫자가 다름 — <code>752</code>를 그대로 치면 안 맞아 에러</td></tr>
+    <tr><td class="nowrap">다음 단계</td><td>마스터 설정은 여기까지 — 워커로 이동</td><td>이후 마스터에서는 테이블 생성·재시작만</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">show master status — File·Position·Binlog_Do_DB가 나오면 마스터 준비 완료. Position은 서버마다 다르니 화면 값을 그대로 복사하고, 재가동하면 값이 바뀌는 것을 전제로 확인</div>
+
+    <h3>워커 설정 — /etc/my.cnf</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">기본 상태</td><td>워커의 <code>/etc/my.cnf</code>는 주석, <code>[client-server]</code>, <code>!includedir /etc/my.cnf.d</code>만 있는 빈 상태</td><td><code>vi /etc/my.cnf</code> → <code>i</code> 키로 입력 모드에서 아래 내용을 추가</td></tr>
+    <tr><td class="nowrap">server-id</td><td><code>server-id=2</code> — 워커 번호 (추가 워커는 3)</td><td>마스터(1)와 달라야 하며 바꾸면 마스터가 워커를 못 찾음</td></tr>
+    <tr><td class="nowrap">port</td><td><code>port=3306</code> — 실습은 마스터와 같은 값</td><td>달라도 되고, 그때는 워커 연결 설정의 <code>source_port</code>로 마스터 포트를 지정</td></tr>
+    <tr><td class="nowrap">read_only</td><td><code>#read_only=1</code> — 지금은 주석 처리만</td><td>켜면 복제로 들어오는 저장은 계속되고 일반 계정의 직접 쓰기·삭제는 차단 — 보안상 가능하면 켜 두는 값</td></tr>
+    <tr><td class="nowrap">한계</td><td><code>read_only=1</code>은 <code>SUPER</code>·<code>CONNECTION_ADMIN</code> 권한이 있는 계정(root 등)의 쓰기를 막지 못함</td><td>복제 SQL 스레드는 예외로 계속 적용. root까지 막으려면 <code>super_read_only=1</code> (Percona 'MySQL 101: Using super_read_only', 2차 자료 — MySQL 공식 매뉴얼 원문은 확인하지 못함)</td></tr>
+    <tr><td class="nowrap">저장</td><td>저장하고 나간 뒤 <b>지금은 재가동하지 않음</b></td><td>DB·계정을 만든 뒤 한 번에 재가동 (다음 절)</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/my.cnf 파일 안 · root · worker 서버]</span>
+[mysqld]
+<span class="c"># 워커 번호 — 마스터(1)와 달라야 함, 추가 워커는 3</span>
+server-id=2
+<span class="c"># 서버 포트 — 실습은 마스터와 같은 3306 (다르면 source_port로 지정)</span>
+port=3306
+<span class="c"># 읽기 전용 — 지금은 주석 상태, 운영에서는 켜 두는 값</span>
+#read_only=1</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">워커 설정 — <code>server-id</code>는 마스터와 다른 값, 포트는 같아도 되고 달라도 됨. <code>read_only</code>는 일반 계정의 쓰기만 막고 root는 막지 못하므로 root까지 막으려면 <code>super_read_only</code></div>
+
+    <h3>워커 재가동과 DB · 계정</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · worker]</span>
+<span class="c"># 설정 반영 — 내렸다가 올림</span>
+systemctl stop mysqld.service
+systemctl start mysqld.service
+<span class="c"># 포트가 떠 있으면 정상 — 시작이 멈춘 듯 보이면 Ctrl+C로 빠져나와 확인</span>
+netstat -lntup</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root · worker]</span>
+<span class="c">-- 계정·권한 테이블이 있는 시스템 DB</span>
+use mysql;
+<span class="c">-- 마스터와 같은 이름의 DB (안의 내용은 dump로 채움 — 13장)</span>
+create database testdb;
+<span class="c">-- 마스터와 같은 이름·같은 패스워드의 계정</span>
+create user 'hong'@'localhost' identified by 'a1234';
+create user 'hong'@'%' identified by 'a1234';
+<span class="c">-- DB 권한 매칭</span>
+grant all privileges on testdb.* to 'hong'@'localhost';
+grant all privileges on testdb.* to 'hong'@'%';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">접속</td><td><code>mysql -u root -p</code> — 워커 root 패스워드도 연습값 <code>a1234</code></td><td>실습에서 두 서버 root 패스워드를 같게 둔 것</td></tr>
+    <tr><td class="nowrap">실수 1</td><td><code>-p</code>를 빼고 접속 → <code>ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)</code></td><td>패스워드가 설정된 계정에 무패스워드 접속 — 오타가 아니라 옵션 누락</td></tr>
+    <tr><td class="nowrap">실수 2</td><td><code>identified</code>를 잘못 적음 → <code>syntax error … at line 1</code></td><td>문법 오류는 줄 번호까지 확인하고 해당 줄만 다시 입력</td></tr>
+    <tr><td class="nowrap">DB</td><td><code>testdb</code>를 마스터와 똑같이 생성 (안의 내용은 신경 쓰지 않음)</td><td>원래 실무는 dump로 내용까지 넘김 — 이 장 뒤 실무 방식</td></tr>
+    <tr><td class="nowrap">계정</td><td>사용자·패스워드를 마스터의 <code>hong</code>과 똑같이 맞춤</td><td><code>hong</code>이 아니어도 되지만 마스터와 다르면 헷갈림. <code>localhost</code> 계정은 추후 작업을 위해 함께 생성</td></tr>
+    <tr><td class="nowrap">워커의 <code>%</code></td><td>시연용으로 <code>%</code>만 있어도 충분</td><td>마스터 IP를 넣는 것이 정석이지만 실습은 IP가 바뀔 수 있어 <code>%</code> 사용 — 정석은 이 장 보안 정석</td></tr>
+    <tr><td class="nowrap">이후</td><td>마스터에서 개발자가 테이블을 만들면 워커에도 실시간으로 만들어짐</td><td>워커에서는 생산하지 않음 — DB는 연결해 놨지만 테이블은 만들지 않음</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">워커 준비 — DB·계정·패스워드를 마스터와 같게 맞추는 것이 실습 기준. 워커에서 테이블을 직접 만들지 않고, <code>%</code>는 시연용이라 운영에서는 마스터 IP로 제한</div>
+
+    <h3>워커에서 복제 연결 — change replication source to</h3>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root · worker]</span>
+<span class="c">-- 마스터 접속 정보와 복제 시작 위치 — 각 줄 끝에 쉼표, 마지막 줄만 세미콜론</span>
+change replication source to
+  <span class="c">-- 마스터 서버 IP (점이 들어간 문자라 따옴표)</span>
+  source_host='192.168.222.2',
+  <span class="c">-- 마스터에 만든 계정</span>
+  source_user='hong',
+  <span class="c">-- 그 계정의 패스워드</span>
+  source_password='a1234',
+  <span class="c">-- show master status의 File 값 그대로 (0 다섯 개 + 1)</span>
+  source_log_file='mysql-bin.000001',
+  <span class="c">-- show master status의 Position 값 — 숫자라 따옴표 없음</span>
+  source_log_pos=752;
+<span class="c">-- 복제 스레드 시작 — MySQL 프롬프트 안에서 실행 (셸 아님)</span>
+start replica;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>옵션</th><th>넣는 값</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>source_host</code></td><td>마스터 서버 IP</td><td>IP는 점이 들어가 문자라 따옴표</td></tr>
+    <tr><td class="nowrap"><code>source_user</code></td><td>마스터에 만든 계정 — <code>hong</code></td><td><code>hong</code>이 아니어도 됨. 헷갈리지 않게 마스터와 같게 맞춤</td></tr>
+    <tr><td class="nowrap"><code>source_password</code></td><td>그 계정의 패스워드(연습값 <code>a1234</code>)</td><td>마스터에 접속하는 패스워드 — 워커의 root 패스워드와 다름</td></tr>
+    <tr><td class="nowrap"><code>source_log_file</code></td><td>마스터가 알려 준 파일명 그대로 (<code>mysql-bin.000001</code>)</td><td>점까지 모두 포함, 오타 없이. 0이 다섯 개 + 1</td></tr>
+    <tr><td class="nowrap"><code>source_log_pos</code></td><td>Position 번호 — 숫자라 <b>따옴표 없음</b></td><td><code>752</code>를 그대로 치면 안 맞아 에러 → 자기 숫자 사용</td></tr>
+    <tr><td class="nowrap"><code>source_port</code></td><td>마스터 포트가 3306이 아닐 때(예: <code>13306</code>) 그 포트 번호</td><td>숫자라 따옴표 없음. 이번엔 3306이라 생략</td></tr>
+    <tr><td class="nowrap">줄바꿈</td><td>엔터로 나눠 써도 되고 한 줄로 써도 됨</td><td><code>source_</code>는 붙여서(언더바) 쓰고 각 줄 끝에 쉼표 — 마지막 줄만 세미콜론</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>확인 항목</th><th>화면 값</th><th>의미·주의</th></tr></thead><tbody>
+    <tr><td class="nowrap">명령 결과</td><td><code>Query OK, 0 rows affected, 2 warnings (0.39 sec)</code></td><td>경고 2건의 내용은 화면에 안 나옴(<code>show warnings</code> 미실행). 사용자·비밀번호를 줄 때 흔히 뜨는 Note 1759(SSL/TLS 없이 평문 비밀번호 전송 위험)·Note 1760(연결 메타데이터 저장소에 사용자·비밀번호 저장은 안전하지 않음)으로 보임 (MySQL 버그 리포트 #108422 등, 2차 자료)</td></tr>
+    <tr><td class="nowrap">시작 결과</td><td><code>start replica;</code> → <code>Query OK, 0 rows affected</code></td><td>여기까지는 설정·시작만 — 실제 동기화 여부는 <code>show slave status</code>로 확인</td></tr>
+    <tr><td class="nowrap">따옴표 규칙</td><td>IP·파일명·계정·패스워드 = 문자라 따옴표, 포트·Position = 숫자라 따옴표 없음</td><td>숫자·문자가 섞인 <code>a1234</code> 같은 패스워드는 문자라 따옴표</td></tr>
+    </tbody></table></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 23강 97:00~97:15</div>
+      <p><strong>숫자만 들어간 값과 따옴표</strong>감속 재전사가 영어로 오인식되어 질문·답 내용이 불명확. 숫자·문자가 섞인 <code>a1234</code> 같은 비밀번호는 문자라 따옴표를 쓴다는 뜻으로 보임 → 영상을 직접 들어 확인</p>
+    </div>
+    <div class="dg-bar warn">복제 연결 — 마스터의 File·Position을 그대로 넣고 각 줄 끝 쉼표, 마지막만 세미콜론. 숫자(Position·포트)는 따옴표 없이. <code>start replica</code>는 MySQL 프롬프트에서 실행</div>
+
+    <h3>상태 확인 — show slave status</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>명령</th><th>보는 서버</th><th>읽는 법</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>show master status</code></td><td>마스터</td><td>현재 바이너리 로그 File·Position·복제 대상 DB</td></tr>
+    <tr><td class="nowrap"><code>show slave status</code></td><td>워커</td><td><code>Slave_IO_State</code>·<code>Last_IO_Error</code>·<code>Last_SQL_Error</code>·IO/SQL 스레드 상태</td></tr>
+    <tr><td class="nowrap">비교</td><td>두 화면을 같이 띄움</td><td>문제가 워커인지 마스터인지 바로 알 수 있고 어느 쪽을 재가동할지 판단</td></tr>
+    <tr><td class="nowrap">판정 기준</td><td><code>Last_…Error</code> 계열</td><td><b>에러가 단 한 개도 없어야 정상</b> — 하나라도 있으면 아래 조치</td></tr>
+    </tbody></table></div>
+
+    <h3>연결 에러 (111)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">화면</td><td><code>Slave_IO_State: Connecting to source</code></td><td>IO 스레드가 마스터에 붙는 중이라는 뜻</td></tr>
+    <tr><td class="nowrap">에러 문구</td><td><code>Last_IO_Error: Error connecting to source 'hong@192.168.222.2:3306'. This was attempt 1/86400, with a delay of 60 seconds between attempts. Message: Can't connect to MySQL server on '192.168.222.2:3306' (111)</code></td><td>메시지의 IP는 <b>마스터 서버</b> — 마스터에 대한 연결에서 에러·딜레이가 생긴 상태라 아직 동기화가 안 됨</td></tr>
+    <tr><td class="nowrap">60초 딜레이</td><td>연결이 끊긴 워커가 다시 연결을 시도하는 간격 (기본 60초)</td><td>공식 문서: 소스와 연결이 끊기면 바로 재연결을 시도하고 안 되면 기본 60초마다 재시도, <code>CHANGE REPLICATION SOURCE TO</code>로 바꿀 수 있음 (MySQL 8.0 Manual — Replication and Source Shutdowns)</td></tr>
+    <tr><td class="nowrap">(111)의 뜻</td><td>리눅스의 <code>연결 거부(Connection refused)</code> — 마스터에 연결 자체가 안 될 때</td><td>마스터 IP·3306 리슨·방화벽 점검 순서로 좁힘 (강의 외 보충)</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>순서</th><th>할 일</th><th>화면·결과</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>마스터에서 <code>flush privileges;</code> 한 번 더 실행 후 <code>exit</code></td><td>워커 <code>/etc/my.cnf</code>는 포트 3306, <code>server-id</code> 2로 잡혀 있어야 함</td></tr>
+    <tr><td class="nowrap">2</td><td>워커에서 마스터로 직접 접속 시도 — <code>mysql -u hong -p -h 192.168.222.2 -P 3306</code></td><td>대문자 <code>-P</code> = 포트, 소문자 <code>-p</code> = 패스워드</td></tr>
+    <tr><td class="nowrap">3</td><td><code>ERROR 2003 (HY000): Can't connect to MySQL server on '192.168.222.2:3306' (111)</code></td><td>외부 접속을 못 하고 있는 상태 — 계정 문제가 아니라 네트워크·서버 문제</td></tr>
+    <tr><td class="nowrap">4</td><td>방화벽·SELinux 확인 — <code>systemctl stop firewalld</code>, <code>setenforce 0</code></td><td>결과 <code>setenforce: SELinux is disabled</code>. 실수: <code>firewalled</code>로 오타 → <code>Unit firewalled.service not loaded</code></td></tr>
+    <tr><td class="nowrap">5</td><td>마스터에서 <code>netstat -lntup</code>로 3306 확인, <code>select * from user</code>로 <code>hong</code> 계정 3개(<code>localhost</code>·<code>%</code>·워커 IP) 확인</td><td>3306이 들어와 있고 계정도 있으면 서버는 정상</td></tr>
+    <tr><td class="nowrap">6</td><td>마스터→워커 방향 접속은 되는데 워커→마스터는 안 되는 상황이면 <code>ifconfig</code>로 마스터 IP 확인</td><td>IP가 틀리면 계정·방화벽이 모두 정상이어도 (111)</td></tr>
+    <tr><td class="nowrap">이후</td><td>영상 중지 — 해결 과정이 영상에서 빠짐</td><td>원인을 화면으로 확인할 수 없는 구간 (아래 확인 항목)</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · master]</span>
+<span class="c"># 방화벽·SELinux 임시 해제 — 재부팅하면 원래대로 돌아옴</span>
+systemctl stop firewalld
+setenforce 0</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · worker]</span>
+<span class="c"># 워커에서 마스터로 직접 접속 확인 — 대문자 -P = 포트, 소문자 -p = 패스워드</span>
+mysql -u hong -p -h 192.168.222.2 -P 3306</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 23강 47:57~48:14</div>
+      <p><strong>연결 에러 (111)의 실제 해결 방법</strong>영상이 중지된 구간이라 무엇을 고쳤는지 나오지 않음. 화면 근거: 중지 직전 마스터 <code>ifconfig</code>에 <code>enp0s8 inet 192.168.222.2</code>(IP는 맞음), 재개 후 워커 상태는 <code>attempt 11/86400</code> — 60초 간격 11회 재시도 뒤 오류가 인증 오류로 바뀐 것이라 중지 사이 약 10분이 지났고 그동안 마스터 쪽을 고친 것으로 보이나 대상은 영상에 없음</p>
+    </div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>에러 구분</th><th>증상</th><th>조치 방향</th></tr></thead><tbody>
+    <tr><td class="nowrap">커넥션 에러</td><td>상대가 열려 있지 않아 접속 자체를 못 함 — (111)·(2003)</td><td>서버·IP·포트·방화벽을 다시 점검</td></tr>
+    <tr><td class="nowrap">인증 에러</td><td>정상 연결 뒤 메시지가 바뀜 — 플러그인·패스워드 문제</td><td>마스터에서 계정 조건 변경 (다음 절)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">연결 에러 (111) — 워커→마스터 접속이 거부된 것. 워커에서 <code>mysql -h 마스터IP -P 3306</code>로 직접 접속해 계정 문제와 네트워크 문제를 나눠서 확인</div>
+
+    <h3>SHA2 인증 에러</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">화면</td><td><code>Last_IO_Error: … Authentication plugin 'caching_sha2_password' reported error: Authentication requires secure connection.</code></td><td>연결은 정상인데 <b>SHA2 패스워드 인증</b>에서 막힌 상태 — 워커는 건들 필요 없이 대기, 마스터 쪽에서 조건을 바꿔야 함</td></tr>
+    <tr><td class="nowrap">원인</td><td>8.0 기본 인증 플러그인 <code>caching_sha2_password</code>가 암호화되지 않은 연결에서는 <b>보안 연결(SSL) 또는 RSA 공개 키</b>를 요구</td><td>복제 연결은 기본이 평문이라 이 요구를 못 채움</td></tr>
+    <tr><td class="nowrap">해결</td><td>워커 IP 계정을 <code>mysql_native_password</code> 방식으로 변경 — 입력 즉시 적용</td><td><code>native</code> 철자는 e까지(<code>d</code> 아님). 패스워드는 아까와 똑같이 <code>a1234</code></td></tr>
+    <tr><td class="nowrap">다른 해결</td><td>워커의 <code>CHANGE REPLICATION SOURCE TO</code>에 <code>SOURCE_SSL=1</code> 또는 <code>GET_SOURCE_PUBLIC_KEY=1</code>을 주는 방법</td><td>패스워드 방식을 바꾸지 않고 암호화 연결·공개 키로 통과 (MySQL 버그 리포트 #115179, MySQL 매뉴얼 caching_sha2 pluggable authentication)</td></tr>
+    <tr><td class="nowrap">결과</td><td>워커에서 <code>show slave status</code> → 에러가 <b>사라짐 = 제대로 연결</b></td><td>실습에서 가장 많이 나는 에러가 이 SHA 관련 에러(<code>Last_IO_Error</code> 등)</td></tr>
+    <tr><td class="nowrap">표기 변화</td><td><code>mysql_native_password</code>는 8.0.34부터 deprecated, 8.4에서 기본 비활성, 9.0에서 제거</td><td>현재 실습 서버는 8.0.46이라 <code>native</code> 방식이 동작 — 이후 버전에서는 <code>SOURCE_SSL</code>·<code>GET_SOURCE_PUBLIC_KEY</code> 쪽이 정석</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root · master]</span>
+<span class="c">-- 워커 IP 계정을 구형 인증 방식으로 변경 — native 철자는 e까지</span>
+alter user 'hong'@'192.168.222.3' identified with mysql_native_password by 'a1234';
+<span class="c">-- 권한 적용</span>
+flush privileges;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 23강 (영상 시각 미확인)</div>
+      <p><strong>mysql_native_password의 deprecation 시점</strong>8.4에서 기본 비활성, 9.0에서 제거는 Oracle MySQL 블로그로 확인. 8.0.34 deprecated 시점은 2차 자료뿐 → MySQL 8.0.34 릴리스 노트에서 확인. 현재 서버 8.0.46에서는 <code>native</code> 방식이 동작</p>
+    </div>
+    <div class="dg-bar warn">SHA2 인증 에러 — 워커는 그대로 두고 마스터의 워커 IP 계정 인증 방식을 바꿈. 문구의 “Authentication requires secure connection”이 핵심이고, 최신 버전은 <code>SOURCE_SSL</code>·<code>GET_SOURCE_PUBLIC_KEY</code>로 해결</div>
+
+    <h3>동기화 테스트 — 테이블 생성·삭제</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · master]</span>
+<span class="c"># 마스터 root에서 exit 후 일반 계정으로 접속</span>
+mysql -u hong -p
+<span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · hong · master]</span>
+<span class="c">-- 동기화 대상 DB 선택</span>
+use testdb;
+<span class="c">-- 구조를 단순하게 둔 테이블 (테이블 설계는 이 장 범위 밖)</span>
+create table tts(idx int not null);
+<span class="c">-- 마스터에 생성 확인</span>
+show tables;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>실행 위치</th><th>결과</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>마스터에서 <code>create table tts(idx int not null);</code></td><td>마스터 <code>show tables</code>에 <code>tts</code></td></tr>
+    <tr><td class="nowrap">2</td><td>워커에서 <code>use testdb; show tables;</code></td><td><b><code>tts</code>가 만들어져 있음 = 동기화 정상</b></td></tr>
+    <tr><td class="nowrap">3</td><td>마스터에서 <code>drop table tts2;</code></td><td>워커 <code>show tables</code>에서도 같이 지워짐 — <b>삭제까지 동기화</b></td></tr>
+    <tr><td class="nowrap">비교</td><td>파일 동기화(rsync·lsyncd)와 비교</td><td>rsync는 기본이 삭제 미전파, lsyncd는 삭제까지 반영 (linux.html 14장). DB 복제는 삭제도 그대로 따라감</td></tr>
+    <tr><td class="nowrap">운영 기준</td><td>시연에서는 <code>read_only</code>를 주석으로 둔 채 워커에 직접 입력할 수 있었음</td><td>실제로는 워커의 <code>read_only</code>를 풀어 두면 안 됨 — 워커에서도 쓰기가 되면 마스터와 어긋나 일이 커짐</td></tr>
+    </tbody></table></div>
+
+    <h3>stop replica · start replica 실험</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>순서</th><th>할 일</th><th>화면 결과</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>워커에서 <code>stop replica;</code></td><td><code>show slave status</code>에서 연결이 끊긴 상태 — 복제 스레드만 멈춘 것</td></tr>
+    <tr><td class="nowrap">2</td><td>마스터에서 <code>create table tts2(idx int not null);</code></td><td>마스터 <code>show tables</code>에는 <code>tts2</code>, 워커 <code>show tables</code>에는 아직 없음</td></tr>
+    <tr><td class="nowrap">3</td><td>워커에서 <code>start replica;</code> 후 마스터에서 <code>tts3</code> 생성</td><td>워커 <code>show tables</code> 확인</td></tr>
+    <tr><td class="nowrap">4</td><td>결과</td><td>정지 중에 만든 <code>tts2</code>도 <code>tts3</code>와 함께 다시 만들어짐 — 화면에는 워커에 <code>tts</code>·<code>tts3</code>이 보이고 <code>tts2</code>는 이후 <code>drop</code>으로 지운 상태</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">동작 원리</td><td><code>stop replica</code>는 복제 스레드만 멈추고 워커는 복제 진행 위치를 <b>메타데이터 저장소에 계속 유지</b></td><td><code>start replica</code>를 하면 그 위치부터 이어서 가져와 <b>정지 중에 마스터에서 만든 변경도 따라 적용</b> — 시연에서 <code>tts2</code>·<code>tts3</code> 모두 생성된 이유</td></tr>
+    <tr><td class="nowrap">쓰는 때</td><td>서버가 박살 나 <b>복구를 빨리 해야 할 때</b> 긴급하게 stop을 걸고 복구</td><td>계속 동작시키면 안 되는 상황이라 정지가 먼저 — 평소에는 쓰지 않음</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root · worker]</span>
+<span class="c">-- 복제 스레드 정지 — 긴급 복구 전에 사용, 위치는 저장소에 남음</span>
+stop replica;
+<span class="c">-- 정지 상태 확인</span>
+show slave status;
+<span class="c">-- 다시 시작 — 정지 중 마스터에서 만든 변경도 이어서 적용</span>
+start replica;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">stop·start replica — stop은 복제 스레드만 멈추고 진행 위치를 유지하므로 재개하면 정지 중 변경까지 따라잡음. 긴급 복구 때만 쓰고, 워커에 직접 데이터를 넣어 어긋나게 만들지 않음</div>
+
+    <h3>마스터 재시작과 Position 변화</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · master]</span>
+<span class="c"># MySQL 프롬프트에서 나온 뒤 재시작 — 워커 연결까지 끊겨 한참 걸림</span>
+exit
+systemctl stop mysqld.service
+systemctl start mysqld.service
+<span class="c"># 3306이 떠 있는지 확인</span>
+netstat -lntup</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root · master]</span>
+<span class="c">-- 재시작 뒤 바뀐 File·Position 확인</span>
+show master status;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">바뀌는 값</td><td>재시작하면 <code>show master status</code>의 <b>File 번호</b>와 <b>Position</b>이 바뀜</td><td>화면 확인: File <code>mysql-bin.000002</code>, Position <code>157</code> — 재시작 전에는 <code>mysql-bin.000001</code>에서 Position이 <code>1582</code>까지 증가했음</td></tr>
+    <tr><td class="nowrap">Position의 정체</td><td>binlog 파일 안의 위치 — 테이블을 만들고 변경이 쌓일수록 커짐</td><td>무작위 값이 아님. <code>752</code> → <code>1582</code>처럼 증가하는 것을 화면으로 확인</td></tr>
+    <tr><td class="nowrap">워커 상태</td><td>재시작 직후 워커는 <code>Waiting for source to send event</code>, IO·SQL 스레드 모두 <code>Yes</code>, <code>Replica has read all relay log; waiting for more updates</code></td><td>워커가 새 파일(000002)·위치(157)로 <b>자동으로 따라가 복제가 계속 동작</b> — <code>server-id</code>가 2로 잡혀 있어 가능</td></tr>
+    <tr><td class="nowrap">다시 입력할 필요</td><td>정상 종료 후 재시작은 워커가 관리자 개입 없이 자동 재연결(기본 60초 간격 재시도)</td><td>새 File·Position을 <code>CHANGE REPLICATION SOURCE TO</code>로 다시 넣지 않음 (MySQL 8.0 Manual — Replication and Source Shutdowns)</td></tr>
+    <tr><td class="nowrap">예외</td><td>소스가 <b>비정상 종료(crash)</b>해 binlog가 덜 기록된 경우</td><td>이때는 워커 위치와 어긋나 수동 조정이 필요 — 문서가 예외로 드는 경우</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">마스터 재시작 — File·Position은 바뀌지만 정상 종료·재시작이면 워커가 자동으로 이어서 따라감. 수동으로 위치를 맞추는 것은 비정상 종료로 binlog가 어긋났을 때</div>
+
+    <h3>실무 초기 데이터 — dump로 워커에 넘기기</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">실습 방식</td><td>워커에 DB·계정을 직접 <code>create</code>하는 쉬운 방식</td><td>원래는 워커에서 만들면 안 됨 — 실습에서 순서를 익히려고 직접 생성</td></tr>
+    <tr><td class="nowrap">실무 방식</td><td><code>mysqldump</code>로 마스터의 DB를 워커에 바로 넘김, 사용자도 함께 넘김</td><td>데이터·구조를 한 번에 맞춰 복제 시작 위치를 깔끔하게 맞춤. 덤프·복구 기본은 13장</td></tr>
+    <tr><td class="nowrap">실행 위치</td><td>마스터에서 실행, 파이프로 워커(IP)의 같은 DB에 바로 입력</td><td>따로 파일을 만들지 않아 중간 사본이 남지 않음</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root · master]</span>
+<span class="c"># 구조 이해용 — 실습에서 따라 치지 않음 (비밀번호 옵션 -p가 빠진 화면 그대로)</span>
+mysqldump -u hong -P 3306 --single-transaction --no-tablespaces --set-gtid-purged=off testdb | mysql -h 192.168.222.3 -P 3306 -u hong testdb</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>요소</th><th>의미</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>-u hong -P 3306</code></td><td>사용자와 포트 — 대문자 <code>-P</code>가 포트</td><td>소문자 <code>-p</code>는 패스워드</td></tr>
+    <tr><td class="nowrap"><code>--single-transaction</code></td><td>일관된 스냅샷으로 덤프</td><td>서비스 중에도 잠금을 최소화해 덤프 (강의 외 보충)</td></tr>
+    <tr><td class="nowrap"><code>--no-tablespaces</code></td><td>테이블스페이스 정보 제외</td><td>덤프 계정에 PROCESS 권한이 없어도 되게 함 (강의 외 보충)</td></tr>
+    <tr><td class="nowrap"><code>--set-gtid-purged=off</code></td><td>GTID 정보를 덤프에 넣지 않음</td><td>복제 위치를 수동으로 맞추는 환경에서 충돌 방지 (강의 외 보충)</td></tr>
+    <tr><td class="nowrap"><code>testdb</code> (앞)</td><td>넘길 DB</td><td>DB 이름이 빠지면 전체 DB를 덤프</td></tr>
+    <tr><td class="nowrap"><code>| mysql -h 192.168.222.3 -P 3306 -u hong testdb</code></td><td>파이프로 워커의 같은 DB에 바로 입력</td><td><code>-h</code>는 대상 서버 IP — 워커 IP를 정확히</td></tr>
+    <tr><td class="nowrap">화면 확인</td><td>영상에서 메모장 파일 <code>[Replica] - Mysql</code>에 즉석으로 타이핑 (처음엔 <code>-p</code>를 쓰다 <code>-P 3306</code>으로 고침)</td><td>화면 텍스트 끝이 잘려 옵션 철자는 이 화면 기준 — 82:10~83:12</td></tr>
+    <tr><td class="nowrap">비밀번호 누락</td><td>화면 명령에는 <code>-p</code>가 없음</td><td>패스워드가 있는 계정이면 <code>ERROR 1045 … (using password: NO)</code>로 거부 → 실제로는 <code>-p</code> 또는 옵션 파일 필요 (강의 화면 근거)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">초기 데이터 — 워커에 직접 만들지 않고 마스터의 <code>mysqldump</code>를 파이프로 워커 DB에 전송. <code>-P</code>(포트)와 <code>-p</code>(패스워드)를 구분하고 비밀번호 옵션을 빼면 ERROR 1045</div>
+
+    <h3>% 대신 IP — 보안 정석</h3>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root · worker]</span>
+<span class="c">-- 워커에 등록된 hong 계정 확인 — localhost·% 2개</span>
+use mysql;
+select * from user where user='hong';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">시연의 <code>%</code></td><td>IP가 바뀔까 봐 <code>%</code>로 열어 둔 계정</td><td>누구나 들어올 수 있어 망하더라도 크게 망함 — 운영에서는 쓰지 않음</td></tr>
+    <tr><td class="nowrap">마스터 정석</td><td><code>'hong'@'localhost'</code>, <code>'hong'@'워커IP'</code></td><td>워커 서버만 마스터에 접근</td></tr>
+    <tr><td class="nowrap">워커 정석</td><td><code>'hong'@'localhost'</code>, <code>'hong'@'마스터IP'</code></td><td><b>워커는 절대 <code>%</code>를 쓰지 않음</b> — 쓰면 백업 보안까지 위험해짐. 마스터 서버만 유일하게 접근</td></tr>
+    <tr><td class="nowrap">IP 변경</td><td>마스터 IP가 바뀌면 <code>alter user</code>로 계정의 호스트를 바꿈</td><td><code>%</code>로 열어 두면 이 작업은 필요 없지만 보안이 무너짐</td></tr>
+    <tr><td class="nowrap">계정 이름</td><td><code>hong</code> 이외의 사용자(예: <code>mega</code>)를 써도 됨</td><td>이름은 상관없고 호스트 제한이 핵심</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [호스트 리눅스 · MySQL 프롬프트 · root · worker]</span>
+<span class="c">-- 마스터 서버 IP만 접속 허용 — % 대신 IP 지정 (계정 생성은 11장 절차)</span>
+grant all privileges on testdb.* to 'hong'@'192.168.222.2';
+<span class="c">-- 권한 적용</span>
+flush privileges;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">워커 계정 — <code>%</code>는 시연용. 마스터는 워커 IP, 워커는 마스터 IP로만 제한하고 워커에는 <code>%</code>를 두지 않음. IP가 바뀌면 <code>alter user</code>로 호스트 변경</div>
+
+    <h3>용어 정리</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>용어</th><th>뜻</th><th>구분·주의</th></tr></thead><tbody>
+    <tr><td class="nowrap">레플리카(Replica)</td><td>복제본을 만드는 것을 통칭하는 아키텍처·기술 용어 — 말 그대로 백업본(백업 서버)</td><td>주로 DB 백업 서버를 만들 때 사용</td></tr>
+    <tr><td class="nowrap">데이터베이스 레플리케이션</td><td>데이터 복제·데이터베이스 복제 기술의 정식 이름</td><td>다른 말로 분산 시스템. 실시간 또는 비동기로 가능 — 실습은 실시간으로 돌려 둔 상태</td></tr>
+    <tr><td class="nowrap">마스터 · 슬레이브</td><td>마스터 = 마스터 서버(원본), 슬레이브 = 워커 서버(복제본)</td><td>실무에서는 통상 <b>워커</b>라고 부름</td></tr>
+    <tr><td class="nowrap">source · replica 표기</td><td>최근 MySQL 문서는 <code>master/slave</code> 대신 <code>source/replica</code> 표기 사용</td><td><code>change replication source to</code>·<code>start replica</code>가 새 표기, <code>show slave status</code>·<code>show master status</code>는 옛 표기 — 서버 8.0.46에서는 둘 다 동작</td></tr>
+    <tr><td class="nowrap">PostgreSQL 복제</td><td>PostgreSQL은 복제 방식이 따로 있음</td><td>MySQL 복제 명령을 그대로 쓰지 않음</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>계정·호스트 3종과 GRANT</strong><div>사용자 생성·호스트별 계정·권한 부여 기본: 이 파일 11장</div></li>
+    <li><strong>레플리카 환경의 사용자 관리</strong><div>마스터에서 계정·테이블을 어설프게 지우면 워커와 어긋나는 이유: 이 파일 12장</div></li>
+    <li><strong>dump 백업·복구</strong><div><code>mysqldump</code>·<code>mysql &lt;</code> 기본과 0바이트 사고: 이 파일 13장</div></li>
+    <li><strong>설정 파일 그룹·재시작</strong><div><code>[mysqld]</code> 경계와 stop·start·포트 확인: 이 파일 9·14장</div></li>
+    <li><strong>패키지 설치·3306 개방</strong><div>설치와 포트 개방, 포트포워딩: 이 파일 8장</div></li>
+    <li><strong>파일 동기화와 삭제 전파</strong><div>rsync·lsyncd의 차이: linux.html 14장</div></li>
+    <li><strong>여러 데몬을 차례로 기동</strong><div>배열·반복문으로 <code>systemctl</code> 실행: shell.html 3장</div></li>
+    </ul>
+  </section>
+
+  <!-- 16 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -2902,6 +3311,17 @@ netstat -lnptu                     <span class="c"># 3306 LISTEN 확인</span></
        <tr><td><code>port = 3306</code> (<code>[mysqld]</code>·<code>[client]</code>)</td><td>마스터·워커 포트 통일 — 두 서버를 같은 값으로 맞춰 접속 혼동 방지, 마스터만 수정</td></tr>
       <tr><td><code>innodb_fast_shutdown = 1</code> / <code>innodb_flush_log_at_trx_commit = 2</code> / <code>innodb_max_dirty_pages_pct = 10</code></td><td>느린 VM 경량화 — 종료 단축·로그 I/O 감소·dirty page 상한</td></tr>
       <tr><td><code>:18,20 co 5</code></td><td>vi 줄 복사 — 시작,끝 co 목적지줄, 원본은 # 으로 주석 처리</td></tr>
+      <tr class="group"><th colspan="2" scope="colgroup">복제 (Replica)</th></tr>
+      <tr><td><code>server-id=1</code> / <code>log-bin=mysql-bin</code> / <code>binlog_do_db=testdb</code> / <code>binlog_format=row</code></td><td>마스터 <code>[mysqld]</code> 복제 설정 — DB마다 <code>binlog_do_db</code>를 한 줄씩, 전체는 줄 삭제·주석, 재기동 필요</td></tr>
+      <tr><td><code>show master status</code></td><td>마스터 File·Position·Binlog_Do_DB 확인 — 워커에 넣을 값이라 기록, 서버마다 숫자가 다름</td></tr>
+      <tr><td><code>grant replication slave on *.* to 'hong'@'워커IP';</code></td><td>복제 권한 — 워커가 마스터 바이너리 로그를 읽는 데 필수</td></tr>
+      <tr><td><code>change replication source to source_host=…, source_log_file=…, source_log_pos=…;</code></td><td>워커 연결 — IP·파일명은 따옴표, Position·포트는 숫자라 따옴표 없음, 줄 끝 쉼표</td></tr>
+      <tr><td><code>start replica;</code> / <code>stop replica;</code></td><td>복제 시작·정지 — stop은 진행 위치를 유지해 재개하면 정지 중 변경까지 적용, 긴급 복구 때 사용</td></tr>
+      <tr><td><code>show slave status</code></td><td>워커 상태 — <code>Last_IO_Error</code>·<code>Last_SQL_Error</code>가 비어 있고 IO·SQL 스레드 <code>Yes</code>면 정상</td></tr>
+      <tr><td><code>ERROR 2003 (HY000) … (111)</code></td><td>워커→마스터 연결 거부 — IP·3306 리슨·방화벽·SELinux 점검, <code>mysql -h 마스터IP -P 3306</code>로 직접 확인</td></tr>
+      <tr><td><code>alter user 'hong'@'워커IP' identified with mysql_native_password by '…';</code></td><td><code>caching_sha2_password</code> 인증 에러 해결 — 마스터에서만 변경, 대안은 <code>SOURCE_SSL=1</code>·<code>GET_SOURCE_PUBLIC_KEY=1</code></td></tr>
+      <tr><td><code>mysqldump -u hong -P 3306 --single-transaction --no-tablespaces --set-gtid-purged=off testdb | mysql -h 워커IP -P 3306 -u hong testdb</code></td><td>초기 데이터를 파이프로 워커에 전송 — <code>-P</code>는 포트, 비밀번호 <code>-p</code> 누락 시 ERROR 1045</td></tr>
+      <tr><td><code>select * from user where user='hong';</code></td><td>워커 계정 확인(localhost·%) — 운영은 <code>%</code> 대신 마스터 IP, IP 변경은 <code>alter user</code></td></tr>
     </tbody></table></div>
   
 
