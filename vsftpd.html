@@ -595,18 +595,18 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <p class="side-title">목차</p>
       <ol><li><a href="#sec-overview">1. vsftpd 개요·작업 요령</a></li><li><a href="#sec-conf">2. vsftpd.conf 기본 설정 (라인별)</a></li><li><a href="#sec-timeout">3. 타임아웃 (idle_session_timeout · data_connection_timeout)</a></li><li><a href="#sec-ascii">4. ASCII/Binary 전송 · 확장자 차단(deny_file)</a></li><li><a href="#sec-chroot">5. 홈 디렉토리 밖 접근 막기 (chroot)</a></li><li><a href="#sec-port">6. 포트 변경 (listen_port · 포트 선택 · 포트 포워딩)</a></li><li><a href="#sec-trouble">7. 설정 오류 대응 (오타 · systemctl status · journalctl)</a></li>
 
-<li><a href="#sec-ftpkr">8. VS Code FTP 동기화 (ftp-kr · remotePath)</a></li><li><a href="#cheatsheet">9. 통합 명령어 치트시트</a></li></ol>
+<li><a href="#sec-ftpkr">8. VS Code FTP 동기화 (ftp-kr · remotePath)</a></li><li><a href="#sec-cloud-ftp">9. 클라우드 VM FTP 연결과 AI 사이트</a></li><li><a href="#cheatsheet">10. 통합 명령어 치트시트</a></li></ol>
     </nav>
   </aside>
   <main class="main">
 
   <header>
     <h1>vsftpd(FTP) 통합 학습노트</h1>
-    <p class="deck">범위: vsftpd(FTP 서버) 설정 파일 <code>/etc/vsftpd/vsftpd.conf</code> 라인별 설정(익명·쓰기·umask·로그·포트 20/21) · 타임아웃 · ASCII/Binary 전송과 확장자 차단(deny_file) · chroot(홈 디렉토리 밖 접근 차단) · 포트 변경(9021)과 VirtualBox 포트 포워딩 · 설정 오류 대응·백업(systemctl status·journalctl) · VS Code FTP 동기화(ftp-kr · <code>ftp-kr.json</code> 9개 항목 · <code>remotePath</code> <code>/html</code> · 저장 즉시 업로드). 내용이 추가될 때마다 범위가 늘어남.</p>
+    <p class="deck">범위: vsftpd(FTP 서버) 설정 파일 <code>/etc/vsftpd/vsftpd.conf</code> 라인별 설정(익명·쓰기·umask·로그·포트 20/21) · 타임아웃 · ASCII/Binary 전송과 확장자 차단(deny_file) · chroot(홈 디렉토리 밖 접근 차단) · 포트 변경(9021)과 VirtualBox 포트 포워딩 · 설정 오류 대응·백업(systemctl status·journalctl) · VS Code FTP 동기화(ftp-kr · <code>ftp-kr.json</code> 9개 항목 · <code>remotePath</code> <code>/html</code> · 저장 즉시 업로드) → 클라우드 VM FTP 연결(포트 <code>7722</code>·<code>passive: true</code>·Output <code>Connected</code>)과 AI로 만든 사이트 업로드·<code>http</code> 접속 확인. 내용이 추가될 때마다 범위가 늘어남.</p>
     <div class="core-strip"><div><div class="core-metric">변경 → restart → 같은 조건 접속 확인</div><p class="core-desc">설정을 하나라도 바꾸면 <code>systemctl restart vsftpd.service</code> 필수, FileZilla를 완전히 종료하고 같은 아이디·비번으로 재접속해 확인. 오타 한 글자로 서비스가 안 뜨므로 수정 전 <code>cp</code> 백업, 원인은 <code>systemctl status</code>·<code>journalctl -xeu</code>로 확인.</p></div><div><div class="core-metric">보안 4축 : 익명 · 쓰기 · chroot · 포트</div><p class="core-desc"><code>anonymous_enable=NO</code> 유지, <code>write_enable=NO</code>면 다운로드 전용, <code>xferlog_enable</code> NO 금지. <code>chroot_local_user=YES</code>는 쓰기 가능한 홈에서 500 에러 → <code>allow_writeable_chroot=YES</code>. 기본 포트 21은 <code>listen_port=9021</code>로 변경.</p></div><div><div class="core-metric">ftp-kr 동기화 · 포트 9021 · 타임아웃 기준</div>
 
 <p class="core-desc">로컬 <code>webpage</code> 폴더 열기 → <code>ftp-kr: Init</code> → <code>remotePath: /html</code> → <code>Ctrl+S</code> 즉시 업로드(<code>autoUpload: true</code>), <code>autoDelete</code>·<code>autoDownload</code>는 <code>false</code>. 접속은 21번, 20번은 액티브 모드 데이터 연결 포트. 포트 변경 시 충돌 주의(<code>3306</code> 금지, 9000번 이상 권장, 1500 이하 금지). <code>idle_session_timeout</code> = 무동작 시간, <code>data_connection_timeout</code> = 전송이 멈춘 시간.</p></div></div>
-    <nav class="toc" aria-label="목차"><a href="#sec-overview">1. vsftpd 개요·작업 요령</a><a href="#sec-conf">2. vsftpd.conf 기본 설정 (라인별)</a><a href="#sec-timeout">3. 타임아웃 (idle_session_timeout · data_connection_timeout)</a><a href="#sec-ascii">4. ASCII/Binary 전송 · 확장자 차단(deny_file)</a><a href="#sec-chroot">5. 홈 디렉토리 밖 접근 막기 (chroot)</a><a href="#sec-port">6. 포트 변경 (listen_port · 포트 선택 · 포트 포워딩)</a><a href="#sec-trouble">7. 설정 오류 대응 (오타 · systemctl status · journalctl)</a><a href="#sec-ftpkr">8. VS Code FTP 동기화 (ftp-kr · remotePath)</a><a href="#cheatsheet">9. 통합 명령어 치트시트</a></nav>
+    <nav class="toc" aria-label="목차"><a href="#sec-overview">1. vsftpd 개요·작업 요령</a><a href="#sec-conf">2. vsftpd.conf 기본 설정 (라인별)</a><a href="#sec-timeout">3. 타임아웃 (idle_session_timeout · data_connection_timeout)</a><a href="#sec-ascii">4. ASCII/Binary 전송 · 확장자 차단(deny_file)</a><a href="#sec-chroot">5. 홈 디렉토리 밖 접근 막기 (chroot)</a><a href="#sec-port">6. 포트 변경 (listen_port · 포트 선택 · 포트 포워딩)</a><a href="#sec-trouble">7. 설정 오류 대응 (오타 · systemctl status · journalctl)</a><a href="#sec-ftpkr">8. VS Code FTP 동기화 (ftp-kr · remotePath)</a><a href="#sec-cloud-ftp">9. 클라우드 VM FTP 연결과 AI 사이트</a><a href="#cheatsheet">10. 통합 명령어 치트시트</a></nav>
   </header>
 
   <section class="sec" id="sec-overview"><h2>vsftpd 개요·작업 요령</h2><div class="dg"><p class="dg-title">한눈에 보기 — 설정 변경 4단계 (모든 실습 공통)</p><div class="dg-flow"><div class="dg-node "><h4>① 백업</h4><p class="sub"><code>cp</code> 로 설정 파일 복사본</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>② 편집</h4><p class="sub"><code>vi /etc/vsftpd/vsftpd.conf</code> · <code>:set nu</code></p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 재시작</h4><p class="sub"><code>systemctl restart vsftpd.service</code></p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 접속 확인</h4><p class="sub">FileZilla 완전 종료 후 같은 아이디·비번으로 재접속</p></div></div><p class="dg-foot">설정을 하나라도 바꾸면 ③·④ 필수. 오류가 나면 7장 참고</p></div><h3>실습 환경</h3><div class="table-wrap"><table><thead><tr><th>구분</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">서버</td><td>리눅스 VM(VirtualBox, CentOS 계열), IP <code>192.168.222.2</code>, <code>root</code>로 작업</td><td>VM 설치·고정 IP는 linux.html 1·2장</td></tr><tr><td class="nowrap">클라이언트</td><td>윈도우 <strong>FileZilla</strong>, 사용자 <code>apink</code>(앞서 만든 일반 사용자) + 비밀번호, 포트 <code>21</code> (후반부에 <code>9021</code>로 변경 → 6장)</td><td>FileZilla 설치·접속 기본은 linux.html 3장</td></tr><tr><td class="nowrap">호스트 칸</td><td>리눅스 IP를 그대로 입력</td><td>윈도우 IP는 ICMP 때문에 불안정</td></tr><tr><td class="nowrap">선행 지식</td><td>권한(permission)·<code>cp</code>를 먼저 알아야 함</td><td><code>local_umask</code> 이해에 필요 → linux.html 6·7장</td></tr></tbody></table></div><h3>FTP 데몬 종류</h3><div class="table-wrap"><table><thead><tr><th>데몬</th><th>설정 파일·특징</th><th>비고</th></tr></thead><tbody><tr><td class="nowrap"><code>vsftpd</code></td><td>설정 파일 <code>/etc/vsftpd/vsftpd.conf</code> — 이 노트의 대상</td><td>AWS·GCP·NCP(네이버 클라우드)에도 있음. CentOS 계열은 vsftpd 하나만 알면 충분</td></tr><tr><td class="nowrap"><code>ProFTPD</code>, <code>Pure-FTPd</code></td><td>설정 방식이 완전히 달라 따로 공부해야 함</td><td>SUSE 리눅스는 FTP가 달라 vsftpd가 잘 인식되지 않음 → 이 둘을 사용</td></tr><tr><td class="nowrap">실무 사례</td><td>고객사가 갑자기 SUSE를 요구해 FTP 환경설정을 새로 세팅한 적 있음</td><td></td></tr></tbody></table></div><h3>작업 요령</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">라인 번호</td><td><code>set number</code>로 라인 번호를 띄우고 라인 단위로 따라 하며 직접 확인</td><td>라인은 업데이트로 바뀌지 않으므로 라인 번호·단어를 외우는 것이 빠름</td></tr><tr><td class="nowrap">재시작·확인</td><td>설정을 하나라도 바꾸면 <strong>반드시 서비스 재시작</strong> → 같은 조건(아이디·비번)으로 접속해 되는지 확인</td><td>이 확인이 핵심</td></tr><tr><td class="nowrap">Tab 자동완성</td><td>경로·서비스명은 중간까지 치고 <strong>Tab</strong> (예 <code>vs</code> + Tab → <code>vsftpd.service</code>)</td><td></td></tr><tr><td class="nowrap">백업</td><td>설정 파일은 바로 건드리지 말고 먼저 <code>cp</code>로 복사해 둠 (환경설정은 따로 정리해 둘 것)</td><td>문제가 생기면 복사본으로 복구 (환경설정 초기화 질문의 답). 오타 대응은 7장</td></tr><tr><td class="nowrap">대소문자</td><td>설정값은 대소문자 구분 없음 (<code>YES</code>·<code>yes</code> 모두 동작, 오타만 없으면 됨). 구분하는 것은 파일·디렉토리 이름</td><td>불리언 옵션 값은 YES 또는 NO만 정의됨 (vsftpd.conf man 페이지)</td></tr><tr><td class="nowrap">값이 안 먹을 때</td><td>대문자 <code>NO</code>로 바꿔 다시 시도 (<code>write_enable</code>에 소문자 <code>n</code>을 입력한 사례도 있음)</td><td>한 글자 <code>N</code>·<code>n</code>은 정의된 값이 아니므로 <code>NO</code>로 쓸 것 (영상에서 실제 입력값은 확인 못 함)</td></tr></tbody></table></div><h3>vi 편집 요령 (vsftpd.conf)</h3><div class="table-wrap"><table><thead><tr><th>동작</th><th>키</th><th>비고</th></tr></thead><tbody><tr><td class="nowrap">라인 번호 표시</td><td><code>:set number</code> (<code>:set nu</code>)</td><td></td></tr><tr><td class="nowrap">입력 모드 / 종료</td><td><code>i</code> / <code>ESC</code></td><td>값 바꿀 때 <code>i</code>로 입력</td></tr><tr><td class="nowrap">저장 후 나가기</td><td><code>:wq</code></td><td>저장만 하고 빠져나가면 됨</td></tr><tr><td class="nowrap">특정 라인으로 이동</td><td><code>ESC</code> → <code>:</code> 입력 후 숫자, Enter (예 <code>:60</code>)</td><td>라인 번호를 입력하면 바로 이동</td></tr><tr><td class="nowrap">파일 맨 아래로</td><td><code>Shift + G</code></td><td>줄 수가 많을 때 한 번에 이동</td></tr><tr><td class="nowrap">주석 해제</td><td>라인 맨 앞 <code>#</code> 삭제</td><td>주석 달면 그 라인은 사용 안 함</td></tr></tbody></table></div><ul class="facts"><li><strong>자세한 실습</strong><div>vi 키 전체: linux.html 5장 / <code>cp</code>: linux.html 6장 / 권한·SELinux: linux.html 7장</div></li></ul><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
@@ -880,7 +880,91 @@ journalctl -u vsftpd.service -n 50 --no-pager   <span class="c"># 몇 번째 라
 </section>
 
 
-<section class="sec" id="cheatsheet"><h2>통합 명령어 치트시트</h2><p>이 카테고리에서 나온 명령어를 영역별로 모음. 내용이 추가되면 해당 영역 묶음 아래에 줄을 추가.</p><div class="table-wrap"><table class="cheat"><thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead><tbody><tr class="group"><th colspan="2" scope="colgroup">설정 파일 편집·백업</th></tr><tr><td><code>vi /etc/vsftpd/vsftpd.conf</code></td><td>vsftpd 설정 파일 편집. 경로 중간까지 치고 Tab</td></tr><tr><td><code>cp /etc/vsftpd/vsftpd.conf 백업경로/</code></td><td>환경설정 복사 백업. 수정 전 복사본 필수</td></tr><tr><td><code>vi /etc/vsftpd/chroot_list</code></td><td>chroot 예외 목록 편집. 기존 계정 아래 줄에 <code>megazone</code> 한 줄 추가 후 <code>systemctl restart vsftpd.service</code></td></tr><tr class="group"><th colspan="2" scope="colgroup">vi 편집 동작 (vsftpd.conf)</th></tr><tr><td><code>:set number</code> / <code>:set nu</code></td><td>라인 번호 표시</td></tr><tr><td><code>:숫자</code></td><td>해당 라인으로 이동 (ESC 후 입력, 예 <code>:60</code>)</td></tr><tr><td><code>Shift + G</code></td><td>맨 아래 라인으로 이동</td></tr><tr class="group"><th colspan="2" scope="colgroup">vsftpd 서비스</th></tr><tr><td><code>systemctl restart vsftpd.service</code></td><td>vsftpd 재시작. 설정을 한 번이라도 바꾸면 필수. <code>.service</code>는 서비스 제공 단위</td></tr><tr><td><code>systemctl stop</code> / <code>systemctl start vsftpd.service</code></td><td>중지·시작. 접속이 유지된 채로는 적용 안 될 때 사용</td></tr><tr><td><code>systemctl status vsftpd.service</code></td><td>서비스 상태·실패 원인 확인. 오류 시 화면 안내문</td></tr><tr><td><code>journalctl -xeu vsftpd.service</code></td><td>서비스 로그(상세). 오류 시 화면 안내문</td></tr><tr><td><code>journalctl -u vsftpd.service -n 50 --no-pager</code></td><td>최근 50줄 로그를 페이저 없이 출력. 몇 번째 라인 문제인지 확인</td></tr><tr class="group"><th colspan="2" scope="colgroup">포트 확인</th></tr><tr><td><code>netstat -lnp</code></td><td>열린(리슨) 포트 목록. 9021이 떠 있는지 확인</td></tr><tr class="group"><th colspan="2" scope="colgroup">VS Code FTP 동기화 (ftp-kr)</th></tr><tr><td><code>Ctrl+Shift+P</code> → <code>ftp-kr: Init</code></td><td><code>ftp-kr.json</code> 생성·수정. <code>.vscode</code> 폴더 아래에 생김</td></tr><tr><td><code>host</code> · <code>username</code> · <code>password</code> · <code>port: 9021</code></td><td>FileZilla와 같은 접속 정보. 포트는 6장 <code>listen_port</code>와 같은 9021</td></tr><tr><td><code>remotePath: "/html"</code></td><td>chroot 환경의 서버 경로. <code>/home/megazone/html</code>로 넣으면 목록에서 멈추고 에러</td></tr><tr><td><code>autoUpload: true</code> / <code>autoDelete: false</code> / <code>autoDownload: false</code></td><td>저장 즉시 업로드 / 서버 파일 삭제 방지 / 악성 파일 유입 방지</td></tr><tr><td><code>Ctrl+S</code></td><td>저장 즉시 서버 반영. 탭의 점(●) = 저장 전 상태</td></tr><tr><td>FTP 탭 <b>Refresh</b></td><td>서버 파일 목록 다시 읽기. <code>Connected</code>·<code>list</code>가 출력되면 접속 성공</td></tr><tr><td><code>.vscode/ftp-kr.sync.cache.json</code></td><td>동기화 상태 캐시 파일. 직접 수정하지 않음</td></tr></tbody></table></div></section>
+  <section class="sec" id="sec-cloud-ftp">
+<h2>클라우드 VM FTP 연결과 AI 사이트</h2>
+
+<div class="dg">
+<p class="dg-title">한눈에 보기 — 폴더 열기 → ftp-kr Init → 접속 값 → AI 생성 → 업로드</p>
+
+<div class="dg-flow">
+<div class="dg-node"><h4>① 폴더 열기</h4>
+<p class="sub"><code>public</code> 디렉터리를 Select Folder</p>
+</div>
+
+<div class="dg-arrow"></div>
+
+<div class="dg-node"><h4>② ftp-kr: Init</h4>
+<p class="sub"><code>.vscode/ftp-kr.json</code></p>
+</div>
+
+<div class="dg-arrow"></div>
+
+<div class="dg-node key"><h4>③ 접속 값</h4>
+<p class="sub">host · <code>port 7722</code> · <code>passive: true</code></p>
+</div>
+
+<div class="dg-arrow"></div>
+
+<div class="dg-node"><h4>④ AI 생성</h4>
+<p class="sub"><code>index.html</code> · <code>index.css</code> · <code>index.js</code></p>
+</div>
+
+<div class="dg-arrow"></div>
+
+<div class="dg-node accent"><h4>⑤ 확인</h4>
+<p class="sub"><code>http://</code> + 외부 IP</p>
+</div>
+</div>
+
+<p class="dg-foot">서버에 FTP로 올린 파일이 nginx 웹 루트(<code>/home/megazone/public</code>)에 그대로 보이는 흐름</p>
+</div>
+
+<h3>ftp-kr 확장</h3>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+<tr><td class="nowrap">폴더 열기</td><td>[윈도우 · VS Code] 새 폴더(<code>public</code> 디렉터리 하나 생성 → <b>Select Folder</b>)로 열면 VS Code가 재시작되며 그 폴더로 열림</td><td>FTP 동기화는 연 폴더를 기준으로 동작</td></tr>
+<tr><td class="nowrap">연결 방식</td><td>앞서 한 FTP-GCP 연결과 같은 방식</td><td><b>패시브 모드도 ftp-kr 설정에 넣어야</b> 함 — 없으면 목록이 안 뜸</td></tr>
+<tr><td class="nowrap">Init</td><td><code>Ctrl+Shift+P</code> → <code>ftp-kr: Init</code></td><td><code>.vscode/ftp-kr.json</code> 생성</td></tr>
+<tr><td class="nowrap">명령이 안 보일 때</td><td>왼쪽 <b>Extensions</b>에서 <code>ftp-kr</code>가 disable이면 enable</td><td>톱니바퀴가 아니라 <b>Install</b> 버튼이 보이면 검색해서 설치 (미설치 시 FTP 불가)</td></tr>
+</tbody></table></div>
+
+<h3>ftp-kr.json 입력값</h3>
+<div class="table-wrap"><table><thead><tr><th>키</th><th>값</th><th>주의·이유</th></tr></thead><tbody>
+<tr><td class="nowrap"><code>host</code></td><td>VM 외부 IP</td><td>내부 IP를 넣으면 접속 안 됨</td></tr>
+<tr><td class="nowrap"><code>username</code></td><td><code>megazone</code></td><td>접속용 계정 — MySQL 사용자와 혼동 주의</td></tr>
+<tr><td class="nowrap"><code>password</code></td><td>FTP 계정(<code>megazone</code>)의 리눅스 비밀번호</td><td>모르면 <code>passwd megazone</code>으로 변경</td></tr>
+<tr><td class="nowrap"><code>remotePath</code></td><td><code>/</code></td><td>슬래시만. 홈 경로를 적어도 되지만 일단 <code>/</code></td></tr>
+<tr><td class="nowrap"><code>protocol</code></td><td><code>ftp</code></td><td>SFTP·FTPS가 아님</td></tr>
+<tr><td class="nowrap"><code>port</code></td><td><code>7722</code></td><td>서버에서 바꿔 열어 둔 FTP 포트 — 이 파일 6장의 9021과 다른 환경</td></tr>
+<tr><td class="nowrap"><code>passive</code></td><td><b><code>true</code></b></td><td><code>autoDownload</code> 아래에 직접 추가. <code>pa</code> 입력 후 Tab 하면 오른쪽 AI(Copilot)가 자동완성</td></tr>
+</tbody></table></div>
+<ul class="facts"><li><strong>확인</strong><div>저장 → 아래 <b>Output</b>에 <code>Connected</code>, <code>list</code>가 뜨면 성공</div></li><li><strong>오류</strong><div><code>username field must be string</code>는 값 수정 중에 뜨는 것 — 값이 문자열로 들어가면 사라짐</div></li></ul>
+<div class="dg-bar warn">패시브 모드 — <code>passive: true</code>가 없으면 접속돼도 파일 목록이 안 뜸. FileZilla로는 되는데 VS Code만 안 되면 이 값부터 확인</div>
+
+<h3>AI로 사이트 생성</h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+<tr><td class="nowrap">시작</td><td><code>public</code> 폴더에 새 파일 <code>index.html</code> 생성</td><td>웹 루트에 올라갈 첫 파일</td></tr>
+<tr><td class="nowrap">방식</td><td>이후는 <b>직접 코딩하지 않고 AI에 맡김</b></td><td>원하는 사이트를 만들면 되고 똑같을 필요 없음</td></tr>
+<tr><td class="nowrap">대상</td><td>걸그룹 <b>에이핑크 팬사이트</b></td><td>메뉴 <b>홈·인포·멤버십·노티스</b></td></tr>
+<tr><td class="nowrap">파일 구성</td><td>스타일시트 <code>index.css</code>, 자바스크립트 <code>index.js</code></td><td><code>index.html</code>과 같은 폴더에 생성</td></tr>
+<tr><td class="nowrap">참고</td><td>샘플 URL 하나의 구조를 참고해 반응형 웹사이트로</td><td>구조를 참고하고 내용은 새로 만듦</td></tr>
+<tr><td class="nowrap">진행</td><td>AI(GPT 계열 모델)가 파일을 생성하며 완료까지 한참 걸림</td><td>저장하면 FTP로 올라가 웹사이트가 계속 만들어짐 → 친구에게 보여 줄 수 있음</td></tr>
+</tbody></table></div>
+
+<h3>FTP 끊김 — FileZilla 강제 업로드</h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+<tr><td class="nowrap">실패 사례</td><td>[윈도우 · VS Code] FTP <b>커넥션이 됐다 끊겼다 반복</b></td><td>업로드가 중간에 멈춤</td></tr>
+<tr><td class="nowrap">우회</td><td><b>FileZilla</b>로 <code>public</code>을 만들어 강제 업로드 → IP로 접속해 확인</td><td>처음엔 로딩만 반복 → 웹 루트 권한 조정 후 해결 (nginx.html 8장)</td></tr>
+<tr><td class="nowrap">결과</td><td>에이핑크 사이트가 뜸</td><td>AI가 에이핑크를 잘 몰라 멤버 정보는 부정확</td></tr>
+<tr><td class="nowrap">https로 안 열림</td><td>주소창이 <code>https</code>면 안 열림</td><td><b>HTTPS는 아직 세팅하지 않았으므로</b> 반드시 <b><code>http://</code></b>(S 없음)로 접속. 간혹 <code>https</code>로 자동 이동하는 경우가 있음</td></tr>
+<tr><td class="nowrap">미해결</td><td>VS Code 연동은 해결하지 못함 — 싱크(동기화)가 맞지 않는 것으로 추정 (작년엔 바로 연결됐으나 이번엔 안 됨)</td><td>억지로 넣으면 보안상 좋지 않을 수 있어 중단 → 추후 확인 예정</td></tr>
+<tr><td class="nowrap">결론</td><td><b>웹 서비스까지 정상 동작</b>, 이 IP로 웹이 열림</td><td>배포 경로는 FTP와 FileZilla 두 갈래</td></tr>
+</tbody></table></div>
+<div class="dg-bar warn">포트 — 클라우드 FTP는 서버 <code>listen_port</code>를 <code>7722</code>로 열어 둔 상태. <code>ftp-kr.json</code>의 <code>port</code>와 GCP 방화벽 규칙(<code>7722</code>, <code>5000-5005</code>)을 함께 맞춰야 접속</div>
+<div class="dg-bar warn">http — 인증서를 세팅하지 않았으므로 <code>http://IP</code>로 접속. <code>https</code>로 자동 이동하면 사이트가 뜨지 않음</div>
+<ul class="facts"><li><strong>자세한 실습</strong><div><code>ftp-kr.json</code> 9개 항목·<code>remotePath</code>: 이 파일 8장 / 포트 변경 원리: 이 파일 6장 / 403·홈 권한: nginx.html 8장</div></li><li><strong>환경</strong><div>VM·도구·시연값: mysql.html 20장 / nginx 설치·80 개방: nginx.html 7장</div></li></ul>
+  </section>
+
+<section class="sec" id="cheatsheet"><h2>통합 명령어 치트시트</h2><p>이 카테고리에서 나온 명령어를 영역별로 모음. 내용이 추가되면 해당 영역 묶음 아래에 줄을 추가.</p><div class="table-wrap"><table class="cheat"><thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead><tbody><tr class="group"><th colspan="2" scope="colgroup">설정 파일 편집·백업</th></tr><tr><td><code>vi /etc/vsftpd/vsftpd.conf</code></td><td>vsftpd 설정 파일 편집. 경로 중간까지 치고 Tab</td></tr><tr><td><code>cp /etc/vsftpd/vsftpd.conf 백업경로/</code></td><td>환경설정 복사 백업. 수정 전 복사본 필수</td></tr><tr><td><code>vi /etc/vsftpd/chroot_list</code></td><td>chroot 예외 목록 편집. 기존 계정 아래 줄에 <code>megazone</code> 한 줄 추가 후 <code>systemctl restart vsftpd.service</code></td></tr><tr class="group"><th colspan="2" scope="colgroup">vi 편집 동작 (vsftpd.conf)</th></tr><tr><td><code>:set number</code> / <code>:set nu</code></td><td>라인 번호 표시</td></tr><tr><td><code>:숫자</code></td><td>해당 라인으로 이동 (ESC 후 입력, 예 <code>:60</code>)</td></tr><tr><td><code>Shift + G</code></td><td>맨 아래 라인으로 이동</td></tr><tr class="group"><th colspan="2" scope="colgroup">vsftpd 서비스</th></tr><tr><td><code>systemctl restart vsftpd.service</code></td><td>vsftpd 재시작. 설정을 한 번이라도 바꾸면 필수. <code>.service</code>는 서비스 제공 단위</td></tr><tr><td><code>systemctl stop</code> / <code>systemctl start vsftpd.service</code></td><td>중지·시작. 접속이 유지된 채로는 적용 안 될 때 사용</td></tr><tr><td><code>systemctl status vsftpd.service</code></td><td>서비스 상태·실패 원인 확인. 오류 시 화면 안내문</td></tr><tr><td><code>journalctl -xeu vsftpd.service</code></td><td>서비스 로그(상세). 오류 시 화면 안내문</td></tr><tr><td><code>journalctl -u vsftpd.service -n 50 --no-pager</code></td><td>최근 50줄 로그를 페이저 없이 출력. 몇 번째 라인 문제인지 확인</td></tr><tr class="group"><th colspan="2" scope="colgroup">포트 확인</th></tr><tr><td><code>netstat -lnp</code></td><td>열린(리슨) 포트 목록. 9021이 떠 있는지 확인</td></tr><tr class="group"><th colspan="2" scope="colgroup">VS Code FTP 동기화 (ftp-kr)</th></tr><tr><td><code>Ctrl+Shift+P</code> → <code>ftp-kr: Init</code></td><td><code>ftp-kr.json</code> 생성·수정. <code>.vscode</code> 폴더 아래에 생김</td></tr><tr><td><code>host</code> · <code>username</code> · <code>password</code> · <code>port: 9021</code></td><td>FileZilla와 같은 접속 정보. 포트는 6장 <code>listen_port</code>와 같은 9021</td></tr><tr><td><code>remotePath: "/html"</code></td><td>chroot 환경의 서버 경로. <code>/home/megazone/html</code>로 넣으면 목록에서 멈추고 에러</td></tr><tr><td><code>autoUpload: true</code> / <code>autoDelete: false</code> / <code>autoDownload: false</code></td><td>저장 즉시 업로드 / 서버 파일 삭제 방지 / 악성 파일 유입 방지</td></tr><tr><td><code>Ctrl+S</code></td><td>저장 즉시 서버 반영. 탭의 점(●) = 저장 전 상태</td></tr><tr><td>FTP 탭 <b>Refresh</b></td><td>서버 파일 목록 다시 읽기. <code>Connected</code>·<code>list</code>가 출력되면 접속 성공</td></tr><tr><td><code>.vscode/ftp-kr.sync.cache.json</code></td><td>동기화 상태 캐시 파일. 직접 수정하지 않음</td></tr><tr class="group"><th colspan="2" scope="colgroup">클라우드 VM FTP·AI 사이트 (9장)</th></tr><tr><td><code>ftp-kr.json</code> — <code>host</code>·<code>port 7722</code>·<code>passive: true</code></td><td>VM 외부 IP·계정 <code>megazone</code>·리눅스 비밀번호, 패시브 모드가 없으면 목록이 안 뜸</td></tr><tr><td>Output에 <code>Connected</code>·<code>list</code></td><td>접속 성공 신호. <code>username field must be string</code>은 입력 중 뜨는 오류</td></tr><tr><td>FileZilla로 강제 업로드</td><td>VS Code FTP가 끊길 때 우회 — 업로드 후에도 로딩만 반복하면 웹 루트 권한 (nginx.html 8장)</td></tr><tr><td><code>http://&lt;외부 IP&gt;</code></td><td>HTTPS 미설정 — <code>https</code>로 열면 사이트가 뜨지 않음</td></tr></tbody></table></div></section>
 
   </main>
 </div>
