@@ -7,7 +7,7 @@
 
 ## 파일
 - `style-template.html`: 디자인 양식. 맨 위 주석의 "양식 요소 사용법"을 따른다. CSS·스크립트는 수정하지 않는다.
-- 카테고리별 통합본: `docker.html`, `mysql.html`, `postgresql.html`, `spark.html`, `fastapi.html`, `was.html`, `httpd.html`, `nginx.html`, `linux.html`, `shell.html` 등 (소문자 영문 고정. 목록에 없는 새 카테고리는 이름을 제안하고 확인받는다.)
+- 카테고리별 통합본: `docker.html`, `mysql.html`, `postgresql.html`, `spark.html`, `fastapi.html`, `was.html`, `httpd.html`, `nginx.html`, `linux.html`, `shell.html`, `aws.html` 등 (소문자 영문 고정. 목록에 없는 새 카테고리는 이름을 제안하고 확인받는다.)
 - 항상 작업 폴더(또는 프로젝트)에 있는 최신 파일을 기준으로 작업한다. 기억이나 이전 대화로 재작성하지 않는다.
 
 ## 분류
