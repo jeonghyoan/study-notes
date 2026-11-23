@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IT 인프라 통합 학습노트</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root { --bg:#fff; --bg2:#f4f6f8; --ink:#0f172a; --mute:#475569; --hair:#cbd5e1; --acc:#0b63ce; --acc-soft:#eef4fc; }
+:root[data-theme="dark"] { --bg:#121821; --bg2:#18202b; --ink:#e8edf4; --mute:#94a3b8; --hair:#334155; --acc:#5aa2f5; --acc-soft:#16263a; }
+* { box-sizing:border-box; }
+html, body { margin:0; padding:0; height:100%; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif; }
+body { display:flex; flex-direction:column; }
+.topbar { position:sticky; top:0; z-index:10; background:var(--bg); border-bottom:1px solid var(--hair); padding:8px 12px; display:flex; align-items:center; gap:8px; }
+.tabs { display:flex; gap:6px; overflow-x:auto; flex:1; scrollbar-width:none; }
+.tabs::-webkit-scrollbar { display:none; }
+.tab { border:1px solid var(--hair); background:var(--bg2); color:var(--mute); padding:6px 12px; border-radius:999px; font-size:13.5px; font-weight:600; cursor:pointer; white-space:nowrap; }
+.tab.active { background:var(--acc-soft); color:var(--acc); border-color:var(--acc); }
+.theme-btn { border:1px solid var(--hair); background:var(--bg2); color:var(--ink); padding:6px 11px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; flex-shrink:0; }
+iframe { flex:1; width:100%; border:0; background:var(--bg); }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="tabs" id="tabs"></div>
+  <button class="theme-btn" id="themeBtn" type="button">다크</button>
+</div>
+<iframe id="viewer" title="학습노트 본문"></iframe>
+<script>
+(function(){
+  var subjects = [
+    ["linux.html","Linux"],["shell.html","Shell"],["vsftpd.html","vsFTPd"],
+    ["httpd.html","Apache"],["nginx.html","Nginx"],["was.html","WAS"],
+    ["fastapi.html","FastAPI"],["mysql.html","MySQL"],["postgresql.html","PostgreSQL"],
+    ["docker.html","Docker"],["spark.html","Spark"]
+  ];
+  var tabsEl = document.getElementById("tabs"), viewer = document.getElementById("viewer"), btn = document.getElementById("themeBtn");
+  var r = document.documentElement;
+  function curTheme(){ var t=r.getAttribute("data-theme"); if(t) return t; return matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"; }
+  function applyTheme(t){
+    r.setAttribute("data-theme",t); btn.textContent=t==="dark"?"라이트":"다크";
+    try{ if(viewer.contentDocument) viewer.contentDocument.documentElement.setAttribute("data-theme",t); }catch(e){}
+  }
+  try{ var st=localStorage.getItem("note-theme"); if(st) r.setAttribute("data-theme",st); }catch(e){}
+  applyTheme(curTheme());
+  btn.addEventListener("click",function(){ var n=curTheme()==="dark"?"light":"dark"; applyTheme(n); try{localStorage.setItem("note-theme",n);}catch(e){} });
+
+  function openPage(file){
+    viewer.src = file;
+    document.querySelectorAll(".tab").forEach(function(el){ el.classList.toggle("active", el.dataset.file===file); });
+    try{ localStorage.setItem("sn-last-file", file); }catch(e){}
+  }
+  subjects.forEach(function(s){
+    var b=document.createElement("button"); b.className="tab"; b.type="button"; b.textContent=s[1]; b.dataset.file=s[0];
+    b.addEventListener("click",function(){ openPage(s[0]); });
+    tabsEl.appendChild(b);
+  });
+  viewer.addEventListener("load", function(){
+    applyTheme(curTheme());
+    try{
+      var doc = viewer.contentDocument;
+      var ib = doc.getElementById("themeBtn");
+      if(ib) ib.style.display="none";
+      var cur = (viewer.contentWindow.location.pathname.split("/").pop()) || "linux.html";
+      document.querySelectorAll(".tab").forEach(function(el){ el.classList.toggle("active", el.dataset.file===cur); });
+    }catch(e){}
+  });
+  var last="linux.html";
+  try{ var lf=localStorage.getItem("sn-last-file"); if(lf && subjects.some(function(x){return x[0]===lf;})) last=lf; }catch(e){}
+  openPage(last);
+})();
+</script>
+</body>
+</html>

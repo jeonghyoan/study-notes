@@ -1,0 +1,8 @@
+{
+  "name": "IT 인프라 통합 학습노트",
+  "short_name": "학습노트",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0B63CE"
+}
