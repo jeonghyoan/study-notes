@@ -1997,6 +1997,7 @@ docker port testc</code></pre><button class="copy" type="button" aria-label="코
     <tr><td><strong>NAT 체인</strong></td><td>기본 NAT 표 = <code>PREROUTING</code>·<code>INPUT</code>·<code>OUTPUT</code>·<code>POSTROUTING</code>. filter 표의 <code>FORWARD</code>와 처리 단계가 다름</td></tr>
     <tr><td><strong>Rocky 9 firewalld</strong></td><td>기본 백엔드 = nftables → 전체 규칙은 <code>nft list ruleset</code>. <code>iptables -L</code>에는 iptables 인터페이스로 넣은 규칙(direct rule 등)만 보임 → <code>iptables -L</code>만으로 firewalld 전체 상태를 판단하지 않음, 직접 iptables 규칙을 섞으면 예기치 않은 상호작용 가능</td></tr>
     </tbody></table></div>
+    <div class="dg-bar warn">filter 3체인 — INPUT(들어옴)·OUTPUT(나감)·FORWARD(다른 곳으로 전달), 규칙이 없을 때의 결과는 policy가 결정(ACCEPT=허용 / DROP=차단). nat 표에는 FORWARD가 없음</div>
     <div class="table-wrap">
       <table class="opts">
         <thead><tr><th>옵션</th><th>기능</th><th>주의·확인</th></tr></thead>
