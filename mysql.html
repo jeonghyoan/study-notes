@@ -1455,7 +1455,7 @@ drop database mall;    <span class="c">-- DB 삭제 (DB면 database, 테이블�
     <li><strong>계정·권한·원격 접속</strong><div>만든 DB를 사용자에게 열어 주는 절차: 이 파일 4장</div></li>
     <li><strong>문자셋·콜레이션</strong><div>테이블 문자셋이 자동으로 붙는 기준(<code>utf8mb4</code>): 이 파일 2장, 11장</div></li>
     <li><strong>백업 대상 테이블</strong><div>AI로 만든 <code>pay</code> 테이블 100행을 백업·복구 실습에 쓰는 절차: 이 파일 6장</div></li>
-    <li><strong>공공 API 데이터 적재</strong><div>JSON/XML API로 받은 데이터를 INSERT 문으로 만들어 테이블에 넣고 <code>select count(*)</code>로 건수까지 확인한 실습 (테이블명은 AI가 정함): spark.html 18장</div></li>
+    <li><strong>공공 API 데이터 적재</strong><div>JSON/XML API로 받은 데이터를 INSERT 문으로 만들어 테이블에 넣고 <code>select count(*)</code>로 건수까지 확인한 실습 (테이블명은 AI가 정함): spark.html 10장</div></li>
     </ul>
 
   </section>
@@ -1711,7 +1711,7 @@ select host, db, user from db;</code></pre><button class="copy" type="button" ar
     <li><strong>백업·복구</strong><div>사용자를 정리한 뒤 root로 덤프하고 복구: 이 파일 6장</div></li>
     <li><strong>복제용 계정</strong><div>워커 IP를 호스트로 둔 계정과 <code>replication slave</code> 권한의 쓰임: 이 파일 8장</div></li>
     <li><strong>셸 스크립트에서 접속</strong><div><code>mysql -u mega_re -p'비밀번호' -h IP</code>로 원격 접속·<code>show databases</code>·<code>create table</code> 점검: shell.html 4장</div></li>
-    <li><strong>Spark JDBC 원격 접속</strong><div>마스터에서 <code>hong</code>@<code>%</code> 같은 원격 계정으로 붙어 <code>DailyBoxOffice</code> 테이블을 읽는 실습 — url <code>jdbc:mysql://IP:3306/testdb</code>: spark.html 19장</div></li>
+    <li><strong>Spark JDBC 원격 접속</strong><div>마스터에서 <code>hong</code>@<code>%</code> 같은 원격 계정으로 붙어 <code>DailyBoxOffice</code> 테이블을 읽는 실습 — url <code>jdbc:mysql://IP:3306/testdb</code>: spark.html 11장</div></li>
     </ul>
 
   </section>
@@ -3165,7 +3165,7 @@ SELECT * FROM mysql.db WHERE user='hong';</code></pre><button class="copy" type=
     <tr><td><strong>테이블 목적</strong></td><td>AI로 만든 회원가입 테이블 <code>members</code>(회원 ID·이름·연락처·이메일·성별·주소 컬럼) + 가상 데이터 100행 → 백업·복원 검증용</td></tr>
     <tr><td><strong>SQL 실행 흐름</strong></td><td><strong>[윈도우 · DBeaver]</strong> 연결 선택 → 우클릭 → SQL 편집기 → 새 스크립트 → CREATE 문과 INSERT 문을 각각 선택하고 <code>Ctrl+Enter</code> → 새로고침 후 테이블·행 수 확인</td></tr>
     <tr><td><strong>자료 범위</strong></td><td>제공 필기에 실제 CREATE 문과 100개 INSERT 데이터는 없음 → 컬럼 형식·데이터 값은 추측해 채우지 않고 실행 흐름·확인 기준만 기록</td></tr>
-    <tr><td><strong>쿼리 재사용</strong></td><td>여기서 만든 테이블·SQL은 이후 Python·Spark가 같은 DB를 읽고 쓰는 실습의 기준 → fastapi.html 14장(MySQL 연동), spark.html 19장(JDBC 연동)</td></tr>
+    <tr><td><strong>쿼리 재사용</strong></td><td>여기서 만든 테이블·SQL은 이후 Python·Spark가 같은 DB를 읽고 쓰는 실습의 기준 → fastapi.html 14장(MySQL 연동), spark.html 11장(JDBC 연동)</td></tr>
     </tbody></table></div>
       <div class="table-wrap"><table>
       <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
@@ -3376,7 +3376,7 @@ select host,user from user where user='mg';</code></pre><button class="copy" typ
     <div class="dg-bar warn">pull 받은 이미지 — root 가 <code>%</code> 로 열려 있는지 <code>select host,user from user</code> 로 먼저 확인. root 는 <code>localhost</code> 만 남기고, 외부 접속은 특정 IP 로 제한</div>
     <div class="dg-bar warn">권한 테이블 삭제 — WHERE·AND 조건을 빠뜨리면 다른 계정까지 지워져 외부 접속이 전부 끊김. 계정 삭제는 <code>DROP USER</code> 가 권장이고, 지운 뒤에는 재등록·재접속까지 확인</div>
 
-    <ul class="facts"><li><strong>계정·권한 원리</strong><div>host별 별도 계정·GRANT·최소 권한: 이 파일 4·5장</div></li><li><strong>MariaDB 컨테이너</strong><div>설정 파일·포트 3309 연결: 이 파일 12장</div></li><li><strong>DBeaver 연결</strong><div>Host·Port·User 확인과 접속 실패 점검 순서: 이 파일 13장</div></li><li><strong>연결이 막힌 뒤</strong><div>Spark·pymysql 에서 <code>Host … is not allowed</code> 가 나올 때: spark.html 39장</div></li><li><strong>분석용 테이블·조인</strong><div>4개 테이블·ERD·JOIN·VIEW: 이 파일 17~19장</div></li></ul>
+    <ul class="facts"><li><strong>계정·권한 원리</strong><div>host별 별도 계정·GRANT·최소 권한: 이 파일 4·5장</div></li><li><strong>MariaDB 컨테이너</strong><div>설정 파일·포트 3309 연결: 이 파일 12장</div></li><li><strong>DBeaver 연결</strong><div>Host·Port·User 확인과 접속 실패 점검 순서: 이 파일 13장</div></li><li><strong>연결이 막힌 뒤</strong><div>Spark·pymysql 에서 <code>Host … is not allowed</code> 가 나올 때: pyspark.html 21장</div></li><li><strong>분석용 테이블·조인</strong><div>4개 테이블·ERD·JOIN·VIEW: 이 파일 17~19장</div></li></ul>
   </section>
 
   <!-- 17 -->
@@ -3497,7 +3497,7 @@ use mg                           <span class="c"># DB 선택</span></code></pre>
     <div class="dg-bar warn">빈 공간(탭) — 메모장에서 <code>Ctrl+H</code>로 칸 사이 탭을 모두 지운 뒤 붙여넣기. 남아 있으면 DB 입력 시 에러. 범위 지정은 Shift+클릭, <code>Ctrl+A</code>는 빈 영역까지 잡힘</div>
     <div class="dg-bar warn">대량 입력 — 한 문장이 <code>max_allowed_packet</code>을 넘으면 연결이 끊김. 수만 건도 한도 안이면 들어가지만 나눠 넣는 것이 안전</div>
 
-    <ul class="facts"><li><strong>테이블 구조</strong><div>4개 테이블 컬럼과 ERD: 이 파일 17장</div></li><li><strong>조인·뷰</strong><div>입력한 데이터로 조인·뷰 만들기: 이 파일 19장</div></li><li><strong>INSERT 문법</strong><div>컬럼 지정·여러 행 입력: 이 파일 3장</div></li><li><strong>다른 DB 적재</strong><div>API 데이터를 INSERT 문으로 만들어 넣는 실습: spark.html 18장</div></li></ul>
+    <ul class="facts"><li><strong>테이블 구조</strong><div>4개 테이블 컬럼과 ERD: 이 파일 17장</div></li><li><strong>조인·뷰</strong><div>입력한 데이터로 조인·뷰 만들기: 이 파일 19장</div></li><li><strong>INSERT 문법</strong><div>컬럼 지정·여러 행 입력: 이 파일 3장</div></li><li><strong>다른 DB 적재</strong><div>API 데이터를 INSERT 문으로 만들어 넣는 실습: spark.html 10장</div></li></ul>
   </section>
 
   <!-- 19 -->
@@ -3565,7 +3565,7 @@ where a.mall_id = b.mall_id;</code></pre><button class="copy" type="button" aria
     <h3>응용문제</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>번호</th><th>문제</th><th>출력 항목</th><th>조인</th></tr></thead><tbody>
-    <tr><td class="nowrap">응용 1</td><td>하와이 여행 신청 결제완료 중 숙박 제외 개수</td><td><code>count</code></td><td>아님 (PostgreSQL — spark.html 59장)</td></tr>
+    <tr><td class="nowrap">응용 1</td><td>하와이 여행 신청 결제완료 중 숙박 제외 개수</td><td><code>count</code></td><td>아님 (PostgreSQL — pyspark.html 31장)</td></tr>
     <tr><td class="nowrap">응용 2</td><td>사용자가 결제한 내역의 리스트를 출력하는 결과 테이블(뷰) 만들기</td><td>아이디, 이름, 연락처, 상품코드, 결제금액, 결제일자</td><td>조인</td></tr>
     <tr><td class="nowrap">응용 3</td><td>고객 데이터 중 SMS와 이메일 수신 동의를 모두 동의한 사용자만 출력</td><td>아이디, 이름(고객명), 연락처, SMS 수신 동의, 이메일 수신 동의</td><td><b>조인 아님</b> — 테이블 하나. 조인 아닌 문제는 "조인 아님"이라고 표시</td></tr>
     <tr><td class="nowrap">응용 4</td><td>상품과 결제를 연결해 결제금액 많은 순으로 출력</td><td>상품명, 상품코드, 상품가격, ID, 결제금액, 결제일자 (결제금액 내림차순)</td><td>조인</td></tr>
@@ -3597,7 +3597,7 @@ order by b.pay_money desc;              <span class="c">-- 결제금액 큰 순<
     <div class="dg-bar warn">뷰 — 조회 정의만 저장하는 가상 테이블. 조인 쿼리가 정상인지 먼저 확인하고 <code>create view</code>로 감싸며, 스파크에는 뷰 하나만 넘겨 분석</div>
     <div class="dg-bar warn">조인 컬럼 — <code>select *</code> 대신 별칭.컬럼명으로 필요한 컬럼만. 부모 테이블을 기준으로 같은 키(<code>mall_id</code>·<code>pcode</code>)를 <code>on</code>·<code>where</code>에 명시하고, 별칭 이름이 조인·뷰의 가독성을 결정</div>
 
-    <ul class="facts"><li><strong>테이블·ERD</strong><div>4개 테이블 구조와 조인 키: 이 파일 17장</div></li><li><strong>데이터 입력</strong><div>시트 미러링으로 채운 기준 데이터: 이 파일 18장</div></li><li><strong>조건·집계</strong><div><code>where</code>·<code>order by</code>·<code>count</code> 기본: 이 파일 2·3장</div></li><li><strong>스파크 분석</strong><div>뷰 결과를 pandas 경유 Spark로: spark.html 58·59장</div></li><li><strong>조인 결과 노출</strong><div>DB 조회를 FastAPI로: fastapi.html 14장</div></li></ul>
+    <ul class="facts"><li><strong>테이블·ERD</strong><div>4개 테이블 구조와 조인 키: 이 파일 17장</div></li><li><strong>데이터 입력</strong><div>시트 미러링으로 채운 기준 데이터: 이 파일 18장</div></li><li><strong>조건·집계</strong><div><code>where</code>·<code>order by</code>·<code>count</code> 기본: 이 파일 2·3장</div></li><li><strong>스파크 분석</strong><div>뷰 결과를 pandas 경유 Spark로: pyspark.html 30·31장</div></li><li><strong>조인 결과 노출</strong><div>DB 조회를 FastAPI로: fastapi.html 14장</div></li></ul>
   </section>
 
   <!-- 20 -->

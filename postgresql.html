@@ -1201,8 +1201,8 @@ psql -U postgres
     </tbody></table></div>
     <div class="dg-bar warn">메타 명령 — <code>\l</code> DB · <code>\du</code> 사용자 · <code>\dn</code> 스키마 · <code>\?</code> 도움말 · <code>\q</code> 종료. <code>#</code>이 붙으면 슈퍼유저, <code>&gt;</code>면 일반 사용자. UTF8은 이모티콘까지 저장</div>
     <ul class="facts">
-    <li><strong>DB 전환·권한 목록</strong><div><code>\c DB명 사용자</code>로 접속을 바꾸고 <code>\dp</code>로 권한을 보는 절차: spark.html 55장</div></li>
-    <li><strong>컨테이너 psql 접속</strong><div><code>psql -U postgres</code>·<code>\l</code>·<code>\du</code>로 RDS형 컨테이너를 다루는 실습: spark.html 48장</div></li>
+    <li><strong>DB 전환·권한 목록</strong><div><code>\c DB명 사용자</code>로 접속을 바꾸고 <code>\dp</code>로 권한을 보는 절차: spark.html 27장</div></li>
+    <li><strong>컨테이너 psql 접속</strong><div><code>psql -U postgres</code>·<code>\l</code>·<code>\du</code>로 RDS형 컨테이너를 다루는 실습: spark.html 20장</div></li>
     </ul>
   </section>
 
@@ -1279,8 +1279,8 @@ grant all privileges on database apink to apink;
     </tbody></table></div>
     <div class="dg-bar warn">PostgreSQL 규격 — 사용자·DB·비밀번호 <b>세 가지 일치</b>, 이름이 다르면 <code>-d</code> 필수. DB 생성 뒤 <b>소유자 매칭</b>과 <b>권한 부여(grant)</b>까지가 한 세트</div>
     <ul class="facts">
-    <li><strong>권한 회수</strong><div><code>REVOKE … from</code>·CONNECT 를 PUBLIC 에서 회수하는 절차: spark.html 55장</div></li>
-    <li><strong>스파크 연동 계정</strong><div><code>create user</code> → <code>create database … owner</code> → <code>grant</code> 순서: spark.html 50장</div></li>
+    <li><strong>권한 회수</strong><div><code>REVOKE … from</code>·CONNECT 를 PUBLIC 에서 회수하는 절차: spark.html 27장</div></li>
+    <li><strong>스파크 연동 계정</strong><div><code>create user</code> → <code>create database … owner</code> → <code>grant</code> 순서: spark.html 22장</div></li>
     </ul>
   </section>
 
@@ -1417,9 +1417,9 @@ drop schema 스키마명 cascade;
 
     <div class="dg-bar warn">스키마 — DB 아래 한 단계 더. <code>public</code>은 기본 제공이지만 서비스 데이터는 전용 스키마에 넣고 public은 지우지 않음. <code>drop schema</code>는 기본이 객체가 있으면 거부(RESTRICT), 삭제하려면 CASCADE</div>
     <ul class="facts">
-    <li><strong>검색 경로</strong><div><code>set search_path</code>·<code>alter user … set search_path</code> 차이: spark.html 52장</div></li>
-    <li><strong>연결 시 스키마 지정</strong><div>psycopg2 <code>options</code> 의 <code>-c search_path=</code>: spark.html 57장</div></li>
-    <li><strong>SQLAlchemy 엔진</strong><div><code>create_engine</code>·<code>dispose</code>·<code>with connect</code> 로 조회: spark.html 58장</div></li>
+    <li><strong>검색 경로</strong><div><code>set search_path</code>·<code>alter user … set search_path</code> 차이: spark.html 24장</div></li>
+    <li><strong>연결 시 스키마 지정</strong><div>psycopg2 <code>options</code> 의 <code>-c search_path=</code>: pyspark.html 29장</div></li>
+    <li><strong>SQLAlchemy 엔진</strong><div><code>create_engine</code>·<code>dispose</code>·<code>with connect</code> 로 조회: pyspark.html 30장</div></li>
     </ul>
   </section>
 
@@ -1572,7 +1572,7 @@ drop schema sample_schema cascade;</code></pre><button class="copy" type="button
     <li><strong>GUI 작업</strong><div>[윈도우 · DBeaver] 새 연결 → PostgreSQL(코끼리) → Host·Port·Database·Authentication·Username 입력 → Test Connection</div></li>
     <li><strong>연결 뒤</strong><div>DB 아래 Schemas를 펼쳐야 테이블이 보임: 8장</div></li>
     <li><strong>원격 접속 점검</strong><div><code>psql -U 사용자 -h 서버IP</code>로 같은 경로 확인: 3장</div></li>
-    <li><strong>스파크 연동용 적재</strong><div>CSV 데이터 가져오기·컬럼명 정리·권한 탭 확인: spark.html 53장</div></li>
+    <li><strong>스파크 연동용 적재</strong><div>CSV 데이터 가져오기·컬럼명 정리·권한 탭 확인: spark.html 25장</div></li>
     </ul>
     <div class="dg-bar warn">원격 접속은 서버 IP로 — Host 10.2.2.101 · Port 5432 · Database apink · Username apink. <code>localhost</code> 입력과 <code>pg_hba.conf</code> host 줄 미개방이 대표 실패 원인</div>
   </section>
@@ -1629,7 +1629,7 @@ volumes:
     name: pgdata</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="dg-bar warn">볼륨과 데이터 보존 — 컨테이너 안에만 저장한 데이터는 컨테이너 삭제와 함께 소멸, 이름 있는 볼륨은 유지. external 볼륨은 미리 만들어 둬야 하고 Compose가 지우지 않음 (Compose 생명주기: docker.html 5장)</div>
     <ul class="facts">
-    <li><strong>스파크 클러스터의 DB 컨테이너</strong><div>같은 <code>rds_psql</code> 를 스파크 마스터·워커와 함께 띄우는 구성: spark.html 48장</div></li>
+    <li><strong>스파크 클러스터의 DB 컨테이너</strong><div>같은 <code>rds_psql</code> 를 스파크 마스터·워커와 함께 띄우는 구성: spark.html 20장</div></li>
     <li><strong>이 컨테이너에 확장 넣기</strong><div>Debian 계열이라 <code>apt-get</code>으로 pgvector를 설치하고 스키마를 지정해 등록: vectordb.html 4장</div></li>
     </ul>
   </section>

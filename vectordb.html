@@ -623,7 +623,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>VectorDB 통합 학습노트</h1>
-    <p class="deck">VectorDB 통합 학습노트 · 범위: 벡터 DB 기초(저장 지표·거리 계산) → 이미지·영상 바이트 저장과 파일 형식 → pgvector 소스 설치(make·make install)·컨테이너 Debian 패키지 설치(apt)·vector 확장과 차원·vector 권한과 적용 순서 → vector 테이블과 유사도 정렬 연산자(<code class="n">&lt;-&gt;</code>·<code class="n">&lt;=&gt;</code>·<code class="n">&lt;#&gt;</code>)·벡터·임베딩과 임베딩 모델·거리 지표 3종과 계산 검증·유사도 검색 문법과 연산자별 결과 → 텍스트 임베딩 실습: 설명 테이블 <code class="n">movie_data vector(384)</code>에 <code class="n">SentenceTransformer</code>로 벡터 자동 입력·사용자 문장 검색과 다국어 모델 교체 → 이미지 임베딩 실습: 이미지 임베딩 파이프라인·CLIP 모델 선택과 색상 체계·모델 구조(토크나이저·패치·차원)·<code class="n">travel_image vector(512)</code> 반복 INSERT·서브쿼리(<code class="n">ilike</code>)·저장 이미지끼리 유사도 검색·사용자 이미지 검색(<code class="n">cast(:user_vec as vector)</code>·<code class="n">params</code>) → 벡터 저장·검색을 지원하는 DB 범위 · 22장 통합 명령어 치트시트. 서버 10.2.2.101 · PostgreSQL 16.8 · vector 0.8.7 · 컨테이너 Debian 13(trixie) PostgreSQL 14.24 · CLIP <code class="n">openai/clip-vit-base-patch32</code>. PostgreSQL 설치·인증·백업은 postgresql.html, Spark 연동은 spark.html, Docker 기본 명령은 docker.html 4·5장</p>
+    <p class="deck">VectorDB 통합 학습노트 · 범위: 벡터 DB 기초(저장 지표·거리 계산) → 이미지·영상 바이트 저장과 파일 형식 → pgvector 소스 설치(make·make install)·컨테이너 Debian 패키지 설치(apt)·vector 확장과 차원·vector 권한과 적용 순서 → vector 테이블과 유사도 정렬 연산자(<code class="n">&lt;-&gt;</code>·<code class="n">&lt;=&gt;</code>·<code class="n">&lt;#&gt;</code>)·벡터·임베딩과 임베딩 모델·거리 지표 3종과 계산 검증·유사도 검색 문법과 연산자별 결과 → 텍스트 임베딩 실습: 설명 테이블 <code class="n">movie_data vector(384)</code>에 <code class="n">SentenceTransformer</code>로 벡터 자동 입력·사용자 문장 검색과 다국어 모델 교체 → 이미지 임베딩 실습: 이미지 임베딩 파이프라인·CLIP 모델 선택과 색상 체계·모델 구조(토크나이저·패치·차원)·<code class="n">travel_image vector(512)</code> 반복 INSERT·서브쿼리(<code class="n">ilike</code>)·저장 이미지끼리 유사도 검색·사용자 이미지 검색(<code class="n">cast(:user_vec as vector)</code>·<code class="n">params</code>) → 벡터 저장·검색을 지원하는 DB 범위 · 22장 통합 명령어 치트시트. 서버 10.2.2.101 · PostgreSQL 16.8 · vector 0.8.7 · 컨테이너 Debian 13(trixie) PostgreSQL 14.24 · CLIP <code class="n">openai/clip-vit-base-patch32</code>. PostgreSQL 설치·인증·백업은 postgresql.html, Spark 설치·운영은 spark.html, PySpark 코드·노트북은 pyspark.html, Docker 기본 명령은 docker.html 4·5장</p>
 
     <div class="core-strip">
       <div>
@@ -1566,7 +1566,7 @@ select * from movie;</code></pre><button class="copy" type="button" aria-label="
     <tr><td class="nowrap">이미지</td><td>이미지 임베딩 모델</td><td><b>512~768차원</b></td><td>최소 512(이미지끼리 비교·틀린 부분 찾기), 768이면 더 고품질</td></tr>
     <tr><td class="nowrap">테이블 컬럼</td><td><code>vector(N)</code>의 N을 모델 차원에 맞춤</td><td>1536차원 모델이면 <code>vector(1536)</code></td><td>차원 수는 임베딩 모델이 정함(5장) — 컬럼 길이를 임의로 줄이면 저장 실패</td></tr>
     <tr><td class="nowrap">비용</td><td>OpenAI 모델은 호출할 때마다 결제가 필요</td><td>—</td><td>이 노트의 범위에서는 쓰지 않고 회사에서 사용</td></tr>
-    <tr><td class="nowrap">대안</td><td><code>sentence-transformers</code> 같은 오픈소스 임베딩 모델</td><td>모델마다 다름</td><td>로컬에서 API 키·호출 비용 없이 실행 — 설치: spark.html 60장</td></tr>
+    <tr><td class="nowrap">대안</td><td><code>sentence-transformers</code> 같은 오픈소스 임베딩 모델</td><td>모델마다 다름</td><td>로컬에서 API 키·호출 비용 없이 실행 — 설치: spark.html 29장</td></tr>
     </tbody></table></div>
     <ul class="facts">
     <li><strong>이미지가 문장보다 쉬운 이유</strong><div>픽셀 단위 색상(픽셀당 컬러)만 보면 되기 때문 — 문장은 방언까지 있어 AI도 어려움</div></li>
@@ -1580,7 +1580,7 @@ select * from movie;</code></pre><button class="copy" type="button" aria-label="
     <tr><td class="nowrap">CUDA 설치</td><td>설치 방식이 CPU와 완전히 다르고 NVIDIA CUDA 관련 패키지가 함께 깔려 용량이 더 큼</td><td>CPU용과 CUDA용을 섞으면 동작하지 않음</td></tr>
     <tr><td class="nowrap">효과</td><td>CUDA를 쓰면 AI가 더 빠르고 효율적으로 동작</td><td>모델 크기·배치에 따라 차이가 달라짐</td></tr>
     <tr><td class="nowrap">이 실습 환경</td><td>CPU와 메모리뿐 → CPU 모델로만 실행</td><td>그래픽카드가 없으면 CUDA 설치가 애초에 불가</td></tr>
-    <tr><td class="nowrap">집 PC</td><td>NVIDIA 그래픽카드가 있으면 CUDA용으로 설치</td><td>설치: spark.html 60장의 CPU·CUDA 구분표</td></tr>
+    <tr><td class="nowrap">집 PC</td><td>NVIDIA 그래픽카드가 있으면 CUDA용으로 설치</td><td>설치: spark.html 29장의 CPU·CUDA 구분표</td></tr>
     <tr><td class="nowrap">실수 사례</td><td>NVIDIA 그래픽카드가 있는데 CPU용으로 설치하면 그래픽카드가 작동하지 않음</td><td>설치 전에 하드웨어를 먼저 확인</td></tr>
     </tbody></table></div>
     <ul class="facts">
@@ -1642,7 +1642,7 @@ select * from movie;</code></pre><button class="copy" type="button" aria-label="
     <tr><td class="nowrap">내적 <code>&lt;#&gt;</code></td><td>추천 시스템(넷플릭스·유튜브·쇼핑몰), 대규모 임베딩, 대규모 알고리즘</td><td>프로젝트 예: 자동차가 사물을 보고 브레이크를 거는 것, 사무 시스템</td></tr>
     <tr><td class="nowrap">얼굴인식</td><td>현대 얼굴인식은 얼굴을 임베딩 벡터로 바꿔 비교</td><td>FaceNet 계열은 L2(유클리드) 거리, ArcFace 계열은 코사인 유사도 — 눈·코·입 사이 거리를 재는 것은 고전적 특징점 방식</td></tr>
     <tr><td class="nowrap">난이도</td><td>유클리드 &lt; 코사인 &lt; 내적</td><td>유클리드가 가장 쉽고 내적이 가장 어려움</td></tr>
-    <tr><td class="nowrap">테스트 방법</td><td>내적·코사인은 OpenAI 모델 없이도 <code>sentence-transformers</code>로 로컬에서 확인 가능</td><td>API 키·호출 비용이 들지 않음 — 설치: spark.html 60장</td></tr>
+    <tr><td class="nowrap">테스트 방법</td><td>내적·코사인은 OpenAI 모델 없이도 <code>sentence-transformers</code>로 로컬에서 확인 가능</td><td>API 키·호출 비용이 들지 않음 — 설치: spark.html 29장</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">내적은 값이 클수록 유사하지만 pgvector의 <code>&lt;#&gt;</code>는 음의 내적을 반환 — 정렬은 오름차순이 가까운 순. <code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>는 0에 가까울수록 가까움</div>
 
@@ -1719,7 +1719,7 @@ select * from movie;</code></pre><button class="copy" type="button" aria-label="
     <tr><td class="nowrap">where 아님</td><td>벡터는 <code>order by</code>로 정렬 — <code>where</code>에 벡터 연산자를 넣으면 거리 조건 비교가 될 뿐 정렬이 되지 않음</td><td>“가까운 순” 결과를 받으려면 정렬이 기준</td></tr>
     <tr><td class="nowrap">값 표기</td><td>질의 벡터는 <code>'[값,값]'</code> — 작은따옴표 안 대괄호</td><td>맨 위에 가장 유사한(가까운) 행</td></tr>
     <tr><td class="nowrap">이번 실습 컬럼</td><td><code>cate_emd</code> — 카테고리 임베딩의 약자(영화 장르 점수)</td><td>테이블 생성·5건 입력은 8장, 이 장은 검색과 결과 해석</td></tr>
-    <tr><td class="nowrap">실행 도구</td><td>DBeaver SQL 편집기 — 스크립트 이름 <code>Script-7</code></td><td>노트북(<code>vb1.ipynb</code>~<code>vb3.ipynb</code>)은 Jupyter에서 실행: spark.html 61장</td></tr>
+    <tr><td class="nowrap">실행 도구</td><td>DBeaver SQL 편집기 — 스크립트 이름 <code>Script-7</code></td><td>노트북(<code>vb1.ipynb</code>~<code>vb3.ipynb</code>)은 Jupyter에서 실행: pyspark.html 32장</td></tr>
     <tr><td class="nowrap">연산자 선택</td><td>텍스트 의미 검색이라 <code>&lt;=&gt;</code>(코사인) 사용</td><td>위치(좌표) 검색이면 유클리드 <code>&lt;-&gt;</code> — 지표 정의는 10장</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c">-- [mg DB · DBeaver SQL 편집기 · mg]</span>
@@ -1800,7 +1800,7 @@ order by cate_emd &lt;-&gt; '[9,9]';</code></pre><button class="copy" type="butt
     <div class="note-verify"><div class="tag">🔍 직접 확인 · 46강 26:05~26:39</div><p>“평문 언어로만 쓰면 편하지만 나중에 오차 범위가 많이 남아 쓰지 않음” — 평문 언어가 일반 <code>where</code> 문자열 비교를 가리키는지, 오차가 커지는 이유가 무엇인지 영상에서 다시 확인 필요</p></div>
     <ul class="facts">
     <li><strong>질의 값의 척도</strong><div>저장 값과 같은 만점·눈금으로 넣어야 순서가 맞음 — 한쪽만 0~1 소수로 넣으면 거리 비교가 어긋남</div></li>
-    <li><strong>DBeaver 비교</strong><div>같은 쿼리를 Jupyter에서도 실행해 결과가 같은지 대조: spark.html 61장</div></li>
+    <li><strong>DBeaver 비교</strong><div>같은 쿼리를 Jupyter에서도 실행해 결과가 같은지 대조: pyspark.html 32장</div></li>
     </ul>
   </section>
 
@@ -1934,7 +1934,7 @@ spark.stop()</code></pre><button class="copy" type="button" aria-label="코드 �
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
     <tr><td class="nowrap">모델 이름</td><td><code>SentenceTransformer("모델명")</code> — 이름을 직접 넣어야 동작, 첫 모델은 <code>all-MiniLM-L6-v2</code></td><td>모델명은 설치할 때 본 사이트에 적혀 있음 (huggingface.co)</td></tr>
-    <tr><td class="nowrap">라이브러리</td><td><code>sentence_transformers</code> — pip로 설치하는 transformers 계열(약 80MB)</td><td>설치: spark.html 60장</td></tr>
+    <tr><td class="nowrap">라이브러리</td><td><code>sentence_transformers</code> — pip로 설치하는 transformers 계열(약 80MB)</td><td>설치: spark.html 29장</td></tr>
     <tr><td class="nowrap">for 변수명</td><td><code>title</code>·<code>des</code>·<code>vector</code>는 임의 이름</td><td>진짜 컬럼명은 INSERT 문 안에서만 사용</td></tr>
     <tr><td class="nowrap">encode</td><td>한 행의 한글 설명을 384개 숫자로 변환하고, 여러 값이라 <code>tolist()</code>로 리스트화</td><td>한 바퀴마다 인코딩 → INSERT 반복</td></tr>
     <tr><td class="nowrap"><code>%s</code></td><td>값 자리 표시 — 마지막 <code>%s::vector</code>에 모델이 만든 벡터가 들어감</td><td>INSERT 문법 자체는 앞에서 학습한 형태</td></tr>
@@ -1963,7 +1963,7 @@ spark.stop()</code></pre><button class="copy" type="button" aria-label="코드 �
     <div class="dg-bar warn">입력과 검색은 같은 모델 — 값을 넣을 때 쓴 모델과 질의 문장을 벡터로 바꿀 때 쓰는 모델이 다르면 거리 비교가 무의미. 모델을 바꾸면 기존 데이터는 지우고 다시 입력</div>
     <ul class="facts">
     <li><strong>사용자 문장 검색</strong><div>저장한 벡터에 사용자 문장을 비교하는 검색: 이 파일 13장</div></li>
-    <li><strong>Spark로 읽기</strong><div>이 테이블을 Jupyter에서 조회하는 방식: spark.html 61장</div></li>
+    <li><strong>Spark로 읽기</strong><div>이 테이블을 Jupyter에서 조회하는 방식: pyspark.html 32장</div></li>
     </ul>
   </section>
 
@@ -2043,7 +2043,7 @@ spark.stop()</code></pre><button class="copy" type="button" aria-label="코드 �
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
     <tr><td class="nowrap">정렬 기준</td><td><code>order by emb &lt;=&gt; '벡터문자열'</code> — <code>emb</code>가 유사도 컬럼, 사용자 입력 벡터와의 코사인 거리</td><td>가까운 순으로 나옴</td></tr>
     <tr><td class="nowrap">별도 변환 없음</td><td>유사도 계산을 파이썬에서 하지 않고 쿼리로 바로 정렬</td><td>DB 정렬 결과를 그대로 받음</td></tr>
-    <tr><td class="nowrap">text()</td><td>쿼리 문자열을 <code>text()</code>로 감싸 실행</td><td>SQLAlchemy 2.x에서 문자열 쿼리를 그대로 넘기면 에러: spark.html 58장</td></tr>
+    <tr><td class="nowrap">text()</td><td>쿼리 문자열을 <code>text()</code>로 감싸 실행</td><td>SQLAlchemy 2.x에서 문자열 쿼리를 그대로 넘기면 에러: pyspark.html 30장</td></tr>
     </tbody></table></div>
 
     <h3>문제 발생과 원인</h3>
@@ -2093,7 +2093,7 @@ query = f"select title,des from movie_data order by emb &lt;=&gt; '{vector_str}'
     <ul class="facts">
     <li><strong>SQL·결과 해석</strong><div>연산자별 순서와 거리 값 조회: 이 파일 11장</div></li>
     <li><strong>임베딩 입력</strong><div>같은 모델로 데이터를 넣는 절차: 이 파일 12장</div></li>
-    <li><strong>Jupyter에서 실행</strong><div>SparkSession·read_sql 구조: spark.html 61장</div></li>
+    <li><strong>Jupyter에서 실행</strong><div>SparkSession·read_sql 구조: pyspark.html 32장</div></li>
     </ul>
   </section>
 
@@ -2111,11 +2111,11 @@ query = f"select title,des from movie_data order by emb &lt;=&gt; '{vector_str}'
     <h3>실습 환경</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">서버</td><td>Spark 컨테이너 환경(<code>spark-master</code>), Master <code>spark://spark-master:7077</code>, 드라이버 호스트 <code>spark.driver.host = spark-master</code></td><td>벡터 조회를 Spark로 읽는 구조는 이 파일 11~13장·spark.html 61장과 같음</td></tr>
+    <tr><td class="nowrap">서버</td><td>Spark 컨테이너 환경(<code>spark-master</code>), Master <code>spark://spark-master:7077</code>, 드라이버 호스트 <code>spark.driver.host = spark-master</code></td><td>벡터 조회를 Spark로 읽는 구조는 이 파일 11~13장·pyspark.html 32장과 같음</td></tr>
     <tr><td class="nowrap">노트북</td><td>UDF는 VS Code의 <code>spark_basic3.ipynb</code>, 이미지 실습은 JupyterLab <code>192.168.222.5:8888</code>의 <code>img1</code>·<code>img2</code>·<code>img3</code></td><td>VS Code 연결이 불안정해 이미지 실습은 JupyterLab으로 진행</td></tr>
     <tr><td class="nowrap">DB</td><td>PostgreSQL + pgvector, <code>192.168.222.5:5432</code>, DB <code>mg</code>, 스키마 <code>mg_schema</code>, search_path <code>mg_schema,public</code></td><td>계정·비밀번호는 이 파일 12장 접속 코드와 같은 값</td></tr>
     <tr><td class="nowrap">클라이언트</td><td>DBeaver SQL 편집기 <code>Script-7</code>(실행 Ctrl+Enter), Jupyter 셀(실행 Shift+Enter)</td><td>DBeaver로 SQL을 먼저 확인하고 노트북으로 옮기는 순서</td></tr>
-    <tr><td class="nowrap">설치 상태</td><td>AI 모델·라이브러리(PyTorch 등)는 이미 설치된 상태 — 새로 설치하는 것 없음</td><td>설치 절차는 spark.html 60장</td></tr>
+    <tr><td class="nowrap">설치 상태</td><td>AI 모델·라이브러리(PyTorch 등)는 이미 설치된 상태 — 새로 설치하는 것 없음</td><td>설치 절차는 spark.html 29장</td></tr>
     <tr><td class="nowrap">데이터</td><td>여행 이미지 33장 <code>/opt/spark/data/travel_images/travel_1.jpg</code> ~ <code>travel_33.jpg</code></td><td>전부 jpg, 이름 규칙 <code>travel_번호.jpg</code></td></tr>
     </tbody></table></div>
 
@@ -2137,7 +2137,7 @@ query = f"select title,des from movie_data order by emb &lt;=&gt; '{vector_str}'
     <tr><td class="nowrap">① 테이블</td><td><code>travel_image</code> 테이블 만들기 (경로 + 512차원 벡터)</td><td>DBeaver SQL 편집기 — 이 파일 17장</td></tr>
     <tr><td class="nowrap">② 모델</td><td>허깅페이스에서 CLIP 모델 고르기</td><td><code>openai/clip-vit-base-patch32</code> — 이 파일 15장</td></tr>
     <tr><td class="nowrap">③ 입력</td><td><code>img1</code> — 이미지 33장을 512차원 벡터로 바꿔 INSERT</td><td>JupyterLab, psycopg2 — 이 파일 17장</td></tr>
-    <tr><td class="nowrap">④ 비교</td><td><code>img2</code> — 저장된 이미지 하나를 기준으로 가장 비슷한 이미지 검색</td><td>DBeaver SQL → 노트북 — 이 파일 19장, spark.html 66장</td></tr>
+    <tr><td class="nowrap">④ 비교</td><td><code>img2</code> — 저장된 이미지 하나를 기준으로 가장 비슷한 이미지 검색</td><td>DBeaver SQL → 노트북 — 이 파일 19장, pyspark.html 37장</td></tr>
     <tr><td class="nowrap">⑤ 사용자 이미지</td><td><code>img3</code> — 사용자가 새로 올린 이미지를 벡터로 바꿔 DB 이미지와 비교</td><td>파라미터·<code>cast</code> — 이 파일 20장</td></tr>
     </tbody></table></div>
 
@@ -2150,7 +2150,7 @@ query = f"select title,des from movie_data order by emb &lt;=&gt; '{vector_str}'
     <tr><td class="nowrap">이번 범위</td><td>이름을 맞히는 단계까지 가지 않고 가장 가까운 유사도의 이미지를 찾는 데까지</td><td>맞았는지는 결과 이미지를 직접 열어 확인</td></tr>
     <tr><td class="nowrap">캡션 제외</td><td>이번 테이블에는 이름(캡션) 컬럼을 두지 않음</td><td>벡터 거리만으로 찾는 구조 — 이름이 없으니 결과를 눈으로 확인</td></tr>
     </tbody></table></div>
-    <div class="dg-bar warn">원본 이미지는 DB 밖, DB에는 경로와 벡터만 — 캡션 없이 거리 값으로만 정렬하므로 순위가 맞는지는 결과 이미지를 직접 열어 확인. SQL은 이 파일 19장, 노트북 실행 코드는 spark.html 66장</div>
+    <div class="dg-bar warn">원본 이미지는 DB 밖, DB에는 경로와 벡터만 — 캡션 없이 거리 값으로만 정렬하므로 순위가 맞는지는 결과 이미지를 직접 열어 확인. SQL은 이 파일 19장, 노트북 실행 코드는 pyspark.html 37장</div>
 
     <ul class="facts">
     <li><strong>모델 선택·색상 체계</strong><div>CLIP·RGB·이미지 형식 주의: 이 파일 15장</div></li>
@@ -2227,7 +2227,7 @@ query = f"select title,des from movie_data order by emb &lt;=&gt; '{vector_str}'
     <ul class="facts">
     <li><strong>모델 구조</strong><div>토크나이저·224×224·패치 분할·차원: 이 파일 16장</div></li>
     <li><strong>입력 코드</strong><div><code>CLIPModel</code>·<code>CLIPProcessor</code>·<code>convert("RGB")</code> 사용: 이 파일 17장</div></li>
-    <li><strong>파이썬 이미지 라이브러리</strong><div><code>PIL</code> 설치 상태: spark.html 60장</div></li>
+    <li><strong>파이썬 이미지 라이브러리</strong><div><code>PIL</code> 설치 상태: spark.html 29장</div></li>
     </ul>
   </section>
 
@@ -2328,7 +2328,7 @@ create table travel_image(
     <tr><td class="nowrap">쓰는 도구</td><td><code>psycopg2</code> 커서로 INSERT — <code>SparkSession</code>은 가져오지 않음</td><td>AI로 값을 강제로 넣는 작업이라 Spark 환경설정과 무관</td></tr>
     <tr><td class="nowrap">Spark의 INSERT</td><td>Spark도 <code>DataFrame.write.jdbc</code>로 append INSERT는 가능</td><td>UPDATE·DELETE는 JDBC 쓰기로 직접 지원하지 않음 — 이 실습의 소량 입력은 psycopg2가 담당</td></tr>
     <tr><td class="nowrap">추론 위치</td><td>CLIP 추론과 SQL 실행 모두 파이썬 단일 프로세스</td><td>Spark 분산 처리가 아님 — 한 장씩 순차 처리</td></tr>
-    <tr><td class="nowrap">조회와 차이</td><td>조회(SELECT)는 pandas·Spark로 읽고, 입력은 psycopg2</td><td>조회 코드는 이 파일 11장·spark.html 61장</td></tr>
+    <tr><td class="nowrap">조회와 차이</td><td>조회(SELECT)는 pandas·Spark로 읽고, 입력은 psycopg2</td><td>조회 코드는 이 파일 11장·pyspark.html 32장</td></tr>
     </tbody></table></div>
 
     <h3>import·DB 접속·모델 로드</h3>
@@ -2461,7 +2461,7 @@ dbcon.close()                                  <span class="c"># DB 접속 종�
     <tr><td class="nowrap">뜻</td><td>컬럼 자리에 <code>select</code>를 넣는 문법</td><td>실무 개발에서도 많이 쓰는 중급 문법</td></tr>
     <tr><td class="nowrap">중첩</td><td>괄호 안에 또 다른 select를 넣거나 콤마로 <code>(select …)</code>를 이어 추가</td><td>컬럼명 자리에 select를 쓴다고 보면 됨</td></tr>
     <tr><td class="nowrap">값의 개수</td><td>컬럼 자리 서브쿼리는 행마다 한 값을 돌려줌</td><td>그래서 같은 값이 모든 행에 반복</td></tr>
-    <tr><td class="nowrap">실행 도구</td><td>DBeaver SQL 편집기(<code>Script-7</code>)에서 Ctrl+Enter</td><td>노트북 실행 코드는 spark.html 66장</td></tr>
+    <tr><td class="nowrap">실행 도구</td><td>DBeaver SQL 편집기(<code>Script-7</code>)에서 Ctrl+Enter</td><td>노트북 실행 코드는 pyspark.html 37장</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c">-- [mg DB · DBeaver SQL 편집기 · mg]</span>
 <span class="c">-- 컬럼 자리에 select를 넣는 더블 셀렉트 — 전체 개수를 모든 행에 붙여 확인</span>
@@ -2483,8 +2483,8 @@ select (select count(*) from travel_image) as total from travel_image;</code></p
 
     <ul class="facts">
     <li><strong>유사도 검색 쿼리</strong><div>서브쿼리로 기준 벡터를 가져와 정렬: 이 파일 19장</div></li>
-    <li><strong>LIKE 문법 기초</strong><div><code>like</code>·<code>ilike</code>의 차이와 패턴: spark.html 41장</div></li>
-    <li><strong>노트북에서 실행</strong><div><code>read_sql</code>·<code>createDataFrame</code>: spark.html 66장</div></li>
+    <li><strong>LIKE 문법 기초</strong><div><code>like</code>·<code>ilike</code>의 차이와 패턴: pyspark.html 23장</div></li>
+    <li><strong>노트북에서 실행</strong><div><code>read_sql</code>·<code>createDataFrame</code>: pyspark.html 37장</div></li>
     </ul>
   </section>
 
@@ -2512,7 +2512,7 @@ as img from travel_image order by img asc</code></pre><button class="copy" type=
     <tr><td class="nowrap">서브쿼리</td><td><code>(select emd … ilike '%travel_13.jpg%')</code>로 기준 이미지(13번)의 벡터만 가져옴</td><td>경로가 길어 <code>%</code>를 앞뒤에 붙여 파일명만 지정</td></tr>
     <tr><td class="nowrap"><code>order by img asc</code></td><td>오름차순 — <b>가장 가까운(거리가 작은) 이미지부터</b></td><td><code>desc</code>로 두면 반대 순서</td></tr>
     <tr><td class="nowrap">모델 재실행</td><td>하지 않음 — DB에 저장된 벡터끼리 비교</td><td>AI 호출 없이 SQL만으로 검색되는 구조</td></tr>
-    <tr><td class="nowrap">실행 순서</td><td>DBeaver에서 확인 → 같은 쿼리를 노트북(<code>img2</code>)에 옮김</td><td>노트북 코드는 spark.html 66장</td></tr>
+    <tr><td class="nowrap">실행 순서</td><td>DBeaver에서 확인 → 같은 쿼리를 노트북(<code>img2</code>)에 옮김</td><td>노트북 코드는 pyspark.html 37장</td></tr>
     </tbody></table></div>
 
     <h3>기준 이미지 13번(안경) 결과</h3>
@@ -2550,7 +2550,7 @@ as img from travel_image order by img asc</code></pre><button class="copy" type=
 
     <ul class="facts">
     <li><strong>서브쿼리·ilike</strong><div>더블 셀렉트 문법과 패턴 검색: 이 파일 18장</div></li>
-    <li><strong>노트북 코드</strong><div><code>read_sql</code>·<code>createDataFrame</code>·<code>show</code>: spark.html 66장</div></li>
+    <li><strong>노트북 코드</strong><div><code>read_sql</code>·<code>createDataFrame</code>·<code>show</code>: pyspark.html 37장</div></li>
     <li><strong>연산자 비교</strong><div><code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>·<code>&lt;#&gt;</code> 결과 차이: 이 파일 10~11장</div></li>
     </ul>
   </section>
@@ -2653,7 +2653,7 @@ spark.stop()</code></pre><button class="copy" type="button" aria-label="코드 �
     <ul class="facts">
     <li><strong>더블 셀렉트·정렬</strong><div>기준 벡터를 서브쿼리로 가져오는 방식: 이 파일 18~19장</div></li>
     <li><strong>파라미터·API</strong><div><code>FastAPI</code>의 경로·쿼리 파라미터: fastapi.html 참고</div></li>
-    <li><strong>노트북 실행 구조</strong><div><code>read_sql</code>·<code>createDataFrame</code>: spark.html 66장</div></li>
+    <li><strong>노트북 실행 구조</strong><div><code>read_sql</code>·<code>createDataFrame</code>: pyspark.html 37장</div></li>
     </ul>
   </section>
 
@@ -2675,7 +2675,7 @@ spark.stop()</code></pre><button class="copy" type="button" aria-label="코드 �
     <tr><td class="nowrap">Oracle</td><td>배열 형태로 저장하는 타입이 있고 그 타입을 이용하는 사례가 있음</td><td>어느 버전·타입인지 발언만으로 확정하지 않음(아래 확인 항목)</td></tr>
     <tr><td class="nowrap">그 외</td><td>별도로 다루는 사례가 없음</td><td>실습에서는 PostgreSQL만 사용</td></tr>
     <tr><td class="nowrap"><code>CAST</code></td><td>MySQL에서도 <code>CAST</code>로 형변환(문자→숫자 등)은 가능</td><td>벡터를 자유롭게 검색하는 용도로 쓰지는 않음</td></tr>
-    <tr><td class="nowrap">Spark의 역할</td><td>벡터 컬럼 조회 결과를 DataFrame으로 받아 출력</td><td>저장·검색 계산은 DB가 담당(이 파일 19장·spark.html 61·66장)</td></tr>
+    <tr><td class="nowrap">Spark의 역할</td><td>벡터 컬럼 조회 결과를 DataFrame으로 받아 출력</td><td>저장·검색 계산은 DB가 담당(이 파일 19장·pyspark.html 32·37장)</td></tr>
     </tbody></table></div>
     <div class="note-verify"><div class="tag">🔍 직접 확인 · 48강 160:45~162:05</div><p>오라클에서 배열로 저장하는 타입이 어느 버전·타입인지 — 강의에서 “C랩”·“B랩”으로 들린 발언의 실제 이름(<code>CLOB</code>·<code>BLOB</code> 등)과 버전(12c~19c·18·19 클라우드)을 영상 160:45~162:05 구간이나 오라클 문서로 확인할 항목</p></div>
     <div class="dg-bar warn">벡터 검색 문법은 DB마다 다름 — PostgreSQL의 <code>&lt;=&gt;</code>·<code>order by</code>가 MySQL에 그대로 옮겨지지 않음. 벡터 차원도 모델마다 달라 테이블·코드를 함께 맞춤(이 파일 16장)</div>

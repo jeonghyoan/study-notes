@@ -614,7 +614,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>Rocky Linux 9 기반 Docker 클라우드 구축과 배포 파이프라인</h1>
-    <p class="deck">Docker 통합 학습노트 · 범위: 호스트 세팅 → systemd 이미지 재빌드 → 자원 제한·Compose → 웹·FTP·DB 컨테이너 → Docker Hub·CI/CD 배포 → 포트 게시·iptables → 사용자 정의 네트워크 → 볼륨 바인드 마운트·실행 중 컨테이너 포트 추가(<code class="n">hostconfig.json</code>·<code class="n">docker.socket</code>) → 설계도 준수. 연결 파일: mysql.html · postgresql.html · was.html · spark.html</p>
+    <p class="deck">Docker 통합 학습노트 · 범위: 호스트 세팅 → systemd 이미지 재빌드 → 자원 제한·Compose → 웹·FTP·DB 컨테이너 → Docker Hub·CI/CD 배포 → 포트 게시·iptables → 사용자 정의 네트워크 → 볼륨 바인드 마운트·실행 중 컨테이너 포트 추가(<code class="n">hostconfig.json</code>·<code class="n">docker.socket</code>) → 설계도 준수. 연결 파일: mysql.html · postgresql.html · was.html · spark.html · pyspark.html</p>
 
     <div class="core-strip">
       <div>
@@ -1653,7 +1653,7 @@ netstat -lntpu</code></pre><button class="copy" type="button" aria-label="코드
       <tr><td><strong>원리</strong></td><td>컨테이너는 호스트 커널의 시계를 공유하고 시간대만 이미지 기본값(UTC)으로 보임</td><td>생성 후 <code class="n">date</code>로 먼저 확인 — 확인 없이 DB 등을 설치하면 기록·로그 시각이 어긋남</td></tr>
       <tr><td><strong>시간대 변경</strong></td><td><code class="n">/etc/localtime</code>이 심볼릭 링크라 링크 대상만 서울로 교체하면 KST로 표시</td><td>파일 변경은 stop/start 후에도 유지, 컨테이너 삭제 시 사라짐. Dockerfile에 <code class="n">RUN ln -sf …</code>를 넣으면 이미지에서 처음부터 서울 시간</td></tr>
       <tr><td><strong>chrony로 맞추기</strong></td><td>NTP 데몬 설정 파일은 <code class="n">/etc/chrony.conf</code>, <code class="n">systemctl restart chronyd</code>는 PID 1이 systemd여야 동작</td><td>systemd가 있어도 시계 변경에는 <code class="n">CAP_SYS_TIME</code> 권한 필요 — 없으면 <code class="n">adjtimex(0x8001) failed : Operation not permitted</code></td></tr>
-      <tr><td><strong>적용 실습</strong></td><td>Spark 마스터·워커 컨테이너를 UTC에서 KST로 맞춘 과정</td><td>자세한 실습: spark.html 34장</td></tr>
+      <tr><td><strong>적용 실습</strong></td><td>Spark 마스터·워커 컨테이너를 UTC에서 KST로 맞춘 과정</td><td>자세한 실습: spark.html 18장</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [컨테이너 · root]</span>
 <span class="c"># 현재 시간·시간대 확인 — UTC로 보이면 시간대가 이미지 기본값</span>
@@ -2257,7 +2257,7 @@ chrome.exe --explicitly-allowed-ports=10080</code></pre><button class="copy" typ
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>목적</strong></td><td>마스터 1개 + 워커 2개 Spark 클러스터를 컨테이너로 구성 → 컨테이너끼리 이름으로 통신할 전용 네트워크부터 만듦</td></tr>
-    <tr><td><strong>자세한 실습</strong></td><td>spark.html 2장·21~22장 (클러스터 포트·자원, Spark 3.5.3 이미지 Dockerfile·빌드·검증, 마스터 기동) / 서버 2대 직접 설치·운영·제출·예제: spark.html 3~10장 / PySpark·JupyterLab 연동(pandas·numpy 설치·환경변수·노트북·코어 실험): spark.html 11~15장 / pandas UDF·공공 API 적재·JDBC 연동·박스오피스 집계: spark.html 16~20장 / 개념·구성 요소: spark.html 1장</td></tr>
+    <tr><td><strong>자세한 실습</strong></td><td>spark.html 2장·13~14장 (클러스터 포트·자원, Spark 3.5.3 이미지 Dockerfile·빌드·검증, 마스터 기동) / 서버 2대 직접 설치·운영·제출: spark.html 3~9장 / 예제(WordCount·PySpark 집계): pyspark.html 1장 / PySpark·JupyterLab 연동(pandas·numpy 설치·환경변수·노트북·코어 실험): pyspark.html 2~6장 / pandas UDF: pyspark.html 7~8장 / 공공 API 적재·JDBC 연동·박스오피스 집계: spark.html 10~12장 / 개념·구성 요소: spark.html 1장</td></tr>
     </tbody></table></div>
 
     <h3>전용 네트워크를 먼저 구성</h3>
@@ -2422,7 +2422,7 @@ systemctl stop docker docker.socket                    <span class="c"># 데몬�
     <tr><td class="nowrap">포트폴리오</td><td>사수가 설계도를 주고 그대로 세팅하게 하는 과제 형태</td><td>실무와 같은 순서(설계도 → 구현 → 검증)를 미리 연습</td></tr>
     </tbody></table></div>
 
-    <ul class="facts"><li><strong>실제 적용</strong><div>Spark 마스터·워커 컨테이너에 <code>-v</code>를 넣어 재생성하고 마운트 검증: spark.html 22장</div></li><li><strong>네임드 볼륨</strong><div><code>docker volume create</code>와 Compose 선언: postgresql.html 11장</div></li><li><strong>디스크 여유</strong><div><code>/var/lib/docker</code>가 차지하는 공간과 파티션 배분: linux.html 12장</div></li><li><strong>실시간 동기화와 구분</strong><div>lsyncd는 파일을 복사해 맞추는 도구, <code>-v</code>는 같은 폴더를 함께 봄: linux.html 14장</div></li></ul>
+    <ul class="facts"><li><strong>실제 적용</strong><div>Spark 마스터·워커 컨테이너에 <code>-v</code>를 넣어 재생성하고 마운트 검증: spark.html 14장</div></li><li><strong>네임드 볼륨</strong><div><code>docker volume create</code>와 Compose 선언: postgresql.html 11장</div></li><li><strong>디스크 여유</strong><div><code>/var/lib/docker</code>가 차지하는 공간과 파티션 배분: linux.html 12장</div></li><li><strong>실시간 동기화와 구분</strong><div>lsyncd는 파일을 복사해 맞추는 도구, <code>-v</code>는 같은 폴더를 함께 봄: linux.html 14장</div></li></ul>
   </section>
 
   <!-- 11 -->
