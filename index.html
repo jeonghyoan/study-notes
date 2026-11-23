@@ -26,6 +26,7 @@ iframe { flex:1; width:100%; border:0; background:var(--bg); }
   <button class="theme-btn" id="themeBtn" type="button">다크</button>
 </div>
 <iframe id="viewer" title="학습노트 본문"></iframe>
+<button id="tocFab" type="button" style="position:fixed;right:14px;bottom:18px;z-index:20;border:1px solid var(--hair);background:var(--acc);color:#fff;padding:8px 14px;border-radius:999px;font-size:12.5px;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.18);cursor:pointer;">목차 ↑</button>
 <script>
 (function(){
   var subjects = [
@@ -34,7 +35,7 @@ iframe { flex:1; width:100%; border:0; background:var(--bg); }
     ["fastapi.html","FastAPI"],["mysql.html","MySQL"],["postgresql.html","PostgreSQL"],
     ["docker.html","Docker"],["spark.html","Spark"]
   ];
-  var tabsEl = document.getElementById("tabs"), viewer = document.getElementById("viewer"), btn = document.getElementById("themeBtn");
+  var tabsEl = document.getElementById("tabs"), tocFab = document.getElementById("tocFab"), viewer = document.getElementById("viewer"), btn = document.getElementById("themeBtn");
   var r = document.documentElement;
   function curTheme(){ var t=r.getAttribute("data-theme"); if(t) return t; return matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"; }
   function applyTheme(t){
@@ -57,6 +58,12 @@ iframe { flex:1; width:100%; border:0; background:var(--bg); }
     "  .sec,.band{margin-top:32px !important;}",
     "  .band{padding:18px 14px 12px !important;}",
     "  .deck{display:none !important;}",
+    "  .core-strip{display:none !important;}",
+    "  .core-strip.is-open{display:grid !important;}",
+    "  .core-toggle{display:inline-flex;align-items:center;gap:4px;margin:8px 0 4px;padding:6px 12px;border-radius:999px;border:1px solid var(--hair);background:var(--paper-alt);color:var(--ink2);font-size:12.5px;font-weight:600;cursor:pointer;}",
+    "  .toc{margin:12px 0 0 !important;padding:12px 14px !important;border-radius:10px !important;}",
+    "  .toc a{padding:6px 0 !important;border-bottom:1px solid var(--hair-soft);font-size:13.5px !important;}",
+    "  .toc a:last-child{border-bottom:0;}",
     "  .core-strip{margin-top:12px !important;gap:10px !important;}",
     "  .core-strip>div{padding:12px 14px !important;}",
     "  .core-metric{font-size:15px !important;margin-bottom:4px !important;}",
@@ -84,6 +91,15 @@ iframe { flex:1; width:100%; border:0; background:var(--bg); }
     if(!doc.getElementById("sn-mobile-polish")){
       var s=doc.createElement("style"); s.id="sn-mobile-polish"; s.textContent=mobileCSS;
       doc.head.appendChild(s);
+    }
+    var cs=doc.querySelector(".core-strip");
+    if(cs && !doc.querySelector(".core-toggle") && window.innerWidth<=760){
+      var cb=doc.createElement("button"); cb.type="button"; cb.className="core-toggle"; cb.textContent="핵심 요약 3장 보기 ▾";
+      cb.addEventListener("click",function(){
+        var open=cs.classList.toggle("is-open");
+        cb.textContent=open?"핵심 요약 접기 ▴":"핵심 요약 3장 보기 ▾";
+      });
+      cs.insertAdjacentElement("beforebegin", cb);
     }
 
   }
@@ -115,6 +131,7 @@ iframe { flex:1; width:100%; border:0; background:var(--bg); }
   });
   var last="linux.html";
   try{ var lf=localStorage.getItem("sn-last-file"); if(lf && subjects.some(function(x){return x[0]===lf;})) last=lf; }catch(e){}
+  tocFab.addEventListener("click",function(){ try{ var d=viewer.contentDocument; var t=d.querySelector(".toc")||d.body; t.scrollIntoView({behavior:"smooth",block:"start"}); }catch(e){} });
   openPage(last);
 })();
 </script>
