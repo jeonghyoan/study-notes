@@ -879,9 +879,9 @@ ntsysv</code></pre><button class="copy" type="button" aria-label="코드 복사"
     <h3>설치 후 호스트 네트워크 변화 (<code class="n">ifconfig</code>)</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>기존</strong></td><td><code class="n">enp0s3</code> · <code class="n">enp0s8</code> · <code class="n">lo</code></td></tr>
+    <tr><td><strong>기존</strong></td><td><code class="n">enp0s3</code>(<code class="n">10.0.2.4/24</code>) · <code class="n">enp0s8</code>(<code class="n">192.168.222.5/24</code>) · <code class="n">lo</code>(<code class="n">127.0.0.1</code>)</td></tr>
     <tr><td><strong>추가: docker0</strong></td><td><code class="n">172.17.0.1</code> / 넷마스크 <code class="n">255.255.0.0</code> / 브로드캐스트 <code class="n">172.17.255.255</code></td></tr>
-    <tr><td><strong>추가: veth</strong></td><td>컨테이너마다 <code class="n">veth…</code> 인터페이스 생성 (컨테이너 2개면 docker0 포함 3개 생김)</td></tr>
+    <tr><td><strong>추가: veth</strong></td><td>컨테이너마다 <code class="n">veth…</code> 인터페이스 생성 (예: <code class="n">veth0c6d980</code>, <code class="n">vethcac2f62</code>). 컨테이너 2개면 docker0 포함 3개 생김</td></tr>
     <tr><td><strong>컨테이너 IP</strong></td><td><code class="n">172.x</code> 대역. /16이라 앞 두 자리(<code class="n">172.17</code>) 고정, <strong>3·4번째 자리</strong>가 컨테이너마다 바뀜</td></tr>
     <tr><td><strong>컨테이너의 정체</strong></td><td>별도 커널을 가진 가상머신이 아니라 <strong>호스트 커널을 공유하는 격리된 프로세스</strong>. <code class="n">docker0</code>·<code class="n">veth</code>는 가상 브리지·NAT 인터페이스</td></tr>
     </tbody></table></div>
@@ -941,8 +941,15 @@ docker rmi quay.io/centos/centos:stream9</code></pre><button class="copy" type="
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>이유</strong></td><td>베이스 이미지가 최소 구성이고 기본 실행 명령이 <code class="n">/bin/bash</code> → PID 1이 init/systemd가 아니라서 <code class="n">systemctl</code> 불가</td></tr>
+    <tr><td><strong>허브 이미지</strong></td><td>업로드한 사람이 샘플로 올린 최소 이미지가 많아 init 없음 → 이런 이미지는 <code class="n">/bin/bash</code>로만 실행돼 <code class="n">--privileged</code>·<code class="n">-d</code>도 소용없고 정지·설치도 어려움 (31강의 붉은 글씨 "PID가 없다"가 이 상태)</td></tr>
+    <tr><td><strong>PID</strong></td><td>process id(프로세스 번호). <strong>PID 1</strong> = 부팅 때 첫 번째로 실행되는 프로세스 — ISO로 설치한 일반 리눅스는 PID 1 = systemd가 프로세스 관리</td></tr>
     <tr><td><strong>판단법</strong></td><td>이미지 용량(1GB 등)으로는 판단 불가 → <code class="n">ls -l /usr/sbin/init</code>로 직접 확인</td></tr>
     </tbody></table></div>
+
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 32강 10:07 부근</div>
+      <p>과거에는 init가 들어 있는 이미지가 허브에 올라왔는지 등 이미지 변천 — 강사 발언만으로 확인되지 않음. 도커 허브의 해당 이미지 설명·태그 이력 페이지에서 확인 필요</p>
+    </div>
 
     <p><strong>/bin/bash 방식으로 띄웠을 때 생긴 일</strong></p>
     <ol>
@@ -977,6 +984,11 @@ docker ps</code></pre><button class="copy" type="button" aria-label="코드 복�
     <div class="dg-bar warn">PID 1과 systemd — <code class="n">/bin/bash</code>로 띄우면 PID 1 = bash → <code class="n">systemctl</code> 불가. <code class="n">/sbin/init</code>으로 띄워야 systemd가 관리. <strong>PID 1은 생성 후 변경 불가</strong> (재생성)</div>
 
     <h3>1단계: 컨테이너 생성 전 init 유무 확인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>이미지 종류</strong></td><td>OS 이미지든 DB(MySQL, 오라클 등) 이미지든 무엇이든 허브에 올려 둘 수 있음 → 받은 이미지가 어떤 구성인지는 열어 봐야 앎</td></tr>
+    <tr><td><strong>확인 순서</strong></td><td><code class="n">docker pull</code> → 컨테이너를 만들기 전에 이미지 안 <code class="n">/usr/sbin/init</code> 확인 → 있으면 그대로 사용, 없으면 새 이미지 빌드</td></tr>
+    </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># 임시 진입 확인 (--rm: 종료 시 컨테이너 자동 삭제)</span>
 docker run --rm -it moongeun/centos9:latest /bin/bash
@@ -988,6 +1000,8 @@ exit                      <span class="c"># 임시 컨테이너 종료 → 호�
 <span class="c"># 한 줄로 바로 확인. init가 없으면 cannot access '/usr/sbin/init': No such file or directory → 재빌드 필요</span>
 docker run --rm moongeun/centos9:latest ls -l /usr/sbin/init</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <ul>
+      <li>실행 결과 <code>cannot access '/usr/sbin/init': No such file or directory</code> — 탭 자동완성으로 <code>/usr/sbin/</code>을 봐도 <code>init</code> 없음</li>
+      <li><code class="n">vi /proc/pid/comm</code>으로 PID 확인 시도 → 작동 중인 프로세스가 없어 아무 내용도 뜨지 않음</li>
       <li>설치가 아니며 컨테이너를 남기지 않음</li>
     </ul>
     <div class="dg-bar warn">init 사전 확인 — 허브 이미지는 <code class="n">/sbin/init</code> 없는 깡통이 많음 → <code>docker run --rm &lt;이미지&gt; ls -l /usr/sbin/init</code>으로 먼저 확인</div>
@@ -1369,6 +1383,9 @@ docker compose -f postgre.yaml down</code></pre><button class="copy" type="butto
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>입장</strong></td><td><strong>[호스트 리눅스 · root]</strong> 호스트에서 <code>docker exec -it megaweb /bin/bash</code>(센트OS 컨테이너는 <code>docker exec -it megadb /bin/bash</code>) → 프롬프트가 <code class="n">[root@컨테이너ID /]#</code>로 바뀜. <code class="n">exec</code> = executor(실행): 이미 돌고 있는 컨테이너에 터미널로 접속하며, <code class="n">exit</code>로 나오면 호스트 프롬프트 <code class="n">[root@localhost …]</code>(처음 깐 리눅스)로 돌아옴</td></tr>
     <tr><td><strong>실수 방지</strong></td><td><strong>[윈도우 · PuTTY]</strong> PuTTY 창 3개(호스트 / <code class="n">megaweb</code> / <code class="n">megadb</code>)를 글자 크기·배경색 다르게 (예: DB 보라, 웹 진한 녹색)</td></tr>
+    <tr><td><strong>접속 경로</strong></td><td>이 단계에서는 호스트(<code class="n">192.168.222.5</code>) 22번으로 PuTTY 접속 → <code class="n">docker exec</code>로 컨테이너 진입. 컨테이너 직접 접속은 아래 포트포워딩을 연 뒤</td></tr>
+    <tr><td><strong>긴 작업</strong></td><td><code class="n">dnf update</code>처럼 오래 걸리는 작업은 한 창에 걸어 두고 다른 창에서 작업</td></tr>
+    <tr><td><strong>포트 기록</strong></td><td>컨테이너마다 접속 포트가 늘어나므로 이름·포트를 적어 둠</td></tr>
     <tr><td><strong>동시 작업</strong></td><td>컨테이너는 호스트와 독립 → 양쪽에서 동시에 <code class="n">dnf</code> 가능</td></tr>
     <tr><td><strong>컨테이너별 차이</strong></td><td>컨테이너마다 빠진 것이 다름 (로키는 <code class="n">ifconfig</code>·<code class="n">clear</code> 없음, 센트OS는 <code class="n">clear</code> 있고 <code class="n">ntsysv</code> 없음) → 필요한 것만 설치</td></tr>
     </tbody></table></div>
@@ -1463,6 +1480,7 @@ docker compose -f postgre.yaml down</code></pre><button class="copy" type="butto
     <tr><td><strong>PuTTY 접속</strong></td><td><strong>[윈도우 · PuTTY]</strong> 로키 컨테이너: 윈도우 IP + <code class="n">10022</code> → 첫 접속 호스트 키 경고는 Accept(Yes) → <code class="n">megazone</code>으로 로그인 → 클라우드 환경에 바로 접속. 센트OS 컨테이너: 윈도우 IP + <code class="n">9022</code> → <code class="n">hong</code>으로 로그인 (재빌드 방식은 사용자 <code class="n">mega</code>)</td></tr>
     <tr><td><strong>재빌드 방식의 규칙 포트</strong></td><td>재빌드 방식에서는 호스트 포트가 웹 <code class="n">9022</code> / DB <code class="n">10022</code>이므로 <code class="n">로키9-c</code>→<code class="n">9022</code>, <code class="n">센트OS9-c</code>→<code class="n">10022</code>로 맞춰야 접속됨 (1장 표 참고)</td></tr>
     <tr><td><strong>의미</strong></td><td>GCP·AWS를 신청하면 보게 되는 화면이 이것. 클라우드 관리자(최고 관리자)는 이 상황을 다 보고 있음</td></tr>
+    <tr><td><strong>다음 단계</strong></td><td>DB 컨테이너(<code class="n">megadb</code>)는 이 단계에서 더 건드리지 않고 웹 컨테이너(<code class="n">megaweb</code>)부터 세팅</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">컨테이너 접속 — 내부 진입: 호스트에서 <code>docker exec -it 컨테이너명 /bin/bash</code> / 외부 직접 접속: VirtualBox 포트포워딩(윈도우 IP→호스트 IP) 후 PuTTY에 호스트 포트 지정</div>
     <div class="dg-bar warn">컨테이너 SSH 직접 접속 (포트포워딩) — VirtualBox 규칙의 게스트 IP는 컨테이너 IP(<code class="n">172.x</code>)가 아니라 <strong>클라우드를 제어하는 호스트 리눅스 IP</strong>. 흐름: <code class="n">윈도우IP:10022</code> → <code class="n">호스트리눅스:10022</code>(<code class="n">-p 10022:22</code>) → <code class="n">컨테이너:22</code>. 규칙 포트는 <code class="n">-p</code>의 호스트 포트와 같아야 함</div>
@@ -1491,9 +1509,16 @@ dnf install ncurses        <span class="c"># clear 명령 (선택)</span></code>
     </tbody></table></div>
     <div class="dg-bar warn">깡통 필수 패키지 — 최소 컨테이너엔 <code class="n">ps</code>, <code class="n">ifconfig</code>, <code class="n">passwd</code>, <code class="n">sudo</code>, SSH 서버가 없음 → <code class="n">procps-ng</code>, <code class="n">net-tools</code>, <code class="n">passwd</code>, <code class="n">sudo</code>, <code class="n">openssh-server</code> 설치</div>
 
+    <h3>ps로 PID 1 확인</h3>
+<div class="code"><pre><code><span class="c"># [컨테이너(megaweb·megadb 공통) · root]</span>
+<span class="c"># 모든 프로세스: UID(소유자)·PID(번호)·PPID(부모 PID)·STIME(시작 시각)·TIME(누적 CPU)·CMD(명령)</span>
+ps -ef
+<span class="c"># PID 1만 자세히 → /usr/lib/systemd/systemd --system 이면 systemd 정상 (bash 방식이면 bash)</span>
+ps -fp 1</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
     <h3>사용자 생성·sudo 권한 &amp; SSH 가동</h3>
 <div class="code"><pre><code><span class="c"># [컨테이너(megaweb·megadb 공통) · root]</span>
-<span class="c"># 사용자 생성 → /home/mega 생성됨 (cd /home &amp;&amp; ls -a로 확인). 호스트에서 만든 사용자는 컨테이너에 안 생김</span>
+<span class="c"># 사용자 생성 → /home/mega 생성됨 (생성 전 /home은 비어 있음, cd /home &amp;&amp; ls -a로 확인). 호스트에서 만든 사용자는 컨테이너에 안 생김</span>
 useradd mega
 <span class="c"># 8자 미만은 BAD PASSWORD 경고만 뜨고 적용됨 (연습값. 실무는 강한 비밀번호 또는 SSH 키 등록 방식)</span>
 passwd mega
@@ -1509,8 +1534,10 @@ sudo -s
 exit
 
 <span class="c"># [컨테이너 · root]</span>
-<span class="c"># systemd 방식 정석 (ls /etc/ssh로 sshd_config 확인)</span>
-systemctl start sshd</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<span class="c"># systemd 방식 정석 (웹·DB 컨테이너 동일)</span>
+systemctl start sshd
+<span class="c"># ssh_config·sshd_config 생성 확인 (설치 전에는 거의 빈 상태)</span>
+ls /etc/ssh</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>sudo 거부</strong></td><td><code class="n">wheel</code> 추가 전 <code class="n">sudo -s</code> → <code>mega is not in the sudoers file</code> = 사용자 <code class="n">mega</code>가 sudo 허용 대상(<code class="n">sudoers</code>)에 미등록</td></tr>
@@ -1566,6 +1593,7 @@ ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime</code></pre><button class="
     <div class="dg"><p class="dg-title">한눈에 보기 — 컨테이너마다 역할 하나씩</p><div class="dg-flow"><div class="dg-node"><h4>① megaweb</h4><p class="sub">vsftpd :21 · httpd :80</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② userdir.conf</h4><p class="sub">UserDir www · chmod 755</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ megadb</h4><p class="sub">mysql-server :3306</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 외부 접속</h4><p class="sub">FileZilla 9021 · DBeaver 3306</p></div></div></div>
 
     <h3>웹 컨테이너(<code class="n">megaweb</code>): vsftpd + httpd 사용자별 웹 호스팅</h3>
+    <ul class="facts"><li><strong>전제</strong><div>컨테이너 <code class="n">megaweb</code>에 사용자 <code class="n">mega</code> 생성 완료 — 웹(httpd)과 FTP(vsftpd) 모두 <code class="n">mega</code> 계정 사용. 컨테이너에는 <code class="n">firewalld</code>가 없어 vsftpd·httpd 설정만 하면 됨</div></li></ul>
     <p><strong>vsftpd 설정과 FileZilla 접속</strong></p>
     <ul class="facts"><li><strong>자세한 설정</strong><div>vsftpd.conf 지시어별 설정·이유(익명·chroot·포트 변경 등): vsftpd.html 2~6장</div></li></ul>
 <div class="code"><pre><code><span class="c"># [megaweb 컨테이너 · root]</span>
@@ -1600,7 +1628,7 @@ vi /etc/vsftpd/ftp_user
 systemctl restart vsftpd</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>FileZilla 접속</strong></td><td><strong>[윈도우 · FileZilla]</strong> 리눅스 IP(<code class="n">192.168.222.5</code>) / 사용자 <code class="n">mega</code> / 포트 <code class="n">9021</code> / 전송 설정 <strong>능동형(Active)</strong> → 테스트 파일 업로드 확인. 리눅스 IP로 접속하면 VirtualBox 포트포워딩 등록 없이 바로 접속(윈도우 IP는 등록 필요). 업로드한 파일이 컨테이너 <code class="n">/home/mega</code>에서 보이면 클라우드 환경에서 FTP 동작</td></tr>
+    <tr><td><strong>FileZilla 접속</strong></td><td><strong>[윈도우 · FileZilla]</strong> 리눅스 IP(<code class="n">192.168.222.5</code>) / 사용자 <code class="n">mega</code> / 포트 <code class="n">9021</code> / 전송 설정 <strong>능동형(Active)</strong> → 테스트 파일(예: <code class="n">test_table.py</code>) 업로드 확인. 리눅스 IP로 접속하면 VirtualBox 포트포워딩 등록 없이 바로 접속(윈도우 IP는 등록 필요). 업로드한 파일이 컨테이너 <code class="n">/home/mega</code>에서 보이면 클라우드 환경에서 FTP 동작</td></tr>
     <tr><td><strong>ftp_user 파일</strong></td><td>파일 이름만 바꿔서는 보안 효과 거의 없음 (서버 내부 설정 파일)</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">vsftpd 핵심 — 컨테이너 안 <code class="n">listen_port</code>는 21 유지. <code class="n">chroot_local_user=YES</code>, <code>allow_writeable_chroot=YES</code>, <code class="n">chroot_list_enable=NO</code>. 패시브 모드 실사용 시 <code class="n">pasv_min_port~max_port</code>도 <code class="n">-p</code>로 개방</div>
@@ -1610,7 +1638,7 @@ docker run -it -d --privileged -p 9022:22 -p 80:80 -p 9021:21 -p 5000-5100:5000-
     <div class="dg-bar warn">패시브 모드의 인과 — 패시브는 서버가 알려준 데이터 포트로 클라이언트가 다시 접속하는 방식 → 그 포트를 <code class="n">docker run -p</code>로 안 열면 연결이 안 돼 FileZilla 디렉터리 조회가 멈춤. 그래서 <code class="n">pasv_min_port~pasv_max_port</code>(5000~5100)를 고정하고 <code class="n">-p</code>로 열어야 함. 열지 않았다면 능동형(Active)으로 접속</div>
 
     <p><strong>httpd 사용자별 웹 (<code class="n">userdir.conf</code>)</strong></p>
-    <ul class="facts"><li><strong>자세한 설정</strong><div>httpd 설치·기동·httpd.conf 줄별 의미·DocumentRoot·DirectoryIndex: httpd.html 3~7장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 설정</strong><div>httpd 설치·기동·httpd.conf 줄별 의미·DocumentRoot·DirectoryIndex: httpd.html 3~7장 / userdir.conf 전체 블록·<code class="n">Require method</code> 의미·403 해결: httpd.html 9장</div></li></ul>
 <div class="code"><pre><code><span class="c"># [megaweb 컨테이너 · root]</span>
 dnf install httpd
 <span class="c"># 사용자마다 웹을 다르게 하려면 httpd.conf(하나만 뜸)가 아니라 conf.d의 userdir.conf를 수정</span>
@@ -1623,7 +1651,7 @@ vi /etc/httpd/conf.d/userdir.conf
 <span class="c"># [megaweb 컨테이너 · /etc/httpd/conf.d/userdir.conf 파일 안]</span>
 <span class="c"># 17번 라인: 기본값 UserDir disabled를 바꿈. www = 사용자 홈 아래 웹 디렉터리 이름</span>
 UserDir www
-<span class="c"># 31번 라인: 위 디렉터리 이름과 맞추기 위해 public_html → www (나머지 줄은 그대로)</span>
+<span class="c"># 31번 라인: 위 디렉터리 이름과 맞추기 위해 public_html → www (31~35번이 &lt;Directory&gt; 블록, 나머지 줄은 그대로)</span>
 &lt;Directory "/home/*/www"&gt;
 
 <span class="c"># [megaweb 컨테이너 · root]</span>
