@@ -1958,6 +1958,7 @@ spark = (SparkSession.builder
     <div class="code"><pre><code><span class="c"># [마스터 · sparkuser · /home/sparkuser]</span>
 spark-submit udf.py   <span class="c"># pandas UDF 실습 실행 — 파일 안 .master()·.config() 값대로 클러스터에 제출</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <p>마스터 웹 UI(<code>8080</code>)를 새로고침하면 실행 중인 앱이 보임 — 앱 이름은 코드의 <code>.appName()</code> 값으로 표시(예: <code>rdbms</code>). 웹 UI는 자동 새로고침이 없어 수동 새로고침 필요 (10장).</p>
+    <div class="dg-bar warn">실행 형태 — pandas UDF 실습은 노트북이 아니라 <code>.py</code> 파일로 만들어 <code>spark-submit</code>으로 제출. Jupyter 노트북에 넣으면 제대로 돌지 않거나 에러가 남 (14장)</div>
 
     <ul class="facts"><li><strong>자원 상한</strong><div>워커 가용 메모리·<code>SPARK_WORKER_MEMORY</code>: 이 파일 15장</div></li><li><strong>세션 구성 기본형</strong><div><code>member.py</code>의 <code>.master()</code>·<code>.config()</code>: 이 파일 10장</div></li><li><strong>라이브러리 설치</strong><div>pandas·pyarrow를 마스터·워커에 설치: 이 파일 12장</div></li></ul>
   </section>
