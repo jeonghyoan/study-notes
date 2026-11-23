@@ -2064,7 +2064,7 @@ show tables;                         <span class="c">-- 테이블 목록 — AI�
 select count(*) from DailyBoxOffice; <span class="c">-- 적재 건수 확인 → 500</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="dg-bar warn">적재 확인 — <code>select count(*) from DailyBoxOffice</code>로 건수(500건)를 보고 테이블명이 AI마다 다르다는 점을 기억. 5만 건은 되어야 빅데이터 실습 규모</div>
 
-    <ul class="facts"><li><strong>테이블 생성·AI 활용</strong><div>CREATE TABLE 문 만들기: mysql.html 10장</div></li><li><strong>계정·호스트 권한</strong><div><code>hong</code>@<code>%</code>·최소 권한: mysql.html 12장</div></li><li><strong>Spark에서 읽기</strong><div>이 테이블을 JDBC로 조회: 이 파일 19장</div></li><li><strong>API 창구로 노출</strong><div>수집·집계 결과를 FastAPI·uvicorn으로 외부에 내보내는 구성(포트 9999·경로 파라미터 접근 제어): fastapi.html 3~4장·9장</div></li></ul>
+    <ul class="facts"><li><strong>테이블 생성·AI 활용</strong><div>CREATE TABLE 문 만들기: mysql.html 10장</div></li><li><strong>계정·호스트 권한</strong><div><code>hong</code>@<code>%</code>·최소 권한: mysql.html 12장</div></li><li><strong>Spark에서 읽기</strong><div>이 테이블을 JDBC로 조회: 이 파일 19장</div></li><li><strong>API 창구로 노출</strong><div>수집·집계 결과를 FastAPI·uvicorn으로 외부에 내보내는 구성(포트 9999·경로 파라미터 접근 제어): fastapi.html 3~4장·9장</div></li><li><strong>같은 테이블을 API에서 조회·삭제</strong><div><code>DailyBoxOffice</code>를 <code>pymysql</code>로 연결해 SELECT·DELETE 라우트로 제공하는 절차: fastapi.html 14장</div></li></ul>
   </section>
 
   <!-- 19 -->

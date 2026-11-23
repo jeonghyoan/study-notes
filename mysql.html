@@ -1783,6 +1783,7 @@ show tables from mysql;   <span class="c">-- use 없이 DB를 지정해 같은 �
     <li><strong>실습 예</strong><div>도로명 주소 — 서울 것만 메모장 파일 하나가 <b>50MB가 넘고 약 45만 개</b></div></li>
     <li><strong>입력</strong><div>DB에 쏟아 넣어야 하며 입력 중 한참 기다려야 함 (나중에 실습)</div></li>
     <li><strong>API로 꺼내 쓰기</strong><div>DB 값을 JSON으로 뿌리는 창구(FastAPI·uvicorn)와 뷰 테이블(가상 테이블·Materialized View): fastapi.html 1~2장</div></li>
+    <li><strong>API에서 DB 직접 조회·삭제</strong><div>접속 정보를 <code>db_info.py</code>로 분리해 <code>pymysql</code>·<code>DictCursor</code>로 연결하고 SELECT는 <code>fetchall</code>·DELETE는 <code>commit</code>으로 처리하는 실습: fastapi.html 14장</div></li>
     </ul>
 
   </section>
