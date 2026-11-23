@@ -2771,12 +2771,18 @@ flush privileges;</code></pre><button class="copy" type="button" aria-label="코
 
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>RDS</strong></td><td>Amazon Relational Database Service = MySQL·PostgreSQL 등 DB 엔진을 관리형 서비스로 제공 → AWS가 인프라 프로비저닝·유지보수·백업 같은 관리 기능 제공, 사용자는 endpoint·port·계정·DB 사용. 이 노트는 MySQL 실습만</td></tr>
+    <tr><td><strong>RDS</strong></td><td>Amazon Relational Database Service = MySQL·PostgreSQL 등 DB 엔진을 유료 관리형 서비스로 제공 → AWS가 인프라 프로비저닝·유지보수·백업 같은 관리 기능 제공, 사용자는 endpoint·port·계정·DB 사용. 이 노트는 MySQL 실습만</td></tr>
     <tr><td><strong>실습 모형</strong></td><td><ul><li>로컬 VirtualBox Linux 호스트 위 Docker 컨테이너에서 MySQL 실행 → DBeaver가 호스트 IP의 3306/tcp로 접속</li><li>클라우드 관리형 RDS와 Docker 컨테이너는 운영 방식·관리 책임이 다름 → 동일 구조로 단정하지 않음</li></ul></td></tr>
     <tr><td><strong>RDS 내부 구현</strong></td><td>"RDS 전용 서버에서 Docker로 여러 RDS를 구동" = 교육용 비유. AWS 공개 문서는 관리형 아키텍처를 설명하지만 내부 구현이 Docker라고 밝히지 않음 (참고: <a href="https://docs.aws.amazon.com/AmazonRDS/latest/gettingstartedguide/concepts.html">AWS RDS 핵심 개념·아키텍처</a>)</td></tr>
     <tr><td><strong>실습 위치</strong></td><td>호스트 Linux 작업 경로 <code>/root/rds</code>, 로그인 계정 <code>apink</code> → root 전환. DB 클라이언트는 DBeaver</td></tr>
     <tr><td><strong>포트 선점 확인</strong></td><td>실행 전 <code>docker ps</code>와 호스트 LISTEN 확인 → 다른 컨테이너가 이미 3306을 게시하면 bind 실패("port is already allocated" 등) → 다른 컨테이너를 임의로 끄지 말고 사용 대상 확인</td></tr>
+    <tr><td><strong>실습 흐름</strong></td><td><ol><li>MySQL 이미지 확인 → <code>docker login</code> → <code>docker pull</code> (10장)</li><li>컨테이너 생성 → 일반 사용자·root 접속 구분 → 접속 직후 <code>\s</code> 확인 (10장)</li><li>Client characterset <code>latin1</code> 확인 → 호스트에서 <code>my.cnf</code> 작성 → <code>docker cp</code> → <code>docker restart</code> (11장)</li><li><code>collation-server</code> 오타로 컨테이너 종료 → <code>docker logs</code>로 원인 확인·복구 (11장)</li><li>DB·사용자·권한 생성 → DBeaver 원격 접속 (13장)</li><li><code>mysqldump</code> 백업 → <code>docker cp</code>로 컨테이너 밖 보관 (14장)</li><li><code>DROP DATABASE</code> 사고 → root로 복원 → 행 수 검증 (14장)</li><li>이미지 배포 기준과 데이터 분리 (15장)</li></ol></td></tr>
+    <tr><td><strong>다른 엔진 RDS</strong></td><td>같은 관리형 서비스 계열로 PostgreSQL RDS도 존재 → 이 실습은 MySQL만 다룸. PostgreSQL의 설정 파일·인증(<code>pg_hba</code>)·백업 차이는 postgresql.html 1~9장</td></tr>
     </tbody></table></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 35강 14:09·55:21</div>
+      <p><strong>AWS·GCP RDS가 전용 서버의 Docker 위에서 구동되는지</strong>강의 설명은 RDS 전용 서버에 도커를 세팅해 여러 RDS(MySQL·MariaDB 등)를 올려 둔다는 구조. AWS·GCP 공식 문서에서 확인되는 것은 관리형 서비스의 책임 범위·아키텍처 설명이고 내부 구현이 Docker라는 근거는 없음 → 교육용 비유로 이해하고, 실제 내부 구조는 클라우드 제공자 문서에서 직접 확인</p>
+    </div>
     <div class="dg"><p class="dg-title">실습에서 접속이 흐르는 경로</p><div class="dg-flow">
       <div class="dg-node"><h4>DBeaver</h4><p class="sub">VirtualBox Linux IP:3306</p><ul><li>DB 계정으로 연결</li></ul></div><div class="dg-arrow">호스트 포트 게시</div>
       <div class="dg-node key"><h4>Linux Docker 호스트</h4><p class="sub">3306/tcp</p><ul><li><code>-p 3306:3306</code></li></ul></div><div class="dg-arrow">컨테이너 포트</div>
@@ -2788,6 +2794,10 @@ flush privileges;</code></pre><button class="copy" type="button" aria-label="코
     <tr><td><strong>MySQL 기본 포트</strong></td><td>AWS RDS for MySQL 기본 포트 = <code>3306</code>. <code>23306</code>은 사용자가 고를 수 있는 사용자 지정 포트 예</td></tr>
     <tr><td><strong>포트 변경 범위·영향</strong></td><td><ul><li>일반 DB 인스턴스 포트 범위 1150–65535</li><li>포트 변경 → DB 인스턴스 재시작 가능 → 보안그룹·애플리케이션 연결 문자열도 함께 변경</li><li>사용자 지정 포트가 보안그룹·인증을 대체하지 않음 (출처: <a href="https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_ModifyDBInstance.html">ModifyDBInstance</a>, <a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ModifyInstance.Settings.html">DB 인스턴스 설정</a>)</li></ul></td></tr>
     </tbody></table></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 35강 33:00</div>
+      <p><strong>실제 RDS가 23306 같은 포트로 바꿔 쓰는지</strong>강의는 보안을 위해 기본 포트 대신 다른 번호를 쓴다고 설명. AWS RDS for MySQL 기본 포트는 <code>3306</code>이고 포트는 인스턴스 설정값 → <code>23306</code>은 사용자 지정 예로 보고, 조직의 실제 포트 관행은 해당 인프라 설정에서 확인</p>
+    </div>
     <div class="dg-bar warn">RDS와 포트 — Docker MySQL은 접속·운영 흐름을 연습하는 모형(RDS 내부가 Docker라고 단정 금지). RDS MySQL 기본 포트 <code>3306</code>, <code>23306</code>은 사용자 지정 예. 포트 변경은 인스턴스 재시작·클라이언트·보안그룹 변경을 유발할 수 있음</div>
   
 
@@ -2803,6 +2813,7 @@ flush privileges;</code></pre><button class="copy" type="button" aria-label="코
     <tr><td><strong>레지스트리 구분</strong></td><td><code>dhi.io/mysql:8</code> = Docker Hardened Images(DHI) 레지스트리 참조 → Docker Hub 공식 MySQL 이미지와 같은 이미지라고 부르지 않음. DHI Community 이미지 pull에는 레지스트리 인증 필요</td></tr>
     <tr><td><strong>tag 관찰값</strong></td><td><ul><li>실습은 <code>:8</code> 사용 → 서버 버전 <code>8.4.13</code>, 이미지 약 <code>461MB</code>, 이미지 목록 화면은 Debian 13 기반 표시</li><li>tag·용량은 갱신될 수 있음 → 실행 후 <code>SELECT VERSION()</code>으로 확인</li></ul></td></tr>
     <tr><td><strong>dev·정식 tag</strong></td><td>실습 화면 안내: <code>dev</code> = 개발·테스트용, 정식 <code>8.4</code> = 안정화 버전 → tag 이름만으로 지원정책을 단정하지 말고 현재 이미지 카탈로그·조직 배포 정책 확인</td></tr>
+    <tr><td><strong>이미지 찾는 순서</strong></td><td><ul><li>Docker Hub 검색창에 <code>MySQL</code> 입력 → 공식(official) 이미지 항목 진입</li><li><code>View image details</code> → 지원 OS·아키텍처(Linux AMD, x86-64)와 버전 설명 확인</li><li><code>Use this image</code> → 화면이 제시하는 pull 명령을 확인하고 복사 (기존 Hub 화면과 배치가 다름)</li><li>터미널에 <code>Shift+Insert</code>로 붙여넣기 → 명령 내용을 눈으로 확인한 뒤 실행</li></ul></td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># DHI 레지스트리 인증 → 성공 시 Login Succeeded</span>
@@ -2813,11 +2824,14 @@ docker images</code></pre><button class="copy" type="button" aria-label="코드 
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>인증 정보</strong></td><td>로그인 암호·access token은 명령행·노트에 기록하지 않음 (인증·이미지 형식 출처: <a href="https://docs.docker.com/dhi/how-to/use/">Docker Hardened Image 사용 안내</a>)</td></tr>
+    <tr><td><strong>로그인 입력값</strong></td><td><code>docker login dhi.io</code>가 묻는 <code>Username</code> = Docker Hub 아이디, <code>Password</code> = Docker Hub 비밀번호 → 성공하면 <code>Login Succeeded</code></td></tr>
+    <tr><td><strong>인증 없는 pull</strong></td><td><code>docker login</code> 없이 <code>docker pull</code>하면 인증 오류로 이미지를 받지 못함 → 공개 이미지처럼 바로 pull되지 않는 레지스트리라는 뜻, 일반 Docker Hub 이미지와 다른 절차</td></tr>
+    <tr><td><strong>약한 암호</strong></td><td><code>a1234</code>는 실습용. 실제 AWS·GCP RDS는 짧고 단순한 root 암호를 거부하거나 암호 정책을 요구 → 같은 값을 운영에 쓰지 않음</td></tr>
     </tbody></table></div>
     <h3>단일 MySQL 서비스 컨테이너</h3>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># --name mysql8: 컨테이너 이름 고정 → docker logs mysql8처럼 이름으로 참조</span>
-<span class="c"># -e MYSQL_ROOT_PASSWORD: 이미지 초기화 때 MySQL root 암호 전달. a1234는 연습값 → 명령 기록·프로세스 정보에 노출될 수 있어 운영은 안전한 secret 경로로 주입</span>
+<span class="c"># -e MYSQL_ROOT_PASSWORD: 환경변수로 이미지 초기화 때 MySQL root 암호 전달. a1234는 연습값 → 명령 기록·프로세스 정보에 노출될 수 있어 운영은 안전한 secret 경로로 주입</span>
 <span class="c"># -p 3306:3306: 호스트:컨테이너 순서, 호스트 3306 → 컨테이너 3306. 호스트에서 이미 사용 중이면 컨테이너 시작 실패 가능</span>
 <span class="c"># -d: 백그라운드 실행</span>
 docker run --name mysql8 -e MYSQL_ROOT_PASSWORD=a1234 -p 3306:3306 -d dhi.io/mysql:8
@@ -2845,7 +2859,9 @@ SELECT VERSION();</code></pre><button class="copy" type="button" aria-label="코
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong><code>-u 0</code></strong></td><td>컨테이너 프로세스를 UID 0으로 실행. 프롬프트가 <code>I have no name!</code>이어도 이름 해석이 안 된 것일 수 있음 → <code>id</code>로 uid=0 확인</td></tr>
-    <tr><td><strong>최소 이미지</strong></td><td>DHI는 공격면을 줄이려 최소 구성 → <code>vi</code>·<code>nano</code>·<code>dnf</code>·<code>clear</code>가 없을 수 있음. <code>bash: clear: command not found</code> = clear 프로그램이 없다는 뜻, MySQL 서버 장애와 무관</td></tr>
+    <tr><td><strong>프롬프트 구분</strong></td><td>일반 사용자 접속 <code>mysql@&lt;컨테이너ID&gt;:/$</code>, root 접속 <code>I have no name!@&lt;컨테이너ID&gt;:/#</code> → 끝의 <code>$</code>·<code>#</code>로 권한 구분, 이름 해석 실패 문구는 <code>id</code>로 판정</td></tr>
+    <tr><td><strong>왜 나눠 쓰나</strong></td><td>DB·계정·덤프 작업은 기본 사용자 <code>mysql</code>로 충분, 설정 파일·패키지 경로 확인과 복구는 root 권한 필요 → 이 구분을 모르면 RDS형 컨테이너의 설정·장애 대응이 막힘</td></tr>
+    <tr><td><strong>최소 이미지</strong></td><td>DHI는 공격면을 줄이려 최소 구성 → <code>vi</code>·<code>nano</code>·<code>dnf</code>·<code>clear</code>가 없을 수 있음. <code>bash: clear: command not found</code> = clear 프로그램이 없다는 뜻, MySQL 서버 장애와 무관. 이미지 목록의 카탈로그 경로가 <code>mysql/debian-13/8.4</code>, 패키지 목록도 Debian 기준 → FreeBSD 계열이 아닌 Debian 13 기반 하드닝(최소) 이미지</td></tr>
     <tr><td><strong>기동 확인</strong></td><td><code>docker ps</code>는 실행 중만 표시 → 안 보이면 <code>docker ps -a</code>에서 종료 상태·exit code 확인</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">컨테이너 사용자 구분 — <code>docker exec -it</code>는 이미지 기본 사용자, <code>-u 0</code>은 UID 0. 프롬프트 모양이 아니라 <code>id</code>로 권한 확인</div>
@@ -2869,6 +2885,7 @@ mysql -u root -p
 \s</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>접속 방식</strong></td><td>컨테이너 안 MySQL 접속은 호스트 설치본과 같은 명령·절차(<code>mysql -u root -p</code> → <code>\s</code>) → 클라이언트 도구가 없으면 먼저 접속부터 확인</td></tr>
     <tr><td><strong>관찰 결과</strong></td><td>실습 화면: Server·DB character set <code>utf8mb4</code>, Client character set <code>latin1</code>. <code>\s</code> = 현재 세션·서버 상태를 보는 MySQL 클라이언트 명령</td></tr>
     <tr><td><strong>왜 맞추나</strong></td><td>클라이언트가 어떤 인코딩으로 보내고 서버가 어떻게 변환하는지 = 연결 문자셋이 결정 → 한글 입력 시 변환 오류·깨짐·<code>Incorrect string value</code> 가능 → 클라이언트·서버·DB 문자셋 확인</td></tr>
     <tr><td><strong>DBeaver 별도 설정</strong></td><td><code>my.cnf</code>의 <code>[client]</code>·<code>[mysql]</code>은 MySQL CLI 클라이언트에 적용. DBeaver는 JDBC 드라이버 설정·연결 properties를 따로 사용 → CLI 설정이 자동 적용된다고 가정하지 않음</td></tr>
@@ -2878,7 +2895,7 @@ mysql -u root -p
 <span class="c"># 전체 파일시스템에서 설정 파일 탐색 → Permission denied는 권한 없는 경로라는 뜻</span>
 find / -name my.cnf
 <span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># 컨테이너 안에서 UID 0으로 전체 경로 탐색</span>
+<span class="c"># 컨테이너 안에서 UID 0으로 전체 경로 탐색 → root여도 /proc/1/map_files 등은 Permission denied</span>
 docker exec -it -u 0 mysql8 find -name "my.cnf"
 <span class="c"># [mysql8 컨테이너 · root]</span>
 <span class="c"># /etc 범위의 설정 파일 존재 여부 확인</span>
@@ -2895,12 +2912,17 @@ docker cp my.cnf mysql8:/etc/</code></pre><button class="copy" type="button" ari
     <tr><td><strong>실습 관찰</strong></td><td><ul><li>사용한 <code>dhi.io/mysql:8</code> 컨테이너에는 <code>/etc/my.cnf</code>가 없었음 → 이미지·버전마다 설정 경로·include 구성이 다를 수 있어 모든 MySQL 8.4 이미지의 규칙으로 확대하지 않음</li><li>실습 메모: MySQL 8.0 이미지에는 <code>/etc/my.cnf</code>가 있었고 사용한 8.4 tag에는 없었음 (이미지별 차이로 확인)</li></ul></td></tr>
     <tr><td><strong>파일 없음 판단</strong></td><td><code>find /</code>의 Permission denied = 접근 못 한 경로가 있다는 뜻 → 확인 가능한 표준 위치와 서버 시작 옵션을 함께 점검 → 파일이 없으면 호스트에서 만든 설정을 컨테이너에 복사. 없는 파일을 <code>docker cp 컨테이너:/경로/파일 로컬파일</code>로 꺼내면 "no such file" 오류</td></tr>
     </tbody></table></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 35강 (영상 시각 미확인)</div>
+      <p><strong>MySQL 8.4 이미지가 보안 때문에 my.cnf를 만들지 않았는지</strong>실습 이미지에 <code>/etc/my.cnf</code>가 없고 8.0 이미지에는 있었음 → 버전·이미지 차이는 확인되지만 원인이 보안 정책이라는 설명은 강의의 추측. 이미지별 설정 경로·포함 디렉터리는 컨테이너 기동 후 서버 옵션·<code>mysql --help</code> 출력으로 직접 확인</p>
+    </div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># 컨테이너에 전달할 설정을 호스트 작업 경로에 작성</span>
 cd /root
 <span class="c"># 새 작업 디렉터리 (이미 있으면 mkdir 오류 가능)</span>
 mkdir rds
 cd rds
+<span class="c"># vi 안에서 :set number → 줄 번호 표시 (오류 로그의 줄과 대조)</span>
 vi my.cnf
 
 <span class="c"># [호스트 리눅스 · /root/rds/my.cnf 파일 안]</span>
@@ -2912,13 +2934,13 @@ default-character-set = utf8mb4
 [mysql]
 default-character-set = utf8mb4
 
-<span class="c"># MySQL 서버 기본 문자셋</span>
-[mysqld]
-character-set-server = utf8mb4
-<span class="c"># 유효한 기본 collation (MySQL 8.4 기본값). 문자셋 이름을 collation 값으로 쓰지 않음</span>
-collation-server = utf8mb4_0900_ai_ci</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+<span class="c"># 서버 섹션 — 이번 1차 전달에서는 비워 둠 (서버 문자셋은 아래 설정 오류 실습에서 추가)</span>
+[mysqld]</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>1차 전달값</strong></td><td><code>[client]</code>·<code>[mysql]</code>의 <code>default-character-set = utf8mb4</code>만 넣고 <code>[mysqld]</code>는 빈 섹션으로 두어 전달 → 클라이언트 문자셋만 바꾼 최소 구성, 서버 문자셋은 아래 설정 오류 실습에서 <code>character-set-server</code>·<code>collation-server</code>로 추가</td></tr>
+    <tr><td><strong>표기 규칙</strong></td><td><code>=</code> 앞뒤 공백은 값 해석에 영향 없음(<code>default-character-set = utf8mb4</code>와 <code>default-character-set=utf8mb4</code>는 동일) → 오타는 공백이 아니라 값 철자에서 발생</td></tr>
+    <tr><td><strong>전달 결과 표시</strong></td><td><code>docker cp</code> 성공 시 <code>Successfully copied ...</code> 출력 → 실패면 경로·컨테이너명 확인</td></tr>
     <tr><td><strong>기본값</strong></td><td>MySQL 8.4 기본 server charset/collation = <code>utf8mb4</code> / <code>utf8mb4_0900_ai_ci</code> (출처: <a href="https://dev.mysql.com/doc/refman/8.4/en/charset-server.html">MySQL 8.4 Server Character Set and Collation</a>)</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
@@ -2932,6 +2954,15 @@ docker restart mysql8</code></pre><button class="copy" type="button" aria-label=
     <tr><td><strong>정상 확인</strong></td><td><code>docker ps</code> Running → 컨테이너 안 <code>mysql -u root -p</code> → <code>\s</code>에서 Client character set <code>utf8mb4</code></td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">문자셋·collation — <code>utf8mb4</code>는 문자셋, <code>utf8mb4_0900_ai_ci</code>는 MySQL 8.4 기본 collation. <code>[client]</code>·<code>[mysql]</code>은 CLI용이라 DBeaver에는 자동 적용 안 됨</div>
+    <h3>docker cp 양방향과 전달 조건</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>방향</th><th>명령 형식</th><th>쓰는 경우</th><th>주의</th></tr></thead><tbody>
+    <tr><td><strong>컨테이너 → 호스트</strong></td><td><code>docker cp mysql8:/etc/my.cnf my.cnf</code></td><td>컨테이너 안 파일을 호스트로 꺼내 원본·수정 기준으로 삼음</td><td>원본 경로가 없으면 <code>no such file</code> 오류</td></tr>
+    <tr><td><strong>호스트 → 컨테이너</strong></td><td><code>docker cp my.cnf mysql8:/etc/</code></td><td>호스트에서 작성·수정한 설정·덤프를 컨테이너에 전달</td><td>대상이 디렉터리면 같은 파일명으로 덮어씀, 파일 경로면 이름까지 지정</td></tr>
+    <tr><td><strong>공통</strong></td><td>리눅스 <code>cp</code>와 같은 개념 + <code>컨테이너명:</code> 접두</td><td>설정 파일·덤프 왕복</td><td>컨테이너가 정지 상태여도 전달 가능 → 기동 실패 복구에 사용</td></tr>
+    </tbody></table></div>
+    <h3>RDS형 환경 세팅 순서 (강의 정리)</h3>
+    <ol class="wide-list"><li><strong>Docker Hub 접속</strong>: 계정으로 로그인</li><li><strong>이미지 검색</strong>: <code>MySQL</code> 검색 → <code>dev</code> 태그가 아닌 상용용 정식 버전 선택</li><li><strong>레지스트리 인증</strong>: 리눅스에서 <code>docker login dhi.io</code> → 아이디·비밀번호 → <code>Login Succeeded</code></li><li><strong>다운로드</strong>: <code>docker pull</code> → <code>docker images</code>로 이름·tag·크기 확인</li><li><strong>컨테이너 실행</strong>: <code>docker run --name mysql8 -e MYSQL_ROOT_PASSWORD=… -p 3306:3306 -d 이미지</code> (패키지 설치 방식과 다름)</li><li><strong>접속</strong>: <code>docker exec -it mysql8 /bin/bash</code>는 일반 사용자, <code>-u 0</code>은 root</li><li><strong>문자셋 점검·설정</strong>: <code>mysql -u root -p</code> → <code>\s</code> → 불일치면 호스트에서 <code>my.cnf</code> 작성 → <code>docker cp</code> → <code>docker restart</code> → 재확인</li></ol>
     <h3>오류값이 서버를 멈추게 하는 과정</h3>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · /root/rds/my.cnf 파일 안]</span>
 [mysqld]
@@ -2953,6 +2984,11 @@ docker logs mysql8</code></pre><button class="copy" type="button" aria-label="�
     <tr><td><strong>관찰된 로그</strong></td><td><code>[ERROR] [MY-010933] [Server] Unknown collation: 'utf8mb4'.</code> → <code>[ERROR] [MY-010119] [Server] Aborting</code></td></tr>
     <tr><td><strong>장애 이유</strong></td><td>서버가 시작 시 설정을 읽고 지원 collation인지 검사 → <code>utf8mb4</code>는 문자셋 이름이지 collation이 아님 → 초기화 중단 → 컨테이너가 시작했다가 종료될 수 있음</td></tr>
     <tr><td><strong>오류 처리</strong></td><td><ul><li>로그의 파일·옵션·오류값을 찾아 해당 줄을 유효한 값으로 수정</li><li>잘못된 설정의 주석 처리는 서비스 복구용 임시 조치, 문자셋 정책이 필요하면 올바른 collation 설정</li></ul></td></tr>
+    <tr><td><strong>사고 규모</strong></td><td>DB·사용자·데이터가 들어 있는 컨테이너는 지우고 새로 만드는 방식으로 되돌릴 수 없음 → 설정 한 줄 오타가 데이터 손실 사고로 이어짐</td></tr>
+    <tr><td><strong>초기 증상</strong></td><td>컨테이너가 잠깐 올라왔다가 종료 → <code>docker ps</code>에서 사라지고 <code>docker ps -a</code>에만 남음, 데이터가 많을수록 기동이 무거워 증상이 늦게 보임</td></tr>
+    <tr><td><strong>복구 우선순위</strong></td><td>원인 분석을 마칠 때까지 기다리지 않고 빨리 가동시키는 것이 최우선 → 문제 줄 주석 처리로 먼저 기동, 올바른 값은 이후에 정리</td></tr>
+    <tr><td><strong>같은 결과의 명령</strong></td><td>오타가 남아 있으면 <code>docker start</code>도 시작 직후 종료 → <code>docker ps -a</code>의 상태·exit code로 확인하고 <code>docker logs</code>로 원인 재확인</td></tr>
+    <tr><td><strong>로그 우선</strong></td><td>오류 로그에 파일·옵션·잘못된 값이 함께 나옴 → 첫 <code>[ERROR]</code>를 읽는 속도가 복구 시간을 결정</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · /root/rds/my.cnf 파일 안]</span>
 [mysqld]
@@ -2971,8 +3007,10 @@ docker logs --tail 50 mysql8</code></pre><button class="copy" type="button" aria
     <ol class="wide-list"><li><strong>로그 확인</strong>: <code>docker logs mysql8</code>에서 첫 오류와 설정 위치 확인</li><li><strong>호스트 파일 수정</strong>: <code>/root/rds/my.cnf</code>의 오타 수정 → 유효한 문자셋·collation 조합</li><li><strong>재전송</strong>: <code>docker cp</code>로 컨테이너 경로에 덮어씀</li><li><strong>재기동</strong>: 실행 중이면 <code>docker restart</code>, 종료됐으면 <code>docker start</code></li><li><strong>정상 판정</strong>: <code>docker ps</code> Running, 새 치명 오류 없음, MySQL 접속 및 <code>\s</code> 결과 확인</li></ol>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>시작 대기</strong></td><td>강의 실습: MySQL 컨테이너 약 1분, Oracle DB 1분 30초~2분 관찰 → 데이터·스토리지·리소스에 따라 다르므로 시간만 기다리지 말고 health 상태·로그·쿼리 접속으로 판정</td></tr>
+    <tr><td><strong>시작 대기</strong></td><td>강의 실습: MySQL 컨테이너 약 1분, Oracle DB 1분 30초~2분 관찰 → 데이터가 많으면 기동이 더 무거워짐, 데이터·스토리지·리소스에 따라 다르므로 시간만 기다리지 말고 health 상태·로그·쿼리 접속으로 판정</td></tr>
     <tr><td><strong>운영 판단</strong></td><td>DB 중단은 서비스 영향이 큼 → 원인 파악·정상 기동 확인 우선, 고객 데이터·인증정보는 요청하지 않음, 계정·연결 제한은 필요한 범위로</td></tr>
+    <tr><td><strong>다른 서비스도 같은 원리</strong></td><td>OS의 FTP·HTTP·Nginx 설정도 재시작 순간 오타가 드러나면 서비스가 멈춤 → 설정 수정 후 재시작·로그 확인은 DB만의 일이 아니라 실무에서 반복되는 작업</td></tr>
+    <tr><td><strong>파급 범위</strong></td><td>DB가 멈추면 서비스 가입 업체 전화가 쏟아지는 초비상사태 → RDS 담당자는 다른 업무를 맡기지 않고 DB 관리에 집중시키는 조직도 있음</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">장애 로그·Unknown collation — charset 이름을 <code>collation-server</code>에 넣으면 <code>Unknown collation</code> → <code>Aborting</code>으로 서버 종료. <code>docker logs</code>에서 최초 오류 확인 → 수정 → <code>docker cp</code> → 종료 상태면 <code>docker start</code>(<code>docker ps -a</code>로 확인)</div>
     <ul class="facts">
@@ -3087,13 +3125,16 @@ SELECT * FROM mysql.db WHERE user='hong';</code></pre><button class="copy" type=
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong><code>'hong'@'localhost'</code>와 <code>'hong'@'%'</code></strong></td><td>사용자 이름이 같아도 host가 다르면 별도 MySQL 계정. <code>%</code>는 여러 원격 호스트에 매치 → 범위가 넓음 → 운영은 출발지 IP·호스트 제한 + 최소 권한</td></tr>
     <tr><td><strong><code>FLUSH PRIVILEGES</code></strong></td><td>실습 메모에 포함된 명령. 일반 <code>CREATE USER</code>·<code>GRANT</code>는 즉시 반영 → 다시 읽게 할 필요 없음, 권한 테이블 직접 수정은 피함</td></tr>
+    <tr><td><strong>권한을 다루는 단계</strong></td><td>클라우드형 DB를 직접 구성하는 단계부터 <code>GRANT</code>·<code>REVOKE</code>를 계정·DB·호스트 단위로 세밀하게 다룸 → 최소 권한 원칙과 사용자 관리: 이 파일 4·5장</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">계정 host 범위 — <code>'hong'@'localhost'</code>와 <code>'hong'@'%'</code>는 다른 계정, <code>%</code>는 넓은 원격 접근 → 운영은 출발지 제한·최소 권한. <code>CREATE USER</code>·<code>GRANT</code>는 즉시 적용이라 보통 <code>FLUSH PRIVILEGES</code> 불필요</div>
     <h3>DBeaver에서 연결 확인</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>연결 정보</strong></td><td><strong>[윈도우 · DBeaver]</strong> Host = VirtualBox Linux IP(실습 화면 <code>10.2.2.101</code>), Port <code>3306</code>, Database <code>testdb</code>, User <code>hong</code> → 주소·포트는 본인 VirtualBox 규칙·Docker 게시에 맞춤</td></tr>
-    <tr><td><strong>드라이버·정상 확인</strong></td><td>실습은 MariaDB 드라이버로 Test Connection 성공, 표시 버전 <code>MySQL 8.4.13</code> → 새 연결은 대상 엔진에 맞는 MySQL 드라이버 사용 가능 여부 확인</td></tr>
+    <tr><td><strong>드라이버·정상 확인</strong></td><td>실습은 MariaDB 드라이버로 Test Connection → <code>Connected</code>, 표시 버전 <code>MySQL 8.4.13</code> → 새 연결은 대상 엔진에 맞는 MySQL 드라이버 사용 가능 여부 확인</td></tr>
+    <tr><td><strong>기존 연결 편집</strong></td><td><strong>[윈도우 · DBeaver]</strong> 새 연결을 만들지 않고 기존 연결을 Edit Connection으로 열어 드라이버(MariaDB)·Host·Port·Database·User만 변경 → Test Connection으로 확인</td></tr>
+    <tr><td><strong>실습 전제</strong></td><td>VirtualBox NAT에 3306 규칙이 이미 있는 상태(앞선 컨테이너 실습에서 추가) → 규칙이 없으면 호스트 IP:3306 접속이 닿지 않음</td></tr>
     <tr><td><strong>접속 실패 시</strong></td><td>호스트 3306 LISTEN → Docker 포트 게시 → VirtualBox NAT 전달(3306) → 계정 host·비밀번호 → 보안 규칙을 각각 확인. 서버가 켜져 있어도 host가 <code>localhost</code>뿐이면 원격 DBeaver가 매치 안 될 수 있음</td></tr>
     </tbody></table></div>
 
@@ -3107,9 +3148,10 @@ SELECT * FROM mysql.db WHERE user='hong';</code></pre><button class="copy" type=
     <h3>백업 연습용 테이블</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>테이블 목적</strong></td><td><code>members</code> 테이블(회원 ID·이름·연락처·이메일·성별·주소 컬럼) + 가상 데이터 100행 → 백업·복원 검증용</td></tr>
+    <tr><td><strong>테이블 목적</strong></td><td>AI로 만든 회원가입 테이블 <code>members</code>(회원 ID·이름·연락처·이메일·성별·주소 컬럼) + 가상 데이터 100행 → 백업·복원 검증용</td></tr>
     <tr><td><strong>SQL 실행 흐름</strong></td><td><strong>[윈도우 · DBeaver]</strong> 연결 선택 → 우클릭 → SQL 편집기 → 새 스크립트 → CREATE 문과 INSERT 문을 각각 선택하고 <code>Ctrl+Enter</code> → 새로고침 후 테이블·행 수 확인</td></tr>
     <tr><td><strong>자료 범위</strong></td><td>제공 필기에 실제 CREATE 문과 100개 INSERT 데이터는 없음 → 컬럼 형식·데이터 값은 추측해 채우지 않고 실행 흐름·확인 기준만 기록</td></tr>
+    <tr><td><strong>쿼리 재사용</strong></td><td>여기서 만든 테이블·SQL은 이후 Python·Spark가 같은 DB를 읽고 쓰는 실습의 기준 → fastapi.html 14장(MySQL 연동), spark.html 19장(JDBC 연동)</td></tr>
     </tbody></table></div>
       <div class="table-wrap"><table>
       <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
@@ -3126,7 +3168,7 @@ ls -al</code></pre><button class="copy" type="button" aria-label="코드 복사"
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 docker exec -it mysql8 /bin/bash
 <span class="c"># [mysql8 컨테이너 · mysql]</span>
-<span class="c"># 사용자가 쓰기 가능한 경로에서 덤프</span>
+<span class="c"># 사용자가 쓰기 가능한 경로에서 덤프 → 이 홈에는 .bash_history·.mysql_history 정도만 있음</span>
 cd /home/mysql
 <span class="c"># PROCESS 권한 오류를 피하고 tablespace 메타데이터를 생략하는 백업</span>
 mysqldump --no-tablespaces -u hong -p testdb &gt; testdb.sql
@@ -3142,10 +3184,12 @@ ls -l /root/rds/testdb.sql</code></pre><button class="copy" type="button" aria-l
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>백업 위치</strong></td><td>컨테이너 내부 파일은 컨테이너 삭제·스토리지 장애와 함께 소멸 가능 → 호스트·별도 백업 저장소로 내보내고 다시 다른 매체·서버에 보관. 한 서버 안의 복사본만으로는 완전한 재해 복구가 아님</td></tr>
-    <tr><td><strong>PROCESS 오류</strong></td><td><ul><li><code>Access denied; you need (at least one of) the PROCESS privilege(s) ... when trying to dump tablespaces</code> → 파일이 있다는 이유만으로 백업 성공 처리 금지</li><li><code>--no-tablespaces</code>를 지정하지 않으면 PROCESS 권한 필요 → 덤프 옵션·반환 코드·복원 가능성 확인 (출처: <a href="https://dev.mysql.com/doc/refman/8.4/en/mysqldump.html">MySQL 8.4 mysqldump</a>)</li></ul></td></tr>
+    <tr><td><strong>PROCESS 오류</strong></td><td><ul><li><code>Access denied; you need (at least one of) the PROCESS privilege(s) for this operation</code> when trying to dump tablespaces → 파일이 있다는 이유만으로 백업 성공 처리 금지</li><li><code>--no-tablespaces</code>를 지정하지 않으면 PROCESS 권한 필요 → 덤프 옵션·반환 코드·복원 가능성 확인 (출처: <a href="https://dev.mysql.com/doc/refman/8.4/en/mysqldump.html">MySQL 8.4 mysqldump</a>)</li></ul></td></tr>
     <tr><td><strong>검증 기준</strong></td><td>명령 종료 코드 성공, 로그에 치명 오류 없음, SQL 파일이 비정상적으로 짧지 않음 → 가장 확실한 건 독립된 테스트 DB에 복원해 테이블 수·행 수 검증</td></tr>
     <tr><td><strong>실습 관찰값</strong></td><td>실습 파일 약 <code>11,992</code>바이트 → 데이터·옵션에 따라 달라지는 관찰값, 고정 기준 아님</td></tr>
-    <tr><td><strong>자동화 메모</strong></td><td>강의 메모: 셸 스크립트 + <code>crontab</code> 하루 1회, 다른 서버로 라이브 싱크해 복수 보관 → 운영은 보존기간·암호화·접근권한·복원 리허설 결정</td></tr>
+    <tr><td><strong>자동화 메모</strong></td><td>강의 메모: 셸 스크립트 + <code>crontab</code> 하루 1회, 다른 서버로 라이브 싱크해 복수 매체로 이중·삼중 보관 → 운영은 보존기간·암호화·접근권한·복원 리허설 결정</td></tr>
+    <tr><td><strong>덤프 내용 확인</strong></td><td><code>vi testdb.sql</code>·<code>head</code>로 <code>CREATE TABLE</code>·<code>INSERT</code> 문이 들어 있는지 확인 → 파일 크기만 보지 않고 실제 데이터 포함 여부 확인</td></tr>
+    <tr><td><strong>보관 구조</strong></td><td>운영은 DB별·날짜별 디렉터리로 나눠 보관, 실습은 <code>/root/rds</code> 한 곳 → 같은 경로에 덮어쓰지 않도록 파일명 규칙 필요</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">PROCESS 오류가 있는 dump — 파일이 생성돼도 정상 백업 아님. MySQL 8.4는 <code>--no-tablespaces</code>로 PROCESS 오류 회피 → exit code·복원까지 확인. 덤프는 <code>docker cp</code>로 컨테이너 밖에 보관(컨테이너와 함께 잃지 않게)</div>
     <h3>삭제 사고와 영향 범위</h3>
@@ -3155,7 +3199,7 @@ DROP DATABASE testdb;
 SHOW DATABASES;
 
 <span class="c"># [mysql8 컨테이너 · mysql]</span>
-<span class="c"># 사고 재현용 컨테이너 내부 복사본 삭제 (-rf는 실습 경로를 확인한 경우에만)</span>
+<span class="c"># 사고 재현용 컨테이너 내부 복사본 삭제 (해커가 지운 상황 가정, -rf는 실습 경로를 확인한 경우에만)</span>
 rm -rf testdb.sql
 <span class="c"># 파일 하나만 지울 때는 rm -f로 충분, 재현 대상은 /home/mysql의 testdb.sql만</span>
 <span class="c"># [호스트 리눅스 · root · /root/rds]</span>
@@ -3165,15 +3209,16 @@ ls -l /root/rds/testdb.sql</code></pre><button class="copy" type="button" aria-l
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>백업 사본 구분</strong></td><td>위 재현은 컨테이너 안 임시 덤프만 삭제 → 앞 단계에서 호스트 <code>/root/rds/testdb.sql</code>로 복사했다면 별도로 남음 → 이 분리가 컨테이너 장애 복구를 가능하게 함</td></tr>
     <tr><td><strong>삭제 명령 주의</strong></td><td><code>DROP DATABASE</code>·<code>rm</code>은 복구가 어려운 삭제 → 실습 환경·대상 파일 확인, 기존 <code>mega</code> 계열이나 다른 컨테이너는 건드리지 않음</td></tr>
+    <tr><td><strong>사고 접수 상황</strong></td><td>고객이 "사이트에 데이터가 하나도 안 보인다"고 연락한 상황을 가정 → 원인 설명보다 복구 가능 시점·복구 절차 안내가 먼저, 고객 정보 자체는 요구하지 않음</td></tr>
     </tbody></table></div>
     <h3>복구 절차</h3>
     <ol class="wide-list">
       <li><strong>백업 확인</strong>: 호스트 <code>head -n 30 /root/rds/testdb.sql</code>로 DB 이름·덤프 내용 확인. 덤프 생성 옵션에 따라 DB 생성문이 없을 수 있음</li>
       <li><strong>복구 범위 확인</strong>: 고객에게 DB 이름·테이블·컬럼 등 식별에 필요한 정보만 확인, 실제 고객 데이터·비밀번호는 요구하지 않음</li>
-      <li><strong>DB·권한 확인</strong>: MySQL root로 <code>SHOW DATABASES</code>, <code>SHOW GRANTS</code> → 대상 DB·계정 확인. <code>%</code> 원격 계정은 필요한 출발지로 제한</li>
+      <li><strong>DB·권한 확인</strong>: MySQL root로 <code>SHOW DATABASES</code>, <code>SHOW GRANTS</code>, <code>SELECT * FROM mysql.db WHERE user='hong'</code> → 대상 DB·계정과 <code>localhost</code>·<code>%</code> 권한 행 확인. <code>%</code> 원격 계정은 필요한 출발지로 제한</li>
       <li><strong>접근 보호</strong>: 불필요한 원격 접근 먼저 차단 → 실제 앱 서버 IP만 허용. 임시 비밀번호를 안전하게 전달하고 이후 변경 요청</li>
       <li><strong>빈 DB 준비</strong>: 필요하면 root로 <code>CREATE DATABASE testdb CHARACTER SET utf8mb4</code>. 기존 DB가 있으면 덮어쓰기 여부·복구 시점 확인</li>
-      <li><strong>덤프 전달</strong>: 호스트에서 <code>docker cp /root/rds/testdb.sql mysql8:/home/mysql/testdb.sql</code> → 컨테이너에서 파일·권한 확인. 일반 mysql 계정은 홈 밖 경로에 못 써서 <code>/home/mysql</code> 사용, 복구는 root로</li>
+      <li><strong>덤프 전달</strong>: 호스트에서 <code>docker cp /root/rds/testdb.sql mysql8:/home/mysql/testdb.sql</code> → 컨테이너에서 <code>ls -a</code>로 파일·권한 확인. 일반 mysql 계정은 홈 밖 경로에 못 써서 <code>/home/mysql</code> 사용, 복구는 root로</li>
       <li><strong>복원</strong>: 컨테이너 셸에서 root 계정으로 <code>mysql -u root -p testdb &lt; /home/mysql/testdb.sql</code> (입력 리다이렉션은 MySQL 클라이언트를 실행하는 셸이 처리)</li>
       <li><strong>데이터 검증</strong>: <code>SHOW TABLES</code>, <code>SELECT COUNT(*) FROM members</code>로 테이블·행 수 확인 → 실습 데이터 100행이면 100인지 확인 → 담당자에게 복구 결과 검증받음</li>
     </ol>
@@ -3207,6 +3252,8 @@ SELECT COUNT(*) FROM members;</code></pre><button class="copy" type="button" ari
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>배포 기준 이미지</strong></td><td>문제 대응용으로 배포할 이미지는 개인 계정·암호·고객 데이터가 없는 깨끗한 MySQL 기본 상태에서 생성</td></tr>
     <tr><td><strong>상태가 들어간 컨테이너</strong></td><td>DB·사용자·테이블·덤프가 포함된 컨테이너를 공개 레지스트리에 올리면 데이터·설정 노출 → 운영 데이터를 포함한 이미지 배포 금지</td></tr>
+    <tr><td><strong>root 암호 미상</strong></td><td>지금 <code>mysql8</code> 컨테이너를 그대로 이미지로 올리면 서비스는 뜨지만 root 암호를 아는 사람만 접속 가능 → 배포한 본인 환경에서만 쓸 수 있는 이미지</td></tr>
+    <tr><td><strong>깨끗한 이미지의 용도</strong></td><td>DB·사용자를 만들기 전 MySQL만 설치된 상태를 올려 두면 사고 때 같은 구조를 즉시 다시 띄우는 복구용 기준 이미지로 사용</td></tr>
     <tr><td><strong>암호·토큰</strong></td><td>예시 <code>a1234</code>·<code>hong1234</code>는 연습값 → 실제 비밀번호는 명령 기록·이미지 layer·설정 파일·환경 변수 조회에 노출되지 않게 secret 관리 방식 사용</td></tr>
     <tr><td><strong>복구 가능성</strong></td><td>이미지 배포는 DB 백업을 대신하지 않음 → 덤프·스냅샷과 복구 절차를 따로 운영</td></tr>
     <tr><td><strong>이미지화 방법</strong></td><td>컨테이너 → 이미지 <code>docker commit</code>·Docker Hub <code>tag</code>/<code>push</code> 절차는 docker.html 8장</td></tr>
@@ -3319,6 +3366,8 @@ SELECT COUNT(*) FROM members;</code></pre><button class="copy" type="button" ari
       <tr><td><code>docker ps</code> / <code>docker ps -a</code></td><td>실행 중 / 종료 포함 전체 컨테이너 상태</td></tr>
       <tr><td><code>docker exec -it mysql8 /bin/bash</code> / <code>docker exec -it -u 0 mysql8 /bin/bash</code></td><td>기본 사용자 / UID 0으로 컨테이너 셸 진입</td></tr>
       <tr><td><code>docker port mysql8</code> / <code>docker logs mysql8</code></td><td>게시 포트 / 서버 시작 오류 확인</td></tr>
+      <tr><td><code>docker cp mysql8:/etc/my.cnf my.cnf</code> / <code>docker cp my.cnf mysql8:/etc/</code></td><td>컨테이너↔호스트 설정 왕복 — 정지 상태에서도 가능, 원본 없으면 no such file</td></tr>
+      <tr><td><code>vi my.cnf</code> / <code>:set number</code></td><td>호스트에서 설정 작성, vi 줄 번호 표시로 오류 로그의 줄과 대조</td></tr>
     
       <tr class="group"><th colspan="2" scope="colgroup">설정·문자셋</th></tr>
       <tr><td><code>mysql -u root -p</code> / <code>\s</code> / <code>SELECT VERSION()</code></td><td>접속 / 세션·문자셋 / 서버 버전 확인</td></tr>
@@ -3340,6 +3389,8 @@ SELECT COUNT(*) FROM members;</code></pre><button class="copy" type="button" ari
       <tr><td><code>docker cp mysql8:/home/mysql/testdb.sql /root/rds/testdb.sql</code></td><td>컨테이너 덤프를 호스트 백업 경로로 반출</td></tr>
       <tr><td><code>mysql -u root -p testdb &lt; /home/mysql/testdb.sql</code></td><td>덤프를 지정 DB로 복원, 대상 DB·파일 경로 확인</td></tr>
       <tr><td><code>SELECT COUNT(*) FROM members</code></td><td>복원한 행 수 확인, 실습 데이터 100행</td></tr>
+      <tr><td><code>head -n 30 testdb.sql</code> / <code>vi testdb.sql</code></td><td>덤프 앞부분·DB 이름·데이터 포함 여부 확인, <code>-n</code>은 줄 수</td></tr>
+      <tr><td><code>SELECT * FROM mysql.db WHERE user='hong'</code></td><td>계정의 DB 권한 행(<code>localhost</code>·<code>%</code>) 확인 — <code>USE mysql</code> 후</td></tr>
     </tbody></table></div>
   
 
