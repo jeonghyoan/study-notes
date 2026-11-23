@@ -1149,7 +1149,7 @@ dnf install java-17
       <tr><td class="nowrap"><code>was17</code> (아래)</td><td>17</td><td>10.1.60</td><td>약 14MB</td></tr>
     </tbody></table></div>
     <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">최소 요구 vs 지정 조합</td><td>Tomcat 8.5는 Java 7 이상, 10.1은 Java 11 이상이면 실행 → 위 표는 최소 요구가 아니라 이번 실습의 <strong>지정 조합</strong></td><td>Tomcat은 최소 버전보다 낮은 자바에서만 기동 실패</td></tr>
+      <tr><td class="nowrap">최소 요구 vs 지정 조합</td><td>Tomcat 8.5는 Java 7 이상, 10.1은 Java 11 이상이면 실행 → 위 표는 최소 요구가 아니라 이번 실습의 <strong>지정 조합</strong></td><td>Tomcat은 최소 버전보다 낮은 자바에서만 기동 실패 — 버전 대응표 공식 문서: tomcat.apache.org/whichversion</td></tr>
       <tr><td class="nowrap">혼동 시 증상</td><td>Tomcat 버전과 자바 버전을 헷갈리면 기동·애플리케이션 실행에서 에러</td><td>요청받은 조합을 표로 먼저 확인</td></tr>
       <tr><td class="nowrap">받을 파일</td><td>소스가 아닌 <strong>바이너리(core) <code>tar.gz</code></strong></td><td>소스는 컴파일이 필요해 복잡함 (docker.html 1장)</td></tr>
     </tbody></table></div>
