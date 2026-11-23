@@ -641,7 +641,17 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#spark-travel-api">45. DB를 API로 노출 (travel_api.py·uvicorn)</a></li>
         <li><a href="#spark-api-path">46. 경로 파라미터로 조회 건수 받기</a></li>
         <li><a href="#spark-api-to-spark">47. API를 Spark로 읽어 SQL 실행</a></li>
-        <li><a href="#cheatsheet">48. 통합 명령어 치트시트</a></li>
+        <li><a href="#spark-pg-env">48. PostgreSQL 환경 (이미지·컨테이너·psql 접속)</a></li>
+        <li><a href="#spark-pg-jdbc">49. Spark ↔ PostgreSQL 연결 방식과 JDBC jar</a></li>
+        <li><a href="#spark-pg-roles">50. 사용자·DB·권한 생성</a></li>
+        <li><a href="#spark-pg-encoding">51. 인코딩 확인과 설정 시점</a></li>
+        <li><a href="#spark-pg-schema">52. 스키마와 search_path</a></li>
+        <li><a href="#spark-pg-dbeaver">53. DBeaver 연결과 테이블 적재</a></li>
+        <li><a href="#spark-pg-sql">54. PostgreSQL SELECT 문법 (ILIKE·LIMIT OFFSET·CONCAT·REPLACE)</a></li>
+        <li><a href="#spark-pg-revoke">55. 권한 회수(REVOKE)와 접속 전환</a></li>
+        <li><a href="#spark-pg-psycopg2">56. Python용 PostgreSQL 드라이버 (psycopg2)</a></li>
+        <li><a href="#spark-pg-link">57. Spark → PostgreSQL 연동 실습</a></li>
+        <li><a href="#cheatsheet">58. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -649,16 +659,16 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>Spark 통합 학습노트</h1>
-    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → pandas UDF 실습·오류 대응(설정 3종·<code class="n">show</code> 기준·pyarrow·<code class="n">p90</code>) → 공공 API(영화진흥위원회) JSON으로 MySQL 적재(INSERT SQL·<code class="n">count(*)</code>) → Spark JDBC 연동(<code class="n">mysql-connector-j</code> JAR·6옵션·<code class="n">show(5)</code>) → 박스오피스 집계(<code class="n">shuffle.partitions</code>·<code class="n">numPartitions</code>) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지 → 마스터·워커 기동까지(사용자 정의 네트워크) → 컨테이너 클러스터 운영(호스트 폴더 볼륨 연결·재생성·실행 중 포트 추가) → Spark 셸·주피터(<code class="n">notebook</code> 설치·<code class="n">PYSPARK_*</code> 3줄·토큰 로그인) → <code class="n">spark.read.csv</code>·<code class="n">spark-submit</code> → Spark SQL(임시 뷰·<code class="n">floor</code>·<code class="n">ceil</code>·<code class="n">round</code>) → 웹 크롤링 이미지 수집 → PySpark 코드로 전환(마스터·워커 <code class="n">numpy</code>·<code class="n">pandas</code>·<code class="n">pyarrow</code> 설치·<code class="n">spark1</code> 노트북·실무는 주피터를 별도 서버로) → 파이썬 문법(<code class="n">from</code>·<code class="n">as</code>·<code class="n">read_</code> 계열) → 기본 코드 템플릿(<code class="n">globals</code> 체크·<code class="n">SparkSession.builder</code>·<code class="n">getOrCreate</code>·<code class="n">spark.stop()</code> 위아래) → 고스트 세션(<code class="n">Running Application</code> 잔존·<code class="n">try/except</code> 안전 종료) → 컨테이너 시간대(<code class="n">date</code>·<code class="n">chrony</code>·<code class="n">timedatectl</code>·<code class="n">/etc/localtime</code> 심볼릭 링크) → 2차원 배열(<code class="n">createDataFrame</code>·<code class="n">schema</code>) → 조회·집계(<code class="n">filter</code>·<code class="n">where</code>·<code class="n">select</code>·<code class="n">groupBy</code>·<code class="n">sum</code>) → 실습 csv(<code class="n">product.csv</code>) → 조건 조합·집계 복습과 <code class="n">spark.sql</code> 이식 → 실행 중 컨테이너에 API 포트(<code class="n">11111</code>) 추가 → <code class="n">travel_api.py</code> FastAPI(<code class="n">DictCursor</code>·<code class="n">&#42;&#42;</code> 언패킹·<code class="n">fetchall</code>)와 경로 파라미터(<code class="n">/travel/{ea}</code>·<code class="n">limit 0, %s</code>) → Spark가 API를 <code class="n">requests</code>로 호출해 임시 뷰로 <code class="n">spark.sql</code> 실행. 네트워크 명령: docker.html 9장, 볼륨·포트 설정 이론: docker.html 10장</p>
+    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → pandas UDF 실습·오류 대응(설정 3종·<code class="n">show</code> 기준·pyarrow·<code class="n">p90</code>) → 공공 API(영화진흥위원회) JSON으로 MySQL 적재(INSERT SQL·<code class="n">count(*)</code>) → Spark JDBC 연동(<code class="n">mysql-connector-j</code> JAR·6옵션·<code class="n">show(5)</code>) → 박스오피스 집계(<code class="n">shuffle.partitions</code>·<code class="n">numPartitions</code>) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지 → 마스터·워커 기동까지(사용자 정의 네트워크) → 컨테이너 클러스터 운영(호스트 폴더 볼륨 연결·재생성·실행 중 포트 추가) → Spark 셸·주피터(<code class="n">notebook</code> 설치·<code class="n">PYSPARK_*</code> 3줄·토큰 로그인) → <code class="n">spark.read.csv</code>·<code class="n">spark-submit</code> → Spark SQL(임시 뷰·<code class="n">floor</code>·<code class="n">ceil</code>·<code class="n">round</code>) → 웹 크롤링 이미지 수집 → PySpark 코드로 전환(마스터·워커 <code class="n">numpy</code>·<code class="n">pandas</code>·<code class="n">pyarrow</code> 설치·<code class="n">spark1</code> 노트북·실무는 주피터를 별도 서버로) → 파이썬 문법(<code class="n">from</code>·<code class="n">as</code>·<code class="n">read_</code> 계열) → 기본 코드 템플릿(<code class="n">globals</code> 체크·<code class="n">SparkSession.builder</code>·<code class="n">getOrCreate</code>·<code class="n">spark.stop()</code> 위아래) → 고스트 세션(<code class="n">Running Application</code> 잔존·<code class="n">try/except</code> 안전 종료) → 컨테이너 시간대(<code class="n">date</code>·<code class="n">chrony</code>·<code class="n">timedatectl</code>·<code class="n">/etc/localtime</code> 심볼릭 링크) → 2차원 배열(<code class="n">createDataFrame</code>·<code class="n">schema</code>) → 조회·집계(<code class="n">filter</code>·<code class="n">where</code>·<code class="n">select</code>·<code class="n">groupBy</code>·<code class="n">sum</code>) → 실습 csv(<code class="n">product.csv</code>) → 조건 조합·집계 복습과 <code class="n">spark.sql</code> 이식 → 실행 중 컨테이너에 API 포트(<code class="n">11111</code>) 추가 → <code class="n">travel_api.py</code> FastAPI(<code class="n">DictCursor</code>·<code class="n">&#42;&#42;</code> 언패킹·<code class="n">fetchall</code>)와 경로 파라미터(<code class="n">/travel/{ea}</code>·<code class="n">limit 0, %s</code>) → Spark가 API를 <code class="n">requests</code>로 호출해 임시 뷰로 <code class="n">spark.sql</code> 실행 → PostgreSQL 연동 준비(Debian trixie·알파인 구분·<code class="n">rds_psql</code>·5432·JDBC jar 42.6.2) → 사용자·DB·권한(<code class="n">create user</code>·<code class="n">owner</code>·<code class="n">grant</code>) → 인코딩(UTF8·<code class="n">pg_encoding_to_char</code>) → 스키마·<code class="n">search_path</code>(<code class="n">set</code>·<code class="n">alter user</code>) → DBeaver 적재·컬럼명 11개 → PostgreSQL SELECT(<code class="n">ilike</code>·<code class="n">limit offset</code>·<code class="n">concat</code>·<code class="n">concat_ws</code>·<code class="n">replace</code>) → 권한 회수 <code class="n">REVOKE</code>·<code class="n">\c</code> 전환 → <code class="n">psycopg2-binary</code>·<code class="n">psycopg[binary]</code> → <code class="n">psycopg2.connect</code>의 <code class="n">options</code>로 스키마 지정해 pandas 경유 Spark 연동. 네트워크 명령: docker.html 9장, 볼륨·포트 설정 이론: docker.html 10장, PostgreSQL 설정·인증·백업: postgresql.html</p>
 
     <div class="core-strip">
       <div>
         <div class="core-metric">개념 → 설치 → 운영</div>
-        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성 (3~7장) → 운영·제출·예제 (8~10장) → PySpark·JupyterLab 연동 (11~15장) → pandas UDF·공공 API 적재·JDBC 연동·집계 (16~20장) → 컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile 이미지를 만들어 재사용 (21장) → 호스트 폴더를 <code class="n">-v</code>로 연결한 마스터·워커 클러스터에서 셸·주피터·csv·Spark SQL 실습 (22~29장) → PySpark 코드로 기본 템플릿·고스트 세션·시간대·2차원 배열·조회·집계 (30~37장) → MariaDB 연동(pymysql+pandas)·LIMIT·LIKE·응용문제 (38~42장) → SQL 복습·포트 11111 추가·FastAPI 노출·경로 파라미터·Spark의 API 호출 (43~47장)</p>
+        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성 (3~7장) → 운영·제출·예제 (8~10장) → PySpark·JupyterLab 연동 (11~15장) → pandas UDF·공공 API 적재·JDBC 연동·집계 (16~20장) → 컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile 이미지를 만들어 재사용 (21장) → 호스트 폴더를 <code class="n">-v</code>로 연결한 마스터·워커 클러스터에서 셸·주피터·csv·Spark SQL 실습 (22~29장) → PySpark 코드로 기본 템플릿·고스트 세션·시간대·2차원 배열·조회·집계 (30~37장) → MariaDB 연동(pymysql+pandas)·LIMIT·LIKE·응용문제 (38~42장) → SQL 복습·포트 11111 추가·FastAPI 노출·경로 파라미터·Spark의 API 호출 (43~47장) → PostgreSQL 이미지·JDBC jar·사용자·권한·인코딩·스키마 경로·DBeaver 적재·문법 차이·REVOKE·psycopg2·Spark 연동 (48~57장)</p>
       </div>
       <div>
         <div class="core-metric">7077 · 8080 · 8888</div>
-        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI(Running 앱 확인), 8888 Jupyter(토큰 로그인, 재기동마다 토큰 변경 — 컨테이너에서는 hostconfig.json으로 추가), 11111 FastAPI(같은 방법으로 추가), 8081 워커 UI, 3306 MySQL (2장·13장·19장·24장·44장)</p>
+        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI(Running 앱 확인), 8888 Jupyter(토큰 로그인, 재기동마다 토큰 변경 — 컨테이너에서는 hostconfig.json으로 추가), 11111 FastAPI(같은 방법으로 추가), 8081 워커 UI, 3306 MySQL (2장·13장·19장·24장·44장), 5432 PostgreSQL(충돌 확인 48장·연결 57장)</p>
       </div>
       <div>
         <div class="core-metric">spark-net + --host</div>
@@ -714,7 +724,17 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#spark-travel-api">45. DB를 API로 노출 (travel_api.py·uvicorn)</a>
       <a href="#spark-api-path">46. 경로 파라미터로 조회 건수 받기</a>
       <a href="#spark-api-to-spark">47. API를 Spark로 읽어 SQL 실행</a>
-      <a href="#cheatsheet">48. 통합 명령어 치트시트</a>
+      <a href="#spark-pg-env">48. PostgreSQL 환경 (이미지·컨테이너·psql 접속)</a>
+      <a href="#spark-pg-jdbc">49. Spark ↔ PostgreSQL 연결 방식과 JDBC jar</a>
+      <a href="#spark-pg-roles">50. 사용자·DB·권한 생성</a>
+      <a href="#spark-pg-encoding">51. 인코딩 확인과 설정 시점</a>
+      <a href="#spark-pg-schema">52. 스키마와 search_path</a>
+      <a href="#spark-pg-dbeaver">53. DBeaver 연결과 테이블 적재</a>
+      <a href="#spark-pg-sql">54. PostgreSQL SELECT 문법 (ILIKE·LIMIT OFFSET·CONCAT·REPLACE)</a>
+      <a href="#spark-pg-revoke">55. 권한 회수(REVOKE)와 접속 전환</a>
+      <a href="#spark-pg-psycopg2">56. Python용 PostgreSQL 드라이버 (psycopg2)</a>
+      <a href="#spark-pg-link">57. Spark → PostgreSQL 연동 실습</a>
+      <a href="#cheatsheet">58. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -4435,6 +4455,642 @@ spark.stop()                                        <span class="c"># 세션 종
     <ul class="facts"><li><strong>DB 직접 연결</strong><div>pymysql 로 읽어 pandas → Spark: 이 파일 39장, JDBC: 이 파일 19장</div></li><li><strong>임시 뷰</strong><div><code>createOrReplaceTempView</code> 와 <code>spark.sql</code>: 이 파일 27장</div></li><li><strong>API 서버</strong><div>조회 라우트·경로 파라미터: 이 파일 45~46장</div></li><li><strong>세션 정리</strong><div><code>spark.stop()</code> 과 고스트 세션: 이 파일 33장</div></li></ul>
   </section>
 
+  <!-- 48 -->
+  <section class="sec" id="spark-pg-env">
+    <h2>PostgreSQL 환경 — 이미지 선택·컨테이너 접속</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — Debian 계열 이미지로 컨테이너 DB를 세우는 순서</p><div class="dg-flow"><div class="dg-node"><h4>① 이미지 선택</h4><p class="sub">postgres:15.19 · trixie</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 포트 확인</h4><p class="sub">netstat · 5432</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 컨테이너 기동</h4><p class="sub">docker start rds_psql</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ psql 접속</h4><p class="sub">psql -U postgres</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 메타 명령</h4><p class="sub">\l · \du</p></div></div><p class="dg-foot">MariaDB 를 RDS 형태로 쓴 것과 같은 방식으로 PostgreSQL 을 한 컨테이너에 세우고, 스파크·API·DB 세 컨테이너를 함께 띄운 상태에서 시작</p></div>
+
+    <h3>이미지 선택 — Debian(glibc)과 알파인(musl)</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># Debian(trixie) 기반 공식 이미지 — 실습 노트북·DBeaver 가 붙을 서버 쪽 DB</span>
+docker pull postgres:15.19</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">허브 표시 변화</td><td>도커 허브 공식 postgres 이미지가 갱신되어 태그 표시가 <b>알파인(Alpine)</b> 위주로 바뀜</td><td>15 버전 아래에 알파인 파트와 trixie 파트가 따로 있고 태그 버전도 다름 — 고를 때 계열을 먼저 확인</td></tr>
+    <tr><td class="nowrap">사용 이미지</td><td><b>Debian(trixie) 기반 공식(원본) 이미지</b>, 알파인은 비권장</td><td>공식 원본 계열이라 문서·명령·패키지 관리자가 예제와 같음</td></tr>
+    <tr><td class="nowrap">C 라이브러리</td><td>trixie 는 <b>glibc</b>(GNU C 라이브러리), 알파인은 <b>musl</b> 기반 — 계열 선택 기준(<a href="https://oneuptime.com/blog/post/2026-02-08-how-to-choose-between-alpine-and-debian-slim-base-images/view">Alpine·Debian 선택</a>)</td><td>라이브러리가 다르면 리눅스 구조 자체가 달라 같은 명령이 다르게 동작</td></tr>
+    <tr><td class="nowrap">알파인의 한계</td><td>용량이 작은 완전 경량화 형태</td><td>명령이 아예 없거나 동작이 달라 실습 절차가 어긋나는 원인</td></tr>
+    <tr><td class="nowrap">버전 판단</td><td>15.19 는 실무에서 가장 많이 쓰는 안정 버전, 15 계열이 14 계열보다 처리 속도가 빠른 편</td><td>14 는 지원이 끝나 가는 계열 — 새 구성은 15 이상</td></tr>
+    <tr><td class="nowrap">실습에서 쓴 컨테이너</td><td>기존 <code>rds_psql</code> — <code>postgres:14.24</code>(Debian 14.24-1.pgdg13+2)</td><td>pull 한 15.19 와 실제 접속한 컨테이너 버전이 다름 — 버전 표시는 <code>psql</code> 접속 배너로 확인</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">이미지 계열 — Debian(trixie·glibc)과 알파인(musl)은 구조가 달라 명령·패키지 관리자가 다름. 실습·운영은 Debian 계열 공식 원본 이미지로 통일</div>
+
+    <h3>실습 구성</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">사용 형태</td><td>PostgreSQL 을 RDS 형태로 사용 — MariaDB 11 을 RDS 형태로 쓴 것과 같은 방식</td><td>DB 서버 한 대를 컨테이너로 두고 앱이 원격에서 접속하는 구조(RDS형 구성: mysql.html 9장)</td></tr>
+    <tr><td class="nowrap">포트</td><td><b>5432</b> 고정 — PostgreSQL 공식 포트</td><td>MySQL 3306 과 다른 번호라 두 DB 를 함께 띄워도 충돌 없음</td></tr>
+    <tr><td class="nowrap">실행 컨테이너</td><td><code>spark-master</code>·<code>spark-worker1</code>·<code>rds_psql</code> 세 개</td><td>스파크 연산·API·DB 가 모두 필요 — 하나라도 내려가면 연동 실습 중단(<a href="https://hub.docker.com/_/postgres">Docker Hub postgres</a>)</td></tr>
+    <tr><td class="nowrap">터미널</td><td>PuTTY 3개를 열어 두고 진행</td><td>마스터·워커·psql 컨테이너 창을 동시에 두고 오가며 작업</td></tr>
+    <tr><td class="nowrap">주소</td><td>호스트 <code>192.168.222.5</code>, Spark Master UI 8080, JupyterLab 8888</td><td>DBeaver·주피터 모두 이 IP 로 접속(22·24장)</td></tr>
+    </tbody></table></div>
+
+    <h3>방화벽·SELinux·포트 충돌</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 호스트에서 5432 를 잡고 있는 프로세스 확인 — 아무것도 안 떠야 컨테이너와 충돌 없음</span>
+netstat -lntpu | grep 5432</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">방화벽·SELinux</td><td>반드시 정지</td><td>켜 두면 컨테이너 사이 통신이 계속 막혀 포트 설정을 다시 해야 하는 문제로 이어짐</td></tr>
+    <tr><td class="nowrap">정상 결과</td><td><code>netstat</code> 결과에 5432 가 없음</td><td>호스트가 5432 를 이미 쓰면 컨테이너의 5432 게시가 실패</td></tr>
+    <tr><td class="nowrap">떠 있어도 되는 포트</td><td>8888(JupyterLab)·8080(Spark Master UI)</td><td>스파크가 쓰는 포트라 점유가 정상</td></tr>
+    </tbody></table></div>
+
+    <h3>컨테이너 기동과 psql 접속</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+docker images                   <span class="c"># postgres:15.19 pull 결과와 기존 rds_psql(14.24) 확인</span>
+docker start rds_psql           <span class="c"># 기존 컨테이너 시작 — 새로 만들지 않음</span>
+docker ps                       <span class="c"># PORTS 에 5432/tcp 가 보이는지 확인</span>
+docker exec -it rds_psql bash   <span class="c"># 이름 오타면 Error: No such container</span>
+<span class="c"># [rds_psql 컨테이너 · root]</span>
+psql -U postgres                <span class="c"># 최고 권한 role postgres 로 접속 — 패스워드 a1234</span>
+\l                              <span class="c"># DB 목록·Encoding·권한 확인</span>
+\du                             <span class="c"># 사용자(role) 목록 — 기본은 postgres 하나</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">컨테이너가 없을 때</td><td><code>rds_psql</code> 이 없으면 <code>docker run</code> 으로 새로 생성</td><td>이미지·마스터 jar 작업을 마친 뒤에 진행 — 순서가 바뀌면 접속 정보를 다시 맞춰야 함</td></tr>
+    <tr><td class="nowrap">엔진</td><td>컨테이너 기본 엔진은 Debian 계열</td><td>패키지 관리자가 <code>apt</code> 인 이유(아래 항목)</td></tr>
+    <tr><td class="nowrap">정상 결과</td><td><code>psql (14.24 (Debian ...))</code> 배너 뒤 <code>postgres=#</code> 프롬프트</td><td>버전·계열을 배너로 확인한 뒤 작업 시작</td></tr>
+    <tr><td class="nowrap">메타 명령</td><td><code>\l</code> DB 목록, <code>\du</code> role 목록</td><td>둘 다 이후 권한 확인의 기준(50·55장)</td></tr>
+    <tr><td class="nowrap">접속 실패</td><td>패스워드 오타 → <code>password authentication failed</code></td><td><code>\q</code> 로 나온 뒤 다시 접속</td></tr>
+    </tbody></table></div>
+
+    <h3>컨테이너 안 편집기·설정 파일</h3>
+    <div class="code"><pre><code><span class="c"># [rds_psql 컨테이너 · root]</span>
+<span class="c"># Debian 계열의 패키지 관리자로 편집기 설치 시도 — apt 는 패키지 목록을 먼저 받아야 함</span>
+apt-get install vim             <span class="c"># E: Unable to locate package (목록 미갱신 상태)</span>
+apt-get install vi              <span class="c"># 같은 에러 — vi 는 패키지 이름이 아님</span>
+vi                              <span class="c"># bash: vi: command not found</span>
+ls /var/lib/postgresql/data/    <span class="c"># pg_hba.conf · postgresql.conf 가 있는 설정 폴더</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">패키지 관리자</td><td>Debian 계열 컨테이너는 <code>apt</code>(<code>apt-get</code>) 사용</td><td><code>apk</code> 는 알파인 전용이라 이 컨테이너에서는 통하지 않음 — 받은 이미지 계열에 맞춰 판단</td></tr>
+    <tr><td class="nowrap">설치 실패</td><td><code>E: Unable to locate package</code></td><td>패키지 목록을 받지 않은 상태 — <code>apt-get update</code> 후 재시도해야 하는 구조</td></tr>
+    <tr><td class="nowrap">vi 없음</td><td><code>bash: vi: command not found</code></td><td>이미지에 편집기를 넣지 않은 경량 구성</td></tr>
+    <tr><td class="nowrap">설정 파일 위치</td><td><code>/var/lib/postgresql/data/</code> 의 <code>pg_hba.conf</code>·<code>postgresql.conf</code></td><td>편집기가 없어 파일 편집은 못 함 — 인증·설정은 psql SQL 과 DBeaver 로 처리(<a href="https://hub.docker.com/_/postgres">Docker Hub postgres</a>)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">Debian 컨테이너의 패키지 관리자는 <code>apt</code> — <code>apk</code> 는 알파인 전용. 패키지 목록 갱신 전에는 <code>E: Unable to locate package</code></div>
+
+    <ul class="facts"><li><strong>이미지·컨테이너 이론</strong><div>Docker 이미지 계층·실행 구조: docker.html 3장</div></li><li><strong>PostgreSQL 컨테이너 실행</strong><div>공식 이미지·볼륨·환경변수로 세우는 절차: postgresql.html 16장</div></li><li><strong>psql 메타 명령</strong><div><code>\l</code>·<code>\du</code>·<code>\dn</code>·<code>\c</code> 사용법: postgresql.html 6장</div></li><li><strong>다음 단계</strong><div>스파크가 PostgreSQL 을 읽을 JDBC 드라이버 준비: 이 파일 49장</div></li></ul>
+  </section>
+
+  <!-- 49 -->
+  <section class="sec" id="spark-pg-jdbc">
+    <h2>Spark ↔ PostgreSQL — 연결 방식과 JDBC 드라이버</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 두 가지 연결 방식 중 이번 강의가 준비하는 것</p><div class="dg-flow"><div class="dg-node"><h4>① 방식 선택</h4><p class="sub">커넥션 vs JDBC</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② jars 폴더</h4><p class="sub">/opt/spark/jars</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ wget jar</h4><p class="sub">42.6.2</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 워커도 동일</h4><p class="sub">spark-worker1</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 이미지로 배포</h4><p class="sub">push 후 이름 바꿔 실행</p></div></div><p class="dg-foot">드라이버 jar 를 마스터와 워커의 jars 폴더에 넣어 두면, 이후 JDBC 방식으로 바로 읽을 수 있는 상태가 됨</p></div>
+
+    <h3>스파크에서 DB를 쓰는 방식 2가지</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>방식</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">커넥션(드라이버) 방식</td><td>파이썬 드라이버로 커넥션을 열어 SELECT 결과를 pandas 거쳐 데이터 프레임으로 만드는 방식</td><td>MariaDB 때 <code>pymysql</code> 로 한 방식과 같고 이번 실습도 이 방식(38~39장·57장)</td></tr>
+    <tr><td class="nowrap">스파크 DB 커넥션(JDBC) 방식</td><td>JVM 위 JDBC 드라이버로 DB 테이블을 직접 읽는 실무형 방식</td><td>이번 강의는 <b>jar 준비까지</b> — 실제 읽기 실습은 다음 단계(19장)</td></tr>
+    <tr><td class="nowrap">차이</td><td>JDBC 는 마스터·워커 <b>모두</b> jar 필요, 커넥션 방식은 파이썬 패키지만 필요</td><td>jar 를 빠뜨리면 워커에서 클래스 없음 오류</td></tr>
+    </tbody></table></div>
+
+    <h3>jar 다운로드 — 마스터</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+pwd                             <span class="c"># /opt/spark 확인 — Spark 설치 위치</span>
+cd jars/                        <span class="c"># 클러스터가 시작할 때 읽는 드라이버 폴더</span>
+dnf install wget                <span class="c"># wget: command not found 일 때 (Rocky Linux 9 컨테이너)</span>
+wget https://repo1.maven.org/maven2/org/postgresql/postgresql/42.6.2/postgresql-42.6.2.jar
+ls -al postgresql-42.6.2.jar    <span class="c"># 1,082,113바이트면 정상 — 작으면 오류 페이지를 받은 것</span>
+exit                            <span class="c"># jar 설치만 하면 끝 — 따로 실행할 것 없음</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">주소 찾는 순서</td><td>Maven Repository 에서 <code>postgresql</code> 검색 → <b>PostgreSQL JDBC Driver</b>(org.postgresql) → 42.6.2 → Files 의 jar 에 마우스 오른쪽 → <b>링크 주소 복사</b></td><td>파일 이름을 손으로 조립하지 않고 링크를 그대로 받아 오타를 막음</td></tr>
+    <tr><td class="nowrap">버전 42.6.2</td><td>끝자리 2 = 수정 패치 버전, 2024-03-13 릴리스, jar 약 1.0MB</td><td>최신은 42.7.x 계열 — 수업은 42.6.2 로 고정(<a href="https://jdbc.postgresql.org/changelogs/">PostgreSQL JDBC 변경 이력</a>)</td></tr>
+    <tr><td class="nowrap">정상 결과</td><td><code>postgresql-42.6.2.jar</code> 저장, 1,082,113바이트</td><td>크기를 보면 받은 파일이 jar 인지 바로 판별</td></tr>
+    <tr><td class="nowrap">wget 없음</td><td><code>dnf install wget</code> 으로 설치</td><td>마스터 컨테이너는 Rocky Linux 9 계열이라 <code>dnf</code> 사용</td></tr>
+    <tr><td class="nowrap">소요 시간</td><td>마스터의 <code>dnf install wget</code> 이 오래 걸림</td><td>끝날 때까지 기다린 뒤 다음 명령 — 중간에 끊으면 설치가 깨짐</td></tr>
+    </tbody></table></div>
+
+    <h3>워커도 같은 jar</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+docker exec -it spark-worker1 bash   <span class="c"># 워커 컨테이너 진입 (2번 워커는 spark-worker2)</span>
+<span class="c"># [spark-worker1 컨테이너 · root]</span>
+cd /opt/spark/jars/
+wget https://repo1.maven.org/maven2/org/postgresql/postgresql/42.6.2/postgresql-42.6.2.jar
+ls -al postgresql-42.6.2.jar    <span class="c"># 마스터와 같은 크기인지 확인</span>
+exit</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">워커의 wget</td><td>워커에는 wget 이 이미 있어 <code>dnf</code> 없이 바로 다운로드</td><td>마스터만 패키지가 빠진 상태 — 컨테이너마다 패키지 구성이 다름</td></tr>
+    <tr><td class="nowrap">워커에도 필요한 이유</td><td>실제 연산은 워커에서 실행 — 워커가 DB 에 붙어 데이터를 읽음</td><td>마스터만 넣으면 워커 태스크에서 드라이버 클래스를 못 찾음(19장)</td></tr>
+    <tr><td class="nowrap">워커가 많을 때</td><td>jar 를 설치한 워커 컨테이너를 이미지로 저장 → <code>docker push</code> → 받아서 이름만 바꿔 실행</td><td>같은 다운로드를 워커 수만큼 반복하지 않는 가장 좋은 방법</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">JDBC 는 마스터와 워커 모두 jar 필요 — 한쪽만 넣으면 워커 태스크에서 드라이버 클래스 없음 오류. 워커가 많으면 이미지로 굽고 push 해서 배포</div>
+
+    <ul class="facts"><li><strong>JDBC 읽기</strong><div>드라이버 클래스·6옵션·<code>show(5)</code>: 이 파일 19장</div></li><li><strong>MariaDB jar 선례</strong><div>워커 jars 폴더에 넣은 드라이버: 이 파일 38장</div></li><li><strong>커넥션 방식</strong><div><code>pymysql</code> 접속 → pandas → Spark: 이 파일 39장, PostgreSQL 판: 이 파일 57장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code> 와 마스터·워커 구분: 이 파일 22장</div></li></ul>
+  </section>
+
+  <!-- 50 -->
+  <section class="sec" id="spark-pg-roles">
+    <h2>사용자·DB·권한 생성</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — role 이 먼저, 그 role 을 소유자로 DB 생성</p><div class="dg-flow"><div class="dg-node"><h4>① create user</h4><p class="sub">mg · a1234</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② create database</h4><p class="sub">owner mg</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ grant</h4><p class="sub">on database mg to mg</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 확인</h4><p class="sub">\du · \l</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ role 속성</h4><p class="sub">superuser·createdb 미부여</p></div></div><p class="dg-foot">MySQL 의 <code>create user</code> → <code>grant</code> 와 같은 순서지만, PostgreSQL 은 DB 소유자(<code>owner</code>)를 따로 지정하는 점이 다름</p></div>
+
+    <h3>생성 순서</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- role(사용자) 먼저 생성 — DB 소유자로 지목하려면 role 이 존재해야 함. 이름은 Tab 자동완성</span>
+create user mg with encrypted password 'a1234';
+<span class="c">-- DB 생성 + 소유자 지정: 소유자는 owner 절이 정하고 DB 이름과는 무관</span>
+create database mg owner mg;
+<span class="c">-- DB 권한 부여 — grant 는 on 대상 to 사용자 순서</span>
+grant all privileges on database mg to mg;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">소유자 결정</td><td>DB 소유자는 <code>owner</code> 절로 정해짐 — DB 이름을 소유자 이름과 같게 만들 필요 없음</td><td>이름이 달라도 <code>owner mg</code> 면 mg 가 소유자(<a href="https://www.postgresql.org/docs/current/sql-createdatabase.html">CREATE DATABASE</a>)</td></tr>
+    <tr><td class="nowrap">생성 확인</td><td><code>\du</code> 로 role 생성, <code>\l</code> 로 DB 목록·소유자·권한 확인</td><td><code>\l</code> 의 Owner 칸이 mg 인지가 핵심</td></tr>
+    <tr><td class="nowrap">패스워드</td><td><code>a1234</code> 는 실습값</td><td>실무·AWS 같은 외부 노출 환경에서는 절대 쓰지 않는 값 — 비밀번호 관리 도구로 분리</td></tr>
+    <tr><td class="nowrap">grant 의 뜻</td><td>DB 에 붙을 수 있는 권한을 mg 에게 부여</td><td><code>all privileges</code> 는 DB 범위 — 안쪽 스키마·테이블 권한은 따로(55장)</td></tr>
+    </tbody></table></div>
+
+    <h3>role 속성 — 주지 않는 것이 기본</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>속성</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">superuser</td><td>부여하지 않음</td><td>DB 서버 전체를 다루는 최고 권한 — 매우 위험하므로 앱 계정에는 주지 않는 것이 원칙</td></tr>
+    <tr><td class="nowrap">replication</td><td>복제(레플리카)를 구성할 때만 부여</td><td>이 속성이 있어야 원본 변경을 복제 서버로 동기화할 수 있음</td></tr>
+    <tr><td class="nowrap">createdb</td><td>DB 생성 권한도 불필요</td><td>앱 계정이 DB 를 마구 만들면 서버가 지저분해짐</td></tr>
+    <tr><td class="nowrap">기본값</td><td>로그인만 되는 기본 role</td><td>필요한 권한만 나중에 추가하는 최소 권한 방식(55장)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">DB 소유자는 이름이 아니라 <code>owner</code> 절이 정함 — mg DB 를 mg 가 소유하는 이유는 <code>owner mg</code>. superuser·createdb 는 주지 않는 것이 기본, replication 은 복제 구성 때만</div>
+
+    <ul class="facts"><li><strong>권한 체계 원리</strong><div>role·소유자·DB 권한의 구조: postgresql.html 7장</div></li><li><strong>인증 설정</strong><div>원격 접속 허용과 <code>pg_hba.conf</code>: postgresql.html 3장</div></li><li><strong>다음 단계</strong><div>인코딩 확인과 DB별 조회: 이 파일 51장</div></li><li><strong>권한 회수</strong><div><code>REVOKE</code> 로 DB·스키마·테이블 권한 빼기: 이 파일 55장</div></li></ul>
+  </section>
+
+  <!-- 51 -->
+  <section class="sec" id="spark-pg-encoding">
+    <h2>인코딩 확인과 설정 시점</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 서버·클라이언트 인코딩을 먼저 확인</p><div class="dg-flow"><div class="dg-node"><h4>① show</h4><p class="sub">server · client</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② UTF8 확인</h4><p class="sub">둘 다 UTF8</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ DB별 조회</h4><p class="sub">pg_database</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 생성 전 지정</h4><p class="sub">create database 때</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ mb4 비교</h4><p class="sub">기본 UTF-8 = 4바이트</p></div></div><p class="dg-foot">인코딩은 DB 를 만들 때 정해지므로, 만들기 전에 확인하고 다른 문자셋이 필요하면 그때 지정</p></div>
+
+    <h3>확인 명령</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 서버가 저장에 쓰는 문자셋과 클라이언트가 주고받는 문자셋을 각각 확인. 세미콜론 필수</span>
+show server_encoding;
+show client_encoding;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td>server_encoding·client_encoding 둘 다 <b>UTF8</b></td><td>두 값이 다르면 한글·이모지가 깨질 수 있음</td></tr>
+    <tr><td class="nowrap">개념</td><td>인코딩(언어셋) = MySQL 의 캐릭터셋과 같은 개념</td><td>DB 가 문자를 저장·교환하는 방식(mysql.html 2장·11장)</td></tr>
+    <tr><td class="nowrap">실수 사례</td><td>세미콜론 누락 → 다음 줄 프롬프트가 <code>postgres-#</code>(연속 입력) → <code>ERROR: syntax error at or near "show"</code></td><td>에러는 앞 문장이 끝나지 않아 다음 문장이 이어 붙은 결과 — <code>;</code> 를 먼저 확인</td></tr>
+    <tr><td class="nowrap">권한</td><td><code>show</code> 는 조회 전용 값이라 일반 사용자 mg 도 실행 가능</td><td>postgres 전용 명령이 아님(<a href="https://www.postgresql.org/docs/current/sql-show.html">SHOW</a>)</td></tr>
+    <tr><td class="nowrap">mg 접속</td><td><code>\q</code> 로 나온 뒤 <code>psql -U mg</code></td><td>패스워드 오타 시 <code>password authentication failed</code></td></tr>
+    </tbody></table></div>
+
+    <h3>변경 시점</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">지정 시점</td><td>DB 를 만들기 <b>전</b>(<code>create database</code> 때)에 지정해 새로 만듦</td><td>인코딩은 DB 단위 속성이라 생성 시점에 정해짐</td></tr>
+    <tr><td class="nowrap">중간 변경</td><td>쓰던 DB 의 인코딩을 중간에 강제로 바꾸면 문제가 생길 수 있음</td><td>기존 문자가 잘못 해석되는 사고로 이어짐</td></tr>
+    <tr><td class="nowrap">대안</td><td>원하는 인코딩으로 새 DB 를 만들어 데이터를 옮기는 방식</td><td>운영 중 DB 는 이 방식으로 분리</td></tr>
+    </tbody></table></div>
+
+    <h3>DB별 인코딩 조회</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- pg_database 카탈로그의 인코딩 숫자를 이름으로 변환해 mg DB 값 확인</span>
+select pg_encoding_to_char(encoding) from pg_database where datname='mg';</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td>UTF8</td><td>DB 목록 전체는 <code>\l</code> 의 Encoding 칸으로도 확인</td></tr>
+    <tr><td class="nowrap">실수 사례</td><td><code>from</code> 을 <code>form</code> 으로 오타 → syntax error</td><td><code>from</code>·<code>form</code> 은 눈으로 잘 넘어가는 대표 오타</td></tr>
+    <tr><td class="nowrap">\l 출력</td><td>Encoding·Collate·Ctype 칸이 함께 나옴</td><td>Collate·Ctype 는 정렬·비교 규칙 — 한글 정렬 확인 때 필요</td></tr>
+    </tbody></table></div>
+
+    <h3>MySQL utf8mb4와 비교</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">기본값</td><td>PostgreSQL 기본 UTF-8 이 mb4 범위(4바이트)를 포함</td><td>MySQL 처럼 <code>utf8mb4</code> 를 따로 지정할 필요 없음</td></tr>
+    <tr><td class="nowrap">변경 조건</td><td>EUC-KR 등 다른 문자셋을 쓸 때만 변경</td><td>기존 시스템과 맞춰야 하는 경우에만 손댐</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>MySQL 은 캐릭터셋·콜레이션을 DB·컬럼 단위로 지정</td><td>문자셋 설정 방식 차이: mysql.html 11장</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">인코딩은 DB 생성 시점에 정해짐 — 만든 뒤 중간 변경은 위험. PostgreSQL 기본 UTF-8 은 MySQL <code>utf8mb4</code> 와 같은 4바이트 범위라 별도 지정 불필요</div>
+
+    <ul class="facts"><li><strong>문자셋 설정</strong><div>MySQL 캐릭터셋·콜레이션과 오류 복구: mysql.html 11장</div></li><li><strong>DB 생성</strong><div><code>create database</code>·owner 지정: 이 파일 50장</div></li><li><strong>설정 파일</strong><div>컨테이너 <code>postgresql.conf</code> 설정·재시작 검증: postgresql.html 18장</div></li><li><strong>다음 단계</strong><div>스키마 분리와 <code>search_path</code>: 이 파일 52장</div></li></ul>
+  </section>
+
+  <!-- 52 -->
+  <section class="sec" id="spark-pg-schema">
+    <h2>스키마와 search_path</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 테이블을 담을 스키마를 만들고 경로에 넣기</p><div class="dg-flow"><div class="dg-node"><h4>① public 기본</h4><p class="sub">누구나 쓰는 공용</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② create schema</h4><p class="sub">mg_schema</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ set</h4><p class="sub">세션용</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ alter user</h4><p class="sub">롤에 저장</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 스키마.테이블</h4><p class="sub">경로 밖은 이름 붙여 조회</p></div></div><p class="dg-foot">MySQL 에는 없는 구조 — PostgreSQL 은 DB 안에 스키마가 한 겹 더 있고, 테이블 이름을 스키마명 없이 쓰려면 검색 경로에 넣어야 함</p></div>
+
+    <h3>스키마 생성</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 기본 public 은 모든 role 이 쓰는 공용 공간이라 업무용 테이블은 별도 스키마로 분리</span>
+create schema mg_schema;
+<span class="c">-- 스키마 목록 확인: mg_schema(owner mg), public(owner postgres)</span>
+\dn</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">public 의 성격</td><td>기본 스키마 <code>public</code> 은 열려 있는 상태</td><td>보안상 업무 테이블은 별도 스키마에 두고 권한을 따로 관리(55장)</td></tr>
+    <tr><td class="nowrap">정상 결과</td><td><code>\dn</code> 에 <code>mg_schema</code>(owner mg)와 <code>public</code>(owner postgres)</td><td>소유자가 생성한 role 인지 함께 확인</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>MySQL 은 DB 안에 스키마 계층이 없음</td><td>PostgreSQL 은 DB → 스키마 → 테이블 3단계라 이름 해석 규칙이 하나 더 있음</td></tr>
+    </tbody></table></div>
+
+    <h3>검색 경로(search_path)</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 현재 세션에만 적용 — 접속을 끊으면 사라지는 임시 설정</span>
+set search_path to mg_schema, public;
+<span class="c">-- 롤에 저장해 다시 접속해도 유지 (ALTER ROLE 의 다른 이름)</span>
+alter user mg set search_path to mg_schema, public;
+<span class="c">-- 설정 후 스키마 목록이 정상 표시되는지 확인</span>
+\dn</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">기본 경로</td><td>기본 <code>search_path</code> 는 <code>"$user", public</code></td><td>새로 만든 mg_schema 는 경로에 아예 없음 — 우선순위가 낮은 것이 아니라 <b>없는</b> 상태(<a href="https://www.postgresql.org/docs/current/ddl-schemas.html">Schemas</a>)</td></tr>
+    <tr><td class="nowrap">경로에 추가</td><td>조회할 스키마를 경로에 넣어야 스키마명 없이 테이블 이름 사용</td><td><code>"$user"</code> 는 사용자 이름과 같은 스키마를 찾는 자리 — mg 로 접속하면 mg 스키마를 먼저 봄</td></tr>
+    <tr><td class="nowrap">set 과 alter</td><td><code>set</code> 은 세션용, <code>alter user ... set search_path</code> 는 롤에 저장</td><td><code>alter user</code> 설정은 컨테이너를 껐다 켜도 유지(<a href="https://www.postgresql.org/docs/current/sql-set.html">SET</a>)</td></tr>
+    <tr><td class="nowrap">초기화 원인</td><td><code>set</code> 의 효과는 세션이 끝나면 사라짐</td><td>컨테이너 재시작 때문이 아니라 <code>\q</code>·재접속으로 세션이 끊긴 결과</td></tr>
+    <tr><td class="nowrap">적용 범위</td><td>도커 컨테이너인지와 무관하게 세션·롤 설정 규칙을 따름</td><td>온프레미스와 결과가 갈리는 것은 이 규칙이 아니라 접속 계정·세션 상태 차이</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">새 스키마는 기본 경로(<code>"$user", public</code>)에 없음 — <code>set</code> 은 세션용, <code>alter user ... set search_path</code> 는 롤에 저장. 초기화 원인은 컨테이너 재시작이 아니라 세션 종료</div>
+
+    <ul class="facts"><li><strong>스키마와 public</strong><div>스키마 구조·public 권한의 원리: postgresql.html 8장</div></li><li><strong>스키마 권한</strong><div>스키마 단위 grant·revoke: 이 파일 55장</div></li><li><strong>DBeaver 우선 스키마</strong><div>접속 후 스키마가 public 으로 잡히는지 확인: 이 파일 53장</div></li><li><strong>연결 시 경로 지정</strong><div>psycopg2 <code>options</code> 의 <code>-c search_path</code>: 이 파일 57장</div></li></ul>
+  </section>
+
+  <!-- 53 -->
+  <section class="sec" id="spark-pg-dbeaver">
+    <h2>DBeaver 연결과 테이블 적재</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 연결 → CSV 적재 → 컬럼명 정리</p><div class="dg-flow"><div class="dg-node"><h4>① 새 연결</h4><p class="sub">PostgreSQL</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 접속 정보</h4><p class="sub">5432 · mg</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ Test Connection</h4><p class="sub">성공 확인</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 데이터 가져오기</h4><p class="sub">CSV · utf-8</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 컬럼명 정리</h4><p class="sub">11개 · money int4</p></div></div><p class="dg-foot">MariaDB 때와 같은 DBeaver 절차 — 다른 점은 포트 5432 와 우선 스키마(mg_schema) 확인</p></div>
+
+    <h3>연결 설정</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>설정</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>새 연결 → PostgreSQL → Next</td><td>DB 종류를 먼저 고르면 포트 기본값(5432)이 자동 입력</td></tr>
+    <tr><td class="nowrap">2</td><td>Host <code>192.168.222.5</code>, Port <code>5432</code>, Database <code>mg</code>, 사용자 <code>mg</code> / 비밀번호 <code>a1234</code></td><td>5432 는 공식 포트라 변경 불필요 — 호스트에서 다른 프로세스가 쓰는지만 확인(48장)</td></tr>
+    <tr><td class="nowrap">3</td><td><b>Test Connection</b> 성공 확인 → 완료</td><td>연결 항목(RDS·GCP 같은 클라우드에서 쓰는 값)은 이 화면 구조를 알아 두면 그대로 대응</td></tr>
+    <tr><td class="nowrap">4</td><td>연결 후 열린 창은 닫고 DB(mg) 더블클릭 → <b>우선 스키마</b> 확인</td><td>public 으로 잡히면 안 됨 — mg_schema 가 우선이어야 테이블이 바로 보임(52장)</td></tr>
+    </tbody></table></div>
+
+    <h3>CSV 가져오기 — travel_payment</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>동작</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>스키마(mg_schema) 또는 DB 에서 마우스 오른쪽 → <b>데이터 가져오기</b></td><td>가져올 위치를 스키마로 잡으면 테이블이 그 스키마에 생성</td></tr>
+    <tr><td class="nowrap">2</td><td>소스 : 이전 강의의 <code>travel_payment</code> CSV(CSV 형식, 인코딩 utf-8)</td><td>인코딩을 utf-8 로 맞추지 않으면 한글 고객명·상품명이 깨짐</td></tr>
+    <tr><td class="nowrap">3</td><td>테이블 매핑 확인 → 다음 → 진행</td><td>컬럼 매핑 화면에서 타입이 자동 추정되므로 뒤에서 이름·타입을 정리</td></tr>
+    <tr><td class="nowrap">4</td><td><code>travel_payment</code> 더블클릭 → 데이터 탭에서 데이터 확인</td><td>행 수와 금액 컬럼이 보이면 적재 성공(42장)</td></tr>
+    </tbody></table></div>
+
+    <h3>컬럼명 변경 — 영문 단순화</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>번호</th><th>의미</th><th>변경 컬럼명</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>결제번호</td><td><code>pycode</code></td></tr>
+    <tr><td class="nowrap">2</td><td>결제일시</td><td><code>date</code></td></tr>
+    <tr><td class="nowrap">3</td><td>고객명</td><td><code>custormer</code> (오타 그대로 사용)</td></tr>
+    <tr><td class="nowrap">4</td><td>고객 ID</td><td><code>id</code></td></tr>
+    <tr><td class="nowrap">5</td><td>상품명</td><td><code>product</code></td></tr>
+    <tr><td class="nowrap">6</td><td>상품 유형</td><td><code>product_type</code></td></tr>
+    <tr><td class="nowrap">7</td><td>여행지</td><td><code>travel</code></td></tr>
+    <tr><td class="nowrap">8</td><td>결제금액</td><td><code>money</code>(<code>int4</code>)</td></tr>
+    <tr><td class="nowrap">9</td><td>결제수단</td><td><code>paytype</code></td></tr>
+    <tr><td class="nowrap">10</td><td>결제사</td><td><code>cardcorp</code></td></tr>
+    <tr><td class="nowrap">11</td><td>결제 상태</td><td><code>paystate</code></td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">타입</td><td>나머지 컬럼은 <code>varchar(50)</code>, <code>money</code> 만 <code>int4</code></td><td>금액을 문자로 두면 <code>sum</code>·비교가 되지 않음</td></tr>
+    <tr><td class="nowrap">이름 규칙</td><td>언더바(<code>product_type</code>) 사용을 권장</td><td>단어 경계가 보여 이후 쿼리에서 컬럼명 오타가 줄어듦</td></tr>
+    <tr><td class="nowrap">변경 범위</td><td>컬럼명은 가능하면 적게 바꾸는 쪽이 편함</td><td>이미 작성된 쿼리·API 코드가 함께 깨지기 때문</td></tr>
+    <tr><td class="nowrap">저장</td><td>변경 후 <b>저장</b></td><td>저장하지 않으면 테이블 정의가 그대로 남음</td></tr>
+    </tbody></table></div>
+
+    <h3>권한 탭 확인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">Execute 권한</td><td>함수·프로시저를 실행할 수 있는 권한</td><td>테이블 권한이 아님 — 테이블을 조회하려면 <code>SELECT</code> 권한이 필요(<a href="https://www.postgresql.org/docs/current/ddl-priv.html">GRANT</a>)</td></tr>
+    <tr><td class="nowrap">데이터 핸들링</td><td>권한이 있어야 스파크·파이썬이 이 테이블을 읽고 쓸 수 있음</td><td>권한이 없으면 <code>permission denied for table travel_payment</code></td></tr>
+    <tr><td class="nowrap">회수·재부여</td><td>권한을 빼고 다시 주는 절차는 REVOKE 장에서</td><td>DB·스키마·테이블 단위 회수: 이 파일 55장</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">권한 탭의 <code>Execute</code> 는 함수·프로시저 실행 권한 — 테이블 조회는 <code>SELECT</code> 권한. 적재 뒤에는 우선 스키마가 mg_schema 인지, <code>money</code> 가 <code>int4</code> 인지 확인</div>
+
+    <ul class="facts"><li><strong>DBeaver 원격 접속</strong><div>연결 화면·인증 설정의 원리: postgresql.html 10장</div></li><li><strong>travel_payment 표</strong><div>MySQL 판 컬럼·문제 풀이: 이 파일 42장</div></li><li><strong>스키마 경로</strong><div>mg_schema 를 경로에 넣는 설정: 이 파일 52장</div></li><li><strong>다음 단계</strong><div>적재한 표를 PostgreSQL 문법으로 조회: 이 파일 54장</div></li></ul>
+  </section>
+
+  <!-- 54 -->
+  <section class="sec" id="spark-pg-sql">
+    <h2>PostgreSQL SELECT 문법 — MySQL과 다른 지점</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 같은 표를 다른 문법으로 조회</p><div class="dg-flow"><div class="dg-node"><h4>① like·ilike</h4><p class="sub">대소문자</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② limit offset</h4><p class="sub">쉼표 없음</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ concat</h4><p class="sub">컬럼 합치기</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ concat_ws</h4><p class="sub">구분자 삽입</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ replace</h4><p class="sub">변경·삭제</p></div></div><p class="dg-foot">where·and·or·group by·order by 는 MySQL 과 거의 같고, 문자열 비교·행 제한·문자열 함수에서 차이가 갈림</p></div>
+
+    <h3>공통점과 실습 위치</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">그대로 쓰는 문법</td><td><code>where</code> 의 <code>and</code>·<code>or</code>, <code>group by</code>, <code>order by</code></td><td>MariaDB 에서 맞춘 쿼리는 이 절들이 그대로 동작(43장)</td></tr>
+    <tr><td class="nowrap">차이</td><td>DB 마다 문법이 조금씩 다름(오라클도 다름)</td><td>차이를 외워야 데이터 추출·분석이 가능</td></tr>
+    <tr><td class="nowrap">실습 위치</td><td>DBeaver 의 SQL 스크립트 편집기</td><td>결과를 눈으로 보며 한 줄씩 확인(53장)</td></tr>
+    </tbody></table></div>
+
+    <h3>LIKE와 ILIKE — 대소문자 구분</h3>
+    <div class="code"><pre><code><span class="c">-- [윈도우 · DBeaver SQL 스크립트 편집기 · mg]</span>
+<span class="c">-- id 값은 이메일(user_번호@...) 형태 — like 는 대소문자를 구분</span>
+select * from travel_payment where id like 'user_467%';     <span class="c">-- 조회됨</span>
+select * from travel_payment where id like 'User_467%';     <span class="c">-- 대문자 U → 안 찾아짐</span>
+<span class="c">-- ilike 는 대소문자 구분 없이 비교 — PostgreSQL 전용 문법</span>
+select * from travel_payment where id ilike 'User_467%';    <span class="c">-- 찾아짐</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>MySQL·MariaDB</th><th>PostgreSQL</th></tr></thead><tbody>
+    <tr><td class="nowrap">기본 like</td><td>대소문자 구분 없이 조회</td><td>대소문자 구분</td></tr>
+    <tr><td class="nowrap">대소문자 무시</td><td>따로 필요 없음</td><td><code>ilike</code></td></tr>
+    <tr><td class="nowrap">ilike 지원</td><td>없음</td><td>있음 — PostgreSQL 전용(<a href="https://www.postgresql.org/docs/current/functions-matching.html">Pattern Matching</a>)</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">검색 권장</td><td>값에 대문자가 섞일 수 있으므로 <code>ilike</code> 가 가장 안정적</td><td><code>like</code> 로 쓰면 소문자만 맞아 결과가 조용히 비어 버림</td></tr>
+    <tr><td class="nowrap">% 위치</td><td>앞뒤 <code>%</code> 의 의미는 MySQL 과 같음</td><td>앞에 붙이면 포함, 뒤에만 붙이면 시작 일치(41장)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">PostgreSQL 의 <code>like</code> 는 대소문자 구분 — 대문자가 섞이는 값은 <code>ilike</code>. <code>ilike</code> 는 MySQL·MariaDB 에 없는 PostgreSQL 전용 문법</div>
+
+    <h3>LIMIT과 OFFSET — 쉼표 없음</h3>
+    <div class="code"><pre><code><span class="c">-- [윈도우 · DBeaver SQL 스크립트 편집기 · mg]</span>
+<span class="c">-- limit 개수 offset 건너뛸 행 수 — MySQL 의 limit 시작,개수 와 순서·형식이 다름</span>
+select * from travel_payment limit 10 offset 0;    <span class="c">-- 처음 10개 (최지훈 님~황수아 님)</span>
+select * from travel_payment limit 10 offset 10;   <span class="c">-- 11번째(장상헌 님)부터 10개</span>
+select * from travel_payment limit 20 offset 10;   <span class="c">-- 11번째부터 20개</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">문법</td><td><code>limit 개수 offset 건너뛸 행 수</code> — 쉼표 없음</td><td>MySQL 식 <code>limit 0,10</code>(시작,개수)은 PostgreSQL 에서 <b>쉼표 문법 오류</b></td></tr>
+    <tr><td class="nowrap">Spark 쪽</td><td>Spark SQL 도 콤마형 limit 을 인식하지 못함</td><td>같은 실수를 Spark 에서 반복하기 쉬움(40장·47장)</td></tr>
+    <tr><td class="nowrap">용도</td><td>페이지 나누기·상위 N개 확인</td><td>정렬이 없으면 행 순서가 보장되지 않음 — 상위 N개는 <code>order by</code> 와 함께</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn"><code>limit 개수 offset 건너뛸 행 수</code> — PostgreSQL·Spark SQL 모두 콤마형 <code>limit 0,10</code> 은 문법 오류. 개수 제한은 콤마 없이</div>
+
+    <h3>CONCAT — 컬럼 합치기</h3>
+    <div class="code"><pre><code><span class="c">-- [윈도우 · DBeaver SQL 스크립트 편집기 · mg]</span>
+<span class="c">-- 두 컬럼 값을 합쳐 한 컬럼으로 출력. as 는 결과 컬럼 별칭</span>
+select concat(custormer, id) from travel_payment;
+select concat(custormer, id) as nm from travel_payment;
+<span class="c">-- concat 안에는 문자열도 넣을 수 있음 — 아이디와 @도메인을 나눠 둔 경우</span>
+select concat(id, '@example.com') from travel_payment;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td><code>user_754@example.com</code> 형태로 두 값이 붙어 출력</td><td>컬럼 별칭을 주지 않으면 결과 헤더가 <code>concat</code> 으로 나옴</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>MySQL 에도 같은 함수가 있음</td><td>양쪽 DB 에서 같은 이름으로 쓸 수 있는 대표 함수</td></tr>
+    <tr><td class="nowrap">쓰는 경우</td><td>개발자마다 컬럼 설계가 달라 나눠 저장된 값을 한 번에 보거나, 합친 값으로 <code>like</code> 검색할 때</td><td>주소(우편번호·도로명·상세주소), 전화번호(국가번호·지역번호·앞자리·뒷자리(<code>tel</code>)), 이메일(아이디·<code>@도메인</code>)</td></tr>
+    <tr><td class="nowrap">전화번호 설계</td><td>지역번호를 따로 두면 지역을 그 값으로 찾을 수 있어 나누기도 함</td><td>문자 발송·분석 때는 한 번에 봐야 하므로 <code>concat</code> 으로 합침</td></tr>
+    <tr><td class="nowrap">주석 기호</td><td>PostgreSQL <code>--</code>, MySQL <code>#</code></td><td>같은 파일을 두 DB 에 붙여 넣을 때 주석이 에러가 되는 지점</td></tr>
+    <tr><td class="nowrap">pycode</td><td>결제코드는 화면 예시용</td><td>값 자체를 외우지 말고 함수 쓰임으로 기억</td></tr>
+    </tbody></table></div>
+
+    <h3>CONCAT에 문자 붙이기</h3>
+    <div class="code"><pre><code><span class="c">-- [윈도우 · DBeaver SQL 스크립트 편집기 · mg]</span>
+<span class="c">-- 첫 인자로 준 문자열이 값 앞에 붙음</span>
+select concat('-', pycode) from travel_payment;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td><code>PAY-2026-00001</code> 앞에 <code>-</code> 가 붙어 출력</td><td>문자열 인자도 컬럼과 같은 방식으로 합쳐짐</td></tr>
+    <tr><td class="nowrap">실무 사례</td><td>전화번호를 <code>010-2345-6789</code> 처럼 하이픈 포함해 저장하면 SMS 가 숫자로 발송되지 않음</td><td>문자로 인식돼 휴대폰 번호 오류로 발송 실패 — 하이픈을 빼야 함(<code>replace</code>)</td></tr>
+    </tbody></table></div>
+
+    <h3>CONCAT_WS — 값 사이에 구분자</h3>
+    <div class="code"><pre><code><span class="c">-- [윈도우 · DBeaver SQL 스크립트 편집기 · mg]</span>
+<span class="c">-- 첫 인자가 구분자 — 값과 값 사이에 들어감 (앞에 붙는 concat('-', ...) 과 결과가 완전히 다름)</span>
+select concat_ws('-', custormer, id) as nm from travel_payment;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td>고객명과 id 사이에 <code>-</code> 가 들어가 출력</td><td>값이 3개면 구분자가 2번 들어감</td></tr>
+    <tr><td class="nowrap">첫 인자</td><td>구분자(separator) 문자열</td><td><code>_ws</code> 는 구분자를 넣는 함수라는 표시 — word space 전용이 아님(<a href="https://www.postgresql.org/docs/current/functions-string.html">String Functions</a>)</td></tr>
+    <tr><td class="nowrap">NULL 처리</td><td>NULL 인자는 건너뛰고 나머지를 구분자로 연결</td><td>값이 비어 있을 때 구분자가 겹쳐 보이는 문제를 피함</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>컬럼명을 넣는 방식은 MySQL 과 동일</td><td>함수 이름·인자 순서도 같음</td></tr>
+    </tbody></table></div>
+
+    <h3>REPLACE — 단어 변경·삭제</h3>
+    <div class="code"><pre><code><span class="c">-- [윈도우 · DBeaver SQL 스크립트 편집기 · mg]</span>
+<span class="c">-- replace(컬럼, 찾을 단어, 바꿀 단어) — 세 번째 인자가 빈 문자열이면 삭제</span>
+select replace(pycode, '-', '') from travel_payment;    <span class="c">-- PAY-2026-00001 → PAY202600001</span>
+select replace(pycode, '-', '/') from travel_payment;   <span class="c">-- 하이픈을 슬래시로 변경</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">두 기능</td><td>바꿀 단어가 <code>''</code> 이면 삭제, 다른 문자면 변경</td><td>함수 하나로 지우기·치환을 모두 처리</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>MySQL 에도 같은 함수가 있음</td><td>DB 이동 시 그대로 사용 가능</td></tr>
+    <tr><td class="nowrap">주의</td><td>SELECT 안에서 쓰면 결과만 바뀌고 저장 값은 그대로</td><td>값을 실제로 고치려면 <code>update</code> — 조회와 갱신을 구분</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn"><code>concat</code> 은 값 앞에, <code>concat_ws</code> 는 값 사이에 구분자를 넣음 — 결과가 완전히 다름. <code>replace</code> 의 세 번째 인자가 <code>''</code> 이면 삭제</div>
+
+    <ul class="facts"><li><strong>LIMIT 함정</strong><div>적용 위치·빈 결과·집계와의 조합: 이 파일 40장</div></li><li><strong>LIKE <code>%</code> 위치</strong><div>앞뒤 <code>%</code> 별 결과 차이: 이 파일 41장</div></li><li><strong>표 구조</strong><div><code>travel_payment</code> 컬럼·값: 이 파일 42장·53장</div></li><li><strong>MySQL 문법</strong><div><code>select</code>·집계·<code>group by</code> 기본: mysql.html 2장</div></li></ul>
+  </section>
+
+  <!-- 55 -->
+  <section class="sec" id="spark-pg-revoke">
+    <h2>권한 회수(REVOKE)와 접속 전환</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 준 권한을 단계별로 회수하고 확인</p><div class="dg-flow"><div class="dg-node"><h4>① DB 권한</h4><p class="sub">revoke … from mg</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 접속 차단</h4><p class="sub">connect from public</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 스키마</h4><p class="sub">on schema</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 테이블</h4><p class="sub">all tables in schema</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ \c 전환</h4><p class="sub">DB·사용자 지정</p></div></div><p class="dg-foot">grant 의 반대 방향 — 회수는 <code>from</code>, 부여는 <code>to</code>. 범위는 테이블 &lt; 스키마 &lt; DB 순서로 넓어짐</p></div>
+
+    <h3>DB 권한 — GRANT ↔ REVOKE</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 준 권한을 회수 — grant 의 반대, 대상은 to 가 아니라 from</span>
+revoke all privileges on database mg from mg;
+<span class="c">-- 다시 부여 — 순서는 on 데이터베이스명 to 사용자명</span>
+grant all privileges on database mg to mg;
+<span class="c">-- Access privileges 칸의 변화 확인</span>
+\l
+<span class="c">-- 접속 자체를 막으려면 CONNECT 권한을 PUBLIC 에서도 회수해야 함</span>
+revoke connect on database mg from public;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">방향</td><td>GRANT 는 <code>to 사용자</code>, REVOKE 는 <b><code>from 사용자</code></b></td><td>방향을 틀리면 문법 오류 — 순서는 대상(DB명) → 사용자명</td></tr>
+    <tr><td class="nowrap">확인</td><td><code>\l</code> 의 Access privileges 칸 변화</td><td>변경 전후를 함께 보고 권한이 실제로 바뀌었는지 비교</td></tr>
+    <tr><td class="nowrap">접속 차단</td><td>DB 의 CONNECT 권한은 기본으로 PUBLIC(모든 롤)에도 있음</td><td>mg 에서만 회수하면 접속이 계속될 수 있음 → <code>revoke connect on database mg from public;</code> 까지 필요(<a href="https://www.postgresql.org/docs/current/ddl-priv.html">GRANT</a>)</td></tr>
+    <tr><td class="nowrap">MySQL 비교</td><td>MySQL 도 revoke·grant 구조는 같음</td><td>권한 테이블·호스트 단위 구분이 추가로 있는 차이(mysql.html 5장)</td></tr>
+    </tbody></table></div>
+
+    <h3>스키마 권한</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 스키마 단위로 부여</span>
+grant all privileges on schema mg_schema to mg;
+<span class="c">-- 회수하면 그 스키마 안의 객체를 사용할 수 없음</span>
+revoke all privileges on schema mg_schema from mg;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">범위</td><td>스키마가 여러 개면 스키마별로 부여·회수</td><td>업무 영역별 스키마를 나누면 권한을 그 단위로 통제(52장)</td></tr>
+    <tr><td class="nowrap">USAGE</td><td>스키마를 쓰려면 <code>USAGE</code>, 객체를 만들려면 <code>CREATE</code></td><td><code>all privileges</code> 는 둘을 함께 준 상태</td></tr>
+    </tbody></table></div>
+
+    <h3>테이블 권한</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 스키마 안 모든 테이블의 권한을 한 번에 회수</span>
+revoke all privileges on all tables in schema mg_schema from mg;
+<span class="c">-- 특정 테이블만 회수할 때는 테이블 이름을 지정</span>
+revoke all privileges on travel_payment from mg;</code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td>회수 뒤 데이터 수정 등 아무것도 못 함</td><td><code>select</code> 조회도 <code>SELECT</code> 권한이 있어야 가능</td></tr>
+    <tr><td class="nowrap">권한 범위</td><td>테이블 &lt; 스키마 &lt; 데이터베이스</td><td>어느 단위로도 REVOKE 가능 — 이 권한 체계가 PostgreSQL 운영의 핵심</td></tr>
+    <tr><td class="nowrap">root 권한</td><td>postgres 는 최고 권한 role</td><td>postgres 의 권한을 빼앗기면 DB 를 관리할 수 없는 큰 문제 — root 계정은 회수 대상에서 제외</td></tr>
+    <tr><td class="nowrap">일반 사용자</td><td>권한이 없으면 다른 DB·스키마의 테이블을 볼 수 없음</td><td>PostgreSQL 은 사용자가 권한을 직접 핸들링하는 DB — 부여를 빠뜨리면 <code>permission denied</code></td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">권한 회수는 <code>from</code> — DB 권한만 빼도 접속은 계속될 수 있으니 CONNECT 를 PUBLIC 에서도 회수. 범위는 테이블 &lt; 스키마 &lt; DB, root 계정은 회수 대상 아님</div>
+
+    <h3>접속 전환 — \c</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- 사용자를 생략하면 현재 사용자(postgres)로 DB 만 전환</span>
+\c mg
+<span class="c">-- postgres 는 public 기준이라 mg_schema 테이블이 보이지 않음</span>
+\dt
+<span class="c">-- 사용자까지 지정 — 해당 사용자 패스워드 입력 후 접속</span>
+\c mg mg
+<span class="c">-- psql 완전 종료 (세션 종료)</span>
+\q</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">\c mg 결과</td><td><code>You are now connected to database "mg" as user "postgres"</code></td><td>사용자 표기가 postgres 인지 확인 — 권한이 다른 계정과 헷갈리기 쉬움</td></tr>
+    <tr><td class="nowrap">\dt 결과</td><td><code>Did not find any relations</code></td><td>postgres 의 검색 경로가 public 기준이라 mg_schema 테이블이 안 보임(52장)</td></tr>
+    <tr><td class="nowrap">패스워드</td><td><code>\c mg mg</code> 는 해당 사용자 패스워드 입력 필요</td><td>모르면 postgres 로 접속해 처리</td></tr>
+    <tr><td class="nowrap">백업 단위</td><td>DB 전체가 아니라 특정 테이블 단위로 들어가 처리하는 경우가 있음</td><td>백업·복구 시연은 없음 — 절차는 postgresql.html 9장</td></tr>
+    </tbody></table></div>
+
+    <h3>root로 mg 스키마 확인 — 임시 설정</h3>
+    <div class="code"><pre><code><span class="c">-- [rds_psql 컨테이너 · psql 프롬프트 · root(postgres)]</span>
+<span class="c">-- alter user 는 롤에 저장돼 다른 사용자 설정까지 바뀌므로, 확인용은 set 으로</span>
+set search_path to mg_schema, public;
+<span class="c">-- 경로에 있으면 스키마명 생략 가능</span>
+select * from travel_payment;
+<span class="c">-- 경로에 없으면 스키마명.테이블명 (Tab 자동완성)</span>
+select * from mg_schema.travel_payment;
+<span class="c">-- 설정 후에는 스키마·테이블·권한 목록이 함께 보임</span>
+\dn
+\dt
+\dp</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">set vs alter</td><td>root 확인은 <code>set</code></td><td><code>alter user ... set search_path</code> 는 영구 변경이라 일반 사용자가 쓰던 설정이 바뀜(52장)</td></tr>
+    <tr><td class="nowrap">스키마 분리</td><td>스키마를 따로 만들면 경로를 잡아야 테이블이 보임</td><td>public 만 쓰는 경우·MySQL 과 다른 구조(53장)</td></tr>
+    <tr><td class="nowrap">\dp</td><td>스키마·테이블 권한(Access privileges) 목록</td><td>스키마별 테이블도 함께 표시</td></tr>
+    <tr><td class="nowrap">소유자</td><td>객체의 소유자는 한 명의 롤, <code>ALTER ... OWNER TO</code> 로 변경</td><td>소유자를 여러 명 둘 수 없음(<a href="https://www.postgresql.org/docs/current/sql-altertable.html">ALTER TABLE</a>)</td></tr>
+    <tr><td class="nowrap">root 접근</td><td>소유자가 mg 여도 postgres 는 접근 가능</td><td>최고 권한 role 이라 소유자와 무관하게 조회·수정 가능</td></tr>
+    <tr><td class="nowrap">빈 Access privileges</td><td>기본 권한(소유자 전권) 상태라는 표시</td><td>DB 소유만으로 그 안의 모든 객체가 자동으로 자기 것이 되는 것은 아님(<a href="https://www.postgresql.org/docs/current/ddl-priv.html">GRANT</a>)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn"><code>\dp</code> 의 Access privileges 가 빈 칸은 기본 권한(소유자 전권) 상태 — DB 소유와 스키마·테이블 소유는 별개. 객체 소유자는 한 명의 롤</div>
+
+    <ul class="facts"><li><strong>권한 원리</strong><div>role·소유자·ACL 구조: postgresql.html 7장</div></li><li><strong>스키마 경로</strong><div><code>set</code>·<code>alter user</code> 차이: 이 파일 52장</div></li><li><strong>psql 메타 명령</strong><div><code>\c</code>·<code>\dt</code>·<code>\dp</code> 사용법: postgresql.html 6장</div></li><li><strong>다음 단계</strong><div>파이썬에서 이 DB 에 붙는 드라이버: 이 파일 56장</div></li></ul>
+  </section>
+
+  <!-- 56 -->
+  <section class="sec" id="spark-pg-psycopg2">
+    <h2>Python용 PostgreSQL 드라이버</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — pymysql 자리에 들어가는 드라이버</p><div class="dg-flow"><div class="dg-node"><h4>① pip3 install</h4><p class="sub">psycopg2-binary</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 마스터·워커</h4><p class="sub">양쪽 설치</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ import</h4><p class="sub">연결은 import 만</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ pandas 연결</h4><p class="sub">read_sql</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ psycopg 3</h4><p class="sub">psycopg[binary]</p></div></div><p class="dg-foot">2.x(psycopg2)와 3.x(psycopg) 중 하나로 표준을 정해 설치 — 둘을 섞어 쓰지 않음</p></div>
+
+    <h3>psycopg2-binary 설치</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+pip3 install psycopg2-binary    <span class="c"># PostgreSQL 드라이버 2.x — 실제 설치 2.9.12</span>
+<span class="c"># [spark-worker1 컨테이너 · root]</span>
+pip3 install psycopg2-binary    <span class="c"># 워커도 같은 드라이버 필요</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">역할</td><td>MySQL 의 <code>pymysql</code> 에 해당하는 PostgreSQL 드라이버</td><td>없으면 파이썬에서 PostgreSQL 연결 불가(39장)</td></tr>
+    <tr><td class="nowrap">설치 형태</td><td>2.x 를 <b>binary</b> 형태로 설치 — 컴파일 없이 한 번에 끝남</td><td>컴파일러·<code>pg_config</code> 준비가 필요 없는 대신 개발·테스트용으로 분류(<a href="https://www.psycopg.org/docs/install.html">psycopg2 설치</a>)</td></tr>
+    <tr><td class="nowrap">없는 패키지</td><td><code>pip3 install pypostgres</code> → <code>ERROR: Could not find a version that satisfies the requirement pypostgres</code> / <code>No matching distribution found</code></td><td>이름을 만들어 넣으면 이 에러 — 패키지 이름은 <code>psycopg2-binary</code></td></tr>
+    <tr><td class="nowrap">계열</td><td>psycopg2 2.x 는 지금도 쓰이는 정식 계열, 새 계열은 별도 패키지 <code>psycopg</code> 3</td><td>예전 버전에서만 쓰던 것이 아님(<a href="https://www.psycopg.org/psycopg3/docs/basic/install.html">psycopg 3 설치</a>)</td></tr>
+    <tr><td class="nowrap">pandas 조합</td><td><code>pd.read_sql</code> 과 함께 쓰면 DataFrame 으로 바로 연결</td><td>커서를 직접 돌리지 않아도 표로 받을 수 있음(57장)</td></tr>
+    </tbody></table></div>
+
+    <h3>다른 설치 방식</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">책의 방식</td><td><code>pip3 install py-postgresql</code> 같은 패키지도 설치됨</td><td>실습은 <code>psycopg2-binary</code> 하나로 통일 — 드라이버가 섞이면 코드가 갈림</td></tr>
+    <tr><td class="nowrap">소스 설치</td><td>공식 문서는 운영 환경에서 소스 빌드를 권장</td><td>보안·연결 문제가 아니라 컴파일러와 <code>pg_config</code> 준비 부담의 차이(<a href="https://www.psycopg.org/docs/install.html">psycopg2 설치</a>)</td></tr>
+    <tr><td class="nowrap">운영 표준</td><td>운영에서 binary 배포본을 쓴다면 psycopg 3 의 <code>psycopg[binary]</code></td><td><code>psycopg2-binary</code> 는 개발·테스트용으로 분류됨</td></tr>
+    <tr><td class="nowrap">psql 패키지</td><td><code>psql</code> 이름의 파이썬 패키지는 설치 불필요</td><td>PostgreSQL 문법 처리는 <code>psycopg2-binary</code> 로 충분, JDBC jar 는 별도(49장)</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 43강(Pyspark4) 90:54~91:09</div><p>이 구간에서 "psql 은 라이벌"이라고 지목한 대상 패키지 이름을 화면으로 확정하지 못함 — <code>psycopg2</code> 계열이 아닌 <code>psql</code> 계열 라이브러리로 보이고, JDBC jar 를 이미 준비했으므로 추가 설치가 불필요하다는 결론만 확인</p></div>
+
+    <h3>psycopg 3</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+pip3 install "psycopg[binary]"   <span class="c"># psycopg 3.x — 괄호 때문에 큰따옴표로 감쌈 (설치 3.2.13, Python 3.9)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">이름 구분</td><td><code>psycopg2-binary</code> → 2.x, <code>psycopg[binary]</code> → 3.x</td><td>패키지 이름이 다르면 import 이름도 다름 — 코드에서 <code>import psycopg2</code> 와 <code>import psycopg</code></td></tr>
+    <tr><td class="nowrap">선택</td><td>3.x 가 더 빠른 편이라 3.x 로 설치하는 경우가 많음</td><td>한 프로젝트에서는 한 계열로 표준화 — 섞으면 커넥션 코드가 두 벌</td></tr>
+    <tr><td class="nowrap">따옴표</td><td>대괄호가 있는 이름은 셸에서 큰따옴표로 감쌈</td><td>감싸지 않으면 셸이 경로 확장으로 해석해 설치 실패</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">드라이버는 마스터·워커 모두 설치 — 한쪽만 있으면 워커에서 <code>ModuleNotFoundError</code>. <code>pypostgres</code> 같은 없는 이름은 <code>No matching distribution found</code></div>
+
+    <ul class="facts"><li><strong>pymysql 선례</strong><div>드라이버 설치·접속 코드: 이 파일 39장</div></li><li><strong>접속 정보</strong><div>DB·계정·포트: 이 파일 50장·48장</div></li><li><strong>연동 실습</strong><div>연결 → pandas → Spark: 이 파일 57장</div></li><li><strong>드라이버 jar</strong><div>JDBC 방식의 jar 준비: 이 파일 49장</div></li></ul>
+  </section>
+
+  <!-- 57 -->
+  <section class="sec" id="spark-pg-link">
+    <h2>Spark → PostgreSQL 연동 실습</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 커넥션 하나로 조회해 데이터 프레임까지</p><div class="dg-flow"><div class="dg-node"><h4>① 노트북</h4><p class="sub">psql1.ipynb</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② connect</h4><p class="sub">port 5432</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ options</h4><p class="sub">-c search_path</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ pandas</h4><p class="sub">read_sql → close</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ Spark 확인</h4><p class="sub">show · 8080</p></div></div><p class="dg-foot">MySQL 연동 코드와 거의 같고, 스키마를 <code>options</code> 로 넘기는 한 줄이 추가되는 것이 차이</p></div>
+
+    <h3>실행 환경</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
+cd /opt/spark/data    <span class="c"># jars 폴더에서 띄우면 노트북 경로가 맞지 않음</span>
+pyspark               <span class="c"># JupyterLab 기동 (8888) — 워커는 별도 창에서 접속</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">작업 파일</td><td>새 노트북 <code>psql1.ipynb</code></td><td>세션 생성 부분만 이전 노트북에서 가져오고 DB 접속·조회 셀을 새로 작성(32장)</td></tr>
+    <tr><td class="nowrap">시작 전</td><td>psql 컨테이너 창은 <code>exit</code> 로 완전히 나감</td><td>창을 그대로 두면 어느 창에서 무엇을 하는지 헷갈림 — 마스터·워커 혼동 주의</td></tr>
+    <tr><td class="nowrap">브라우저</td><td><code>IP:8080</code>(Spark Master UI), <code>IP:8888</code>(JupyterLab)</td><td>두 화면을 함께 열어 두고 결과 확인(24장)</td></tr>
+    <tr><td class="nowrap">클러스터 상태</td><td>Spark 3.5.3, Alive Workers 1, 워커 1 Core·2.0GiB</td><td>워커가 0 이면 연산이 돌지 않음 — UI 로 먼저 확인</td></tr>
+    <tr><td class="nowrap">커널</td><td>커널을 새로 만든 뒤에는 재시작 한 번 권장</td><td>이전 세션의 변수가 남아 있으면 연결 결과가 섞임(14장)</td></tr>
+    <tr><td class="nowrap">코드 재사용</td><td>이전 노트북 코드를 복사해 사용(구조 동일)</td><td>세션 생성 부분을 그대로 쓰고 접속 부분만 교체(32장)</td></tr>
+    </tbody></table></div>
+
+    <h3>코드 뼈대 — 세션</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+from pyspark.sql import SparkSession
+import pandas as pd      <span class="c"># 조회 결과를 DataFrame 으로 받는 그릇</span>
+import psycopg2          <span class="c"># 설치한 드라이버 — import 만 하면 사용 준비 완료</span>
+
+<span class="c"># 이전 세션이 남아 있으면 먼저 정지 — 고스트 세션 방지</span>
+if 'spark' in globals():
+    try:
+        spark.stop()
+    except:
+        pass
+
+spark = SparkSession.builder \
+    .appName("psql 테스트") \
+    .master("spark://spark-master:7077") \
+    .config("spark.driver.host","spark-master") \
+    .getOrCreate()</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">앱 이름</td><td><code>psql 테스트</code> — Master UI Application 목록에 이 이름으로 표시</td><td>여러 앱을 띄울 때 구분 기준</td></tr>
+    <tr><td class="nowrap">마스터 주소</td><td><code>spark://spark-master:7077</code></td><td>사용자 정의 네트워크의 이름 DNS — IP 로 바꿔도 동작(22장)</td></tr>
+    <tr><td class="nowrap">드라이버 호스트</td><td><code>spark.driver.host</code> 를 <code>spark-master</code> 로 지정</td><td>컨테이너에서 워커가 드라이버를 찾아오게 하는 설정</td></tr>
+    <tr><td class="nowrap">오타 사례</td><td><code>.getOrCreatet()</code> → <code>AttributeError: 'Builder' object has no attribute 'getOrCreatet'</code></td><td>자동완성 결과를 그대로 두고 한 글자 더 붙는 경우가 많음</td></tr>
+    <tr><td class="nowrap">globals 체크</td><td>이전 세션이 있으면 <code>spark.stop()</code></td><td>셀을 다시 실행할 때 앱이 겹쳐 쌓이는 것을 막음(33장)</td></tr>
+    </tbody></table></div>
+
+    <h3>커넥션 — MySQL과 다른 부분</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+conn = psycopg2.connect(
+    host = "192.168.222.5",                        <span class="c"># DB 컨테이너를 게시한 호스트 IP</span>
+    database = "mg",
+    user = "mg",
+    password = "a1234",                            <span class="c"># 실습값 — 실무에서는 별도 관리</span>
+    port = 5432,                                   <span class="c"># PostgreSQL 포트 (MySQL 은 3306)</span>
+    options = "-c search_path=mg_schema,public"    <span class="c"># 스키마 경로 지정 — MySQL 에 없는 인자</span>
+)
+print("와~~ 연결됨!!")</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">공통</td><td>MySQL 연결과 거의 같고 포트만 5432</td><td>host·database·user·password 순서가 같은 구조(39장)</td></tr>
+    <tr><td class="nowrap">차이</td><td><b>스키마</b> — MySQL 에는 없는 계층</td><td><code>options</code> 에 <code>-c search_path=mg_schema,public</code> 를 큰따옴표로 넣어 지정(52장)</td></tr>
+    <tr><td class="nowrap">경로 없이</td><td>쿼리에서 <code>mg_schema.travel_payment</code> 처럼 스키마명을 붙여도 됨</td><td>테이블마다 스키마명을 쓰는 대신 접속 단계에서 한 번 정하는 편이 깔끔</td></tr>
+    <tr><td class="nowrap">다른 DB 연결</td><td>연결 코드를 복사해 변수명과 host·port·password·DB 만 바꾸면 여러 DB 연결</td><td>운영에서 여러 DB 를 다루는 방식 — 접속 정보는 파일로 분리(42장 <code>db_config</code>)</td></tr>
+    <tr><td class="nowrap">실패 확인</td><td><code>password authentication failed</code> · <code>connection refused</code></td><td>계정·포트·방화벽 순서로 점검(48장)</td></tr>
+    </tbody></table></div>
+
+    <h3>조회 → pandas → Spark DataFrame</h3>
+    <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · JupyterLab 노트북 셀 · root]</span>
+query = "select * from travel_payment limit 10 offset 0"   <span class="c"># PostgreSQL limit 문법 (콤마 없음)</span>
+pdf = pd.read_sql(query, con=conn)                         <span class="c"># 쿼리 결과 → pandas DataFrame</span>
+conn.close()                                               <span class="c"># 조회가 끝나면 커넥션 종료</span>
+df = spark.createDataFrame(pdf)                            <span class="c"># pandas → Spark DataFrame</span>
+df.show()                                                  <span class="c"># 앞 20행 출력 — 이 실습은 10행</span>
+spark.stop()                                               <span class="c"># 마지막 셀에서 세션 정리</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">순서</td><td>쿼리 → pandas DataFrame → <code>conn.close()</code> → Spark DataFrame → <code>.show()</code></td><td>close 를 뒤로 미루면 커넥션이 남아 DB 쪽 연결 수를 계속 점유</td></tr>
+    <tr><td class="nowrap">show 의 반환</td><td><code>.show()</code> 는 출력만 하고 <b>None</b> 을 반환</td><td><code>df = spark.createDataFrame(pdf).show()</code> 로 쓰면 <code>df</code> 가 None — 이후 <code>df</code> 사용 불가(<a href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.sql/api/pyspark.sql.DataFrame.show.html">DataFrame.show</a>)</td></tr>
+    <tr><td class="nowrap">경고</td><td>pandas <code>UserWarning</code>(SQLAlchemy 연결 권장, 다른 DBAPI2 객체는 미테스트)</td><td>안내 문구 — 실행 결과에는 문제 없음(39장)</td></tr>
+    <tr><td class="nowrap">실행</td><td>셀마다 <code>Shift+Enter</code></td><td>연결 → 조회 → 프레임 변환 순서로 하나씩 확인</td></tr>
+    <tr><td class="nowrap">정상 결과</td><td><code>와~~ 연결됨!!</code> 출력 뒤 데이터 10행 → Spark ↔ PostgreSQL 연동 완료</td><td>Spark DataFrame 이 되었으므로 임시 뷰를 만들어 <code>spark.sql</code> 로도 같은 표를 조회하는 단계로 이어짐(27장·47장)</td></tr>
+    <tr><td class="nowrap">확인</td><td>Spark Master UI(8080) Application 목록에 <b>psql 테스트</b> 표시</td><td>앱이 살아 있는지, 워커가 붙었는지 함께 확인</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn"><code>createDataFrame(...).show()</code> 를 변수에 담으면 None — 출력은 <code>show()</code>, 이어 쓸 프레임은 <code>createDataFrame</code> 결과를 따로 받음. pandas <code>UserWarning</code> 은 실행에 지장 없음</div>
+
+    <ul class="facts"><li><strong>MySQL 판</strong><div><code>pymysql</code> → pandas → Spark: 이 파일 39장</div></li><li><strong>JDBC 방식</strong><div>jar 로 직접 읽는 방식과 옵션: 이 파일 19장</div></li><li><strong>스키마 경로</strong><div><code>search_path</code> 설정 원리: 이 파일 52장</div></li><li><strong>API 대안</strong><div>DB 대신 API 로 받아 임시 뷰 만들기: 이 파일 47장</div></li></ul>
+  </section>
+
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -4683,6 +5339,60 @@ spark.stop()                                        <span class="c"># 세션 종
           <tr><td><code>pd.DataFrame(jsondata)</code> → <code>spark.createDataFrame(data)</code> → <code>createOrReplaceTempView("travel")</code></td><td>pandas 경유는 수업 방식 — TempView 없이 <code>spark.sql</code> 은 테이블 못 찾음</td></tr>
           <tr><td><code>spark.sql("select * from travel limit 10")</code></td><td>Spark SQL 은 <code>limit 0, 10</code> 콤마형 인식 못 함 — 콤마 없이</td></tr>
           <tr><td><code>WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041</code></td><td>경고 — 이전 세션이 4040 사용 중, 종료 후 재실행. pandas 프레임 <code>.show()</code> 는 에러</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">PostgreSQL 이미지·컨테이너 (48장)</th></tr>
+          <tr><td><code>docker pull postgres:15.19</code></td><td>Debian(trixie·glibc) 기반 공식 이미지 — 알파인은 musl 기반이라 명령·패키지 관리자가 다름</td></tr>
+          <tr><td><code>netstat -lntpu | grep 5432</code></td><td>아무것도 안 떠야 정상. 8888·8080 은 스파크가 쓰므로 떠도 정상</td></tr>
+          <tr><td><code>docker images</code> → <code>docker start rds_psql</code> → <code>docker ps</code> → <code>docker exec -it rds_psql bash</code> → <code>psql -U postgres</code></td><td>기존 컨테이너 사용(postgres:14.24), 5432 게시 확인, 패스워드 a1234, 이름 오타는 <code>Error: No such container</code></td></tr>
+          <tr><td><code>\l</code> / <code>\du</code> / <code>\dn</code> / <code>\dt</code> / <code>\dp</code> / <code>\c</code> / <code>\q</code></td><td>DB·role·스키마·테이블·권한 목록과 전환·종료 — <code>\dt</code> 는 search_path 영향</td></tr>
+          <tr><td><code>apt-get install vim</code> / <code>apt-get install vi</code> / <code>vi</code></td><td>Debian 컨테이너는 <code>apt</code> — 목록 미갱신이면 <code>E: Unable to locate package</code>, 이후 <code>bash: vi: command not found</code></td></tr>
+          <tr><td><code>/var/lib/postgresql/data/pg_hba.conf</code> · <code>postgresql.conf</code></td><td>컨테이너 안 설정 파일 위치 — 편집기 없으면 psql·DBeaver 로 처리</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">PostgreSQL JDBC 드라이버 (49장)</th></tr>
+          <tr><td><code>docker exec -it spark-master bash</code> → <code>cd /opt/spark/jars/</code> → <code>dnf install wget</code> → <code>wget https://repo1.maven.org/maven2/org/postgresql/postgresql/42.6.2/postgresql-42.6.2.jar</code></td><td>마스터 드라이버 jar, 결과 <code>1,082,113</code> 바이트. wget 은 마스터에만 없음(오래 걸림)</td></tr>
+          <tr><td><code>docker exec -it spark-worker1 bash</code> → <code>cd /opt/spark/jars/</code> → <code>wget …/postgresql-42.6.2.jar</code></td><td>워커도 같은 jar — 없으면 워커 태스크에서 클래스 없음 오류. 워커 많으면 이미지로 구워 <code>docker push</code></td></tr>
+          <tr><td>Maven Repository → <code>postgresql</code> → PostgreSQL JDBC Driver → 42.6.2 → jar 링크 주소 복사</td><td>42.6.2 는 2024-03-13 릴리스, 약 1.0MB(최신 42.7.x) — 파일명 손 조립 대신 링크 사용</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">PostgreSQL 사용자·DB·권한 (50장)</th></tr>
+          <tr><td><code>create user mg with encrypted password 'a1234';</code></td><td>role 먼저 생성 — Tab 자동완성. superuser·createdb 는 주지 않고, replication 은 복제 구성 때만</td></tr>
+          <tr><td><code>create database mg owner mg;</code></td><td>소유자는 <code>owner</code> 절이 결정 — DB 이름과 같게 만들 필요 없음</td></tr>
+          <tr><td><code>grant all privileges on database mg to mg;</code></td><td>DB 범위 부여 — 안쪽 스키마·테이블 권한은 따로(55장). <code>\l</code> Owner 칸 확인</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">PostgreSQL 인코딩 (51장)</th></tr>
+          <tr><td><code>show server_encoding;</code> / <code>show client_encoding;</code></td><td>둘 다 UTF8. <code>;</code> 누락 시 프롬프트가 <code>postgres-#</code> 로 바뀌고 <code>ERROR: syntax error at or near "show"</code></td></tr>
+          <tr><td><code>select pg_encoding_to_char(encoding) from pg_database where datname='mg';</code></td><td>DB별 인코딩 조회 — <code>from</code> 을 <code>form</code> 으로 쓰면 syntax error</td></tr>
+          <tr><td>인코딩 지정</td><td>DB 생성 <b>전</b>에 지정, 중간 변경은 위험. 기본 UTF-8 이 MySQL <code>utf8mb4</code> 범위라 별도 설정 불필요</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">PostgreSQL 스키마·search_path (52장)</th></tr>
+          <tr><td><code>create schema mg_schema;</code> → <code>\dn</code></td><td>public 은 공용이라 업무용은 별도 스키마 — <code>mg_schema</code>(owner mg)·<code>public</code>(owner postgres)</td></tr>
+          <tr><td><code>set search_path to mg_schema, public;</code></td><td>현재 세션에만 적용 — 접속을 끊으면 사라짐(컨테이너 재시작 때문이 아님)</td></tr>
+          <tr><td><code>alter user mg set search_path to mg_schema, public;</code></td><td>롤에 저장되는 영구 설정(ALTER ROLE) — 기본 경로 <code>"$user", public</code> 에는 mg_schema 가 없음</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">DBeaver 적재 (53장)</th></tr>
+          <tr><td>새 연결 → PostgreSQL → Host <code>192.168.222.5</code> · Port <code>5432</code> · Database <code>mg</code> · <code>mg</code>/<code>a1234</code> → Test Connection</td><td>공식 포트라 변경 불필요. 연결 후 DB 더블클릭해 <b>우선 스키마</b>가 public 이 아닌지 확인</td></tr>
+          <tr><td>스키마 우클릭 → 데이터 가져오기 → CSV(utf-8) → 테이블 매핑</td><td><code>travel_payment</code> 적재 — 인코딩이 utf-8 이 아니면 한글 값이 깨짐</td></tr>
+          <tr><td>컬럼명 11개</td><td><code>pycode</code>·<code>date</code>·<code>custormer</code>(오타 유지)·<code>id</code>·<code>product</code>·<code>product_type</code>·<code>travel</code>·<code>money</code>(<code>int4</code>)·<code>paytype</code>·<code>cardcorp</code>·<code>paystate</code>, 나머지 <code>varchar(50)</code></td></tr>
+          <tr><td>권한 탭 <code>Execute</code></td><td>함수·프로시저 실행 권한 — 테이블 조회는 <code>SELECT</code> 권한</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">PostgreSQL SELECT 문법 (54장)</th></tr>
+          <tr><td><code>where id like 'user_467%'</code> / <code>like 'User_467%'</code> / <code>ilike 'User_467%'</code></td><td>PostgreSQL <code>like</code> 는 대소문자 구분 → <code>ilike</code>. <code>ilike</code> 는 MySQL·MariaDB 에 없음</td></tr>
+          <tr><td><code>limit 10 offset 10</code> / <code>limit 20 offset 10</code></td><td><code>limit 개수 offset 건너뛸 행 수</code> — MySQL 식 <code>limit 0,10</code> 은 문법 오류(Spark SQL 도 동일)</td></tr>
+          <tr><td><code>concat(custormer, id) as nm</code> / <code>concat('-', pycode)</code></td><td>값을 붙여 출력, 문자열 인자도 가능. 전화번호 하이픈은 SMS 발송 실패 원인 → <code>replace</code> 로 제거</td></tr>
+          <tr><td><code>concat_ws('-', custormer, id) as nm</code></td><td>첫 인자가 구분자로 값 <b>사이</b>에 들어감, NULL 인자는 무시 — <code>concat('-', …)</code> 와 결과가 다름</td></tr>
+          <tr><td><code>replace(pycode, '-', '')</code> / <code>replace(pycode, '-', '/')</code></td><td>세 번째 인자가 <code>''</code> 이면 삭제, 다른 문자면 치환. 주석은 <code>--</code>(MySQL <code>#</code>)</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">권한 회수·접속 전환 (55장)</th></tr>
+          <tr><td><code>revoke all privileges on database mg from mg;</code> / <code>grant all privileges on database mg to mg;</code></td><td>REVOKE 는 <code>from</code> — 회수 후 <code>\l</code> 로 확인. DB 소유만으로 안쪽 객체가 자기 것이 되지는 않음</td></tr>
+          <tr><td><code>revoke connect on database mg from public;</code></td><td>CONNECT 는 기본으로 PUBLIC 에도 있어 mg 에서만 회수하면 접속이 유지됨</td></tr>
+          <tr><td><code>grant/revoke all privileges on schema mg_schema to/from mg;</code></td><td>스키마 단위 부여·회수 — 스키마가 여러 개면 스키마별로</td></tr>
+          <tr><td><code>revoke all privileges on all tables in schema mg_schema from mg;</code></td><td>테이블 권한 일괄 회수 — 범위는 테이블 &lt; 스키마 &lt; DB, root 는 대상 아님</td></tr>
+          <tr><td><code>\c mg</code> / <code>\c mg mg</code> / <code>\q</code></td><td>사용자 생략 시 현재 사용자, 사용자 지정 시 패스워드 입력. <code>\dt</code> 는 <code>Did not find any relations</code></td></tr>
+          <tr><td><code>set search_path to mg_schema, public;</code> (root 확인용)</td><td><code>alter user</code> 는 일반 사용자 설정까지 바뀌므로 임시 확인은 <code>set</code>, 경로 밖은 <code>mg_schema.travel_payment</code></td></tr>
+          <tr><td><code>\dp</code> 의 빈 Access privileges</td><td>기본 권한(소유자 전권) 상태라는 표시 — 객체 소유자는 한 명(<code>ALTER … OWNER TO</code>)</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">psycopg2 드라이버 (56장)</th></tr>
+          <tr><td><code>pip3 install psycopg2-binary</code></td><td>2.x(설치 2.9.12) — 마스터·워커 모두. <code>pymysql</code> 의 PostgreSQL 판</td></tr>
+          <tr><td><code>pip3 install "psycopg[binary]"</code></td><td>3.x(설치 3.2.13) — 더 빠른 편, 한 계열로 표준화. 대괄호 때문에 큰따옴표</td></tr>
+          <tr><td><code>pip3 install pypostgres</code></td><td><code>ERROR: Could not find a version that satisfies the requirement pypostgres</code> / <code>No matching distribution found</code> — 없는 패키지</td></tr>
+          <tr><td>운영 설치</td><td>공식 문서는 운영에 소스 빌드 권장(컴파일러·<code>pg_config</code> 필요), binary 를 쓰면 psycopg 3 의 <code>psycopg[binary]</code></td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Spark → PostgreSQL (57장)</th></tr>
+          <tr><td><code>cd /opt/spark/data</code> → <code>pyspark</code></td><td>주피터 기동 위치 — jars 폴더에서 띄우면 노트북 경로가 어긋남, 8888 접속</td></tr>
+          <tr><td><code>psycopg2.connect(host="192.168.222.5", database="mg", user="mg", password="a1234", port=5432, options="-c search_path=mg_schema,public")</code></td><td>MySQL 연결과 거의 같고 포트 5432, <code>options</code> 로 스키마 경로 지정이 차이</td></tr>
+          <tr><td><code>pd.read_sql("select * from travel_payment limit 10 offset 0", con=conn)</code> → <code>conn.close()</code></td><td>PostgreSQL limit 문법으로 조회, close 는 조회 직후 — pandas <code>UserWarning</code> 은 무해</td></tr>
+          <tr><td><code>df = spark.createDataFrame(pdf)</code> → <code>df.show()</code></td><td><code>createDataFrame(pdf).show()</code> 를 변수에 담으면 None — <code>.show()</code> 는 출력만</td></tr>
+          <tr><td>확인</td><td><code>와~~ 연결됨!!</code> + 10행 출력, Master UI(8080) Application 에 <code>psql 테스트</code> 표시</td></tr>
+          <tr><td><code>AttributeError: 'Builder' object has no attribute 'getOrCreatet'</code></td><td><code>getOrCreate</code> 오타 — 세션 생성 줄 확인</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">받은 이미지 계정 점검 (자세히: mysql.html 16장)</th></tr>
           <tr><td><code>select host,user from user</code> / <code>select host,user,db from db where user='mg'</code></td><td><code>use mysql</code> 후 조회 — <code>%</code>는 모든 외부 IP 허용. root 는 <code>localhost</code> 만 남겨야 함</td></tr>
           <tr><td><code>delete from db where user='mg' and host='%'</code> / <code>delete from user where host='%' and user='root'</code></td><td>권한 테이블 삭제 — WHERE·AND 누락이 대형 사고. 권장은 <code>DROP USER 'mg'@'%'</code></td></tr>
