@@ -2910,6 +2910,18 @@ python img.py</code></pre><button class="copy" type="button" aria-label="코드 
     <tr><td class="nowrap">선행 지식</td><td><code>pandas</code>·<code>numpy</code> 기초 필요</td><td>스파크에 들어가는 라이브러리가 일반 파이썬과 달라 직접 확인할 부분이 많음 — pandas 기초는 토요일 수업에서 별도</td></tr>
     </tbody></table></div>
 
+    <h3>실습 순서</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>동작</th><th>확인 기준</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>마스터·워커 컨테이너에 <code>pip3 install numpy pandas pyarrow</code></td><td>양쪽 모두 설치 — 한쪽만 깔면 연산 단계에서 모듈 없음</td></tr>
+    <tr><td class="nowrap">2</td><td>마스터에서 <code>pyspark</code> → 주피터 <code>8888</code> 접속 → <code>spark1</code> 노트북(Python 3)</td><td>마스터 웹에 워커 표시, 토큰으로 로그인</td></tr>
+    <tr><td class="nowrap">3</td><td>기본 코드 템플릿 복사 → <code>appName</code>·<code>master</code>·<code>config</code>·<code>getOrCreate</code> → 작업 → <code>spark.stop()</code></td><td>시작 → 종료 → 배열 출력, 에러 없음</td></tr>
+    <tr><td class="nowrap">4</td><td><code>globals</code> 체크를 주석 처리해 고스트 실험 → kill로 정리 → 복구</td><td>Running Applications 잔존 여부, kill 후 Completed로 이동</td></tr>
+    <tr><td class="nowrap">5</td><td>마스터·워커 <code>date</code> → <code>chrony</code> 시도 → <code>/etc/localtime</code> 링크</td><td><code>date</code>가 KST로 표시, 주피터 재기동 후 반영</td></tr>
+    <tr><td class="nowrap">6</td><td><code>usertest</code> 2차원 배열 → pandas 표 / <code>createDataFrame</code> → <code>filter</code>·<code>where</code>·<code>select</code>·<code>groupBy</code></td><td>stage가 돌며 결과 표가 출력, 그룹 합계 확인</td></tr>
+    <tr><td class="nowrap">7</td><td><code>product.txt</code> 작성 → <code>product.csv</code>로 변경 → <code>spark2</code> 노트북</td><td>파일을 열었을 때 표 형태</td></tr>
+    </tbody></table></div>
+
     <h3>라이브러리 설치 — 마스터·워커 양쪽</h3>
     <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># 마스터 컨테이너 bash 진입 — 이후 명령은 컨테이너 안에서 실행</span>
@@ -3117,7 +3129,7 @@ print(user)
 spark.stop()                          <span class="c"># 세션 종료 (아래쪽 정리)</span></code></pre><button class="copy" aria-label="코드 복사" type="button">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>실행 결과</th><th>판단</th></tr></thead><tbody>
-    <tr><td><code>시작</code> → <code>종료</code> → 배열 <code>['홍길동', '강감찬', '유관순']</code> 순서로 출력, 에러 없음</td><td>템플릿이 정확 — 이후 작업 코드를 붙여 진행</td></tr>
+    <tr><td><code>시작</code> → <code>종료</code> → 배열 <code>['홍길동', '강감찬', '유관순']</code> 순서로 출력, 에러 없음</td><td>템플릿이 정확 — 시작 → 종료 → 배열이 차례대로 나오면 코드가 정확하다고 판단, 이후 작업 코드를 붙여 진행</td></tr>
     <tr><td>출력이 중간에 끊기거나 아예 안 뜸</td><td>고스트 세션이 물려 있는 상태일 수 있음 — 이 파일 33장</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">템플릿은 매 노트북에 통째로 — ① globals 체크 ② builder(appName·master·config·getOrCreate) ③ 작업 ④ <code>spark.stop()</code>. 역슬래시 뒤 주석은 에러이고, <code>getOrCreate()</code>는 기존 세션이 있으면 그 세션을 그대로 반환</div>
@@ -3139,7 +3151,7 @@ spark.stop()                          <span class="c"># 세션 종료 (아래쪽
     </tbody></table></div>
     <div class="table-wrap"><table>
     <thead><tr><th>정리 방법</th><th>동작</th><th>메모</th></tr></thead><tbody>
-    <tr><td class="nowrap">kill (강제 정지)</td><td>Spark 웹에서 앱을 강제 종료 — 고스트는 이 방법으로만 종료 가능</td><td>강제로 죽이면 빨간색으로 표시됨 (강제로 죽였다는 뜻)</td></tr>
+    <tr><td class="nowrap">kill (강제 정지)</td><td>Spark 웹에서 앱을 강제 종료 — 고스트는 이 방법으로만 종료 가능</td><td>강제로 죽이면 빨간색으로 표시됨 (강제로 죽였다는 뜻)이고, 다시 실행해도 계속 돌고 있음 — 완전히 컷된 뒤에야 정상</td></tr>
     <tr><td class="nowrap">해결 순서</td><td>떠다니는 앱을 모두 컷한 뒤 globals 체크 문구를 살려 실행</td><td>순식간에 사라지고 정상 처리, 새로고침하면 앱 하나가 정상 생성됨</td></tr>
     <tr><td class="nowrap">재실행</td><td>실행 중이던 앱은 재실행하면 날아감(죽고 정리됨)</td><td>단 끝에 stop을 안 걸면 무조건 계속 돌아감 (고스트)</td></tr>
     <tr><td class="nowrap">차이</td><td>globals 체크 + stop 문구가 있고 없고의 차이가 매우 큼</td><td>그래서 템플릿에 주석 처리해 둔 것이며 뜻을 알아야 함</td></tr>
@@ -3155,14 +3167,14 @@ spark.stop()                          <span class="c"># 세션 종료 (아래쪽
     <tr><td class="nowrap">코어 부족</td><td>이미 코어를 점유한 앱이 도는 상태에서 또 코어를 요청</td><td>남는 코어가 없어 에러 (남의 코어 없음)</td></tr>
     <tr><td class="nowrap">설정값 예</td><td>워커에 코어 2개를 지정해 쓰고 있는 상태에서 같은 2코어를 또 요청</td><td>남는 코어가 없어 연산 불가 — 자원 확보가 먼저</td></tr>
     </tbody></table></div>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 41강 41:37</div><p>워커에 "코어 2개에 200"을 지정해 쓴다는 설명이 나오지만 화면에는 그 설정값이 보이지 않음. 200이 무엇의 값인지(메모리 등) — 영상 41분 37초 부근을 다시 듣거나 spark 실행 옵션 코드와 대조해 확인</p></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 41강 41:37</div><p>워커에 "코어 2개에 200"을 지정해 쓴다는 설명이 나오지만 화면에는 그 설정값이 보이지 않음. 200이 무엇의 값인지(메모리 등) — 영상 41분 37초 부근을 다시 듣거나 강사에게 질문, spark 실행 옵션 코드와 대조해 확인</p></div>
 
     <h3>stop은 위·아래 둘 다</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>위치</th><th>하는 일</th><th>빠뜨리면</th></tr></thead><tbody>
     <tr><td class="nowrap">위 (시작 전)</td><td>globals 체크로 살아 있는 세션을 모두 종료</td><td>이전 세션이 남은 채 새 앱이 떠서 코어 부족</td></tr>
     <tr><td class="nowrap">아래 (작업 끝)</td><td><code>spark.stop()</code>으로 워커 노드 회수</td><td>대기 상태로 남고, 다시 실행하면 죽었다 재생성되지만 또 살아 있음 → 반복</td></tr>
-    <tr><td class="nowrap">하나만 걸면</td><td>동작은 하지만 하나를 깜빡하면 위 문제가 계속됨</td><td>그래서 stop은 항상 끝에도 넣고 시작에도 넣음</td></tr>
+    <tr><td class="nowrap">하나만 걸면</td><td>동작은 하지만 하나를 깜빡하면 위 문제가 계속됨</td><td>둘 다 걸어야 안정적 — 그래서 stop은 항상 끝에도 넣고 시작에도 넣음</td></tr>
     <tr><td class="nowrap">같은 원리</td><td>개발자가 DB 커넥션 <code>close</code>를 쓰는 이유와 같음</td><td>종료하지 않으면 계속 살아서 작동</td></tr>
     <tr><td class="nowrap">용어</td><td>이 종료·정리 습관을 가리키는 말로 "스코프"를 쓰지 않음</td><td>scope = 이름이 직접 접근 가능한 프로그램 영역을 뜻하는 용어</td></tr>
     </tbody></table></div>
@@ -3344,7 +3356,7 @@ ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime</code></pre><button class="
     <thead><tr><th>항목</th><th>내용</th><th>메모</th></tr></thead><tbody>
     <tr><td class="nowrap">구조</td><td>리스트 안에 리스트 — 이름·영어·수학 3개 값이 한 행</td><td>키가 없는 가장 단순한 배열 구조</td></tr>
     <tr><td class="nowrap">공백</td><td>배열 요소 사이·안의 공백은 코드 모양을 보기 좋게 정렬하는 용도</td><td>값에는 영향 없음</td></tr>
-    <tr><td class="nowrap">비교 기준</td><td>같은 데이터를 pandas와 Spark로 각각 만들어 차이 확인</td><td>DB 연결·집계 기준은 별도 진행</td></tr>
+    <tr><td class="nowrap">비교 기준</td><td>같은 데이터를 pandas와 Spark로 각각 만들어 차이 확인</td><td>차이를 보는 기준은 수요일·토요일 수업에서 다룸, DB 연결·집계 기준은 별도 진행</td></tr>
     </tbody></table></div>
 
     <h3>pandas 방식</h3>
@@ -3449,6 +3461,7 @@ sum_test = aa.sum("영어").show()
     <tr><td class="nowrap">실무 예</td><td>몇 월부터 몇 월까지 전체 수익률을 한 번에 계산</td><td>행이 많은 집계일수록 Spark가 유리</td></tr>
     <tr><td class="nowrap">변수명</td><td><code>sum_test</code>처럼 씀 — <code>sum</code>을 변수명으로 쓰면 함수 이름과 겹쳐 에러 가능</td><td>앞에 대문자를 붙이거나 언더바 사용</td></tr>
     <tr><td class="nowrap">가로 합계</td><td><code>withColumn</code>은 가로(행 방향) 기준 합계에 쓴다고 언급만 됨</td><td>이 실습 코드는 세로(컬럼) 합계</td></tr>
+    <tr><td class="nowrap">함수 구분</td><td>단독으로 쓰는 함수와 그렇지 않은 함수가 나뉨</td><td><code>sum</code>은 짝(<code>groupBy</code>·<code>agg</code>)이 필요한 쪽</td></tr>
     <tr><td class="nowrap">groupBy 없이</td><td><code>df.agg(F.sum("컬럼"))</code>로 전체 합계를 구할 수 있음</td><td>DataFrame 객체에 <code>sum</code> 메서드가 없다는 것과 별개</td></tr>
     </tbody></table></div>
 
@@ -3737,6 +3750,7 @@ ea,money</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ �
           <tr><td><code>aa.sum("영어")</code></td><td><code>AttributeError: 'DataFrame' object has no attribute 'sum'</code> — <code>agg(F.sum(…))</code>로는 전체 합계 가능</td></tr>
           <tr><td><code>aa.groupBy("이름").sum("영어")</code> → <code>.show()</code></td><td>그룹별 합계 — 자동완성은 function, 소문자 <code>groupby</code>도 동작</td></tr>
           <tr><td><code>aa.groupBy("점수").sum("영어")</code></td><td>없는 컬럼 에러 → 실제 존재하는 컬럼("이름")으로. 동일인 행 추가 시 김남주 영어 <b>140</b></td></tr>
+          <tr><td><code>df.show()</code> / <code>df.filter(조건)</code>·<code>df.where(조건)</code> / <code>df.select("컬럼")</code> / <code>df.groupBy("컬럼").sum("컬럼")</code></td><td>일반 표기 — 실습 코드에서는 프레임 변수 이름(<code>aa</code>·<code>bb</code>)을 그대로 씀. <code>show</code>는 print에 해당</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">실습 CSV (37장)</th></tr>
           <tr><td><code>product.txt</code> → <code>product.csv</code></td><td>헤더 <code>date,product,ea,money</code> + 10행, <code>/data</code>에서 표로 열리면 성공. 100개짜리 csv는 응용문제용</td></tr>
           <tr><td><code>spark2.ipynb</code></td><td>오후에 새로 만드는 두 번째 노트북 — <code>spark1</code>은 저장해 둠</td></tr>
