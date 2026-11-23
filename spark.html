@@ -609,9 +609,14 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#spark-jupyter">13. PySpark 환경변수·JupyterLab 실행</a></li>
         <li><a href="#spark-jupyter-use">14. JupyterLab 화면·노트북·커널</a></li>
         <li><a href="#spark-jupyter-submit">15. Jupyter 제출·코어·메모리 한계</a></li>
-        <li><a href="#spark-image">16. Spark 이미지 (Dockerfile·빌드)</a></li>
-        <li><a href="#spark-master">17. 마스터 컨테이너 기동·재시작</a></li>
-        <li><a href="#cheatsheet">18. 통합 명령어 치트시트</a></li>
+        <li><a href="#spark-pandas-udf">16. pandas UDF 실습 (AI 코드·검토·실행)</a></li>
+        <li><a href="#spark-udf-errors">17. pandas UDF 오류 대응</a></li>
+        <li><a href="#spark-api-mysql">18. 공공 API 데이터 확보·MySQL 적재</a></li>
+        <li><a href="#spark-jdbc">19. JDBC 연동 (MySQL 테이블 읽기)</a></li>
+        <li><a href="#spark-movie-agg">20. 응용: 박스오피스 집계</a></li>
+        <li><a href="#spark-image">21. Spark 이미지 (Dockerfile·빌드)</a></li>
+        <li><a href="#spark-master">22. 마스터 컨테이너 기동·재시작</a></li>
+        <li><a href="#cheatsheet">23. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -619,20 +624,20 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>Spark 통합 학습노트</h1>
-    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지와 마스터 기동까지, 워커는 다음 단계. 네트워크 명령: docker.html 9장</p>
+    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → pandas UDF 실습·오류 대응(설정 3종·<code class="n">show</code> 기준·pyarrow·<code class="n">p90</code>) → 공공 API(영화진흥위원회) JSON으로 MySQL 적재(INSERT SQL·<code class="n">count(*)</code>) → Spark JDBC 연동(<code class="n">mysql-connector-j</code> JAR·6옵션·<code class="n">show(5)</code>) → 박스오피스 집계(<code class="n">shuffle.partitions</code>·<code class="n">numPartitions</code>) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지와 마스터 기동까지, 워커는 다음 단계. 네트워크 명령: docker.html 9장</p>
 
     <div class="core-strip">
       <div>
         <div class="core-metric">개념 → 설치 → 운영</div>
-        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성 (3~7장) → 운영·제출·예제 (8~10장) → PySpark·JupyterLab 연동 (11~15장) → 컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile 이미지를 만들어 재사용 (16장)</p>
+        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성 (3~7장) → 운영·제출·예제 (8~10장) → PySpark·JupyterLab 연동 (11~15장) → pandas UDF·공공 API 적재·JDBC 연동·집계 (16~20장) → 컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile 이미지를 만들어 재사용 (21장)</p>
       </div>
       <div>
         <div class="core-metric">7077 · 8080 · 8888</div>
-        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI, 8888 Jupyter(토큰 로그인, 재기동마다 토큰 변경), 8081 워커 UI (2장·13장)</p>
+        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI(Running 앱 확인), 8888 Jupyter(토큰 로그인, 재기동마다 토큰 변경), 8081 워커 UI, 3306 MySQL (2장·13장·19장)</p>
       </div>
       <div>
         <div class="core-metric">spark-net + --host</div>
-        <p class="core-desc">사용자 정의 네트워크의 이름 DNS로 <code class="n">spark://spark-master:7077</code> 연결. <code class="n">--ip</code>는 deprecated → <code class="n">--host</code> (17장)</p>
+        <p class="core-desc">사용자 정의 네트워크의 이름 DNS로 <code class="n">spark://spark-master:7077</code> 연결. <code class="n">--ip</code>는 deprecated → <code class="n">--host</code> (22장)</p>
       </div>
     </div>
 
@@ -652,9 +657,14 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#spark-jupyter">13. PySpark 환경변수·JupyterLab 실행</a>
       <a href="#spark-jupyter-use">14. JupyterLab 화면·노트북·커널</a>
       <a href="#spark-jupyter-submit">15. Jupyter 제출·코어·메모리 한계</a>
-      <a href="#spark-image">16. Spark 이미지 (Dockerfile·빌드)</a>
-      <a href="#spark-master">17. 마스터 컨테이너 기동·재시작</a>
-      <a href="#cheatsheet">18. 통합 명령어 치트시트</a>
+      <a href="#spark-pandas-udf">16. pandas UDF 실습 (AI 코드·검토·실행)</a>
+      <a href="#spark-udf-errors">17. pandas UDF 오류 대응</a>
+      <a href="#spark-api-mysql">18. 공공 API 데이터 확보·MySQL 적재</a>
+      <a href="#spark-jdbc">19. JDBC 연동 (MySQL 테이블 읽기)</a>
+      <a href="#spark-movie-agg">20. 응용: 박스오피스 집계</a>
+      <a href="#spark-image">21. Spark 이미지 (Dockerfile·빌드)</a>
+      <a href="#spark-master">22. 마스터 컨테이너 기동·재시작</a>
+      <a href="#cheatsheet">23. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -667,7 +677,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
     <tr><td class="nowrap">정의</td><td><b>Apache Spark</b> = 서버(하드웨어) 자원을 모아 쓰는 <b>대규모 데이터 처리용 분산 데이터 처리 엔진</b></td><td>여러 서버의 코어·메모리를 나눠 한 작업을 처리하는 엔진 — 데이터베이스·웹 서버와 역할이 다름</td></tr>
-    <tr><td class="nowrap">과거의 진입 장벽</td><td>환경 설정과 서버별 마운트가 매우 어려움</td><td>지금은 구성이 유연해져 직접 설치·컨테이너 이미지 모두 가능 (3~7장·16장)</td></tr>
+    <tr><td class="nowrap">과거의 진입 장벽</td><td>환경 설정과 서버별 마운트가 매우 어려움</td><td>지금은 구성이 유연해져 직접 설치·컨테이너 이미지 모두 가능 (3~7장·21장)</td></tr>
     <tr><td class="nowrap">도입 판단</td><td>대규모로 처리할 일이 없는 회사는 구축 불필요</td><td>구축·운영에 비용만 발생 — 필요 없는 곳에 깔면 손해</td></tr>
     </tbody></table></div>
 
@@ -776,7 +786,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>계획</strong></td><td>마스터 1개 + 워커 2개. 마스터는 워커로 쓰지 않고 워커끼리 연산, 입력 데이터는 CSV로 연결·실행·분석까지 확인 예정</td></tr>
-    <tr><td><strong>설치 방식</strong></td><td>서버 2대에 직접 설치(계정·SSH 키·hosts·tarball·환경변수·<code>spark-env.sh</code>) → 이 파일 3~7장 / 컨테이너 이미지로 설치(<code>Dockerfile</code>·마스터 기동) → 이 파일 16~17장</td></tr>
+    <tr><td><strong>설치 방식</strong></td><td>서버 2대에 직접 설치(계정·SSH 키·hosts·tarball·환경변수·<code>spark-env.sh</code>) → 이 파일 3~7장 / 컨테이너 이미지로 설치(<code>Dockerfile</code>·마스터 기동) → 이 파일 21~22장</td></tr>
     </tbody></table></div>
     <h3>Master·Worker 역할</h3>
     <div class="table-wrap"><table>
@@ -951,7 +961,7 @@ vi /etc/hosts   <span class="c"># root로 편집 (두 서버 모두 root로 전�
     <tr><td class="nowrap">같은 VPC</td><td>AWS·GCP에서도 <b>같은 VPC 안</b>의 서버끼리는 사설 IP로 Spark 통신 가능</td><td>마스터·워커가 같은 네트워크 그룹에 있어야 하는 조건이 VPC</td></tr>
     <tr><td class="nowrap">다른 VPC</td><td>VPC 피어링(VPC Peering)을 만들면 서로 다른 VPC도 사설 IP로 통신</td><td>피어링 없이 다른 VPC에 있는 서버는 사설 IP 직접 통신 불가 (출처: AWS VPC Peering 문서)</td></tr>
     </tbody></table></div>
-    <ul class="facts"><li><strong>자세한 실습</strong><div>계정·그룹 관리: linux.html 8장 / <code>su</code>·wheel: linux.html 7장 / SSH 키 인증 원리·<code>rsync</code>: linux.html 14장 / 컨테이너 네트워크로 같은 클러스터 구성: 이 파일 16~17장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div>계정·그룹 관리: linux.html 8장 / <code>su</code>·wheel: linux.html 7장 / SSH 키 인증 원리·<code>rsync</code>: linux.html 14장 / 컨테이너 네트워크로 같은 클러스터 구성: 이 파일 21~22장</div></li></ul>
   
 
   </section>
@@ -1042,7 +1052,7 @@ ls -al                              <span class="c"># spark 및 하위 파일 �
     <tr><td class="nowrap">단계 완료</td><td>여기까지가 설치(압축 해제) 완료</td><td>설치만으로는 실행되지 않음 → 다음은 환경변수(5장)</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">설치 후 소유권 — <code>chown -R sparkuser:sparkuser /opt/spark</code>를 두 서버 모두에서 실행. 소유자가 root나 다른 계정으로 남으면 sparkuser가 <code>conf</code> 수정·스크립트 실행 불가. 설치는 root, 사용은 sparkuser</div>
-    <ul class="facts"><li><strong>자세한 실습</strong><div><code>tar</code> 옵션·gzip: linux.html 11장 / <code>chown -R</code>·권한: linux.html 7장 / <code>wget</code>·패키지: linux.html 13장 / 컨테이너에 같은 설치를 Dockerfile로: 이 파일 16장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div><code>tar</code> 옵션·gzip: linux.html 11장 / <code>chown -R</code>·권한: linux.html 7장 / <code>wget</code>·패키지: linux.html 13장 / 컨테이너에 같은 설치를 Dockerfile로: 이 파일 21장</div></li></ul>
   
 
   </section>
@@ -1125,7 +1135,7 @@ spark-submit --version    <span class="c"># Spark·JDK 버전 출력 (두 서버
     <tr><td class="nowrap">에러 시</td><td><code>spark-class: 줄 71: …/bin/java: 그런 파일이나 디렉터리가 없습니다</code></td><td><code>JAVA_HOME</code> 경로 문제 → 7장 트러블슈팅</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">환경변수 확인 — <code>source ~/.bashrc</code> 후 <code>spark-submit --version</code>에서 Spark 3.5.9와 OpenJDK 17이 <b>둘 다</b> 나와야 완료. <code>PATH</code>는 기존 값 뒤에 덧붙이고, <code>JAVA_HOME</code>은 <code>find</code>로 확인한 실제 경로</div>
-    <ul class="facts"><li><strong>자세한 실습</strong><div><code>find</code> 옵션: linux.html 16장 / <code>vi</code> 편집 키: linux.html 5장 / 컨테이너 이미지에서는 <code>ENV</code>로 같은 값 지정: 이 파일 16장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div><code>find</code> 옵션: linux.html 16장 / <code>vi</code> 편집 키: linux.html 5장 / 컨테이너 이미지에서는 <code>ENV</code>로 같은 값 지정: 이 파일 21장</div></li></ul>
   
 
   </section>
@@ -1210,7 +1220,7 @@ cd /opt/spark/sbin   <span class="c"># 실행 스크립트 위치로 이동</spa
     <div class="code"><pre><code><span class="c"># [마스터 · sparkuser]</span>
 /opt/spark/sbin/stop-all.sh   <span class="c"># 마스터·워커 종료 — 서버 전원을 끄기 전에 꼭 실행</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="dg-bar warn">클러스터 확인 — 8080은 마스터 IP, 8081은 각 서버 IP로 접속. 7077은 통신 전용이라 브라우저로 열리지 않는 것이 정상. 종료는 <code>stop-all.sh</code>로 먼저 하고 서버 전원 차단</div>
-    <ul class="facts"><li><strong>자세한 실습</strong><div>포트 역할·자원 설계: 이 파일 2장 / 같은 클러스터를 컨테이너로 구성한 사례: 이 파일 16~17장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div>포트 역할·자원 설계: 이 파일 2장 / 같은 클러스터를 컨테이너로 구성한 사례: 이 파일 21~22장</div></li></ul>
   
 
   </section>
@@ -1887,6 +1897,327 @@ spark-submit member.py             <span class="c"># Running Applications에 앱
   </section>
 
   <!-- 16 -->
+  <section class="sec" id="spark-pandas-udf">
+    <h2>pandas UDF 실습: AI 코드 지시·검토·실행</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 파일을 지정해 코드를 받고, 봐야 할 곳만 검토</p><div class="dg-flow"><div class="dg-node"><h4>① @파일명</h4><p class="sub">udf.py</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② .py 생성</h4><p class="sub">노트북 아님</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 설정 검토</h4><p class="sub">마스터 주소·메모리</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 제출</h4><p class="sub">spark-submit</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 8080 확인</h4><p class="sub">Running 앱 표시</p></div></div><p class="dg-foot">코드는 AI가 짜고 사람은 <code>config</code>·<code>show</code>·드라이버만 확인 — 검토에서 고칠 곳은 마스터 주소와 자원 설정</p></div>
+
+    <h3>코드를 AI에게 시키는 방식</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">파일 지정</td><td>프롬프트 앞에 <code>@파일명</code>(annotation)을 붙이면 그 파일에 코드를 쓰도록 지정</td><td>파일을 지정하지 않으면 대화창에 코드만 나오고 서버 파일은 그대로</td></tr>
+    <tr><td class="nowrap">프롬프트 예</td><td><code>@udf.py ... pandas UDF를 활용한 고속 벡터 연산 실습 코드를 작성해주세요. 해당 파일은 udf.py로 제작</code></td><td>무엇을 하는 코드인지와 파일명을 함께 지정</td></tr>
+    <tr><td class="nowrap">덮어쓰기 확인</td><td>Claude Code가 덮어쓸지 물으면 <code>yes</code> 또는 <code>enter</code></td><td>기존 파일 내용이 사라지므로 대상 파일을 먼저 확인</td></tr>
+    <tr><td class="nowrap">파일 형식</td><td>노트북이 아니라 <b>Python 파일(.py)</b>로 만듦</td><td>Jupyter 노트북에서는 제대로 안 되거나 에러가 남 — 실행은 <code>spark-submit</code>이 담당 (14장)</td></tr>
+    <tr><td class="nowrap">FTP 연결</td><td>VS Code에 FTP를 연결해 두면 저장 즉시 서버로 올라가 편함</td><td>응용 과제로 직접 해 볼 항목 — 이 노트의 실습은 PuTTY·<code>nano</code>로 작성 (10장)</td></tr>
+    <tr><td class="nowrap">에러 전달</td><td>에러가 나면 에러 줄·에러 문구에 관련 파일과 테이블 구조 SQL을 붙여 AI에 그대로 전달</td><td>AI가 만든 코드는 사람마다 달라 "이 줄을 찾아 고쳐 달라"는 요청이 통하지 않음</td></tr>
+    </tbody></table></div>
+
+    <h3>코드 검토 포인트</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>검토 항목</th><th>확인 내용</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">마스터</td><td>마스터가 <code>local</code>이면 클러스터 주소(<code>spark://…:7077</code>)로 수정</td><td><code>local</code>은 그 서버 한 대에서만 실행 — 클러스터 자원을 쓰지 않음 (9장)</td></tr>
+    <tr><td class="nowrap">군더더기</td><td>AI가 만든 주석·설명용 세션 코드는 정리</td><td>설명용 세션이 여러 개면 자원을 중복으로 잡음</td></tr>
+    <tr><td class="nowrap"><code>.config</code> 순서</td><td><code>.config(...)</code>는 순서 무관</td><td>환경설정이라 앞뒤 상관없음 — 줄 순서를 바꿔도 같은 값</td></tr>
+    </tbody></table></div>
+
+    <h3>설정 3종 — 메모리 둘, 코어 하나</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>설정</th><th>의미</th><th>이번 값</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>spark.executor.memory</code></td><td>연산용 메모리 — executor가 실제 계산에 쓰는 양</td><td><code>2g</code> (1g도 가능)</td></tr>
+    <tr><td class="nowrap"><code>spark.cores.max</code></td><td>쓸 CPU 코어 수 — 앱 전체 상한</td><td><code>1</code> (코어 하나만)</td></tr>
+    <tr><td class="nowrap"><code>spark.driver.memory</code></td><td><code>show</code>(출력)로 최종 결과를 담아 뿌리는 메모리</td><td><code>1g</code>면 충분</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · /home/sparkuser/udf.py 파일 안 · sparkuser]</span>
+<span class="c"># 세션 구성 — 값은 위 설정 3종 표와 동일</span>
+spark = (SparkSession.builder
+    .master("spark://192.168.222.2:7077")       <span class="c"># 기본 생성값 local 대신 클러스터 주소</span>
+    .config("spark.executor.memory", "2g")      <span class="c"># 연산용 메모리 — 워커 가용(약 2.6g) 이내</span>
+    .config("spark.cores.max", "1")             <span class="c"># 앱 전체가 쓸 코어 수 — 1개만</span>
+    .config("spark.driver.memory", "1g")        <span class="c"># show 결과를 담아 출력하는 메모리</span>
+    .getOrCreate())                             <span class="c"># 세션 생성 (이미 있으면 재사용)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">설정 3종 — <code>spark.executor.memory</code>=연산용, <code>spark.driver.memory</code>=<code>show</code> 출력용, <code>spark.cores.max</code>=코어 상한. 값은 워커 가용 메모리(가장 작은 워커 약 2.6g)를 넘지 않게 잡음 (15장)</div>
+
+    <h3>driver·executor 메모리 검토 순서</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>순서</th><th>할 일</th><th>판단</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>코드에서 <b>Ctrl+F</b>로 <code>show</code>가 있는지 가장 먼저 찾음</td><td>결과 출력 여부로 드라이버 메모리 필요 여부가 갈림</td></tr>
+    <tr><td class="nowrap">2</td><td><code>show</code>가 있으면 <code>spark.driver.memory</code>를 설정, 없으면 설정하지 않아도 됨</td><td><code>show</code> 결과가 드라이버로 모이기 때문</td></tr>
+    <tr><td class="nowrap">3</td><td><code>show</code>가 있는데 설정이 없으면 기본 드라이버 메모리를 씀</td><td>메모리가 늘고 속도가 떨어짐</td></tr>
+    <tr><td class="nowrap">4</td><td>matplotlib으로 그래프까지 그리면 메모리 부족으로 죽음</td><td>그때만 드라이버 메모리를 늘림 — 이 노트는 그래프를 다루지 않음 (11장)</td></tr>
+    <tr><td class="nowrap">5</td><td>워커 메모리가 약 2.6g → executor <code>2g</code>로 설정하고 코어는 1개만 사용</td><td>속도를 포기하고 안정 쪽으로 맞춘 값</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>실제 동작</th><th>내용</th><th>근거·기준</th></tr></thead><tbody>
+    <tr><td class="nowrap">코드로 지정한 드라이버 메모리</td><td>클라이언트 모드(<code>spark-submit</code> 기본값)에서 <code>.config</code>의 <code>spark.driver.memory</code>는 드라이버 JVM이 이미 떠 있어 적용되지 않음 → <code>--driver-memory</code> 옵션이나 <code>spark-defaults.conf</code>로 지정. 이번 <code>1g</code>는 기본값과 같아 결과 차이 없음</td><td>Spark Configuration 문서</td></tr>
+    <tr><td class="nowrap">워커 한도와 비교할 값</td><td>워커 가용 메모리 한도에 걸리는 것은 <b>executor 메모리</b>. 클라이언트 모드에서 드라이버는 제출한 서버에서 실행돼 워커 메모리에 합산되지 않음 — executor <code>2g</code>+드라이버 <code>1g</code>의 합을 워커 메모리와 비교하면 실제보다 크게 잡힘</td><td>Spark Submitting Applications 문서 · Standalone에서 Python 앱은 cluster 모드 미지원</td></tr>
+    <tr><td class="nowrap">메모리 부족</td><td>워커 가용량을 넘겨 지정하면 executor가 할당되지 않고 <code>WAITING</code>·자원 대기 경고가 반복</td><td>15장 워커 가용 메모리 표</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">메모리 검토 순서 — ① Ctrl+F로 <code>show</code> ② 마스터가 <code>local</code>이 아닌 클러스터 주소인지 ③ executor 메모리가 워커 가용(약 2.6g) 이내인지. 드라이버 메모리는 코드의 <code>.config</code>가 아니라 <code>--driver-memory</code>로 지정해야 실제 적용</div>
+
+    <h3>실행과 확인</h3>
+    <div class="code"><pre><code><span class="c"># [마스터 · sparkuser · /home/sparkuser]</span>
+spark-submit udf.py   <span class="c"># pandas UDF 실습 실행 — 파일 안 .master()·.config() 값대로 클러스터에 제출</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <p>마스터 웹 UI(<code>8080</code>)를 새로고침하면 실행 중인 앱이 보임 — 앱 이름은 코드의 <code>.appName()</code> 값으로 표시(예: <code>rdbms</code>). 웹 UI는 자동 새로고침이 없어 수동 새로고침 필요 (10장).</p>
+
+    <ul class="facts"><li><strong>자원 상한</strong><div>워커 가용 메모리·<code>SPARK_WORKER_MEMORY</code>: 이 파일 15장</div></li><li><strong>세션 구성 기본형</strong><div><code>member.py</code>의 <code>.master()</code>·<code>.config()</code>: 이 파일 10장</div></li><li><strong>라이브러리 설치</strong><div>pandas·pyarrow를 마스터·워커에 설치: 이 파일 12장</div></li></ul>
+  </section>
+
+  <!-- 17 -->
+  <section class="sec" id="spark-udf-errors">
+    <h2>pandas UDF 실행 오류와 조치</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 원인 노드와 줄 번호를 확인하고 그 자리만 고침</p><div class="dg-flow"><div class="dg-node"><h4>① pyarrow</h4><p class="sub">워커에만 미설치</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 양쪽 설치</h4><p class="sub">마스터·워커</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ agg p90 없음</h4><p class="sub">185번 줄</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 함수 교체</h4><p class="sub">sum 등</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 재실행</h4><p class="sub">성능 지표 출력</p></div></div><p class="dg-foot">모듈 오류는 설치 위치 문제, 집계 오류는 함수 문제 — 수정은 AI가 만든 최초 코드가 아니라 지금 실행 중인 파일에서</p></div>
+
+    <h3>pyarrow 모듈 없음 — 워커에만 빠진 경우</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">증상</td><td>실행 중 pyarrow 모듈이 없다는 에러</td><td>마스터에는 설치돼 있었지만 <b>워커에 없어서</b> 연산 단계에서 실패</td></tr>
+    <tr><td class="nowrap">원인</td><td>라이브러리를 import하는 코드는 연산이 일어나는 노드에서 모듈을 찾음</td><td>설치 확인을 마스터에서만 하면 놓침 (12장)</td></tr>
+    <tr><td class="nowrap">해결</td><td>모듈이 필요한 코드는 <b>마스터·워커 모두</b> <code>pip3 install</code></td><td>한 곳만 설치하면 그 노드에서 죽음 — 서버가 늘면 같은 작업을 반복</td></tr>
+    <tr><td class="nowrap">이미 설치된 쪽</td><td><code>Requirement already satisfied</code>로 끝남</td><td>중복 설치가 아니라 확인 — 같은 명령을 양쪽에서 실행해도 무해</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [마스터·워커 각 서버 · sparkuser · /home/sparkuser]</span>
+pip3 install --user pyarrow   <span class="c"># 워커에 없어 실패한 모듈 — 두 서버 모두 실행해 설치 상태를 맞춤</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">모듈은 양쪽에 — pyarrow·pandas처럼 코드가 import하는 모듈은 연산 노드(워커)에도 있어야 실행. 마스터만 설치하면 워커에서 실패하므로 마스터·워커 모두 설치</div>
+
+    <h3>집계 agg 안의 p90 — 없는 함수</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">증상</td><td>내장 집계 함수 <code>agg</code> 안에서 <code>p90</code>(90분위)을 쓴 줄에서 실행이 터짐 — 185번 줄</td><td><code>p90</code>이라는 집계 함수가 없어서 발생</td></tr>
+    <tr><td class="nowrap">해결</td><td>에러 난 줄과 에러 문구를 AI에 붙여넣어 <code>sum</code> 등 지원되는 함수로 교체</td><td>문구를 생략하면 AI가 다른 원인으로 고침</td></tr>
+    <tr><td class="nowrap">수정 위치</td><td><b>스파크 적용 후 코드</b>(VS Code의 현재 파일)에서 수정</td><td>AI가 만든 최초 코드는 이미 고친 부분이 빠져 있음 — 최초 코드에 다시 반영하면 이전 수정이 사라짐</td></tr>
+    <tr><td class="nowrap">재실행 결과</td><td>성능 지표가 정상 출력 — pandas로 주문 필터링·그룹 표준화·순위·가중치·평균 가격 집계</td><td>집계가 끝까지 돌면 파이프라인 정상</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 29강 19~20분대</div><p>이 구간의 전사 문구가 깨져 있어 에러 문구의 정확한 내용을 확정하지 못함 — 메모리 부족(OOM)인지 <code>agg</code> 인자 문제인지 영상 19~20분대를 직접 확인</p></div>
+    <div class="dg-bar warn">에러 전달 — 에러 줄·에러 문구에 관련 파일·테이블 구조 SQL을 함께 AI에 전달. 수정은 지금 실행하는 파일에서 하고, 고친 내용을 최초 코드에 덮어쓰지 않음</div>
+
+    <ul class="facts"><li><strong>설치 범위</strong><div>마스터·워커에 같은 라이브러리를 두는 이유: 이 파일 12장</div></li><li><strong>코드 검토</strong><div>설정 3종·<code>show</code> 확인 순서: 이 파일 16장</div></li><li><strong>pandas 역할</strong><div>pandas·pyarrow의 역할: 이 파일 11장</div></li></ul>
+  </section>
+
+  <!-- 18 -->
+  <section class="sec" id="spark-api-mysql">
+    <h2>공공 API 데이터 확보와 MySQL 적재</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 키 발급 → URL 조회 → SQL 생성 → 적재 → 건수 확인</p><div class="dg-flow"><div class="dg-node"><h4>① 키 발급</h4><p class="sub">KOBIS · 무료</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② URL 조회</h4><p class="sub">key= · targetDt</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ SQL 생성</h4><p class="sub">AI로 50일치</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 적재</h4><p class="sub">붙여넣기</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 건수 확인</h4><p class="sub">500건</p></div></div><p class="dg-foot">CSV는 갱신이 안 되므로 JSON/XML API를 씀 — 키는 노출 금지, 조회는 집계가 끝난 어제 날짜까지</p></div>
+
+    <h3>왜 API인가 — CSV의 한계</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">CSV</td><td>공공데이터포털(<code>data.go.kr</code>)에서 받은 CSV는 새 CSV가 올라오지 않으면 갱신이 안 됨</td><td>갱신하려면 CSV를 다시 넣어야 함 — 자동화가 어려움</td></tr>
+    <tr><td class="nowrap">JSON/XML API</td><td>날짜 파라미터로 계속 갱신할 수 있는 API</td><td>실시간 데이터에 적합 — 같은 주소에서 날짜만 바꿔 조회</td></tr>
+    <tr><td class="nowrap">AI 처리</td><td>AI도 JSON/XML 처리가 더 빠르고 좋음</td><td>PDF·MP4·JPG·HWP는 AI도 처리가 힘들어 피함</td></tr>
+    <tr><td class="nowrap">방침</td><td>CSV를 쓰지 않고 JSON 또는 XML 사용</td><td>데이터를 받은 뒤 파싱까지 AI에 맡기는 흐름</td></tr>
+    <tr><td class="nowrap">포털 가입</td><td>공공데이터포털은 클라우드·포트폴리오 때 필요 → 미리 회원가입</td><td>데이터 목록 검색 예: "부동산" → 서울시 부동산 실거래 정보</td></tr>
+    </tbody></table></div>
+
+    <h3>키 발급과 URL 만들기 — 영화진흥위원회(KOBIS)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>할 일</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">1 회원가입</td><td>영화진흥위원회(KOBIS) Open API 사이트 회원가입 (무료)</td><td>하루 호출 1,000회 제한 — 넘으면 데이터를 못 받음</td></tr>
+    <tr><td class="nowrap">2 키 발급</td><td>사용 목적·관리자명 입력 (URL은 생략 가능) → 발급된 키를 메모장에 보관</td><td><b>키 유출 주의</b> — 다른 사람이 그 키로 호출할 수 있음</td></tr>
+    <tr><td class="nowrap">3 서비스 선택</td><td>Open API → 제공 서비스 → <b>REST 방식</b> 선택 → XML/JSON 중 JSON 선택</td><td>REST는 S3 등으로 API를 구성할 때도 필요한 개념</td></tr>
+    <tr><td class="nowrap">4 URL 만들기</td><td>샘플 URL 복사 → <code>key=</code> 뒤에 발급받은 키를 붙이고 <code>targetDt</code>(조회 날짜)를 변경 — 이번 값 <code>2026-10-27</code>(수업일 10/28 기준 어제)</td><td>날짜를 바꾸지 않으면 기본 샘플 날짜의 데이터가 나옴</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>화면에서 보이는 것</th><th>의미</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">키 없이 연 경우</td><td>"유효하지 않은 키" 에러</td><td><code>key=</code> 값이 비었거나 틀린 상태 — 발급 키를 그대로 붙임</td></tr>
+    <tr><td class="nowrap">옛 영화가 나옴</td><td>기본 샘플 날짜가 2012년</td><td><code>targetDt</code>를 바꾸지 않은 결과</td></tr>
+    <tr><td class="nowrap">오늘 날짜</td><td>집계 중이라 데이터가 안 나오고 어제까지만 반영</td><td>실시간처럼 보여도 하루 늦은 데이터 — 조회는 어제 날짜로</td></tr>
+    <tr><td class="nowrap">내용 확인</td><td>극장 순위 등이 실제 CGV·메가박스 데이터와 동일하게 반영</td><td>API 응답이 실제 집계와 같은지 눈으로 대조</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">공공 API 3가지 — 갱신되는 JSON/XML을 쓰고 CSV는 쓰지 않음, 키는 메모장에 보관하되 유출 금지(다른 사람이 호출), 조회 날짜는 집계가 끝난 어제까지. 호출은 하루 1,000회 제한</div>
+
+    <h3>AI로 INSERT SQL 만들기</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">프롬프트</td><td><code>@URL 해당 API로 접속하여 데이터를 확인 후 최대 50일 전 데이터 값을 가져와서 MySQL table with insert 값을 인서트 문으로 제작하시오</code></td><td>API 주소를 <code>@URL</code>로 지정 — AI가 응답 구조를 직접 확인</td></tr>
+    <tr><td class="nowrap">접속 허가</td><td>AI가 접속해도 되는지 물으면 <code>enter</code></td><td>날짜를 바꿔 50회 호출하므로 호출 수를 50만큼 씀 (하루 1,000회 제한)</td></tr>
+    <tr><td class="nowrap">생성물</td><td>실행 파일(<code>cobi2.sql.py</code> 비슷한 이름)과 SQL 파일</td><td>파일 이름은 AI가 정함 — 실제 생성된 이름 확인</td></tr>
+    <tr><td class="nowrap">복사 범위</td><td>생성된 SQL에서 <b><code>CREATE TABLE</code>부터 끝까지</b>만 복사</td><td><code>DROP</code>·<code>ENGINE=InnoDB</code> 줄은 이 실습에 불필요 — 그대로 실행하면 기존 테이블이 지워질 수 있음</td></tr>
+    <tr><td class="nowrap">서버로 옮기기</td><td>FTP가 없으면 Jupyter 터미널에서 mysql에 접속한 뒤 <b>Shift+Insert</b>로 붙여넣기, 끝에 <code>;</code></td><td>SQL 파일을 FTP로 올려 실행해도 결과는 동일</td></tr>
+    <tr><td class="nowrap">INSERT 투입</td><td>이어서 INSERT 문 전체를 한 번에 복사해 붙여넣음</td><td>나눠 넣으면 중간에 빠진 행이 생김</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · sparkuser · /home/sparkuser]</span>
+mysql -u root -p   <span class="c"># 마스터 서버의 실제 DB 접속 — mysqld가 돌고 있어야 함</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c">-- [마스터 · MySQL 프롬프트 · root]</span>
+use testdb;   <span class="c">-- 적재할 DB 선택 — 테이블은 DB 안에만 만들어짐</span>
+<span class="c">-- AI가 만든 CREATE TABLE부터 마지막 ) ; 까지 붙여넣기 (Shift+Insert, DROP·ENGINE 줄 제외)</span>
+<span class="c">-- 이어서 INSERT 문 전체를 한 번에 붙여넣기</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">SQL 복사 범위 — AI가 만든 문장에서 <code>CREATE TABLE</code>부터 끝까지만 붙여넣고 <code>DROP TABLE</code>·<code>ENGINE=InnoDB</code> 줄은 제외. 기존 테이블에 잘못 넣으면 데이터가 섞임</div>
+
+    <h3>적재 확인 — 건수와 접속 계정</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>확인 항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">계정·호스트</td><td>root로 <code>use mysql;</code> → <code>select * from user;</code>에서 계정과 접속 허용 호스트 확인</td><td>외부(웹·다른 서버)에서 접속하려면 사용자 호스트가 <code>%</code>인 계정 필요 (예: <code>hong</code>(<code>%</code>)) — 계정·권한: mysql.html 12장</td></tr>
+    <tr><td class="nowrap">적재 확인</td><td><code>hong</code> 계정으로 접속해 <code>use testdb;</code> → <code>show tables;</code> → <code>select count(*) from DailyBoxOffice;</code></td><td>테이블명 <code>DailyBoxOffice</code>는 AI가 정한 이름이라 사람마다 다름 — 자기 SQL 파일에서 확인</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td><b>500건</b></td><td>작은 용량 — 빅데이터라 하려면 적어도 5만 건 필요</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c">-- [마스터 · MySQL 프롬프트 · root]</span>
+show databases;      <span class="c">-- DB 목록 — testdb가 있는지 확인</span>
+use mysql;           <span class="c">-- 계정 정보가 있는 시스템 DB</span>
+select * from user;  <span class="c">-- 계정과 접속 허용 호스트 확인 — 외부 접속은 host가 %인 계정</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · sparkuser · /home/sparkuser]</span>
+mysql -u hong -p   <span class="c"># 위에서 확인한 계정으로 접속 — 권한이 있는 DB만 보임</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="code"><pre><code><span class="c">-- [마스터 · MySQL 프롬프트 · hong]</span>
+show databases;                      <span class="c">-- DB 목록</span>
+use testdb;                          <span class="c">-- testdb 사용</span>
+show tables;                         <span class="c">-- 테이블 목록 — AI가 만든 테이블 이름 확인</span>
+select count(*) from DailyBoxOffice; <span class="c">-- 적재 건수 확인 → 500</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">적재 확인 — <code>select count(*) from DailyBoxOffice</code>로 건수(500건)를 보고 테이블명이 AI마다 다르다는 점을 기억. 5만 건은 되어야 빅데이터 실습 규모</div>
+
+    <ul class="facts"><li><strong>테이블 생성·AI 활용</strong><div>CREATE TABLE 문 만들기: mysql.html 10장</div></li><li><strong>계정·호스트 권한</strong><div><code>hong</code>@<code>%</code>·최소 권한: mysql.html 12장</div></li><li><strong>Spark에서 읽기</strong><div>이 테이블을 JDBC로 조회: 이 파일 19장</div></li></ul>
+  </section>
+
+  <!-- 19 -->
+  <section class="sec" id="spark-jdbc">
+    <h2>Spark JDBC 연동: MySQL 테이블 읽기</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — JAR를 넣고 접속 옵션 6개로 읽기</p><div class="dg-flow"><div class="dg-node"><h4>① JAR 확보</h4><p class="sub">Connector/J · 9.7</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② jars에 배치</h4><p class="sub">sparkuser · wget</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ jdbc 옵션</h4><p class="sub">url · dbtable</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 제출</h4><p class="sub">spark-submit</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>⑤ 결과</h4><p class="sub">show(5)</p></div></div><p class="dg-foot">Spark는 Java 기반이라 DB 접속에 JDBC 드라이버(JAR)가 필요 — JAR가 없으면 드라이버 클래스를 찾지 못해 읽기 자체가 안 됨</p></div>
+
+    <h3>드라이버 JAR가 필요한 이유</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">실행 기반</td><td>Spark는 Java 기반 → DB 접속에 JDBC 드라이버(JAR) 필요</td><td>파이썬 코드라도 접속은 JVM 쪽 라이브러리가 담당</td></tr>
+    <tr><td class="nowrap">기본 상태</td><td><code>/opt/spark/jars</code>에 Java 라이브러리가 있고, 처음엔 mysql JAR가 <b>없음</b></td><td>PostgreSQL 드라이버도 없음 — DB 연동 전에 항상 확인</td></tr>
+    <tr><td class="nowrap">다른 DB</td><td>같은 방식으로 JAR를 추가</td><td>Spark에 라이브러리가 없으므로 DB마다 드라이버를 넣어야 연동</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>DB</th><th>필요한 드라이버</th></tr></thead><tbody>
+    <tr><td class="nowrap">PostgreSQL</td><td>PostgreSQL JDBC</td></tr>
+    <tr><td class="nowrap">Oracle</td><td>Oracle JDBC</td></tr>
+    <tr><td class="nowrap">MariaDB</td><td>MySQL Connector/J와 동일</td></tr>
+    <tr><td class="nowrap">MongoDB</td><td>해당 드라이버</td></tr>
+    </tbody></table></div>
+
+    <h3>Maven에서 JAR 받아 jars 폴더에 넣기</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>순서</th><th>할 일</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td>Maven Repository(<code>mvnrepository.com</code>) → "MySQL Connector/J" 검색</td><td>옛 이름 "Connector Java"가 아님 — 다른 라이브러리</td></tr>
+    <tr><td class="nowrap">2</td><td>버전 선택 — Java 17 환경에서 <code>9.7</code></td><td>Java 8 이상이면 9.x가 동작하므로 상위 버전도 가능 (아래 표)</td></tr>
+    <tr><td class="nowrap">3</td><td><code>jar</code> 링크 우클릭 → 링크 주소 복사</td><td>페이지 주소가 아니라 파일 주소를 복사해야 wget이 JAR를 받음</td></tr>
+    <tr><td class="nowrap">4</td><td><b>spark 사용자</b>로(root 아님) <code>/opt/spark/jars</code>에서 <code>wget</code> 실행</td><td>root로 받으면 소유자가 root가 되어 Spark가 읽지 못할 수 있음 (4장)</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · sparkuser · /opt/spark/jars]</span>
+cd /opt/spark/jars                      <span class="c"># Spark가 기본으로 읽는 라이브러리 폴더로 이동</span>
+<span class="c"># Maven에서 복사한 파일 주소로 MySQL 드라이버 내려받기 — 받은 파일의 소유자가 sparkuser인지 확인</span>
+wget &lt;복사한 JAR 링크&gt;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>버전 기준</th><th>내용</th><th>근거·기준</th></tr></thead><tbody>
+    <tr><td class="nowrap">Java 요구사항</td><td>MySQL Connector/J 9.x는 Java 8 이상이면 동작</td><td>Connector/J 공식 문서 시스템 요구사항 — "Java 17이라 9.7까지만 쓸 수 있다"는 버전 제한 근거가 아님</td></tr>
+    <tr><td class="nowrap">이번 선택</td><td><code>9.7</code> — Java 17 환경에서 검증된 조합</td><td>클러스터가 Java 17이므로 무리 없이 동작</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">JDBC 드라이버 — Spark의 <code>/opt/spark/jars</code>에 mysql 드라이버가 없음 — Maven에서 "MySQL Connector/J" JAR를 받아 sparkuser로 넣고, MariaDB는 같은 드라이버를 씀</div>
+
+    <h3>JDBC 읽기 코드 — test_table.py</h3>
+    <div class="code"><pre><code><span class="c"># [마스터 · /home/sparkuser/test_table.py 파일 안 · sparkuser]</span>
+#!/usr/bin/env python3                       <span class="c"># 셰뱅 — 파일 첫 줄, python3로 직접 실행할 때 사용</span>
+from pyspark.sql import SparkSession
+
+spark = (SparkSession.builder
+    .appName("rdbms")                          <span class="c"># 마스터 웹 UI에 뜨는 앱 이름</span>
+    .master("spark://&lt;마스터IP&gt;:7077")          <span class="c"># 클러스터 마스터 주소</span>
+    .config("spark.executor.memory", "2g")     <span class="c"># 연산용 메모리</span>
+    .config("spark.driver.memory", "1g")       <span class="c"># show 출력용 메모리</span>
+    .config("spark.cores.max", "1")            <span class="c"># 쓸 코어 수</span>
+    .getOrCreate())
+
+mysql_df = (spark.read
+    .format("jdbc")                                        <span class="c"># DB 연결용 포맷</span>
+    .option("url", "jdbc:mysql://&lt;DB서버IP&gt;:3306/testdb")  <span class="c"># jdbc:mysql://IP:포트/DB명 — 테이블명이 아님</span>
+    .option("dbtable", "DailyBoxOffice")                   <span class="c"># 읽을 테이블명</span>
+    .option("user", "hong")                                <span class="c"># 계정</span>
+    .option("password", "A1234")                           <span class="c"># 비밀번호 (연습값)</span>
+    .option("driver", "com.mysql.cj.jdbc.Driver")          <span class="c"># JDBC 드라이버 클래스 — JAR가 있어야 작동</span>
+    .load())
+mysql_df.show(5)                                           <span class="c"># 5건 출력</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>옵션</th><th>값</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>url</code></td><td><code>jdbc:mysql://IP:3306/testdb</code></td><td>DB까지 지정하고 테이블명은 넣지 않음 — 테이블은 <code>dbtable</code></td></tr>
+    <tr><td class="nowrap"><code>dbtable</code></td><td><code>DailyBoxOffice</code></td><td>18장에서 적재한 테이블 — 이름이 다르면 자기 테이블명으로</td></tr>
+    <tr><td class="nowrap"><code>user</code>·<code>password</code></td><td><code>hong</code> / 연습값 암호</td><td>권한이 있는 계정. 외부 접속이면 host가 <code>%</code>인 계정 필요 (18장)</td></tr>
+    <tr><td class="nowrap"><code>driver</code></td><td><code>com.mysql.cj.jdbc.Driver</code></td><td>Connector/J 9.x의 클래스 이름 — JAR가 없으면 여기서 실패</td></tr>
+    </tbody></table></div>
+
+    <h3>접속 정보 확인과 실행</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">접속 정보</td><td>외울 필요 없음 — DBeaver 연결 편집 화면에서 URL·포트·DB명을 보고 그대로 복사</td><td>연결 정보 확인: mysql.html 11장</td></tr>
+    <tr><td class="nowrap">IP</td><td>실습은 <code>192.168.2.x</code> 대역 — 이 노트 클러스터는 <code>192.168.222.2</code>·<code>192.168.222.3</code> (3장)</td><td>남의 IP를 그대로 입력하면 접속이 막힘</td></tr>
+    <tr><td class="nowrap">실행 위치</td><td><code>cd ~</code>로 홈 디렉터리로 이동한 뒤 <code>spark-submit</code></td><td>파일이 홈에 있으므로 경로를 맞춤</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td>5건 출력</td><td>로그는 Standalone → Warehouse → 파일 읽기 → DB 체크 → 블록 등록 순서로 진행</td></tr>
+    <tr><td class="nowrap">세션 만드는 방식</td><td><code>SparkSession</code>은 빌더 체인으로 만들든 변수 <code>spark</code>에 담든 모두 동작</td><td>한 방식만 써야 하는 것이 아님</td></tr>
+    <tr><td class="nowrap">CSV 읽기</td><td>따로 공부할 영역 (아프리카TV 방송에서 다룸)</td><td>실무는 DB를 다루므로 CSV를 쓸 일이 거의 없음</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · sparkuser · /home/sparkuser]</span>
+cd ~                         <span class="c"># 홈 디렉터리로 이동 — test_table.py가 있는 곳</span>
+spark-submit test_table.py   <span class="c"># JDBC 읽기 실행 — show(5) 결과가 터미널에 출력</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">JDBC 읽기 6옵션 — <code>format("jdbc")</code>에 <code>url</code>(<code>jdbc:mysql://IP:3306/DB명</code>)·<code>dbtable</code>·<code>user</code>·<code>password</code>·<code>driver</code>. url에 테이블명을 넣으면 실패하고, JAR가 없으면 드라이버 클래스에서 실패</div>
+
+    <ul class="facts"><li><strong>테이블·적재</strong><div>읽을 테이블을 만든 과정: 이 파일 18장</div></li><li><strong>세션 설정</strong><div><code>executor.memory</code>·<code>driver.memory</code>·<code>cores.max</code>: 이 파일 16장</div></li><li><strong>DBeaver 연결</strong><div>호스트·포트·DB명 확인: mysql.html 11장</div></li></ul>
+  </section>
+
+  <!-- 20 -->
+  <section class="sec" id="spark-movie-agg">
+    <h2>응용: 박스오피스 집계와 셔플 파티션</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 테이블을 분산 처리해 두 가지 집계</p><div class="dg-flow"><div class="dg-node"><h4>① 누적 관객수 합</h4><p class="sub">기간별 영화 집계</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 7일 평균</h4><p class="sub">영화별 관객수</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 셔플</h4><p class="sub">partitions 8</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 옵션 제거</h4><p class="sub">4종 삭제</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ JAR 지정</h4><p class="sub">경로 또는 패키지</p></div></div><p class="dg-foot">집계는 조인·group by·window 함수처럼 데이터를 재배치하는 연산을 씀 — 그 조각 수를 정하는 설정이 <code>spark.sql.shuffle.partitions</code></p></div>
+
+    <h3>목표와 테이블 구조</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">집계 1</td><td>기간별 누적 관객수 합으로 영화 집계</td><td>조회일자 구간을 잡아 영화별 합계</td></tr>
+    <tr><td class="nowrap">집계 2</td><td>영화별 관객수 7일 평균 출력</td><td>window 함수로 영화별 7일 구간 평균</td></tr>
+    <tr><td class="nowrap">필요 컬럼</td><td>조회일자, 순번, 박스오피스 순위, 영화코드, 개봉일, 전일, 누적 관객수, 누적 매출액, 전일 대비 증감 % 등</td><td>이 컬럼이 있어야 해당 집계가 가능 — 없으면 다른 집계로 바꿔야 함</td></tr>
+    <tr><td class="nowrap">테이블</td><td>18장에서 적재한 박스오피스 테이블</td><td>테이블 구조는 18장의 SQL 파일 기준</td></tr>
+    </tbody></table></div>
+
+    <h3>코드 지시와 빈칸 채우기</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">프롬프트</td><td><code>@movie.py MySQL 접속하여 테이블에 저장된 값을 이용하여 다음과 같이 분산 처리 코드를 작성해주세요. 1. ... 2. ...</code> + 테이블 구조는 <code>@cobis_박스오피스.sql</code> 파일 기준으로 지정</td><td>테이블 구조 파일을 함께 지정해야 컬럼명이 맞는 코드가 나옴</td></tr>
+    <tr><td class="nowrap">AI가 비워 두는 값</td><td>호스트·계정 등을 비워 두는 경우가 있음 → DB IP, 포트 <code>3306</code>, DB명 <code>testdb</code>, 유저 <code>hong</code>, 패스워드, 앱 이름(박스오피스), 마스터 주소를 직접 채움</td><td>빈칸을 그대로 두면 접속 단계에서 실패 — 19장 코드의 옵션 값과 같은 형식</td></tr>
+    <tr><td class="nowrap">자원 설정</td><td>앞서 쓴 config(executor 메모리·코어·driver 메모리)를 그대로 붙임</td><td>새로 계산하지 않고 검증된 값 재사용 (16장)</td></tr>
+    <tr><td class="nowrap">실행</td><td><code>spark-submit movie.py</code></td><td>결과는 두 집계의 출력으로 확인</td></tr>
+    </tbody></table></div>
+
+    <h3>spark.sql.shuffle.partitions — 셔플 조각 수</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">의미</td><td>조인·<code>group by</code>·window 함수 등 <b>데이터를 재배치하는 연산(셔플)</b>에서 데이터를 몇 조각으로 쪼개 병렬 처리할지 정하는 값</td><td>조각이 적으면 코어를 놀리고, 너무 많으면 작은 작업이 늘어남</td></tr>
+    <tr><td class="nowrap">이번 값</td><td><b>8조각</b></td><td>CPU·메모리가 적은 실습 클러스터 기준 — 자원이 많으면 더 크게</td></tr>
+    <tr><td class="nowrap">같은 효과</td><td><code>distinct</code> 등 함수도 데이터 재배치를 일으킴</td><td>중복 제거도 셔플이라는 뜻 — 파티션 수 설정이 함께 영향</td></tr>
+    <tr><td class="nowrap">선행 지식</td><td>MySQL의 <code>join</code>·<code>group by</code>를 알아야 이해됨</td><td>이후 더 다루는 내용 — 여기서는 셔플의 조각 수로만 이해</td></tr>
+    </tbody></table></div>
+    <div class="code"><pre><code><span class="c"># [마스터 · /home/sparkuser/movie.py 파일 안 · sparkuser]</span>
+<span class="c"># 셔플(조인·group by·window)에서 데이터를 8조각으로 나눠 병렬 처리 — 실습 클러스터 자원 기준</span>
+    .config("spark.sql.shuffle.partitions", "8")</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">셔플 파티션 — <code>spark.sql.shuffle.partitions</code>는 조인·<code>group by</code>·window 함수·<code>distinct</code>처럼 데이터를 재배치할 때 쓸 조각 수. 이 환경은 코어·메모리가 적어 <code>8</code>, 자원이 많으면 크게</div>
+
+    <h3>에러: numPartitions와 분할 컬럼</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">증상</td><td>RDD에서 "레코드 수 / 파티션 수가 안 맞는다"는 에러 — 81~82번 줄 <code>df</code> read 부분</td><td>읽기 단계에서 터지므로 코드 아래쪽 집계는 실행되지 않음</td></tr>
+    <tr><td class="nowrap">원인</td><td>AI가 만든 JDBC 읽기에 <code>numPartitions</code>·<code>partitionColumn</code>·<code>lowerBound</code>·<code>upperBound</code>가 있는데 <b>분할 기준 컬럼(<code>id</code>)이 테이블에 없음</b></td><td>박스오피스 테이블에는 <code>id</code> 컬럼이 없음 — AI가 일반적인 예제를 그대로 넣은 경우</td></tr>
+    <tr><td class="nowrap">해결</td><td>위 4개 옵션을 삭제하면 정상 동작</td><td>우선 <b>작동 여부</b>가 중요 — 병렬 읽기 튜닝은 그 뒤</td></tr>
+    <tr><td class="nowrap">옵션 규칙</td><td><code>numPartitions</code>를 쓰려면 <code>partitionColumn</code>(숫자·날짜 컬럼)·<code>lowerBound</code>·<code>upperBound</code>가 <b>같이</b> 지정돼야 함</td><td>Spark JDBC 데이터소스 문서 — 하나라도 빠지면 병렬 읽기 구성이 성립하지 않음</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">JDBC 병렬 읽기 — <code>numPartitions</code>는 <code>partitionColumn</code>·<code>lowerBound</code>·<code>upperBound</code>와 함께 써야 하고, 기준 컬럼이 테이블에 실제로 있어야 함. 없으면 4개 옵션을 지우고 단일 파티션으로 읽기</div>
+
+    <h3>JAR 인식 문제와 두 가지 방법</h3>
+    <p>JAR를 못 찾을 때 방법은 두 가지이며 둘 다 정상.</p>
+    <div class="code"><pre><code><span class="c"># [마스터 · /home/sparkuser/movie.py 파일 안 · sparkuser]</span>
+<span class="c"># 방법 1: JAR를 wget으로 받아 둔 경우 — 절대 경로 지정</span>
+    .config("spark.jars", "/opt/spark/jars/mysql-connector-j-9.7.0.jar")
+<span class="c"># 방법 2: JAR를 직접 받지 않은 경우 — Maven에서 실행 시 자동 다운로드·연결</span>
+    .config("spark.jars.packages", "com.mysql:mysql-connector-j:9.7.0")</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>방법</th><th>동작</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">1 <code>spark.jars</code></td><td>받아 둔 JAR의 절대 경로를 지정</td><td>받은 파일 이름·버전이 경로와 정확히 일치해야 함</td></tr>
+    <tr><td class="nowrap">2 <code>spark.jars.packages</code></td><td>실행할 때 Maven에서 자동 다운로드해 연결</td><td>버전을 모르면 최신 버전으로 지정해도 됨</td></tr>
+    <tr><td class="nowrap">이미 받은 경우</td><td><code>/opt/spark/jars</code>에 JAR가 있으면 설정 없이도 동작</td><td>패키지 방식은 중복 설치라 불필요</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">JAR 두 방법 — <code>spark.jars</code>(절대 경로) 또는 <code>spark.jars.packages</code>(Maven 좌표). 이미 <code>/opt/spark/jars</code>에 있으면 아무 설정도 필요 없고, 응용 과제는 <b>새 테이블</b>을 만들어 진행</div>
+
+    <ul class="facts"><li><strong>테이블 적재</strong><div>박스오피스 데이터를 넣은 과정: 이 파일 18장</div></li><li><strong>JDBC 옵션</strong><div><code>format("jdbc")</code>·<code>url</code>·<code>dbtable</code>: 이 파일 19장</div></li><li><strong>에러 전달</strong><div>에러 줄·문구를 AI에 넘기는 방식: 이 파일 17장</div></li></ul>
+  </section>
+
+  <!-- 21 -->
   <section class="sec" id="spark-image">
     <h2>Spark 3.5.3 이미지: Dockerfile 작성·빌드·검증</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — Spark를 이미지에 미리 설치</p><div class="dg-flow"><div class="dg-node"><h4>① 기존 파일 백업</h4><p class="sub">mv Dockerfile Dockerfile_backup</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 베이스 점검</h4><p class="sub">java -version → 없음이 정상</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ Dockerfile</h4><p class="sub">Java 17 · Spark 3.5.3</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 빌드</h4><p class="sub">docker build -t spark-rocky9:3.5.3 .</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>⑤ 검증</h4><p class="sub">java -version · python3 --version</p></div></div></div>
@@ -1952,7 +2283,7 @@ docker run --rm spark-rocky9:3.5.3 python3 --version <span class="c"># Python 3 
 
   </section>
 
-  <!-- 17 -->
+  <!-- 22 -->
   <section class="sec" id="spark-master">
     <h2>마스터 컨테이너 기동·재시작</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — 마스터를 사용자 정의 네트워크에서 기동</p><div class="dg-flow"><div class="dg-node"><h4>① 점유 확인</h4><p class="sub">docker ps</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② docker run</h4><p class="sub">--network spark-net · -p 7077:7077</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ spark-class Master</h4><p class="sub">--host spark-master</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 확인</h4><p class="sub">UI Status ALIVE · 버전 3.5.3</p></div></div></div>
@@ -1984,7 +2315,7 @@ docker start spark-master                            <span class="c"># 시작 �
 
   </section>
 
-  <!-- 18 -->
+  <!-- 23 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -2073,15 +2404,33 @@ docker start spark-master                            <span class="c"># 시작 �
           <tr><td><code>SPARK_WORKER_MEMORY</code></td><td>워커 가용 메모리 — 기본값 전체 메모리 − 1GiB, 가장 작은 워커 약 2GB가 상한</td></tr>
           <tr><td><code>1024.0 MiB</code> / <code>2.0 GiB</code></td><td>executor 메모리 <code>1g</code> / <code>2g</code> 이상의 UI 표기</td></tr>
           <tr><td><code>pyspark … --total-executor-cores 2</code></td><td>Jupyter 코어를 4 → 2로 낮춰 재시작 — <code>member.py</code>가 Cores 4·RUNNING</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">pandas UDF·오류 (16~17장)</th></tr>
+          <tr><td><code>@udf.py ... pandas UDF ...</code></td><td>프롬프트 맨 앞 <code>@파일명</code>(annotation)으로 그 파일에 코드 생성 — 노트북이 아니라 <code>.py</code>, 덮어쓰기 확인은 <code>yes</code></td></tr>
+          <tr><td><code>spark-submit udf.py</code></td><td>pandas UDF 실습 제출 — 마스터 8080 새로고침으로 Running 앱 확인</td></tr>
+          <tr><td><code>spark.executor.memory</code> <code>2g</code> / <code>spark.cores.max</code> <code>1</code> / <code>spark.driver.memory</code> <code>1g</code></td><td>연산용 메모리 / 앱 전체 코어 상한 / <code>show</code> 출력용 메모리 — 검토는 Ctrl+F로 <code>show</code>부터</td></tr>
+          <tr><td><code>--driver-memory</code> / <code>spark-defaults.conf</code></td><td>클라이언트 모드에서 코드 <code>.config</code>의 드라이버 메모리는 이미 뜬 JVM에 적용 안 됨 — 옵션·설정 파일로 지정</td></tr>
+          <tr><td><code>pip3 install --user pyarrow</code></td><td>마스터·워커 <b>양쪽</b> — 워커에 없으면 연산 단계에서 모듈 없음 에러</td></tr>
+          <tr><td><code>agg</code> 안의 <code>p90</code> 에러 (185번 줄)</td><td>없는 집계 함수 — 에러 줄·문구를 AI에 넘겨 <code>sum</code> 등으로 교체, 수정은 지금 쓰는 파일에서</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">공공 API·MySQL 적재 (18장)</th></tr>
+          <tr><td><code>key=</code> + <code>targetDt</code> (샘플 URL)</td><td>KOBIS 키·조회 날짜 지정 — 집계 중인 오늘은 안 나오고 어제까지, 하루 호출 1,000회, 키 유출 금지</td></tr>
+          <tr><td><code>CREATE TABLE</code>부터 끝까지만 복사</td><td><code>DROP</code>·<code>ENGINE=InnoDB</code> 줄 제외 → mysql 접속 후 <b>Shift+Insert</b>, 끝에 <code>;</code>, INSERT 문은 한 번에</td></tr>
+          <tr><td><code>use testdb</code> → <code>show tables</code> → <code>select count(*) from DailyBoxOffice</code></td><td>적재 확인 <b>500건</b> — 테이블명은 AI가 정해 사람마다 다름, 빅데이터 규모는 5만 건부터</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">JDBC 연동·응용 집계 (19~20장)</th></tr>
+          <tr><td><code>wget &lt;JAR 링크&gt;</code> (<code>/opt/spark/jars</code>)</td><td>MySQL Connector/J <code>9.7</code> — sparkuser로 실행, MariaDB도 같은 드라이버. mvnrepository에서 받음</td></tr>
+          <tr><td><code>format("jdbc")</code> · <code>url</code> <code>jdbc:mysql://IP:3306/testdb</code> · <code>dbtable</code> · <code>user</code> · <code>password</code> · <code>driver</code> <code>com.mysql.cj.jdbc.Driver</code></td><td>JDBC 읽기 6옵션 — url에 테이블명을 넣지 않고, JAR가 없으면 드라이버 클래스에서 실패</td></tr>
+          <tr><td><code>spark-submit test_table.py</code> → <code>show(5)</code></td><td>5건 출력 — 로그는 Standalone → Warehouse → 파일 읽기 → DB 체크 순서</td></tr>
+          <tr><td><code>spark.sql.shuffle.partitions</code> <code>8</code></td><td>셔플(조인·group by·window·distinct) 조각 수 — 실습 클러스터 자원 기준, 자원 많으면 크게</td></tr>
+          <tr><td><code>numPartitions</code>·<code>partitionColumn</code>·<code>lowerBound</code>·<code>upperBound</code></td><td>4개를 함께 써야 병렬 읽기 성립 — 기준 컬럼(예: <code>id</code>)이 테이블에 없으면 4개 모두 삭제</td></tr>
+          <tr><td><code>spark.jars</code> / <code>spark.jars.packages</code></td><td>JAR 절대 경로 / Maven 자동 다운로드 — 이미 <code>/opt/spark/jars</code>에 있으면 설정 불필요</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">네트워크 (자세히: docker.html 9장)</th></tr>
           <tr><td><code>docker network ls</code> / <code>docker network create spark-net</code></td><td>네트워크 목록 확인 / Spark 이름 DNS용 사용자 정의 네트워크 생성</td></tr>
           <tr><td><code>docker network inspect spark-net</code> / <code>docker network rm spark-net</code></td><td>서브넷·게이트웨이·컨테이너 IP 확인 / 미사용 네트워크 삭제</td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">이미지 (16장)</th></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">이미지 (21장)</th></tr>
           <tr><td><code>mv Dockerfile Dockerfile_backup</code></td><td>이전 Dockerfile을 보존하고 새 Spark Dockerfile 작성 준비</td></tr>
           <tr><td><code>docker build -t spark-rocky9:3.5.3 .</code></td><td>현재 폴더 Dockerfile로 Spark 3.5.3 이미지 빌드</td></tr>
           <tr><td><code>docker run --rm spark-rocky9:3.5.3 java -version</code> / <code>javac -version</code> / <code>python3 --version</code></td><td>이미지 내부 Java·컴파일러·Python 설치 검증, <code>python</code> 대신 <code>python3</code></td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">마스터 (17장)</th></tr>
-          <tr><td><code>docker run -d --name spark-master --hostname spark-master --network spark-net -p 8080:8080 -p 7077:7077 -p 8888:8888 spark-rocky9:3.5.3 /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --host spark-master --port 7077 --webui-port 8080</code></td><td>마스터 실행 (전체 옵션 설명은 17장). 자원 제한 전 연습 상태, 완료본 아님</td></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">마스터 (22장)</th></tr>
+          <tr><td><code>docker run -d --name spark-master --hostname spark-master --network spark-net -p 8080:8080 -p 7077:7077 -p 8888:8888 spark-rocky9:3.5.3 /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master --host spark-master --port 7077 --webui-port 8080</code></td><td>마스터 실행 (전체 옵션 설명은 22장). 자원 제한 전 연습 상태, 완료본 아님</td></tr>
           <tr><td><code>docker stop spark-master</code> / <code>docker start spark-master</code></td><td>중지·시작에 따라 UI 접속과 마스터 자동 재기동 확인</td></tr>
         </tbody>
       </table>

@@ -1890,6 +1890,7 @@ drop database mall;    <span class="c">-- DB 삭제 (DB면 database, 테이블�
     <li><strong>계정·권한·원격 접속</strong><div>만든 DB를 사용자에게 열어 주는 절차: 이 파일 11장</div></li>
     <li><strong>문자셋·콜레이션</strong><div>테이블 문자셋이 자동으로 붙는 기준(<code>utf8mb4</code>): 이 파일 9장, 3장</div></li>
     <li><strong>백업 대상 테이블</strong><div>AI로 만든 <code>pay</code> 테이블 100행을 백업·복구 실습에 쓰는 절차: 이 파일 13장</div></li>
+    <li><strong>공공 API 데이터 적재</strong><div>JSON/XML API로 받은 데이터를 INSERT 문으로 만들어 테이블에 넣고 <code>select count(*)</code>로 건수까지 확인한 실습 (테이블명은 AI가 정함): spark.html 18장</div></li>
     </ul>
 
   </section>
@@ -2145,6 +2146,7 @@ select host, db, user from db;</code></pre><button class="copy" type="button" ar
     <li><strong>백업·복구</strong><div>사용자를 정리한 뒤 root로 덤프하고 복구: 이 파일 13장</div></li>
     <li><strong>복제용 계정</strong><div>워커 IP를 호스트로 둔 계정과 <code>replication slave</code> 권한의 쓰임: 이 파일 15장</div></li>
     <li><strong>셸 스크립트에서 접속</strong><div><code>mysql -u mega_re -p'비밀번호' -h IP</code>로 원격 접속·<code>show databases</code>·<code>create table</code> 점검: shell.html 4장</div></li>
+    <li><strong>Spark JDBC 원격 접속</strong><div>마스터에서 <code>hong</code>@<code>%</code> 같은 원격 계정으로 붙어 <code>DailyBoxOffice</code> 테이블을 읽는 실습 — url <code>jdbc:mysql://IP:3306/testdb</code>: spark.html 19장</div></li>
     </ul>
 
   </section>
