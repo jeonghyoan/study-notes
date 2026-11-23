@@ -56,9 +56,7 @@ iframe { flex:1; width:100%; border:0; background:var(--bg); }
     "  li{margin-bottom:6px !important;}",
     "  .sec,.band{margin-top:32px !important;}",
     "  .band{padding:18px 14px 12px !important;}",
-    "  .deck{font-size:12.5px !important;line-height:1.55 !important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:0 0 4px !important;}",
-    "  .deck.is-open{-webkit-line-clamp:unset;display:block;}",
-    "  .deck-toggle{display:inline-block;font-size:12px;font-weight:600;color:var(--accent-text);background:none;border:0;padding:2px 0 8px;cursor:pointer;}",
+    "  .deck{display:none !important;}",
     "  .core-strip{margin-top:12px !important;gap:10px !important;}",
     "  .core-strip>div{padding:12px 14px !important;}",
     "  .core-metric{font-size:15px !important;margin-bottom:4px !important;}",
@@ -82,15 +80,7 @@ iframe { flex:1; width:100%; border:0; background:var(--bg); }
       var s=doc.createElement("style"); s.id="sn-mobile-polish"; s.textContent=mobileCSS;
       doc.head.appendChild(s);
     }
-    var deck=doc.querySelector(".deck");
-    if(deck && !doc.querySelector(".deck-toggle") && window.innerWidth<=760){
-      var tbtn=doc.createElement("button"); tbtn.type="button"; tbtn.className="deck-toggle"; tbtn.textContent="범위 전체 보기 ▾";
-      tbtn.addEventListener("click",function(){
-        var open=deck.classList.toggle("is-open");
-        tbtn.textContent=open?"범위 접기 ▴":"범위 전체 보기 ▾";
-      });
-      deck.insertAdjacentElement("afterend", tbtn);
-    }
+
   }
 
   function openPage(file){
