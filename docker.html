@@ -1901,7 +1901,11 @@ docker rmi rocky:9                 <span class="c"># 용량 정리를 위해 안
 
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>실습 환경</strong></td><td>컨테이너 <code>testc</code> · 이미지 <code>mzleejh/apink_rocky:9</code> · Rocky Linux 9. 기존 <code>mega</code> 계열은 별도 용도로 유지 → 이 실습에서 건드리지 않음. 웹 서버 설치는 컨테이너 안에서만</td></tr>
+    <tr><td><strong>실습 환경</strong></td><td>컨테이너 <code>testc</code> · 이미지 <code>mzleejh/apink_rocky:9</code> · Rocky Linux 9. 기존 <code>mega</code> 계열은 별도 용도로 유지 → 이 실습에서 건드리지 않음. 로컬 호스트에는 아파치·nginx 등 아무것도 설치하지 않고 웹 서버 설치는 컨테이너 안에서만</td></tr>
+    <tr><td><strong>컨테이너 이름</strong></td><td><code>--name testc</code> = test container. 이후 모든 명령에서 ID 대신 이름 사용 → 기존 <code>mega</code> 계열과 실습 대상이 섞이지 않음</td></tr>
+    <tr><td><strong>배포판</strong></td><td>CentOS(<code>cs</code>) 대신 Rocky Linux 9 사용 → 이미지 <code>mzleejh/apink_rocky:9</code>에 웹·FTP·DB 설정이 끝난 상태. 같은 이미지에서 포트만 바꿔 재현하므로 OS·설정 차이는 원인 후보에서 제외</td></tr>
+    <tr><td><strong>접속 창 2개</strong></td><td>[윈도우 · PuTTY] 컨테이너 <code>IP:11022</code> / [윈도우 · VirtualBox 콘솔] 로컬 리눅스 <code>22</code>번, <code>apink</code> 로그인 후 <code>su</code>로 root → 컨테이너 명령과 호스트 명령을 창으로 구분</td></tr>
+    <tr><td><strong>진행 순서</strong></td><td>정상 동작 확인 → 포트 하나만 바꿔 문제 재현 → iptables 기본 → NAT·PREROUTING → 원인(브라우저 제한 포트) 확인</td></tr>
     <tr><td><strong>핵심 비교</strong></td><td>Docker 포트 게시(<code>-p</code>) = 호스트 포트 ↔ 컨테이너 포트 연결 / 라우팅·NAT 규칙 = 패킷 목적지 변경·전달 / 브라우저 포트 차단 = 클라이언트 정책 → 각 층을 따로 검사</td></tr>
     <tr><td><strong>원인 판단</strong></td><td>서버 안 <code>curl</code>은 응답 + 브라우저만 <code>ERR_UNSAFE_PORT</code> → 서버·Docker보다 브라우저 제한 포트를 먼저 의심</td></tr>
     </tbody></table></div>
@@ -1918,25 +1922,42 @@ docker rmi rocky:9                 <span class="c"># 용량 정리를 위해 안
       <p class="dg-foot">영상 환경 예시: VirtualBox 규칙에서 윈도우 호스트 포트 ↔ 리눅스 게스트 포트 10080 연결, Docker는 호스트 10080 → 컨테이너 80 게시. IP·포트는 각자 실습 환경에서 확인</p>
     </div>
 
+    <h3>요청 경로와 포트 해석</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>IP:80</code> 요청</td><td>호스트에 열린 80이 없으면 브라우저에 "페이지를 찾을 수 없음" → Docker 게시 포트가 10080이면 80만 보고 실패</td><td>80을 도커가 대신 받지 않음 → 호스트 LISTEN 여부부터 확인</td></tr>
+    <tr><td class="nowrap"><code>IP:10080</code> 요청</td><td>호스트 10080 확인 → Docker가 10080에 연결된 컨테이너의 80으로 전달 → 응답은 역순으로 브라우저까지</td><td>호스트 포트와 컨테이너 포트를 한 경로에 섞어 읽지 않음</td></tr>
+    <tr><td class="nowrap">도커가 있을 때</td><td>온프레미스(도커 없음)는 아파치가 호스트 80을 직접 받음 / 도커가 있으면 iptables·Docker 게시 규칙을 먼저 지나므로 바로 받지 않음</td><td>같은 요청이라도 앞단이 다르면 도착 포트가 달라짐</td></tr>
+    <tr><td class="nowrap">PREROUTING이 필요한 경우</td><td>컨테이너가 10080에 있는데 클라이언트는 포트 없이(80) 들어오게 할 때 → PREROUTING이 먼저 80을 확인해 10080으로 토스 → 컨테이너의 80에서 처리</td><td>도커 없이 웹 서버가 80을 직접 받는 구성에는 필요 없음</td></tr>
+    <tr><td class="nowrap">그림으로 남기기</td><td>자기 시스템 구성을 그림으로 그려 GitHub에 올려 둠 → 브라우저·VirtualBox·호스트·Docker·컨테이너의 포트를 한 장에 표시</td><td>포트폴리오에서 구조 설명 자료로 사용</td></tr>
+    <tr><td class="nowrap">설명 포인트</td><td>면접에서 이 순서를 그대로 설명할 수 있어야 함 → 어느 단계에서 포트가 바뀌고 어디서 막히는지</td><td>"포트를 열었는데 왜 안 되나"의 답을 계층별로 제시</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">요청 경로 — 브라우저 → VirtualBox NAT → 호스트 → Docker 게시 → 컨테이너 80 순서로 각 단계의 포트를 짚어 설명. 포트 게시(<code>-p</code>)와 PREROUTING은 서로 다른 단계에서 동작</div>
+
     <h3>테스트 컨테이너와 포트 변경 재현</h3>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># systemd가 필요한 Rocky OS 컨테이너 생성 + SSH·FTP·웹 포트를 각각 다른 호스트 포트로 게시</span>
+<span class="c"># -p 호스트포트:컨테이너포트 = 22 SSH · 21 FTP · 80 웹을 각각 다른 호스트 포트로 게시</span>
+<span class="c"># --name testc = 컨테이너 이름 지정 (이후 명령에서 ID 대신 이 이름 사용)</span>
+<span class="c"># /sbin/init = PID 1을 systemd로 올림 → 컨테이너 안에서 systemctl 사용 가능</span>
 docker run -it -d --privileged -p 11022:22 -p 11021:21 -p 11080:80 --name testc mzleejh/apink_rocky:9 /sbin/init
-<span class="c"># 정상: PORTS에 11022→22, 11021→21, 11080→80</span>
+<span class="c"># 정상: PORTS에 0.0.0.0:11021->21/tcp, 0.0.0.0:11022->22/tcp, 0.0.0.0:11080->80/tcp</span>
 docker ps
 <span class="c"># 실행 중인 testc에 셸로 진입</span>
 docker exec -it testc /bin/bash
 <span class="c"># [testc 컨테이너 · root]</span>
-<span class="c"># LISTEN 포트 확인 (netstat이 없으면 net-tools 설치)</span>
+<span class="c"># LISTEN 포트 확인 (netstat이 없으면 net-tools 설치) → 21·22·80이 LISTEN</span>
 netstat -lntpu</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>-p 호스트포트:컨테이너포트</strong></td><td>예: <code>-p 11080:80</code> → 호스트 11080 연결을 컨테이너 80으로 전달. 컨테이너마다 호스트 포트가 달라야 충돌 없음</td></tr>
-    <tr><td><strong>정상 1차 확인</strong></td><td><ul><li>브라우저 <code>리눅스IP:11080</code>에서 httpd 화면 → httpd 정지·nginx 시작 뒤 같은 주소에서 nginx 화면</li><li>PuTTY <code>IP:11022</code>, FTP <code>IP:11021</code> 접속 (실습에서 능동·수동 FTP 모두 확인)</li></ul></td></tr>
+    <tr><td><strong><code>/sbin/init</code></strong></td><td>컨테이너 PID 1을 systemd로 실행 → <code>systemctl</code>로 서비스 관리. 생략하면 <code>systemctl</code>이 동작하지 않음 (3장 참고) · <code>--privileged</code>로 실행</td></tr>
+    <tr><td><strong>정상 1차 확인</strong></td><td><ul><li>브라우저 <code>리눅스IP:11080</code>에서 httpd 화면 → httpd 정지·nginx 시작 뒤 같은 주소에서 nginx 화면</li><li>PuTTY <code>IP:11022</code> 로그인 정상</li><li>[윈도우 · FileZilla] <code>IP:11021</code>·일반 FTP 계정(<code>apink</code>)으로 능동·수동 모드 모두 접속</li></ul></td></tr>
+    <tr><td><strong>기준선</strong></td><td>포트만 맞게 게시하면 SSH·FTP·웹이 모두 정상 → 같은 이미지에서 포트 하나만 바꿨을 때 생기는 차이를 비교하는 출발점</td></tr>
     <tr><td><strong>웹 서버 교체</strong></td><td>컨테이너 안에서 httpd 정지 → nginx 설치·시작 → 같은 게시 포트에서 nginx 응답</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [testc 컨테이너 · root]</span>
 <span class="c"># 기존 웹 데몬을 멈추고 nginx를 같은 컨테이너 포트 80에서 테스트</span>
+<span class="c"># 이미지가 업데이트된 상태라 설치가 바로 진행됨</span>
 systemctl stop httpd
 dnf install nginx
 systemctl start nginx
@@ -1951,13 +1972,14 @@ docker port testc</code></pre><button class="copy" type="button" aria-label="코
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>재현 결과</strong></td><td><ul><li>컨테이너 프로세스·SSH·FTP·웹 서버는 정상인데 브라우저 <code>:10080</code>만 실패</li><li>포트 하나만 바꿨다는 사실은 원인 분리에 도움 → 단 각 계층을 확인하기 전 OS 문제로 단정하지 않음</li></ul></td></tr>
+    <tr><td><strong>구분이 필요한 개념</strong></td><td>포트 포워딩(<code>-p 호스트:컨테이너</code>) = 정해진 연결을 계속 유지 / 라우팅(PREROUTING) = 명령 한 줄로 들어오는 패킷의 목적지 포트를 바꾸는 별개 동작 → 같은 문제를 다루는 도구가 아님</td></tr>
     <tr><td><strong>기존 서비스 보호</strong></td><td>실습 대상은 <code>testc</code>만. 다른 컨테이너·호스트 서비스는 정지하지 않음, 호스트에 웹 서버를 설치하지 않는 전제 유지</td></tr>
     <tr><td><strong>포트 충돌</strong></td><td>기존 컨테이너가 같은 호스트 포트를 쓰면 bind 충돌 → 다른 컨테이너를 끄지 말고 <code>docker ps</code>·<code>docker port</code>로 점유 확인 후 testc에 비어 있는 포트 선택 (기존 서비스가 안 돌 때는 9022 같은 대체 포트도 예로 듦)</td></tr>
     <tr><td><strong>가상 NIC 관찰</strong></td><td>Docker 설치 뒤 <code>ifconfig</code> 인터페이스가 3개 → 5개 = 이 호스트의 실습 관찰값. 일반적으로 Docker bridge + 컨테이너별 veth가 생기며 개수는 실행 컨테이너·네트워크 구성에 따라 다름</td></tr>
     </tbody></table></div>
 
     <h3>VirtualBox 포트 전달 기록</h3>
-    <p><strong>[윈도우 · VirtualBox]</strong> NAT 네트워크 포트 포워딩 규칙 (실습 화면 기록)</p>
+    <p><strong>[윈도우 · VirtualBox]</strong> NAT 네트워크 <code>CloudNetwork</code> → 포트 포워딩. 호스트 포트를 같은 번호의 게스트 포트(리눅스 서버)로 연결. 아래는 실습 화면 기록</p>
     <div class="table-wrap"><table><thead><tr><th>규칙 이름</th><th>호스트 포트 → 게스트 포트</th><th>비고</th></tr></thead><tbody><tr><td><code>Rocky9-C</code></td><td><code>10022 → 10022</code></td><td>수업 화면 기록</td></tr><tr><td><code>Rule 1</code></td><td><code>11022 → 11022</code></td><td>PuTTY SSH 실습</td></tr><tr><td><code>SSH</code></td><td><code>22 → 22</code></td><td>호스트 IP 화면값 <code>10.2.2.101</code></td></tr><tr><td>추가 실습</td><td><code>11021 → 11021</code>, 필요 시 웹 포트</td><td>게스트 IP·게스트 포트 대상 확인</td></tr></tbody></table></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
@@ -1967,24 +1989,29 @@ docker port testc</code></pre><button class="copy" type="button" aria-label="코
     <h3>iptables 설치와 테이블·체인</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>iptables</strong></td><td>Netfilter 규칙을 조회·조작하는 도구. 컨테이너별 파일시스템이 분리 → 한 컨테이너에 설치해도 다른 컨테이너에는 없음</td></tr>
+    <tr><td><strong>iptables</strong></td><td>IP·포트를 어떤 규칙으로 포워딩·허용·차단하는지 조회·설정하는 명령. Netfilter 규칙을 조회·조작하는 도구. 컨테이너별 파일시스템이 분리 → 한 컨테이너에 설치해도 다른 컨테이너에는 없음</td></tr>
+    <tr><td><strong>미설치 상태</strong></td><td><code>iptables -L</code> → <code>-bash: iptables: command not found</code> (명령 없음) → 배포판별 설치 명령 필요</td></tr>
+    <tr><td><strong>설치 단위</strong></td><td>컨테이너마다 따로 설치 → 실무에서는 모든 컨테이너·클라우드 서버에 설치해 두고 규칙을 확인</td></tr>
     <tr><td><strong>배포판별 설치</strong></td><td>Rocky·RHEL <code>dnf install iptables</code> / Debian·Ubuntu <code>apt install iptables</code> / Alpine <code>apk add iptables</code> → 설치 후 <code>iptables -L</code>로 실행 확인</td></tr>
     <tr><td><strong>filter 기본 체인</strong></td><td><code>INPUT</code> = 호스트로 들어옴 / <code>OUTPUT</code> = 호스트에서 나감 / <code>FORWARD</code> = 호스트를 통과해 전달. 기본 동작은 체인의 policy로 판단 → 규칙이 없다고 항상 허용은 아님</td></tr>
     <tr><td><strong>NAT 체인</strong></td><td>기본 NAT 표 = <code>PREROUTING</code>·<code>INPUT</code>·<code>OUTPUT</code>·<code>POSTROUTING</code>. filter 표의 <code>FORWARD</code>와 처리 단계가 다름</td></tr>
-    <tr><td><strong>Rocky 9 firewalld</strong></td><td>기본 백엔드 = nftables → 전체 규칙은 <code>nft list ruleset</code>. <code>iptables -L</code>만으로 firewalld 전체 상태를 판단하지 않음, 직접 iptables 규칙을 섞으면 예기치 않은 상호작용 가능</td></tr>
+    <tr><td><strong>Rocky 9 firewalld</strong></td><td>기본 백엔드 = nftables → 전체 규칙은 <code>nft list ruleset</code>. <code>iptables -L</code>에는 iptables 인터페이스로 넣은 규칙(direct rule 등)만 보임 → <code>iptables -L</code>만으로 firewalld 전체 상태를 판단하지 않음, 직접 iptables 규칙을 섞으면 예기치 않은 상호작용 가능</td></tr>
     </tbody></table></div>
     <div class="table-wrap">
       <table class="opts">
         <thead><tr><th>옵션</th><th>기능</th><th>주의·확인</th></tr></thead>
         <tbody>
-          <tr><td class="nowrap"><code>-L</code></td><td>목록(List)</td><td>기본 filter 표</td></tr>
-          <tr><td class="nowrap"><code>-t nat</code></td><td>NAT 표 선택(table)</td><td><code>-t</code>는 type이 아님</td></tr>
-          <tr><td class="nowrap"><code>-A</code> / <code>-I</code></td><td>끝에 추가(Append) / 위치에 삽입(Insert)</td><td><code>-I INPUT</code> 기본 1번. 반복 입력하면 중복 규칙</td></tr>
-          <tr><td class="nowrap"><code>-D</code></td><td>일치 규칙 삭제(Delete)</td><td>체인·프로토콜·포트·target을 똑같이 맞춤</td></tr>
-          <tr><td class="nowrap"><code>-F</code></td><td>선택 표의 규칙 비우기(Flush)</td><td>포트 오픈이 아님, policy는 그대로</td></tr>
-          <tr><td class="nowrap"><code>-p</code> / <code>--dport</code></td><td>프로토콜 / 목적지 포트(destination port)</td><td>d는 daemon이 아님</td></tr>
-          <tr><td class="nowrap"><code>-j</code></td><td>target으로 점프(jump)</td><td><code>ACCEPT</code> / <code>DROP</code></td></tr>
-          <tr><td class="nowrap"><code>-v -n</code></td><td>상세 / 숫자로 표시</td><td>비율 표시가 아님</td></tr>
+          <tr><td class="nowrap"><code>-L</code></td><td>현황 목록(List)</td><td>기본 중의 기본 — 먼저 현재 규칙 확인, 기본 filter 표</td></tr>
+          <tr><td class="nowrap"><code>-t nat</code></td><td>NAT 표 선택(table)</td><td><code>-t</code>는 type이 아님, 생략하면 filter</td></tr>
+          <tr><td class="nowrap"><code>-A</code></td><td>끝에 추가(Append)</td><td>같은 규칙이 중복 추가될 수 있음 → 해제도 추가한 횟수만큼 <code>-D</code></td></tr>
+          <tr><td class="nowrap"><code>-I</code></td><td>위치에 삽입(Insert)</td><td>위치 번호 지정(<code>1</code> = 최우선), 번호를 생략하면 1번. 반복 입력하면 중복 규칙</td></tr>
+          <tr><td class="nowrap"><code>-D</code></td><td>일치 규칙 삭제(Delete)</td><td>목록(<code>-L</code>)과 같은 내용(체인·프로토콜·포트·target)으로 입력해야 매치</td></tr>
+          <tr><td class="nowrap"><code>-F</code></td><td>선택 표의 규칙 비우기(Flush)</td><td>포트 오픈이 아님, policy는 그대로, 현장 사용 금지</td></tr>
+          <tr><td class="nowrap"><code>-p</code></td><td>프로토콜</td><td><code>tcp</code> / <code>udp</code> 구분</td></tr>
+          <tr><td class="nowrap"><code>--dport</code></td><td>목적지 포트(destination port)</td><td>d는 daemon이 아님</td></tr>
+          <tr><td class="nowrap"><code>-j</code></td><td>조건에 맞으면 target으로 점프(jump)</td><td><code>ACCEPT</code>(허용) / <code>DROP</code>(차단)</td></tr>
+          <tr><td class="nowrap"><code>-v -n</code></td><td>상세 / 숫자로 표시</td><td><code>-v</code>=verbose, <code>-n</code>=numeric → 서비스명 대신 실제 포트 번호, 비율 표시가 아님</td></tr>
+          <tr><td class="nowrap">체인 위치</td><td>INPUT·OUTPUT·FORWARD</td><td>세 체인 어디에든 <code>-A</code>/<code>-I</code>/<code>-D</code> 사용 가능</td></tr>
         </tbody>
       </table>
     </div>
@@ -1995,31 +2022,56 @@ iptables -L
 iptables -L INPUT -v -n
 <span class="c"># INPUT에서 TCP 22 허용 (SSH 데몬 LISTEN도 따로 필요)</span>
 iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+<span class="c"># 확인: ACCEPT tcp -- anywhere anywhere tcp dpt:ssh (anywhere = 출발지 제한 없음 = 누구나)</span>
+iptables -L
+<span class="c"># INPUT만 상세히 → dpt:ssh 대신 22가 숫자로 표시</span>
 iptables -L INPUT -v -n</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="dg-bar warn">iptables 옵션 — <code>-t</code>=table, <code>--dport</code>=destination port, <code>-j</code>=jump(target), <code>-I</code>=맨 앞 삽입·<code>-A</code>=끝에 추가, <code>-F</code>는 규칙 비우기일 뿐 policy는 남음. Rocky 9 firewalld 백엔드는 nftables(<code>nft list ruleset</code>)</div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>표시 읽기</strong></td><td><code>ACCEPT tcp -- anywhere anywhere tcp dpt:ssh</code> = 출발지·목적지 제한 없음(anywhere), TCP 22 허용 → 서비스명으로 풀려 나오므로 숫자는 <code>-n</code>으로 확인</td></tr>
+    <tr><td><strong>프로토콜 구분</strong></td><td><code>netstat</code>에서 TCP 줄과 UDP 줄이 따로 보임 → TCP를 연 것인지 UDP를 연 것인지 구분해 확인</td></tr>
+    <tr><td><strong>열었는데 안 열릴 때</strong></td><td><code>iptables -L INPUT -v -n</code> 한 줄로 규칙·카운터 확인 → 규칙이 없으면 추가가 안 된 것, 카운터가 안 늘면 패킷이 다른 체인·경로로 감</td></tr>
+    </tbody></table></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 34강 54:47~55:11</div>
+      <p>-A는 같은 규칙이 중복 추가되고 -I는 한 번만 입력된다는 설명 — 같은 규칙을 <code>-I</code>로 두 번 넣은 뒤 <code>iptables -L</code>에 두 줄이 보이는지 실습 환경에서 확인 필요</p>
+    </div>
 
     <h3>DROP·규칙 삭제와 Flush</h3>
 <div class="code"><pre><code><span class="c"># [testc 컨테이너 · root]</span>
-<span class="c"># 첫 번째 규칙으로 TCP 21을 버림 → FTP 신규 연결 차단</span>
+<span class="c"># 첫 번째 규칙으로 TCP 21을 버림 → FTP 신규 연결 차단 (1 = 최우선 위치)</span>
 iptables -I INPUT 1 -p tcp --dport 21 -j DROP
+<span class="c"># DROP tcp -- anywhere anywhere tcp dpt:ftp가 ACCEPT tcp dpt:ssh보다 위에 보임</span>
+iptables -L
 iptables -L INPUT -n --line-numbers
-<span class="c"># 해당 규칙만 지워 접속 복구</span>
+<span class="c"># 해당 규칙만 지워 접속 복구 → 차단 전과 같은 내용으로 입력</span>
 iptables -D INPUT -p tcp --dport 21 -j DROP</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>사전 확인</strong></td><td>DROP을 넣기 전에 PuTTY·파일질라 접속이 되는 상태인지 먼저 확인 → 그 상태와 비교해야 차단·복구 차이를 볼 수 있음</td></tr>
+    <tr><td><strong>실행 결과</strong></td><td>DROP 후 FTP 접속 불가(응답 없이 대기) → <code>-D</code>로 규칙 삭제 후 정상 접속</td></tr>
     <tr><td><strong>DROP</strong></td><td>일치한 신규 패킷을 버림 → 접속 측에서 timeout으로 보일 수 있음. 삭제 후 FTP 재접속으로 복구 확인</td></tr>
-    <tr><td><strong>-F 위험</strong></td><td><ul><li><code>iptables -F</code> = 기본 filter 표, <code>iptables -t nat -F</code> = NAT 표 규칙 비움, 기본 policy는 남음</li><li>호스트에서 실행하면 Docker·방화벽 통신이 깨질 수 있음 → 무조건 초기화하지 말고 대상을 확인해 <code>-D</code>로 제거</li></ul></td></tr>
-    <tr><td><strong>실무 용도</strong></td><td>서비스 프로세스를 멈추지 않고 특정 연결만 차단 가능 → 출발지·목적지, 기존 연결 영향, 복구 경로를 확인한 뒤 적용</td></tr>
+    <tr><td><strong>연습</strong></td><td>아는 포트(<code>5432</code>·<code>80</code> 등)를 INPUT·OUTPUT·FORWARD에 하나씩 넣고 <code>iptables -L</code>로 확인 → <code>iptables -F</code>로 초기화</td></tr>
+    <tr><td><strong>-F 위험</strong></td><td><ul><li><code>iptables -F</code> = 기본 filter 표, <code>iptables -t nat -F</code> = NAT 표 규칙 비움, 기본 policy는 남음 → policy가 ACCEPT일 때만 전부 허용, policy가 DROP이면 오히려 전부 차단</li><li>호스트에서 실행하면 Docker·방화벽 통신이 깨질 수 있음 → 무조건 초기화하지 말고 대상을 확인해 <code>-D</code>로 제거</li></ul></td></tr>
+    <tr><td><strong>실무 용도</strong></td><td>특정 포트가 공격당할 때 서비스 프로세스를 멈추지 않고 특정 연결만 빠르게 차단 (API처럼 정지할 수 없는 서비스) → 출발지·목적지, 기존 연결 영향, 복구 경로를 확인한 뒤 적용</td></tr>
     </tbody></table></div>
 
     <h3>Docker 게시 포트와 PREROUTING</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>Docker 게시</strong></td><td><code>-p 10080:80</code>으로 생성하면 Docker가 호스트 네트워크 규칙을 구성 → 호스트 10080 연결을 컨테이너 80으로 전달. <code>docker port</code>·<code>docker ps</code>로 확인</td></tr>
+    <tr><td><strong>NAT 테이블</strong></td><td><code>nat</code> = 네트워크 주소 변환 표. <code>iptables -t nat -L</code>로 확인 → 일반 <code>iptables -L</code>(filter)에는 PREROUTING이 보이지 않음</td></tr>
+    <tr><td><strong>NAT 체인 순서</strong></td><td><code>PREROUTING</code> → <code>INPUT</code> / <code>OUTPUT</code> → <code>POSTROUTING</code> (FORWARD 없음) → filter 표의 INPUT·OUTPUT·FORWARD와 처리 단계가 달라 헷갈리기 쉬움</td></tr>
+    <tr><td><strong>규칙 형식</strong></td><td>filter의 <code>-A -p --dport -j</code>를 그대로 두고 <code>-t nat</code>·체인 <code>PREROUTING</code>·<code>-j REDIRECT --to-ports 80</code>만 다름. 삭제는 <code>-A</code> 대신 <code>-D</code>로 같은 내용</td></tr>
+    <tr><td><strong>표시 결과</strong></td><td><code>REDIRECT tcp -- anywhere anywhere tcp dpt:amanda redir ports 80</code> → 10080이 서비스명 <code>amanda</code>로 표시되고, 목적지는 <code>redir ports 80</code></td></tr>
     <tr><td><strong>PREROUTING</strong></td><td>라우팅 결정 전 들어온 패킷을 처리하는 NAT hook → 어느 network namespace에서, 패킷이 실제 어떤 포트로 도착하는지 확인</td></tr>
     <tr><td><strong>베어 호스트 예시</strong></td><td>Docker 게시 없이 호스트 10080 요청을 호스트 80 서비스로 돌리는 경우의 규칙 → Docker 게시와 무작정 함께 적용하는 규칙이 아님</td></tr>
+    <tr><td><strong>개념 확인용 규칙</strong></td><td>도커 게시 포트(10080)는 PREROUTING 없이도 동작 → 이 실습의 규칙은 원리를 보기 위한 것. 포트 변환 시 컨테이너 안 내부 포트(80)와 호스트가 도커로 넘기는 포트(10080)를 구분해 확인</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># NAT 표 체인 목록 → PREROUTING·INPUT·OUTPUT·POSTROUTING (filter와 다른 표)</span>
+iptables -t nat -L
 <span class="c"># 베어 호스트 실험용: 들어온 TCP 10080을 로컬 80으로 변환</span>
 iptables -t nat -A PREROUTING -p tcp --dport 10080 -j REDIRECT --to-ports 80
 <span class="c"># 규칙·카운터 확인 (10080이 서비스명 amanda로 보일 수 있음 → -n으로 숫자 확인)</span>
@@ -2035,6 +2087,59 @@ iptables -t nat -D PREROUTING -p tcp --dport 10080 -j REDIRECT --to-ports 80</co
     <tr><td><strong>PREROUTING 사용 시</strong></td><td>특정 네트워크 설계에서 포트 변환이 필요할 때만 검토. Docker가 게시한 서비스는 먼저 <code>-p</code> 매핑 확인 → 수동 규칙은 패킷 경로와 Docker/firewalld 규칙을 추적한 뒤 추가</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">Docker 게시와 PREROUTING — Docker가 호스트 10080 → 컨테이너 80으로 먼저 바꾸므로 컨테이너 안 <code>--dport 10080</code> 규칙은 안 맞음. 게시 포트 문제는 iptables보다 <code>docker port</code>·<code>-p</code> 매핑부터 확인</div>
+    <div class="dg-bar warn">PREROUTING 표기 — 영어 단어가 떠오르지 않으면 한글 "프리라우팅"으로 써도 정답. 포트 변환은 nat 표의 PREROUTING에서 처리, filter 표와 단계가 다름</div>
+
+    <h3>원인 소거 — 실패한 시도와 판단</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>시도</th><th>결과</th><th>판단·이유</th></tr></thead><tbody>
+    <tr><td><strong>컨테이너 안 PREROUTING 10080→80</strong></td><td>SSH는 정상, 브라우저는 여전히 실패</td><td>패킷이 컨테이너에 닿을 때 이미 목적지가 80 → 10080 규칙이 매치되지 않음</td></tr>
+    <tr><td><strong>80→10080·10080→80 두 방향</strong></td><td>규칙이 순환해 꼬임 → <code>iptables -F</code> 후 순서를 바꿔도 동일</td><td>양방향 변환은 서로를 계속 되돌림 → 한 방향만 남기고 확인</td></tr>
+    <tr><td><strong>VirtualBox 포워딩에 80·10080 추가</strong></td><td>리눅스 IP로 접속해도 동일하게 실패</td><td>앞단 포워딩은 정상 동작 → 남은 후보를 클라이언트 쪽으로 좁힘</td></tr>
+    <tr><td><strong>httpd 정지 후 80 접속</strong></td><td>80으로 웹이 열림</td><td>다른 서비스가 80을 점유한 상태 → <code>netstat -lntpu</code>로 LISTEN 프로세스 확인</td></tr>
+    <tr><td><strong>여러 설정 동시 변경</strong></td><td>어느 변경이 효과였는지 구분 불가</td><td>한 번에 하나만 바꿔 결과를 기록 → 원인 추적 가능</td></tr>
+    </tbody></table></div>
+
+    <h3>점검 순서와 초기화</h3>
+    <ol class="wide-list">
+      <li><strong>호스트 LISTEN</strong>: 로컬 <code>netstat -lntpu</code> → 10080이 실제 열렸는지</li>
+      <li><strong>filter 규칙</strong>: 로컬 <code>iptables -L</code> → 이상한 규칙이 있으면 <code>-F</code>로 비움</li>
+      <li><strong>Docker 게시</strong>: <code>docker ps</code>의 PORTS 열 → 도커 포트</li>
+      <li><strong>앞단</strong>: VirtualBox 포트 포워딩</li>
+    </ol>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 1) 10080이 호스트에서 실제 LISTEN 중인지</span>
+netstat -lntpu
+<span class="c"># 2) filter 규칙 확인 → 이상한 규칙이 있으면 비움 (기본 policy는 남음)</span>
+iptables -L
+iptables -F
+<span class="c"># 3) NAT 표 확인 → 도커가 만든 DOCKER 체인과 기본 체인 / 필요할 때만 정리</span>
+iptables -t nat -L
+iptables -t nat -F
+<span class="c"># 4) Docker 게시 포트 확인</span>
+docker ps
+docker port testc
+<span class="c"># [testc 컨테이너 · root]</span>
+<span class="c"># 컨테이너 주소 확인 → eth0 172.17.0.2</span>
+ifconfig
+<span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># docker0(172.17.0.1, 게이트웨이)에서 컨테이너까지 내부 통신 확인</span>
+ping 172.17.0.2</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>확인 지점</th><th>관찰 결과</th><th>판단</th></tr></thead><tbody>
+    <tr><td><strong>로컬 NAT 목록</strong></td><td>도커가 만든 <code>DOCKER</code> 체인과 기본 체인뿐</td><td>도커가 게시 포트용 규칙을 이미 구성한 상태 → 수동 규칙을 끼워 넣을 자리 확인</td></tr>
+    <tr><td><strong>로컬 80→10080 규칙 하나</strong></td><td>웹은 뜨지만 SSH(11022)·FTP(11021)가 먹통</td><td>같은 앞단에서 목적지 포트를 바꾸면 다른 서비스 연결까지 영향</td></tr>
+    <tr><td><strong>11022→22 규칙 추가</strong></td><td>타임아웃 → 로컬 22(로컬 SSH)로 돌아가 버려 작동 불가 → 규칙 삭제</td><td>포트 번호만 맞추면 되는 문제가 아님 → 경로가 어디로 향하는지 확인</td></tr>
+    <tr><td><strong>결론</strong></td><td>도커 포트 포워딩과 로컬 PREROUTING을 섞으면 충돌해 접속이 끊김. 막힌 곳은 컨테이너가 아니라 앞단</td><td>도커가 있으면 도커 포워딩 쪽 규칙에서 처리 → <code>docker ps</code>에서 보이는 것이 proxy 서버 형태</td></tr>
+    <tr><td><strong>컨테이너 네트워크</strong></td><td>컨테이너 <code>172.17.0.2</code>(eth0) / 호스트 <code>docker0</code> <code>172.17.0.1</code> = 게이트웨이 / <code>ping 172.17.0.2</code> 응답 = 내부 통신 정상</td><td>목적지가 여러 개면 헷갈리므로 정확한 목적지를 지정해 확인</td></tr>
+    <tr><td><strong>초기화 후</strong></td><td>PREROUTING에 80↔10080 두 규칙을 두면 웹·SSH 모두 정상 = 이 실습 기록</td><td>컨테이너 안에서 같은 두 방향을 넣었을 때는 규칙이 꼬였다는 기록과 다름 → 구성에 따라 재현 결과가 달라지는지 확인</td></tr>
+    <tr><td><strong>다시 <code>-F</code> 후</strong></td><td>SSH(<code>11022</code>)는 되지만 브라우저 <code>:10080</code>은 여전히 실패</td><td>서버·포트가 아니라 브라우저 쪽 문제 → 다음 절에서 확인</td></tr>
+    <tr><td><strong>클라우드 환경</strong></td><td>도커가 적용한 포트 방식을 초기화해 풀고 핸들링</td><td>초기화·재구성 순서를 정해 두면 장애 때 되돌리기 쉬움</td></tr>
+    </tbody></table></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 34강 PREROUTING 두 방향 규칙 (영상 시각 미확인)</div>
+      <p>호스트 초기화 뒤 80↔10080 두 규칙에서 웹·SSH가 정상이었다는 기록과, 컨테이너 안에서 두 방향을 넣으면 규칙이 순환해 꼬인다는 기록이 함께 있음 → 호스트/컨테이너 구성 차이인지 영상으로 확인 필요</p>
+    </div>
+    <div class="dg-bar warn">도커 포트 포워딩과 로컬 PREROUTING — 섞으면 웹은 떠도 SSH·FTP 연결이 끊김. 도커가 게시한 서비스는 도커 쪽 규칙에서 처리하고, 막히면 컨테이너보다 앞단(VirtualBox·호스트 규칙)부터 확인</div>
 
     <h3>서버 응답과 브라우저 오류 분리</h3>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
@@ -2058,18 +2163,29 @@ nft list ruleset</code></pre><button class="copy" type="button" aria-label="코�
     </ol>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>10080 제한 이유</strong></td><td>Chromium이 NAT Slipstreaming 계열 공격을 줄이려고 특정 포트를 제한, 10080도 제한 목록에 포함 → Linux 방화벽 차단과 구별 (출처: <code>Chromium port_util.cc</code>, <code>Chrome switches</code>)</td></tr>
+    <tr><td><strong>curl</strong></td><td>접속 확인용 테스트 도구. <code>-L</code>은 리다이렉트를 따라가며 응답 본문 출력 → 리눅스에서 <code>10080</code>으로 HTML이 나오면 서버 정상</td></tr>
+    <tr><td><strong>윈도우에서 확인</strong></td><td>VirtualBox에 10080을 전달한 뒤 윈도우 쪽 <code>curl.exe</code>도 정상 응답 → 남은 차이는 브라우저뿐</td></tr>
+    <tr><td><strong>PREROUTING 용도</strong></td><td>로컬에서 포트를 강제로 다른 포트로 넘길 때 (예: 로컬 <code>20080</code> → 도커 <code>10080</code>) → 게시 포트를 바꾸지 않고 입구만 맞추는 방식</td></tr>
+    <tr><td><strong>네트워크 분석</strong></td><td>서버·포트·접속을 하나씩 점검해 원인을 좁히는 과정 자체 → 한 번에 한 계층만 바꾸고 결과를 기록</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>10080 제한 이유</strong></td><td>10080을 막은 것은 윈도우 OS 설정이 아니라 브라우저 정책 — Chromium이 NAT Slipstreaming 계열 공격을 줄이려고 특정 포트를 제한(Chrome 90부터 차단, "Block port 10080"), 10080도 제한 목록에 포함(서비스명 amanda) → Linux 방화벽 차단과 구별 (출처: <code>Chromium port_util.cc</code>, <code>Chrome switches</code>)</td></tr>
     <tr><td><strong>--explicitly-allowed-ports</strong></td><td><code>--explicitly-allowed-ports=10080</code> = 그 옵션으로 실행한 브라우저에만 예외를 주는 실습용 우회 → 버전·정책에 따라 달라질 수 있음, 평소 브라우저에는 적용하지 않음</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c">REM [윈도우 PC · 로그인 사용자]</span>
 <span class="c">REM 모든 Chrome 창을 닫은 뒤 새 프로세스에 옵션 전달 (실습 예시)</span>
+<span class="c">REM CMD는 관리자 권한으로 실행, 경로 입력은 Tab 자동완성 사용</span>
 cd C:\Program Files\Google\Chrome\Application\
 <span class="c">REM 드라이브도 함께 바꾸고 공백 있는 경로를 따옴표로 감싸는 안전한 표기</span>
 cd /d "C:\Program Files\Google\Chrome\Application"
 chrome.exe --explicitly-allowed-ports=10080</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>정상 확인</strong></td><td><ul><li><code>http://리눅스IP:10080</code>에서 Rocky HTTP Server Test 화면 → Windows IP 주소로도 표시되는지 확인</li><li>Edge는 Chrome 실행 옵션을 전달하지 않으면 같은 실습에서 계속 실패할 수 있었음</li></ul></td></tr>
+    <tr><td><strong>정상 확인</strong></td><td><ul><li><code>http://리눅스IP:10080</code>에서 Rocky HTTP Server Test 화면 → Windows IP 주소로도 표시되는지 확인</li><li>Edge는 Chrome 실행 옵션을 전달하지 않으면 같은 실습에서 계속 실패할 수 있었음 → 같은 방식으로 옵션을 주면 해결</li></ul></td></tr>
+    <tr><td><strong>오류 문구 구분</strong></td><td><code>ERR_UNSAFE_PORT</code> = 브라우저가 그 포트를 막은 경우 / "페이지를 찾을 수 없음" = 목적지에 응답하는 서비스가 없는 경우 → 문구만으로 층이 갈림</td></tr>
+    <tr><td><strong>리눅스 제한 포트</strong></td><td>리눅스에도 쓰면 안 되는 특정 포트가 있음 → 같은 맥락(위험 포트 회피), 브라우저 차단과 별개</td></tr>
+    <tr><td><strong>교훈</strong></td><td>에러 화면 문구를 읽어야 원인을 찾음(<code>unsafe</code> → 막아둔 것 → 풀면 해결). 서버는 정상(curl 200)인데 브라우저만 에러 → 인프라가 아니라 클라이언트(브라우저) 문제. 모르면 서버만 계속 의심하다 시간을 날림 → AI에게 물어도 도커·VirtualBox 포트 확인만 반복</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">ERR_UNSAFE_PORT — curl은 HTTP 200인데 브라우저만 실패 → 서버·Docker가 아니라 브라우저 제한 포트(10080 등, NAT Slipstreaming 대응). 원인 분리 순서: 프로세스·LISTEN → Docker 게시 → curl → VirtualBox 전달 → 브라우저</div>
   
@@ -2381,14 +2497,22 @@ systemctl stop docker docker.socket                    <span class="c"># 데몬�
           <tr><td><code>docker cp &lt;컨테이너&gt;:&lt;파일&gt; &lt;호스트&gt;</code> / <code>docker cp &lt;호스트 파일&gt; &lt;컨테이너&gt;:&lt;디렉터리&gt;/</code></td><td>컨테이너 설정 파일을 호스트로 꺼내 수정 → 되돌린 뒤 <code>docker restart</code>로 반영</td></tr>
           <tr><td><code>mv compose.yaml compose___.yaml</code></td><td>기본 파일 자동 선택을 막아 <code>-f</code> 없는 compose 명령 실수 방지</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">포트 게시·네트워크 진단</th></tr>
+          <tr><td><code>docker run -it -d --privileged -p 11022:22 -p 11021:21 -p 11080:80 --name testc mzleejh/apink_rocky:9 /sbin/init</code></td><td>실습 컨테이너 생성 — SSH·FTP·웹 호스트 포트 게시 + <code>--name</code> + <code>/sbin/init</code>(systemd)</td></tr>
+          <tr><td><code>docker ps</code> / <code>docker exec -it testc /bin/bash</code></td><td>PORTS 열 확인(0.0.0.0:11021->21/tcp 등) / 컨테이너 셸 진입</td></tr>
           <tr><td><code>docker run -p 호스트:컨테이너</code></td><td>호스트 포트를 컨테이너 포트로 게시; <code>docker ps</code>·<code>docker port</code>로 확인</td></tr>
+          <tr><td><code>docker stop testc</code> / <code>docker rm testc</code></td><td>포트를 바꾸려면 정지 후 삭제하고 같은 이름으로 재생성 — 게시 포트는 생성 시점에 고정</td></tr>
+          <tr><td><code>systemctl stop httpd</code> → <code>dnf install nginx</code> → <code>systemctl start nginx</code></td><td>같은 컨테이너 포트 80에서 웹 서버 교체 — 게시 포트는 그대로</td></tr>
           <tr><td><code>docker port testc</code> / <code>netstat -lntpu</code></td><td>포트 매핑 / TCP·UDP LISTEN 확인. 호스트·컨테이너를 나눠 실행</td></tr>
-          <tr><td><code>curl -L -sS -o /dev/null -w 'HTTP %{http_code}\n' URL</code></td><td>HTTP 상태 코드 확인; 브라우저 오류와 서버 응답 분리</td></tr>
+          <tr><td><code>curl -L http://리눅스IP:10080</code> / <code>curl -L -sS -o /dev/null -w 'HTTP %{http_code}\n' URL</code></td><td>HTML 응답 확인 / HTTP 상태 코드 확인; 브라우저 오류와 서버 응답 분리</td></tr>
+          <tr><td><code>ifconfig</code> / <code>ping 172.17.0.2</code></td><td>컨테이너 <code>172.17.0.2</code>(eth0)·호스트 <code>docker0</code> <code>172.17.0.1</code> 확인 / docker0에서 컨테이너까지 내부 통신 확인</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">iptables·NAT</th></tr>
+          <tr><td><code>dnf install iptables</code> / <code>apt install iptables</code> / <code>apk add iptables</code></td><td>Rocky·Alma·CentOS / Ubuntu·Debian / Alpine 설치 — 컨테이너마다 따로</td></tr>
+          <tr><td><code>iptables -L</code></td><td>filter 표 INPUT·OUTPUT·FORWARD 목록 — 미설치면 <code>command not found</code></td></tr>
+          <tr><td><code>iptables -A INPUT -p tcp --dport 22 -j ACCEPT</code></td><td>TCP 22 허용 규칙을 INPUT 끝에 추가 → <code>iptables -L</code>에 <code>dpt:ssh</code>로 표시</td></tr>
           <tr><td><code>iptables -L INPUT -v -n</code></td><td>INPUT 규칙·카운터를 숫자로 상세 확인</td></tr>
           <tr><td><code>iptables -I INPUT 1 -p tcp --dport 21 -j DROP</code></td><td>TCP 21 차단 규칙을 첫 번째로 삽입; 중복 주의</td></tr>
           <tr><td><code>iptables -D INPUT -p tcp --dport 21 -j DROP</code></td><td>일치 규칙만 삭제해 복구</td></tr>
-          <tr><td><code>iptables -t nat -L -v -n</code> / <code>nft list ruleset</code></td><td>NAT 규칙·카운터 / nftables 규칙 확인</td></tr>
+          <tr><td><code>iptables -t nat -L</code> / <code>iptables -t nat -L -v -n</code> / <code>nft list ruleset</code></td><td>NAT 체인(PREROUTING·INPUT·OUTPUT·POSTROUTING) 확인 / 카운터 포함 / nftables 규칙 확인</td></tr>
           <tr><td><code>iptables -t nat -A PREROUTING ... -j REDIRECT --to-ports 80</code></td><td>베어 호스트의 포트 변환 예시; Docker 게시와 무작정 혼합 금지</td></tr>
           <tr><td><code>iptables -F</code> / <code>iptables -t nat -F</code></td><td>filter / NAT 규칙 비우기. policy는 유지되며 Docker 통신을 깨뜨릴 수 있음</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">브라우저 제한 포트</th></tr>
