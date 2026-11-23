@@ -620,7 +620,15 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#pg-vector-search">24. 유사도 검색 문법·연산자별 결과</a></li>
         <li><a href="#pg-embedding-insert">25. 설명 테이블·임베딩 자동 입력</a></li>
         <li><a href="#pg-vector-query">26. 검색어 임베딩·모델 교체</a></li>
-        <li><a href="#cheatsheet">27. 통합 명령어 치트시트</a></li>
+        <li><a href="#pg-image-pipeline">27. 이미지 임베딩 파이프라인</a></li>
+        <li><a href="#pg-clip-model">28. CLIP 모델 선택·색상 체계</a></li>
+        <li><a href="#pg-clip-arch">29. CLIP 구조 (토크나이저·패치·차원)</a></li>
+        <li><a href="#pg-image-insert">30. 이미지 벡터 테이블·반복 INSERT</a></li>
+        <li><a href="#pg-double-select">31. 서브쿼리(더블 셀렉트)·ilike</a></li>
+        <li><a href="#pg-image-similarity">32. 저장 이미지끼리 유사도 검색</a></li>
+        <li><a href="#pg-user-image-search">33. 사용자 이미지 검색 (params·cast)</a></li>
+        <li><a href="#pg-vector-db-compare">34. 벡터 지원 DB 범위</a></li>
+        <li><a href="#cheatsheet">35. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -628,7 +636,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>PostgreSQL 통합 학습노트</h1>
-    <p class="deck">PostgreSQL 통합 학습노트 · 범위: 로컬 서버의 설치 방식(소스·RPM)·버전 선택(dnf module)·초기화·pg_hba 접속 허용·postgresql.conf 수신 주소와 psql 로컬·원격 접속(peer 인증) → 운영: 인증 전환(trust→md5)·psql 메타 명령·사용자·DB·소유자·권한·스키마 우선순위(search_path)·백업과 복구(pg_dump·psql -f)·DBeaver 접속 → 이미지·영상 바이트 저장 구조 → pgvector 소스 설치·vector 확장·임베딩·유사도·vector 권한과 적용 순서 → 공식 이미지 컨테이너 실행·이름 있는 볼륨 → psql 접속·pg_hba.conf 인증 → postgresql.conf 메모리·로그 설정과 재시작 검증. 서버 10.2.2.101 · PostgreSQL 16.8 · vector 0.8.7 · 서비스 postgresql.service. 컨테이너 Debian의 pgvector 패키지 설치·vector 테이블·유사도 정렬 연산자(<code class="n">&lt;-&gt;</code>·<code class="n">&lt;=&gt;</code>·<code class="n">&lt;#&gt;</code>)·임베딩 모델·거리 지표 3종과 계산 검증 → 유사도 검색 문법과 연산자별 결과·거리 값 조회(<code class="n">&lt;-&gt;</code>·<code class="n">&lt;=&gt;</code>·<code class="n">&lt;#&gt;</code>) → 설명 테이블 <code class="n">movie_data vector(384)</code>에 <code class="n">SentenceTransformer</code>로 벡터 자동 입력 → 사용자 문장을 벡터로 바꿔 검색하는 노트북과 다국어 모델 교체 (24~26장) → Docker·Compose 기본 명령은 docker.html 4·5장</p>
+    <p class="deck">PostgreSQL 통합 학습노트 · 범위: 로컬 서버의 설치 방식(소스·RPM)·버전 선택(dnf module)·초기화·pg_hba 접속 허용·postgresql.conf 수신 주소와 psql 로컬·원격 접속(peer 인증) → 운영: 인증 전환(trust→md5)·psql 메타 명령·사용자·DB·소유자·권한·스키마 우선순위(search_path)·백업과 복구(pg_dump·psql -f)·DBeaver 접속 → 이미지·영상 바이트 저장 구조 → pgvector 소스 설치·vector 확장·임베딩·유사도·vector 권한과 적용 순서 → 공식 이미지 컨테이너 실행·이름 있는 볼륨 → psql 접속·pg_hba.conf 인증 → postgresql.conf 메모리·로그 설정과 재시작 검증. 서버 10.2.2.101 · PostgreSQL 16.8 · vector 0.8.7 · 서비스 postgresql.service. 컨테이너 Debian의 pgvector 패키지 설치·vector 테이블·유사도 정렬 연산자(<code class="n">&lt;-&gt;</code>·<code class="n">&lt;=&gt;</code>·<code class="n">&lt;#&gt;</code>)·임베딩 모델·거리 지표 3종과 계산 검증 → 유사도 검색 문법과 연산자별 결과·거리 값 조회(<code class="n">&lt;-&gt;</code>·<code class="n">&lt;=&gt;</code>·<code class="n">&lt;#&gt;</code>) → 설명 테이블 <code class="n">movie_data vector(384)</code>에 <code class="n">SentenceTransformer</code>로 벡터 자동 입력 → 사용자 문장을 벡터로 바꿔 검색하는 노트북과 다국어 모델 교체 (24~26장) → 이미지 임베딩 파이프라인·CLIP 모델 선택과 색상 체계·모델 구조(토크나이저·패치·차원)·<code class="n">travel_image vector(512)</code> 반복 INSERT·서브쿼리(<code class="n">ilike</code>)·저장 이미지끼리 유사도 검색·사용자 이미지 검색(<code class="n">cast(:user_vec as vector)</code>·<code class="n">params</code>)·벡터 지원 DB 범위 (27~34장) → Docker·Compose 기본 명령은 docker.html 4·5장</p>
 
     <div class="core-strip">
       <div>
@@ -641,7 +649,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       </div>
       <div>
         <div class="core-metric">백업·복구 · vector</div>
-        <p class="core-desc"><code class="n">pg_dump -f sample.sql</code> → <code class="n">drop database</code> → <code class="n">create database</code>·<code class="n">owner</code> → 관리자는 <code class="n">-d apink -f sample.sql</code>. <code class="n">-d</code>를 빼면 기본 DB로 복구 (9장). vector는 <code class="n">make install</code> 뒤 DB마다 <code class="n">create extension vector</code> (12·13장), 컨테이너 Debian은 <code class="n">apt-get install postgresql-14-pgvector</code> + <code class="n">with schema</code> (20장). 검색은 <code class="n">order by emb &lt;-&gt; · &lt;=&gt; · &lt;#&gt;</code> (21·23장), 연산자별 결과·거리 값 조회는 24장. 설명 5건은 <code class="n">movie_data vector(384)</code>에 모델이 넣고(25장), 사용자 문장 검색·모델 교체는 26장</p>
+        <p class="core-desc"><code class="n">pg_dump -f sample.sql</code> → <code class="n">drop database</code> → <code class="n">create database</code>·<code class="n">owner</code> → 관리자는 <code class="n">-d apink -f sample.sql</code>. <code class="n">-d</code>를 빼면 기본 DB로 복구 (9장). vector는 <code class="n">make install</code> 뒤 DB마다 <code class="n">create extension vector</code> (12·13장), 컨테이너 Debian은 <code class="n">apt-get install postgresql-14-pgvector</code> + <code class="n">with schema</code> (20장). 검색은 <code class="n">order by emb &lt;-&gt; · &lt;=&gt; · &lt;#&gt;</code> (21·23장), 연산자별 결과·거리 값 조회는 24장. 설명 5건은 <code class="n">movie_data vector(384)</code>에 모델이 넣고(25장), 사용자 문장 검색·모델 교체는 26장. 이미지는 <code class="n">travel_image vector(512)</code>에 33장을 넣고(30장) <code class="n">emd &lt;=&gt;</code>로 검색(32장), 사용자 이미지는 <code class="n">cast(:user_vec as vector)</code>·<code class="n">params</code>(33장)</p>
       </div>
     </div>
 
@@ -672,7 +680,15 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#pg-vector-search">24. 유사도 검색 문법·연산자별 결과</a>
       <a href="#pg-embedding-insert">25. 설명 테이블·임베딩 자동 입력</a>
       <a href="#pg-vector-query">26. 검색어 임베딩·모델 교체</a>
-      <a href="#cheatsheet">27. 통합 명령어 치트시트</a>
+      <a href="#pg-image-pipeline">27. 이미지 임베딩 파이프라인</a>
+      <a href="#pg-clip-model">28. CLIP 모델 선택·색상 체계</a>
+      <a href="#pg-clip-arch">29. CLIP 구조 (토크나이저·패치·차원)</a>
+      <a href="#pg-image-insert">30. 이미지 벡터 테이블·반복 INSERT</a>
+      <a href="#pg-double-select">31. 서브쿼리(더블 셀렉트)·ilike</a>
+      <a href="#pg-image-similarity">32. 저장 이미지끼리 유사도 검색</a>
+      <a href="#pg-user-image-search">33. 사용자 이미지 검색 (params·cast)</a>
+      <a href="#pg-vector-db-compare">34. 벡터 지원 DB 범위</a>
+      <a href="#cheatsheet">35. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -3192,6 +3208,596 @@ query = f"select title,des from movie_data order by emb &lt;=&gt; '{vector_str}'
   </section>
 
   <!-- 27 -->
+  <section class="sec" id="pg-image-pipeline">
+    <h2>이미지 임베딩 파이프라인 — 이미지 → 512차원 → 저장 → 검색</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 테이블 → 모델 → 벡터 INSERT → 거리 검색 → 이미지 확인</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 테이블</h4><p class="sub">travel_image · vector(512)</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② 모델</h4><p class="sub">CLIP base-patch32</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ INSERT</h4><p class="sub">파일 33장 → emd</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ 검색</h4><p class="sub">emd &lt;=&gt; 기준 벡터</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 확인</h4><p class="sub">결과 이미지 직접 열기</p></div></div>
+      <p class="dg-foot">원본 이미지는 DB 밖 폴더에 두고 DB에는 경로와 벡터만 — 검색은 거리 값으로 하고, 맞았는지는 이미지를 열어 확인</p></div>
+
+    <h3>실습 환경</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">서버</td><td>Spark 컨테이너 환경(<code>spark-master</code>), Master <code>spark://spark-master:7077</code>, 드라이버 호스트 <code>spark.driver.host = spark-master</code></td><td>벡터 조회를 Spark로 읽는 구조는 이 파일 24~26장·spark.html 61장과 같음</td></tr>
+    <tr><td class="nowrap">노트북</td><td>UDF는 VS Code의 <code>spark_basic3.ipynb</code>, 이미지 실습은 JupyterLab <code>192.168.222.5:8888</code>의 <code>img1</code>·<code>img2</code>·<code>img3</code></td><td>VS Code 연결이 불안정해 이미지 실습은 JupyterLab으로 진행</td></tr>
+    <tr><td class="nowrap">DB</td><td>PostgreSQL + pgvector, <code>192.168.222.5:5432</code>, DB <code>mg</code>, 스키마 <code>mg_schema</code>, search_path <code>mg_schema,public</code></td><td>계정·비밀번호는 이 파일 25장 접속 코드와 같은 값</td></tr>
+    <tr><td class="nowrap">클라이언트</td><td>DBeaver SQL 편집기 <code>Script-7</code>(실행 Ctrl+Enter), Jupyter 셀(실행 Shift+Enter)</td><td>DBeaver로 SQL을 먼저 확인하고 노트북으로 옮기는 순서</td></tr>
+    <tr><td class="nowrap">설치 상태</td><td>AI 모델·라이브러리(PyTorch 등)는 이미 설치된 상태 — 새로 설치하는 것 없음</td><td>설치 절차는 spark.html 60장</td></tr>
+    <tr><td class="nowrap">데이터</td><td>여행 이미지 33장 <code>/opt/spark/data/travel_images/travel_1.jpg</code> ~ <code>travel_33.jpg</code></td><td>전부 jpg, 이름 규칙 <code>travel_번호.jpg</code></td></tr>
+    </tbody></table></div>
+
+    <h3>저장 구조 — 원본은 파일, 검색 정보는 DB</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>위치</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">원본 이미지</td><td>DB 밖 디렉터리 <code>/opt/spark/data/travel_images</code></td><td>jpg 파일 33장 — DB에 이미지를 넣지 않음</td></tr>
+    <tr><td class="nowrap">경로</td><td><code>travel_image.file_path</code></td><td>검색 결과에서 원본을 열기 위한 값</td></tr>
+    <tr><td class="nowrap">이미지 벡터</td><td><code>travel_image.emd</code> (<code>vector(512)</code>)</td><td>CLIP 모델이 만든 512차원 임베딩 — 거리 계산의 기준</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>이미지를 DB에 넣지 않는 이유</strong><div>검색에 쓰는 것은 숫자 벡터뿐 — 원본은 파일로 두고 경로만 남겨 테이블을 가볍게 유지</div></li>
+    <li><strong>벡터 저장 구조</strong><div><code>vector(N)</code> 컬럼과 거리 계산 원리: 이 파일 19·21장</div></li>
+    </ul>
+
+    <h3>실습 순서</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>할 일</th><th>도구·결과</th></tr></thead><tbody>
+    <tr><td class="nowrap">① 테이블</td><td><code>travel_image</code> 테이블 만들기 (경로 + 512차원 벡터)</td><td>DBeaver SQL 편집기 — 이 파일 30장</td></tr>
+    <tr><td class="nowrap">② 모델</td><td>허깅페이스에서 CLIP 모델 고르기</td><td><code>openai/clip-vit-base-patch32</code> — 이 파일 28장</td></tr>
+    <tr><td class="nowrap">③ 입력</td><td><code>img1</code> — 이미지 33장을 512차원 벡터로 바꿔 INSERT</td><td>JupyterLab, psycopg2 — 이 파일 30장</td></tr>
+    <tr><td class="nowrap">④ 비교</td><td><code>img2</code> — 저장된 이미지 하나를 기준으로 가장 비슷한 이미지 검색</td><td>DBeaver SQL → 노트북 — 이 파일 32장, spark.html 66장</td></tr>
+    <tr><td class="nowrap">⑤ 사용자 이미지</td><td><code>img3</code> — 사용자가 새로 올린 이미지를 벡터로 바꿔 DB 이미지와 비교</td><td>파라미터·<code>cast</code> — 이 파일 33장</td></tr>
+    </tbody></table></div>
+
+    <h3>이름(캡션)으로 찾는 방식과의 차이</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>내용</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">이름 컬럼</td><td>이미지마다 캡션 컬럼을 붙임 — 리모컨 사진이면 <code>리모콘</code></td><td>이름으로 분류해 찾는 방식</td></tr>
+    <tr><td class="nowrap">여러 각도</td><td>앞 → 돌려서 → 뒤 → 옆 → 위 → 아래로 찍어 모두 저장, 다른 리모컨도 같은 방식</td><td>한 방향으로만 찍으면 유사도에 오차 범위가 생김</td></tr>
+    <tr><td class="nowrap">질문</td><td>새 리모컨 사진을 넣고 무엇인지 물으면 저장된 것과 비교해 <code>리모컨</code>이라고 답함</td><td>비교 대상이 많을수록 이름을 맞힐 확률이 올라감</td></tr>
+    <tr><td class="nowrap">이번 범위</td><td>이름을 맞히는 단계까지 가지 않고 가장 가까운 유사도의 이미지를 찾는 데까지</td><td>맞았는지는 결과 이미지를 직접 열어 확인</td></tr>
+    <tr><td class="nowrap">캡션 제외</td><td>이번 테이블에는 이름(캡션) 컬럼을 두지 않음</td><td>벡터 거리만으로 찾는 구조 — 이름이 없으니 결과를 눈으로 확인</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">원본 이미지는 DB 밖, DB에는 경로와 벡터만 — 캡션 없이 거리 값으로만 정렬하므로 순위가 맞는지는 결과 이미지를 직접 열어 확인. SQL은 이 파일 32장, 노트북 실행 코드는 spark.html 66장</div>
+
+    <ul class="facts">
+    <li><strong>모델 선택·색상 체계</strong><div>CLIP·RGB·이미지 형식 주의: 이 파일 28장</div></li>
+    <li><strong>테이블과 INSERT</strong><div><code>travel_image</code>·<code>::vector</code>·반복문: 이 파일 30장</div></li>
+    <li><strong>서브쿼리·검색</strong><div>더블 셀렉트·<code>ilike</code>·<code>&lt;=&gt;</code> 정렬: 이 파일 31~32장</div></li>
+    </ul>
+  </section>
+
+  <!-- 28 -->
+  <section class="sec" id="pg-clip-model">
+    <h2>CLIP 모델 선택과 이미지 색상 체계</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 허깅페이스 검색 → base-patch32 → 색상 체계 확인 → convert("RGB") → 파일명·형식 통일</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 모델 찾기</h4><p class="sub">허깅페이스 clip 검색</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>② 모델 결정</h4><p class="sub">openai/clip-vit-base-patch32</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>③ 색상 체계</h4><p class="sub">RGB 기준 확인</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ 보정</h4><p class="sub">convert("RGB")</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 준비</h4><p class="sub">파일명 규칙 · JPG</p></div></div>
+      <p class="dg-foot">모델이 어떤 색상 체계로 처리하는지 먼저 확인 — 형식과 이름 규칙을 통일해 두면 반복문으로 한 번에 입력</p></div>
+
+    <h3>모델 고르기</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">출처</td><td>허깅페이스(Hugging Face)에서 모델을 고름</td><td>모델명을 코드에 그대로 써야 하므로 모델 카드에서 복사</td></tr>
+    <tr><td class="nowrap">계열</td><td>OpenAI CLIP 계열(<code>CLIP-ViT-…</code>)</td><td>Large 같은 큰 모델은 좋지만 무거움</td></tr>
+    <tr><td class="nowrap">사용 모델</td><td><code>openai/clip-vit-base-patch32</code> (base 모델, patch 32)</td><td>이 모델 하나만 사용</td></tr>
+    <tr><td class="nowrap">이름 보관</td><td>모델 카드의 모델명을 복사해 메모장에 붙여 둠</td><td>직접 타이핑하면 오타로 로드 실패</td></tr>
+    <tr><td class="nowrap">파생 모델</td><td>원본 모델을 확장해 특정 분야에 맞춘 모델이 여럿 있음</td><td>양자화는 가중치 정밀도를 낮춰(fp32→int8) 용량·메모리를 줄이는 기법 — 용량이 늘지 않음</td></tr>
+    <tr><td class="nowrap">모델 선택 기준</td><td>성능만 보지 않고 지원하는 색상 체계·입력 크기를 함께 확인</td><td>이미지 AI는 모델 선택이 결과를 크게 바꿈</td></tr>
+    <tr><td class="nowrap">시행착오</td><td>전날 여러 모델을 테스트하다 색상 체계·PNG 문제에 부딪힘</td><td>아래 색상·형식 주의가 여기서 나온 항목</td></tr>
+    </tbody></table></div>
+
+    <h3>모델 이름 읽기 — base와 patch32</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>표기</th><th>뜻</th><th>주의</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>vit</code></td><td>Vision Transformer 구조</td><td>이미지를 패치로 나눠 처리하는 구조</td></tr>
+    <tr><td class="nowrap"><code>base</code></td><td>모델 크기 등급</td><td><code>large</code>는 더 크고 무거운 등급</td></tr>
+    <tr><td class="nowrap"><code>patch32</code></td><td>입력을 <b>32×32 픽셀 패치</b>로 나눠 읽음</td><td>색 비트 수(16·32비트)와 무관 — 이미지 전체를 224×224로 받고 그 안을 패치로 분할(이 파일 29장)</td></tr>
+    </tbody></table></div>
+
+    <h3>색상 체계</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>설명</th><th>AI 모델에서</th></tr></thead><tbody>
+    <tr><td class="nowrap"><b>RGB</b></td><td><b>모니터</b> 색상 체계</td><td>CLIP base 모델의 기본 처리 기준</td></tr>
+    <tr><td class="nowrap"><b>CMYK</b></td><td><b>인쇄용</b> 색상 체계</td><td>디자인 영역 — 이미지 AI에서는 확인 대상이 아님</td></tr>
+    <tr><td class="nowrap"><b>그레이스케일</b></td><td><b>흑백</b>(하양·검정만 표시)</td><td>색 정보가 없어 RGB 처리 모델에 그대로 넣기 어려움</td></tr>
+    <tr><td class="nowrap"><b>RGBA</b></td><td>RGB에 <b>A = 알파(투명)</b> 값이 더해진 체계</td><td>배경을 투명하게 만들 수 있음 — RGB로 보정해 넣음</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">모델 처리 범위</td><td><code>base-patch32</code> CLIP 모델은 <b>RGB까지만</b> 처리하고 기본 베이스도 RGB</td><td>다른 색상 체계나 인식하지 못하는 색상의 이미지는 별도의 다른 모델이 필요</td></tr>
+    <tr><td class="nowrap">PNG</td><td>PNG는 RGB·RGBA·그레이스케일·팔레트 모두 가능 — 알파 채널이 있을 때만 RGBA</td><td>PNG가 항상 RGBA인 것은 아님</td></tr>
+    <tr><td class="nowrap">GIF</td><td>256색 팔레트 방식</td><td>RGB 방식이 아님</td></tr>
+    <tr><td class="nowrap">CLIP 프로세서</td><td>transformers의 CLIP 이미지 프로세서는 기본값 <code>do_convert_rgb=True</code>로 RGB 변환</td><td>PNG라고 반드시 오류가 나는 것은 아님</td></tr>
+    <tr><td class="nowrap">안전한 처리</td><td><code>Image.open(경로).convert("RGB")</code>로 RGB 보정 후 입력</td><td>알파·팔레트·흑백 이미지까지 한 번에 정리</td></tr>
+    <tr><td class="nowrap">이번 데이터</td><td>이미지 33장이 전부 jpg라 색상 문제 없음</td><td>jpg는 RGB 계열</td></tr>
+    <tr><td class="nowrap">양자화 모델 경험</td><td>양자화한 모델은 RGBA도 처리되지만 용량이 커 무거움</td><td>강의에서 써 보지 않고 기본 모델을 쓰기로 함</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 48강 44:51</div><p>야간투시(녹색·검정) 이미지를 CLIP이 실제로 인식하지 못하는지 — 직접 야간투시 사진을 <code>user.jpg</code>로 넣고 유사도 검색을 돌려 결과로 확인할 항목. 녹색+검정 이미지는 무슨 이미지인지 파악하지 못한다는 설명이 강의 발언 기준</p></div>
+    <ul class="facts">
+    <li><strong>인식하지 못하는 색상 예</strong><div>야간 투시 카메라처럼 녹색+검정으로 나오는 이미지 → 무슨 이미지인지 파악하지 못함</div></li>
+    <li><strong>원칙</strong><div>이미지 AI는 아무 모델이나 쓰지 말고 그 모델이 어떤 색상 체계로 처리하는지 알고 써야 함</div></li>
+    </ul>
+
+    <h3>실수 사례 — 파일 이름과 형식</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>상황</th><th>내용</th><th>대응</th></tr></thead><tbody>
+    <tr><td class="nowrap">디자이너 파일</td><td>의류 상품 사진의 이름(<code>1_바지.jpg</code>, <code>스웨터_레드.jpg</code>)과 형식(PNG·GIF·BMP)이 제각각</td><td>이미지 AI 작업 전에 이름과 형식을 먼저 확인</td></tr>
+    <tr><td class="nowrap">이름이 순차</td><td>앞 이름이 같고 번호가 순차면(<code>travel_1.jpg</code>~<code>travel_33.jpg</code>) 반복문으로 한 번에 입력</td><td>이번 실습이 이 형태</td></tr>
+    <tr><td class="nowrap">이름이 제각각</td><td>이름 맞추기를 먼저 하고 jpg로 하나씩 변환해야 함</td><td>변환 작업이 입력보다 오래 걸림</td></tr>
+    <tr><td class="nowrap">교훈</td><td><b>파일명 규칙 + 이미지 형식(JPG)</b>을 작업 전에 통일</td><td>통일하지 않으면 반복문을 쓸 수 없음</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">모델이 처리하는 색상 체계 확인 — base-patch32는 RGB 기준이라 <code>convert("RGB")</code>로 맞추고, 파일명 규칙과 형식(JPG)을 먼저 통일. patch32의 32는 색 비트가 아니라 패치 크기</div>
+
+    <ul class="facts">
+    <li><strong>모델 구조</strong><div>토크나이저·224×224·패치 분할·차원: 이 파일 29장</div></li>
+    <li><strong>입력 코드</strong><div><code>CLIPModel</code>·<code>CLIPProcessor</code>·<code>convert("RGB")</code> 사용: 이 파일 30장</div></li>
+    <li><strong>파이썬 이미지 라이브러리</strong><div><code>PIL</code> 설치 상태: spark.html 60장</div></li>
+    </ul>
+  </section>
+
+  <!-- 29 -->
+  <section class="sec" id="pg-clip-arch">
+    <h2>CLIP 모델 구조 — 토크나이저·이미지 패치·차원</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 토큰 분리 → ID 매핑 → 224×224 입력 → 패치 분할 → 차원 확인</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 토큰화</h4><p class="sub">단어 → 배열</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② ID 매핑</h4><p class="sub">토큰 → 숫자 번호</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ 입력</h4><p class="sub">RGB · 224×224</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ 패치</h4><p class="sub">32×32 → 7×7</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 임베딩</h4><p class="sub">512차원</p></div></div>
+      <p class="dg-foot">텍스트는 토큰 → 숫자 ID, 이미지는 224×224를 패치로 나눠 읽음 — 결과는 모델이 정한 고정 차원의 벡터</p></div>
+
+    <h3>텍스트 토크나이저</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>내용</th><th>예</th></tr></thead><tbody>
+    <tr><td class="nowrap">토큰화</td><td>단어를 단어 단위로 분리해 배열로 만듦</td><td><code>I am a boy</code> → 토큰 4개</td></tr>
+    <tr><td class="nowrap">ID 매핑</td><td>각 토큰을 숫자 ID로 변환 — 번호표를 붙이는 단계</td><td>I = 310, am = 252, a = 112, boy = 386 (예시 숫자)</td></tr>
+    <tr><td class="nowrap">최대 길이</td><td>모델마다 한 번에 처리하는 입력 길이의 최댓값이 정해져 있음</td><td>넘는 부분은 잘리거나 빈 자리를 채워 넣음</td></tr>
+    <tr><td class="nowrap">적용 대상</td><td>텍스트 인코더 쪽 처리</td><td>CLIP은 이미지·텍스트 두 인코더를 함께 씀</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>이번 이미지 실습</strong><div>텍스트 토크나이저는 쓰지 않고 이미지 인코더 쪽만 사용 — 이미지 검색 코드는 이 파일 30·33장</div></li>
+    </ul>
+
+    <h3>이미지를 읽는 방식</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">입력 크기</td><td>RGB 컬러 이미지를 모델이 <b>224×224</b>로 맞춰 받음</td><td>원본 픽셀 수와 무관 — 항상 같은 크기로 리사이즈</td></tr>
+    <tr><td class="nowrap">패치 분할</td><td><code>patch32</code>면 224/32 = 7 → 가로 7 × 세로 7 = <b>49개 패치</b></td><td>패치 크기가 작을수록 패치 수가 많아져 더 세밀하게 봄</td></tr>
+    <tr><td class="nowrap">판단 방식</td><td>같은 자리 패치끼리 비교</td><td>첫 패치가 흰색인데 비교 이미지 같은 자리 배경이 파란색이면 그 두 이미지는 다르다고 판단하기 시작</td></tr>
+    <tr><td class="nowrap">기본 구조</td><td>픽셀 단위로 블록을 잡아 처리하는 것이 CLIP 모델의 기본 러닝 구조</td><td>블록 단위 비교가 이미지 임베딩의 바탕</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 48강 127:20~127:50</div><p>224×224 입력이 총 몇 개 블록으로 나뉘는지 — 강의에서 “500 몇 개”라고 말한 정확한 숫자를 영상 127:20~127:50 구간을 다시 듣고 확인할 항목. <code>patch32</code> 기준 계산(7×7=49 패치)과 다른 수치라 발언 확인이 필요</p></div>
+
+    <h3>CLIP 모델의 특징</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">학습 방식</td><td>이미지-텍스트 쌍을 대조 학습(Contrastive Language-Image Pre-training)</td><td>이미지와 텍스트를 함께 다루는 모델</td></tr>
+    <tr><td class="nowrap">이름(캡션) 생성</td><td>이미지 이름을 만들어 주지는 않음</td><td>이름 텍스트는 사람이 붙인 학습 데이터 — 자동으로 이름을 짓는 것은 캡션 생성 모델의 일</td></tr>
+    <tr><td class="nowrap">모델 수</td><td>허깅페이스에서 <code>clip</code> 검색 시 관련 모델이 약 7,700개(화면 7,720개)</td><td>쓰는 이미지 종류에 따라 적합한 모델이 달라짐</td></tr>
+    <tr><td class="nowrap">목록 예</td><td><code>openai/clip-vit-large-patch14</code>, <code>openai/clip-vit-base-patch32</code>, <code>WenchuanZhang/Patho-CLIP-L</code></td><td>Large는 patch14로 더 잘게 나눠 봄</td></tr>
+    <tr><td class="nowrap">분야 특화</td><td><code>Patho-CLIP-L</code>은 병리(미세조직) 이미지를 다루도록 확장한 모델(OpenAI CLIP-L 기반)</td><td>상용화 여부는 확인하지 못함 — 기본 모델을 확장한 분야용 모델이 있다는 점을 알아 둠</td></tr>
+    <tr><td class="nowrap">모델 카드 읽기</td><td>카드는 영어라 브라우저 번역 기능으로 읽음</td><td>모델명·차원·예시 코드를 여기서 확인</td></tr>
+    <tr><td class="nowrap">예시 코드</td><td><code>model.encode_image</code>·<code>encode_text</code>로 임베딩을 만들고 코사인 유사도(<code>image_embeddings @ text_embeddings.T</code>)로 점수를 계산</td><td>Patho-CLIP-L의 모델 카드·GitHub README 기준 방식</td></tr>
+    </tbody></table></div>
+
+    <h3>임베딩 차원</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>모델</th><th>차원</th><th>근거·주의</th></tr></thead><tbody>
+    <tr><td class="nowrap">ViT-B/32 (<code>base-patch32</code>)</td><td><b>512</b></td><td>이 실습의 <code>vector(512)</code>·<code>if len(vector) == 512</code> 기준</td></tr>
+    <tr><td class="nowrap">ViT-L/14 (<code>large-patch14</code>)</td><td><b>768</b></td><td>모델이 커지면 차원도 커짐</td></tr>
+    <tr><td class="nowrap"><code>Patho-CLIP-L</code></td><td>768로 저장됐다는 설명</td><td>모델 카드에서 <code>768</code> 검색 결과가 0건 — 확인되지 않은 값</td></tr>
+    <tr><td class="nowrap">차원 결정 요인</td><td>모델 구조(projection_dim)</td><td>입력 이미지 픽셀 수·영상 여부와 무관 — 같은 모델이면 이미지 크기가 달라도 같은 차원</td></tr>
+    <tr><td class="nowrap">확인 방법</td><td>모델 카드에서 몇 차원을 쓰라고 되어 있는지 확인</td><td>모델을 바꾸면 테이블 <code>vector(차원)</code>과 코드의 512 비교를 함께 수정</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">임베딩 차원은 모델 구조가 정함 — 입력 이미지 크기나 영상 여부로 차원이 정해지지 않으며, 모델을 바꾸면 <code>vector(N)</code>과 <code>len(vector) == 512</code>를 함께 맞춤. base-patch32는 512, large-patch14는 768</div>
+
+    <ul class="facts">
+    <li><strong>모델 선택·색상</strong><div>RGB·RGBA·이미지 형식 주의: 이 파일 28장</div></li>
+    <li><strong>임베딩 개념</strong><div>벡터·임베딩·차원의 뜻: 이 파일 22장</div></li>
+    <li><strong>차원에 맞춘 테이블</strong><div>모델 차원과 <code>vector(N)</code> 입력 코드: 이 파일 30장</div></li>
+    </ul>
+  </section>
+
+  <!-- 30 -->
+  <section class="sec" id="pg-image-insert">
+    <h2>이미지 벡터 테이블과 반복 INSERT (img1)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 테이블 생성 → 모델·프로세서 → 33장 반복 → RGB·텐서·벡터 → execute·commit</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 테이블</h4><p class="sub">travel_image · file_path·emd</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② 모델</h4><p class="sub">CLIPModel · CLIPProcessor</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ 반복</h4><p class="sub">range(1,34)</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ 변환</h4><p class="sub">RGB → 텐서 → 512</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 저장</h4><p class="sub">%s::vector · commit</p></div></div>
+      <p class="dg-foot">이미지는 파이썬이 한 장씩 열어 벡터로 바꾸고 psycopg2로 저장 — Spark는 이 단계에 쓰지 않음</p></div>
+
+    <h3>테이블 만들기 (DBeaver)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">테이블 이름</td><td><code>travel_image</code> — 여행 이미지용</td><td>테이블이 먼저 있어야 INSERT·검색이 됨</td></tr>
+    <tr><td class="nowrap">컬럼</td><td><code>idx</code>(자동 증가) · <code>file_path</code>(경로) · <code>emd</code>(512차원 벡터)</td><td><code>TEXT</code>는 많은 양의 문자를 담는 자료형 — <code>LONGTEXT</code>도 있지만 여기선 TEXT로 충분</td></tr>
+    <tr><td class="nowrap">컬럼명</td><td>임베딩 컬럼은 <code>emd</code></td><td>이후 모든 코드가 <code>emd</code> 기준 — <code>emb</code>로 입력하면 컬럼이 없어 에러</td></tr>
+    <tr><td class="nowrap">실행</td><td>SQL 편집기에서 Ctrl+Enter → 테이블 생성</td><td>DBeaver 왼쪽 트리에서 <code>travel_image</code> 확인</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [mg DB · DBeaver SQL 편집기 · mg]</span>
+<span class="c">-- 여행 이미지용 테이블 — 원본 경로와 512차원 벡터만 저장</span>
+create table travel_image(
+  idx serial primary key,       <span class="c">-- 자동 증가 번호 (Auto Increment)</span>
+  file_path text not null,      <span class="c">-- 이미지 경로, not null = 필수</span>
+  emd vector(512)               <span class="c">-- 임베딩 벡터 (이미지 모델 차원 512)</span>
+);</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <h3>이 단계의 역할 분담</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">하는 일</td><td>이미지를 AI로 벡터로 만들어 DB에 넣어 두는 단계</td><td>DB에 벡터가 없으면 유사도 검색 자체가 불가</td></tr>
+    <tr><td class="nowrap">쓰는 도구</td><td><code>psycopg2</code> 커서로 INSERT — <code>SparkSession</code>은 가져오지 않음</td><td>AI로 값을 강제로 넣는 작업이라 Spark 환경설정과 무관</td></tr>
+    <tr><td class="nowrap">Spark의 INSERT</td><td>Spark도 <code>DataFrame.write.jdbc</code>로 append INSERT는 가능</td><td>UPDATE·DELETE는 JDBC 쓰기로 직접 지원하지 않음 — 이 실습의 소량 입력은 psycopg2가 담당</td></tr>
+    <tr><td class="nowrap">추론 위치</td><td>CLIP 추론과 SQL 실행 모두 파이썬 단일 프로세스</td><td>Spark 분산 처리가 아님 — 한 장씩 순차 처리</td></tr>
+    <tr><td class="nowrap">조회와 차이</td><td>조회(SELECT)는 pandas·Spark로 읽고, 입력은 psycopg2</td><td>조회 코드는 이 파일 24장·spark.html 61장</td></tr>
+    </tbody></table></div>
+
+    <h3>import·DB 접속·모델 로드</h3>
+<div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · Jupyter 노트북 img1 · root]</span>
+import psycopg2                                        <span class="c"># PostgreSQL 접속·INSERT</span>
+import pandas as pd                                    <span class="c"># 이 셀에서는 거의 쓰지 않음</span>
+from PIL import Image                                  <span class="c"># 이미지 로드</span>
+from transformers import CLIPModel, CLIPProcessor      <span class="c"># CLIP 모델·프로세서 (Tab 두 번으로 자동 완성)</span>
+import os                                              <span class="c"># 파일 경로 조립·확인</span>
+
+dbhost = "192.168.222.5";  dbport = 5432
+user = "...";  password = "..."
+dbname = "mg";  schema = "mg_schema"
+dbcon = psycopg2.connect(
+    host = dbhost, port = dbport, user = user, password = password,
+    database = dbname,
+    <span class="c"># 스키마 검색 경로 — 없으면 테이블을 못 찾음</span>
+    options = f"-c search_path={schema},public"
+)
+cursor = dbcon.cursor()                                <span class="c"># SQL을 실행하는 커서</span>
+
+image_dir = "/opt/spark/data/travel_images"            <span class="c"># 이미지 폴더 (절대 경로)</span>
+<span class="c"># 리사이즈·정규화·텐서 변환 전처리 담당</span>
+processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+<span class="c"># 텐서를 받아 임베딩을 계산하는 모델</span>
+model     = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+data_to_insert = []       <span class="c"># 쓰지 않는 변수 — 지워도 됨</span>
+count = 0                 <span class="c"># 입력 개수를 세는 변수</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">접속 정보</td><td>이 파일 25장의 <code>vb2</code> 접속 코드를 그대로 복사</td><td>값이 같아 노트북 간 이동이 쉬움</td></tr>
+    <tr><td class="nowrap"><code>options</code></td><td><code>-c search_path=mg_schema,public</code></td><td>스키마를 지정하지 않으면 <code>travel_image</code>를 찾지 못함</td></tr>
+    <tr><td class="nowrap">processor</td><td>이미지를 <b>텐서</b>로 만들어 주는 전처리 담당</td><td>리사이즈·정규화·텐서 변환 — 색상을 검토하는 역할이 아님</td></tr>
+    <tr><td class="nowrap">model</td><td>텐서를 받아 <b>임베딩을 계산</b></td><td>두 객체 모두 <code>from_pretrained(모델명)</code>에 같은 모델명을 넣음</td></tr>
+    <tr><td class="nowrap">순서</td><td>processor → model 순서로 작동</td><td>텐서가 있어야 모델이 임베딩을 만듦</td></tr>
+    </tbody></table></div>
+
+    <h3>반복 + INSERT</h3>
+<div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · Jupyter 노트북 img1 · root]</span>
+for i in range(1,34):                          <span class="c"># 1 ~ 33 (끝 숫자 미포함)</span>
+    filename  = f"travel_{i}.jpg"              <span class="c"># 번호 i가 바뀌며 파일명이 계속 바뀜</span>
+    file_path = os.path.join(image_dir, filename)   <span class="c"># 폴더 + 파일명 → 실제 경로</span>
+    if not os.path.exists(file_path):          <span class="c"># 그 경로에 파일이 있는지 확인</span>
+        continue                               <span class="c"># 없으면 다음 번호로 (break는 반복이 멈춰 금지)</span>
+    try:
+        image   = Image.open(file_path).convert("RGB")           <span class="c"># 열고 RGB로 보정</span>
+        inputs  = processor(images=image, return_tensors="pt")   <span class="c"># pt = pytorch 텐서</span>
+        outputs = model.get_image_features(&#42;&#42;inputs)             <span class="c"># 특징을 뽑아 임베딩 생성</span>
+        vector  = outputs[0].tolist()                            <span class="c"># 파이썬 리스트로 변환</span>
+        if len(vector) == 512:                                    <span class="c"># 512차원 값만 사용</span>
+            vector_str = str(vector)                              <span class="c"># 512개 숫자 좌표를 문자열로</span>
+            insert = (
+                "insert into travel_image (file_path,emd) values (%s,%s::vector)"   <span class="c"># emd는 vector로 형변환</span>
+            )
+            cursor.execute(insert, (file_path, vector_str))       <span class="c"># 이때 INSERT가 실제 실행</span>
+            count += 1                                            <span class="c"># 입력 개수 증가</span>
+            print(f" 이미지 {count} 번째 이미지 벡터가 정상적으로 저장됨!")
+    except Exception as e:
+        print(e)                                                  <span class="c"># 에러 메시지 출력</span>
+
+dbcon.commit()                                 <span class="c"># 반복문 밖에서 DB에 반영</span>
+cursor.close()                                 <span class="c"># 커서 종료</span>
+dbcon.close()                                  <span class="c"># DB 접속 종료</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>range</code> 끝 숫자</td><td><code>range(1,34)</code>는 1~33 — <b>끝 숫자는 포함되지 않음</b></td><td>마지막 번호 + 1로 씀, 이미지 개수가 다르면 그 수에 맞춤</td></tr>
+    <tr><td class="nowrap">실수 사례</td><td>이미지 25장인데 24개까지만 입력 → <code>range(1,26)</code>으로 써야 함</td><td>끝 숫자를 마지막 번호로 쓰면 한 장이 빠짐</td></tr>
+    <tr><td class="nowrap">파일 없음</td><td><code>continue</code>로 다음 번호로 넘어감</td><td><code>break</code>를 쓰면 그 뒤 번호가 전부 처리되지 않음</td></tr>
+    <tr><td class="nowrap"><code>try/except</code></td><td>원래 없어도 되지만 로드가 오래 걸려 감싼 형태</td><td><code>continue</code> 다음 줄부터 <code>try:</code> 아래까지 들여쓰기 유지</td></tr>
+    <tr><td class="nowrap">commit 위치</td><td><code>commit</code>·<code>close</code>는 <code>try</code> 밖(맨 아래)</td><td>반복문 안에서 커밋하면 중간 실패 시 상태가 어긋남</td></tr>
+    <tr><td class="nowrap">문법 실수</td><td><code>for i in range(1,34)</code> 줄에서 콜론(<code>:</code>)을 빼면 <code>SyntaxError: invalid syntax</code></td><td>들여쓰기 전에 콜론 확인</td></tr>
+    <tr><td class="nowrap">실행</td><td>Ctrl+S 저장 후 Shift+Enter</td><td>긴 작업이라 셀 실행 후 기다리는 상태가 정상</td></tr>
+    </tbody></table></div>
+
+    <h3>코드의 핵심 값</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>요소</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>os</code></td><td>운영체제(operating system) 기능을 쓰는 모듈 — 경로 조립·존재 확인</td><td>입출력 전용 모듈은 <code>io</code> — <code>os</code>를 입출력 약자로 이해하면 다른 함수를 찾게 됨</td></tr>
+    <tr><td class="nowrap"><code>processor</code></td><td>이미지를 4차원 <b>텐서</b>(다차원 숫자 배열)로 변환</td><td><code>pt</code> = PyTorch — PyTorch 텐서로 받는다는 뜻</td></tr>
+    <tr><td class="nowrap"><code>&#42;&#42;inputs</code></td><td><b>딕셔너리 언팩</b> — <code>inputs</code>에 담긴 입력 인자를 풀어서 전달</td><td>풀지 않으면 엉뚱한 인자가 들어가 의도와 다른 값이 생성</td></tr>
+    <tr><td class="nowrap"><code>outputs[0]</code></td><td>이미지 한 장의 512개 값</td><td><code>outputs</code>는 이미지 번호별로 쌓이므로 한 장만 쓸 때 <code>[0]</code></td></tr>
+    <tr><td class="nowrap"><code>get_image_features</code></td><td>숫자 임베딩만 반환</td><td>문장·설명을 생성하는 함수가 아님 — 결과는 512개 숫자</td></tr>
+    <tr><td class="nowrap"><code>::vector</code></td><td>둘째 값(<code>%s</code>)을 vector 타입으로 형변환</td><td><code>idx</code>는 자동 증가라 INSERT 컬럼에서 제외 — 컬럼 2개·VALUES <code>%s</code> 2개</td></tr>
+    <tr><td class="nowrap"><code>insert = …</code></td><td>SQL 문자열을 만드는 단계</td><td><code>cursor.execute(…)</code>를 만나야 실제 실행 — 만들기만 해서는 저장되지 않음</td></tr>
+    <tr><td class="nowrap"><code>cursor.execute</code></td><td>SELECT를 포함한 모든 SQL 실행에 쓰는 메서드</td><td>SELECT는 실행 뒤 <code>fetchall()</code> 등으로 결과를 읽음</td></tr>
+    <tr><td class="nowrap"><code>commit</code>·<code>close</code></td><td>psycopg2는 기본이 autocommit 꺼짐</td><td><code>commit()</code> 없이 <code>close()</code>하면 변경이 버려짐(롤백) — 반영에는 commit 필수</td></tr>
+    </tbody></table></div>
+
+    <h3>실행 결과와 소요 시간</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>확인 지점</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">입력 결과</td><td>이미지 33장 전부 입력, 셀 출력에 “이미지 N 번째 이미지 벡터가 정상적으로 저장됨!”</td><td><code>count</code>가 33에서 끝나면 정상</td></tr>
+    <tr><td class="nowrap">DB 확인</td><td>DBeaver에서 <code>select * from travel_image;</code> → 33행(33 row(s) fetched)</td><td><code>idx</code>·<code>file_path</code>·<code>emd</code>(512차원) 세 컬럼이 보이면 정상</td></tr>
+    <tr><td class="nowrap">file_path 예</td><td><code>/opt/spark/data/travel_images/travel_1.jpg</code></td><td>검색 결과에서 이 경로로 원본을 엶</td></tr>
+    <tr><td class="nowrap">소요 시간</td><td>실행 후 4분 30초 정도</td><td>여럿이 한꺼번에 돌리면 더 느려짐, 접속이 끝난 뒤엔 더 빨라짐</td></tr>
+    <tr><td class="nowrap">느린 이유</td><td>GPU 없이 CPU로 한 장씩 순차 추론, 앞서 실행한 Spark 앱과 동시에 도는 상태, 전원이 한꺼번에 호출</td><td>PyTorch CPU 연산은 여러 스레드를 씀 — “코어 1개만 쓴다”는 표현은 과장이고, Spark가 아닌 단일 파이썬 프로세스라는 점이 핵심</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">commit 없이 close하면 롤백 — psycopg2는 기본 autocommit이 꺼져 있어 INSERT 반영에 <code>commit()</code> 필수. <code>range</code>는 끝 숫자 미포함(마지막 번호 + 1), 파일이 없으면 <code>continue</code>이고 <code>break</code>는 금지</div>
+
+    <ul class="facts">
+    <li><strong>모델·색상</strong><div><code>CLIPModel</code>·<code>CLIPProcessor</code>·RGB 보정: 이 파일 28~29장</div></li>
+    <li><strong>INSERT 문법 일반</strong><div>커서·<code>%s</code>·commit 구조: 이 파일 25장</div></li>
+    <li><strong>다음 단계 검색</strong><div>저장된 벡터끼리 비교: 이 파일 31~32장</div></li>
+    </ul>
+  </section>
+
+  <!-- 31 -->
+  <section class="sec" id="pg-double-select">
+    <h2>서브쿼리(더블 셀렉트)와 ilike</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — img2 준비 → 컬럼 자리에 select → count 33 반복 → ilike 패턴 → 유사도 쿼리</p><div class="dg-flow">
+      <div class="dg-node"><h4>① img2</h4><p class="sub">SELECT 단계 · Spark 사용</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>② 더블 셀렉트</h4><p class="sub">컬럼 자리에 select</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>③ 결과</h4><p class="sub">total 33이 33행</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ ilike</h4><p class="sub">대소문자 무시 검색</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 기준 벡터</h4><p class="sub">서브쿼리로 13번</p></div></div>
+      <p class="dg-foot">컬럼 자리에 select를 넣으면 그 값이 행마다 붙음 — 기준 이미지의 벡터를 가져올 때 이 문법을 씀</p></div>
+
+    <h3>img2 준비</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">노트북</td><td>새 파일 <code>img2.ipynb</code></td><td>이번 단계는 SELECT(비교)라 Spark를 사용</td></tr>
+    <tr><td class="nowrap">import</td><td><code>SparkSession</code>·<code>pandas</code>·<code>sqlalchemy</code>(<code>create_engine</code>·<code>text</code>)</td><td>pandas로 접속해 SELECT하는 쪽이 빨라 pandas도 함께 사용</td></tr>
+    <tr><td class="nowrap">DB 접속</td><td>이 파일 25장과 같은 접속 정보·<code>search_path</code></td><td>스키마 경로가 빠지면 테이블을 못 찾음</td></tr>
+    <tr><td class="nowrap">먼저 할 일</td><td>SELECT 안에 SELECT가 들어가는 문법을 DBeaver로 확인</td><td>유사도 쿼리에서 기준 벡터를 가져올 때 쓰는 문법</td></tr>
+    </tbody></table></div>
+
+    <h3>더블 셀렉트</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">뜻</td><td>컬럼 자리에 <code>select</code>를 넣는 문법</td><td>실무 개발에서도 많이 쓰는 중급 문법</td></tr>
+    <tr><td class="nowrap">중첩</td><td>괄호 안에 또 다른 select를 넣거나 콤마로 <code>(select …)</code>를 이어 추가</td><td>컬럼명 자리에 select를 쓴다고 보면 됨</td></tr>
+    <tr><td class="nowrap">값의 개수</td><td>컬럼 자리 서브쿼리는 행마다 한 값을 돌려줌</td><td>그래서 같은 값이 모든 행에 반복</td></tr>
+    <tr><td class="nowrap">실행 도구</td><td>DBeaver SQL 편집기(<code>Script-7</code>)에서 Ctrl+Enter</td><td>노트북 실행 코드는 spark.html 66장</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c">-- [mg DB · DBeaver SQL 편집기 · mg]</span>
+<span class="c">-- 컬럼 자리에 select를 넣는 더블 셀렉트 — 전체 개수를 모든 행에 붙여 확인</span>
+select (select count(*) from travel_image) as total from travel_image;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts">
+    <li><strong>실행 결과</strong><div><code>total</code> 컬럼에 <b>33이 33행</b> 반복해서 출력 — 행 수만큼 같은 값이 붙는 구조</div></li>
+    </ul>
+
+    <h3>ilike — 대소문자 무시 패턴 검색</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">문법</td><td>PostgreSQL은 <code>like</code> 대신 <b><code>ilike</code></b>(대소문자 구분 없는 like)를 씀</td><td>파일명·확장자 대소문자가 섞여도 찾음</td></tr>
+    <tr><td class="nowrap">사용 예</td><td><code>ilike '%travel_13.jpg%'</code></td><td>경로 전체가 길어 앞뒤에 <code>%</code>를 붙여 파일명만 지정</td></tr>
+    <tr><td class="nowrap"><code>%</code> 개수</td><td>앞뒤 <code>%</code>를 중복 입력하면 패턴이 달라짐</td><td>한쪽에 하나씩만 사용</td></tr>
+    <tr><td class="nowrap">조건절</td><td><code>where</code>가 반드시 필요</td><td><code>where</code> 없는 패턴 검색은 불가</td></tr>
+    <tr><td class="nowrap">관계</td><td>벡터 거리 정렬은 <code>order by</code>, 기준 행을 고르는 조건은 <code>where … ilike</code></td><td>두 문법을 한 쿼리에서 함께 씀(이 파일 32장)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">컬럼 자리 서브쿼리는 행마다 값 하나를 반환 — <code>total</code> 33이 33행에 반복. 기준 벡터를 가져올 때는 이 서브쿼리를 컬럼 자리에 그대로 넣고 <code>where … ilike</code>로 파일 하나를 지정</div>
+
+    <ul class="facts">
+    <li><strong>유사도 검색 쿼리</strong><div>서브쿼리로 기준 벡터를 가져와 정렬: 이 파일 32장</div></li>
+    <li><strong>LIKE 문법 기초</strong><div><code>like</code>·<code>ilike</code>의 차이와 패턴: spark.html 41장</div></li>
+    <li><strong>노트북에서 실행</strong><div><code>read_sql</code>·<code>createDataFrame</code>: spark.html 66장</div></li>
+    </ul>
+  </section>
+
+  <!-- 32 -->
+  <section class="sec" id="pg-image-similarity">
+    <h2>저장된 이미지끼리 유사도 검색 (img2)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 기준 이미지 선택 → 서브쿼리로 벡터 → 거리 계산 → 오름차순 정렬 → 이미지 확인</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 기준</h4><p class="sub">travel_13.jpg</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>② 벡터</h4><p class="sub">(select emd … ilike)</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>③ 거리</h4><p class="sub">emd &lt;=&gt; … as img</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ 정렬</h4><p class="sub">order by img asc</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 확인</h4><p class="sub">결과 이미지 열기</p></div></div>
+      <p class="dg-foot">이미 저장된 벡터끼리 비교하므로 AI 모델을 다시 돌리지 않음 — 거리 값만으로 판단하지 않고 이미지를 직접 확인</p></div>
+
+    <h3>쿼리</h3>
+<div class="code"><pre><code><span class="c">-- [mg DB · DBeaver SQL 편집기 · mg]</span>
+<span class="c">-- 기준 이미지의 벡터를 서브쿼리로 가져와 모든 행과의 거리를 계산 (보기 편하도록 3줄로 나눔)</span>
+select file_path, emd &lt;=&gt;
+(select emd from travel_image where file_path ilike '%travel_13.jpg%')
+as img from travel_image order by img asc</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>요소</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>emd &lt;=&gt; …</code></td><td>각 행의 벡터를 기준 이미지 벡터와 비교한 값</td><td>코사인 거리 연산자 — 지표 정의는 이 파일 23장</td></tr>
+    <tr><td class="nowrap"><code>as img</code></td><td>거리 값에 붙이는 별칭(alias)</td><td>정렬·출력에서 이 이름을 씀</td></tr>
+    <tr><td class="nowrap">서브쿼리</td><td><code>(select emd … ilike '%travel_13.jpg%')</code>로 기준 이미지(13번)의 벡터만 가져옴</td><td>경로가 길어 <code>%</code>를 앞뒤에 붙여 파일명만 지정</td></tr>
+    <tr><td class="nowrap"><code>order by img asc</code></td><td>오름차순 — <b>가장 가까운(거리가 작은) 이미지부터</b></td><td><code>desc</code>로 두면 반대 순서</td></tr>
+    <tr><td class="nowrap">모델 재실행</td><td>하지 않음 — DB에 저장된 벡터끼리 비교</td><td>AI 호출 없이 SQL만으로 검색되는 구조</td></tr>
+    <tr><td class="nowrap">실행 순서</td><td>DBeaver에서 확인 → 같은 쿼리를 노트북(<code>img2</code>)에 옮김</td><td>노트북 코드는 spark.html 66장</td></tr>
+    </tbody></table></div>
+
+    <h3>기준 이미지 13번(안경) 결과</h3>
+    <ul class="facts">
+    <li><strong>이미지 종류</strong><div>비행기·강·산·겨울·놀이동산·남성·여성·안경(13번)·카메라·로고 등 33장</div></li>
+    <li><strong>값의 뜻</strong><div><code>img</code> 값은 거리(작을수록 비슷) — 순위가 맞는지는 결과 이미지를 직접 열어 확인</div></li>
+    </ul>
+    <div class="table-wrap"><table>
+    <thead><tr><th>순위</th><th>파일</th><th>img 값</th><th>확인</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td><code>travel_13.jpg</code></td><td>0.0</td><td>자기 자신 — 0이면 완전히 똑같은 벡터</td></tr>
+    <tr><td class="nowrap">2</td><td><code>travel_6.jpg</code></td><td>0.2898</td><td>안경</td></tr>
+    <tr><td class="nowrap">3</td><td><code>travel_33.jpg</code></td><td>0.3108</td><td>안경</td></tr>
+    <tr><td class="nowrap">4</td><td><code>travel_12.jpg</code></td><td>0.3810</td><td>카메라 렌즈</td></tr>
+    <tr><td class="nowrap">5</td><td><code>travel_16.jpg</code></td><td>0.3843</td><td>카메라를 들고 있는 사진 — 13번 기준과 맞지 않음</td></tr>
+    <tr><td class="nowrap">6</td><td><code>travel_24.jpg</code></td><td>0.3853</td><td>안경</td></tr>
+    </tbody></table></div>
+
+    <h3>다른 기준으로 확인 — 2번(산)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>순위</th><th>파일</th><th>img 값</th><th>내용</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td><code>travel_2.jpg</code></td><td>0.0</td><td>자기 자신(완전 일치)</td></tr>
+    <tr><td class="nowrap">2</td><td><code>travel_3.jpg</code></td><td>—</td><td>산</td></tr>
+    <tr><td class="nowrap">3</td><td><code>travel_31.jpg</code></td><td>0.2375</td><td>산</td></tr>
+    <tr><td class="nowrap">4</td><td><code>travel_29.jpg</code></td><td>0.2432</td><td>하늘로 보이는 사진</td></tr>
+    <tr><td class="nowrap">5</td><td><code>travel_21.jpg</code></td><td>—</td><td>산</td></tr>
+    <tr><td class="nowrap">6</td><td><code>travel_1.jpg</code></td><td>—</td><td>산</td></tr>
+    <tr><td class="nowrap">7</td><td><code>travel_26.jpg</code></td><td>0.2787</td><td>산</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>확인 방법</strong><div>하나만 믿지 말고 쿼리의 파일명을 <code>travel_2.jpg</code>로 바꿔 다시 실행</div></li>
+    <li><strong>결론</strong><div>대체로 비슷한 이미지를 찾아 주는 수준 — 마지막으로 사용자가 올린 이미지를 DB와 비교(이 파일 33장)</div></li>
+    <li><strong>실수 사례</strong><div>이미지가 25장인데 24개만 입력돼 검색에서 빠짐 — <code>range(1,26)</code>으로 수정(이 파일 30장)</div></li>
+    </ul>
+    <div class="dg-bar warn">거리는 작을수록 비슷하고 자기 자신은 0.0 — 거리 값만으로 순위가 맞다고 판단하지 않고 결과 이미지를 직접 열어 확인. <code>order by</code>가 없으면 가까운 순서가 보장되지 않음</div>
+
+    <ul class="facts">
+    <li><strong>서브쿼리·ilike</strong><div>더블 셀렉트 문법과 패턴 검색: 이 파일 31장</div></li>
+    <li><strong>노트북 코드</strong><div><code>read_sql</code>·<code>createDataFrame</code>·<code>show</code>: spark.html 66장</div></li>
+    <li><strong>연산자 비교</strong><div><code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>·<code>&lt;#&gt;</code> 결과 차이: 이 파일 23~24장</div></li>
+    </ul>
+  </section>
+
+  <!-- 33 -->
+  <section class="sec" id="pg-user-image-search">
+    <h2>사용자가 올린 이미지로 DB 이미지 검색 (img3)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — user.jpg 업로드 → CLIP 벡터 → :user_vec 파라미터 → cast as vector → 거리 정렬</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 업로드</h4><p class="sub">/opt/spark/data/user</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② 벡터</h4><p class="sub">CLIP → 512</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ 파라미터</h4><p class="sub">:user_vec · params</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ 형변환</h4><p class="sub">cast(… as vector)</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 정렬</h4><p class="sub">order by img asc</p></div></div>
+      <p class="dg-foot">기존 이미지는 DB에 그대로 두고 새 이미지만 벡터로 만들어 비교 — 실제 서비스에서 쓰는 방식</p></div>
+
+    <h3>준비</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">방식</td><td>DB 안 이미지끼리 비교하는 img2 방식은 실제로 쓰지 않음</td><td>실제: 기존 이미지는 DB에 두고 새 이미지로 가장 유사한 것을 뽑음</td></tr>
+    <tr><td class="nowrap">폴더</td><td>신규 폴더 <code>user</code>(<code>/opt/spark/data/user/</code>)</td><td>업로드 전용 — 여행 이미지 폴더와 분리</td></tr>
+    <tr><td class="nowrap">파일</td><td>구글에서 받은 이미지를 <b>jpg</b>로 저장해 <code>user.jpg</code>로 업로드</td><td>Jupyter 파일 목록에 드래그해 올림</td></tr>
+    <tr><td class="nowrap">노트북</td><td><code>img3.ipynb</code> = img1 코드 + img2 코드를 결합(복사·붙여넣기)</td><td>사용자 이미지의 벡터는 사용자가 만들 수 없어 모델이 만듦</td></tr>
+    <tr><td class="nowrap">psycopg2</td><td>이번에는 쓰지 않음 — INSERT가 없기 때문</td><td>조회는 <code>read_sql</code>·<code>params</code>로 처리</td></tr>
+    <tr><td class="nowrap">로드 시간</td><td>오래 걸리는 주된 이유는 CPU로 한 장을 추론하는 시간</td><td>Spark가 분산 처리하는 구조가 아님 — 결과를 DataFrame으로 바꿔 출력만 함</td></tr>
+    </tbody></table></div>
+
+    <h3>코드</h3>
+<div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · Jupyter 노트북 img3 · root]</span>
+<span class="c"># import : img2의 SELECT 쪽 + img1의 AI 쪽</span>
+from pyspark.sql import SparkSession
+import pandas as pd
+from sqlalchemy import create_engine, text
+from PIL import Image
+from transformers import CLIPModel, CLIPProcessor
+import os
+
+<span class="c"># Spark 세션과 dbinfo(create_engine)는 img2와 동일하게 준비</span>
+
+image_dir = "/opt/spark/data/user/user.jpg"     <span class="c"># 사용자가 올린 이미지 1장</span>
+<span class="c"># 전처리(리사이즈·정규화·텐서 변환)</span>
+processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+<span class="c"># 임베딩 계산</span>
+model     = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
+
+<span class="c"># 1장이라 반복문·존재 확인 없이 바로 읽음 (RGB 보정은 유지)</span>
+image   = Image.open(image_dir).convert("RGB")
+inputs  = processor(images=image, return_tensors="pt")   <span class="c"># pt = PyTorch 텐서</span>
+outputs = model.get_image_features(&#42;&#42;inputs)             <span class="c"># 이미지 임베딩</span>
+vector  = outputs[0].tolist()                            <span class="c"># 512개 숫자 리스트</span>
+if len(vector) == 512:                                   <span class="c"># 모델 차원 확인 (안쪽은 들여쓰기)</span>
+    vector_str = str(vector)                             <span class="c"># SQL 파라미터로 넘길 문자열</span>
+    query = """
+    select file_path, emd &lt;=&gt; cast(:user_vec as vector) as img
+    from travel_image order by img asc
+    """
+    <span class="c"># :user_vec 자리에 사용자 이미지 벡터를 params로 전달</span>
+    pdf = pd.read_sql(text(query), con=dbinfo, params={"user_vec":vector_str})
+
+dbinfo.dispose()
+df = spark.createDataFrame(pdf)
+df.show(truncate=False)
+spark.stop()</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">import</td><td>SELECT용 라이브러리 + AI 라이브러리</td><td><code>psycopg2</code>(커서)는 이번에 사용하지 않음</td></tr>
+    <tr><td class="nowrap">반복문</td><td>이미지가 1장이라 반복문이 필요 없음</td><td><code>.convert("RGB")</code>는 생략해도 될 듯하나 코드에는 유지</td></tr>
+    <tr><td class="nowrap">쿼리 여백</td><td>쿼리 앞뒤는 한 칸만 띄움</td><td>붙여 쓰면 오류가 날 수 있음</td></tr>
+    <tr><td class="nowrap"><code>spark.stop()</code></td><td>한 번만 넣음</td><td>중복 호출은 불필요</td></tr>
+    <tr><td class="nowrap">실행 순서</td><td>업로드 이미지 → CLIP 모델·프로세서 → RGB 변환 → PyTorch 텐서 → <code>outputs</code> → <code>vector</code> → 512 확인 → <code>str</code> 변환 → 쿼리</td><td>이 흐름이 이미지 검색의 전부</td></tr>
+    </tbody></table></div>
+
+    <h3>params와 cast</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>:user_vec</code></td><td>쿼리 안의 <b>바인드 파라미터</b>(매개변수)</td><td>값을 쿼리 문자열에 직접 붙이지 않고 따로 전달</td></tr>
+    <tr><td class="nowrap"><code>params</code></td><td><code>pd.read_sql(text(query), con=dbinfo, params={"user_vec":vector_str})</code>로 파라미터 값 전달</td><td>SQLAlchemy <code>text()</code>의 바인드 파라미터 기능</td></tr>
+    <tr><td class="nowrap"><code>cast(… as vector)</code></td><td>문자열로 넘어온 벡터를 vector 타입으로 변환</td><td><code>CAST(값 AS 타입)</code>은 타입 변환 함수 — 파라미터 전달 기능이 아님</td></tr>
+    <tr><td class="nowrap">쓰는 값</td><td>숫자·문자열·날짜 모두 변환 가능</td><td>형이 다르면 비교·저장에서 오류</td></tr>
+    <tr><td class="nowrap">처음 쓰는 이유</td><td>지금까지 파라미터를 넘겨 본 적이 없고 API(<code>FastAPI</code>)에서 많이 쓰기 때문</td><td>사용자 입력을 쿼리에 넣는 표준 방식 — fastapi.html 참고</td></tr>
+    <tr><td class="nowrap">전체 흐름</td><td>업로드 이미지 분석 → 픽셀 단위 유사도 배열을 쿼리로 전달 → 가장 유사한 순서로 출력</td><td>거리 값이 작을수록 비슷</td></tr>
+    </tbody></table></div>
+
+    <h3>실행 결과 (구글에서 받은 안경 이미지)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>순위</th><th>파일</th><th>img 값</th><th>확인</th></tr></thead><tbody>
+    <tr><td class="nowrap">1</td><td><code>travel_18.jpg</code></td><td>0.4578</td><td>안경</td></tr>
+    <tr><td class="nowrap">2</td><td><code>travel_10.jpg</code></td><td>0.4649</td><td>안경이 아님(남자 사진)</td></tr>
+    <tr><td class="nowrap">3</td><td><code>travel_24.jpg</code></td><td>0.4710</td><td>안경</td></tr>
+    <tr><td class="nowrap">4</td><td><code>travel_6.jpg</code></td><td>—</td><td>안경</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">경고</td><td>프로세서 경고 <code>slow processor … use_fast=False</code>가 뜸</td><td>느린 프로세서를 쓴다는 안내 — 실행은 계속됨</td></tr>
+    <tr><td class="nowrap">확인 방법</td><td>순위대로 결과 이미지를 직접 열어 비교</td><td>18번부터 순서대로 확인</td></tr>
+    <tr><td class="nowrap">결론</td><td>안경 관련 이미지를 잘 찾지만 간혹 엉뚱한 이미지가 섞임</td><td>이미지(데이터)가 많을수록 더 세밀하게 분석</td></tr>
+    <tr><td class="nowrap">Spark의 역할</td><td>분석 자료를 만들기 위한 도구 — 결과 DataFrame 출력</td><td>많은 데이터를 사람이 직접 분석하기 어려워 Spark를 씀, 모델 선택도 결과를 좌우</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">사용자 이미지는 모델이 벡터로 만들고 <code>cast(:user_vec as vector)</code> + <code>params</code>로 넘김 — 문자열을 그대로 비교하면 타입 오류. 모델이 바뀌면 512 확인과 테이블 차원을 함께 맞춤(이 파일 29장)</div>
+
+    <ul class="facts">
+    <li><strong>더블 셀렉트·정렬</strong><div>기준 벡터를 서브쿼리로 가져오는 방식: 이 파일 31~32장</div></li>
+    <li><strong>파라미터·API</strong><div><code>FastAPI</code>의 경로·쿼리 파라미터: fastapi.html 참고</div></li>
+    <li><strong>노트북 실행 구조</strong><div><code>read_sql</code>·<code>createDataFrame</code>: spark.html 66장</div></li>
+    </ul>
+  </section>
+
+  <!-- 34 -->
+  <section class="sec" id="pg-vector-db-compare">
+    <h2>벡터 저장·검색을 지원하는 DB 범위</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — PostgreSQL pgvector → MySQL 9.0 VECTOR → Oracle 배열 타입 → CAST 차이 → DB별 문법</p><div class="dg-flow">
+      <div class="dg-node key"><h4>① PostgreSQL</h4><p class="sub">pgvector · &lt;=&gt;</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② MySQL</h4><p class="sub">9.0 VECTOR 타입</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>③ Oracle</h4><p class="sub">배열 저장 타입</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ CAST</h4><p class="sub">형변환은 공통</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ 문법 차이</h4><p class="sub">연산자는 DB마다</p></div></div>
+      <p class="dg-foot">벡터 검색은 DB마다 지원 수준과 문법이 다름 — 이 실습의 문법은 PostgreSQL(pgvector) 기준</p></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>DB</th><th>벡터 저장·검색</th><th>메모</th></tr></thead><tbody>
+    <tr><td class="nowrap">PostgreSQL</td><td>pgvector 확장, <code>vector(512)</code> 컬럼, <code>&lt;=&gt;</code>·<code>&lt;-&gt;</code>·<code>&lt;#&gt;</code> 연산자로 정렬</td><td>이 파일 19~24장의 실습 문법</td></tr>
+    <tr><td class="nowrap">MySQL</td><td>9.0(2024)부터 <code>VECTOR</code> 데이터 타입 지원</td><td>pgvector의 <code>&lt;=&gt;</code> 연산자 방식과 다름 — “방법이 전혀 없다”는 설명은 9.0 이전 기준</td></tr>
+    <tr><td class="nowrap">Oracle</td><td>배열 형태로 저장하는 타입이 있고 그 타입을 이용하는 사례가 있음</td><td>어느 버전·타입인지 발언만으로 확정하지 않음(아래 확인 항목)</td></tr>
+    <tr><td class="nowrap">그 외</td><td>별도로 다루는 사례가 없음</td><td>실습에서는 PostgreSQL만 사용</td></tr>
+    <tr><td class="nowrap"><code>CAST</code></td><td>MySQL에서도 <code>CAST</code>로 형변환(문자→숫자 등)은 가능</td><td>벡터를 자유롭게 검색하는 용도로 쓰지는 않음</td></tr>
+    <tr><td class="nowrap">Spark의 역할</td><td>벡터 컬럼 조회 결과를 DataFrame으로 받아 출력</td><td>저장·검색 계산은 DB가 담당(이 파일 32장·spark.html 61·66장)</td></tr>
+    </tbody></table></div>
+    <div class="note-verify"><div class="tag">🔍 직접 확인 · 48강 160:45~162:05</div><p>오라클에서 배열로 저장하는 타입이 어느 버전·타입인지 — 강의에서 “C랩”·“B랩”으로 들린 발언의 실제 이름(<code>CLOB</code>·<code>BLOB</code> 등)과 버전(12c~19c·18·19 클라우드)을 영상 160:45~162:05 구간이나 오라클 문서로 확인할 항목</p></div>
+    <div class="dg-bar warn">벡터 검색 문법은 DB마다 다름 — PostgreSQL의 <code>&lt;=&gt;</code>·<code>order by</code>가 MySQL에 그대로 옮겨지지 않음. 벡터 차원도 모델마다 달라 테이블·코드를 함께 맞춤(이 파일 29장)</div>
+
+    <ul class="facts">
+    <li><strong>pgvector 연산자</strong><div>거리 지표 3종과 결과 해석: 이 파일 23~24장</div></li>
+    <li><strong>형변환</strong><div><code>::vector</code>·<code>cast(… as vector)</code> 사용처: 이 파일 30·33장</div></li>
+    <li><strong>MySQL 쪽</strong><div>MySQL 문법·함수와의 차이: mysql.html 참고</div></li>
+    </ul>
+  </section>
+
+  <!-- 35 -->
   <section class="sec" id="cheatsheet">
     <h2>통합 명령어 치트시트</h2>
 
@@ -3304,6 +3910,18 @@ query = f"select title,des from movie_data order by emb &lt;=&gt; '{vector_str}'
           <tr><td><code>docker cp postgresql.conf rds_psql:/var/lib/postgresql/data/</code></td><td>수정본을 PGDATA로 되돌림</td></tr>
           <tr><td><code>docker restart rds_psql</code> / <code>docker ps -a</code> / <code>docker logs rds_psql</code></td><td>설정 반영 / 기동 상태 / 실패 원인 확인</td></tr>
           <tr><td><code>docker stop rds_psql</code></td><td>실습 컨테이너를 지우지 않고 보존</td></tr>
+
+          <tr class="group"><th colspan="2" scope="colgroup">이미지 벡터 — CLIP·travel_image (27~34장)</th></tr>
+          <tr><td><code>create table travel_image(idx serial primary key, file_path text not null, emd vector(512));</code></td><td>이미지 경로 + 512차원 벡터 테이블 — <code>serial</code>은 자동 증가, 컬럼명은 <code>emd</code>(<code>emb</code> 아님)</td></tr>
+          <tr><td><code>insert into travel_image (file_path,emd) values (%s,%s::vector)</code></td><td>경로·벡터 저장 — <code>%s</code> 자리표시자, <code>::vector</code> 형변환, <code>cursor.execute(sql, (경로, 벡터문자열))</code> 뒤 <code>commit()</code> 필수</td></tr>
+          <tr><td><code>for i in range(1,34)</code> / <code>continue</code></td><td>1~33 반복(끝 숫자 미포함, 마지막 번호 + 1) / 파일이 없으면 다음 번호로 — <code>break</code> 금지</td></tr>
+          <tr><td><code>select (select count(*) from travel_image) as total from travel_image;</code></td><td>더블 셀렉트 시연 — 총 개수 33이 33행에 반복</td></tr>
+          <tr><td><code>file_path ilike '%travel_13.jpg%'</code></td><td>대소문자 무시 패턴 검색 — PostgreSQL 전용, <code>%</code>는 앞뒤 하나씩</td></tr>
+          <tr><td><code>emd &lt;=&gt; (select emd … where file_path ilike …) as img order by img asc</code></td><td>기준 이미지와의 거리 계산·정렬 — 거리 작을수록 비슷, 자기 자신은 0.0</td></tr>
+          <tr><td><code>emd &lt;=&gt; cast(:user_vec as vector) as img</code></td><td>파라미터로 받은 사용자 이미지 벡터와 비교 — <code>params={"user_vec": 문자열}</code> 필요</td></tr>
+          <tr><td><code>Image.open(경로).convert("RGB")</code></td><td>이미지 열고 RGB 보정 — base-patch32는 RGB 기준, RGBA·흑백·팔레트 이미지를 정리</td></tr>
+          <tr><td><code>processor(images=image, return_tensors="pt")</code> / <code>model.get_image_features(&#42;&#42;inputs)</code></td><td>이미지를 PyTorch 텐서로(<code>pt</code>) / 이미지 임베딩 추출 — <code>&#42;&#42;</code>는 딕셔너리 언팩</td></tr>
+          <tr><td><code>outputs[0].tolist()</code> / <code>str(vector)</code></td><td>텐서 → 파이썬 리스트(한 장의 512값) / 벡터를 문자열로 바꿔 SQL 파라미터로 전달</td></tr>
     </tbody>
       </table>
     </div>

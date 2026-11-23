@@ -659,7 +659,8 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#spark-vscode-jupyter">63. VS Code 원격 Jupyter 서버 연결</a></li>
         <li><a href="#spark-window">64. 윈도우 함수 (partitionBy·순위·누적 합산)</a></li>
         <li><a href="#spark-udf">65. UDF (사용자 정의 함수)</a></li>
-        <li><a href="#cheatsheet">66. 통합 명령어 치트시트</a></li>
+        <li><a href="#spark-image-search">66. 이미지 유사도 결과를 Spark로 읽기</a></li>
+        <li><a href="#cheatsheet">67. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
   </aside>
@@ -667,12 +668,12 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>Spark 통합 학습노트</h1>
-    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → pandas UDF 실습·오류 대응(설정 3종·<code class="n">show</code> 기준·pyarrow·<code class="n">p90</code>) → 공공 API(영화진흥위원회) JSON으로 MySQL 적재(INSERT SQL·<code class="n">count(*)</code>) → Spark JDBC 연동(<code class="n">mysql-connector-j</code> JAR·6옵션·<code class="n">show(5)</code>) → 박스오피스 집계(<code class="n">shuffle.partitions</code>·<code class="n">numPartitions</code>) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지 → 마스터·워커 기동까지(사용자 정의 네트워크) → 컨테이너 클러스터 운영(호스트 폴더 볼륨 연결·재생성·실행 중 포트 추가) → Spark 셸·주피터(<code class="n">notebook</code> 설치·<code class="n">PYSPARK_*</code> 3줄·토큰 로그인) → <code class="n">spark.read.csv</code>·<code class="n">spark-submit</code> → Spark SQL(임시 뷰·<code class="n">floor</code>·<code class="n">ceil</code>·<code class="n">round</code>) → 웹 크롤링 이미지 수집 → PySpark 코드로 전환(마스터·워커 <code class="n">numpy</code>·<code class="n">pandas</code>·<code class="n">pyarrow</code> 설치·<code class="n">spark1</code> 노트북·실무는 주피터를 별도 서버로) → 파이썬 문법(<code class="n">from</code>·<code class="n">as</code>·<code class="n">read_</code> 계열) → 기본 코드 템플릿(<code class="n">globals</code> 체크·<code class="n">SparkSession.builder</code>·<code class="n">getOrCreate</code>·<code class="n">spark.stop()</code> 위아래) → 고스트 세션(<code class="n">Running Application</code> 잔존·<code class="n">try/except</code> 안전 종료) → 컨테이너 시간대(<code class="n">date</code>·<code class="n">chrony</code>·<code class="n">timedatectl</code>·<code class="n">/etc/localtime</code> 심볼릭 링크) → 2차원 배열(<code class="n">createDataFrame</code>·<code class="n">schema</code>) → 조회·집계(<code class="n">filter</code>·<code class="n">where</code>·<code class="n">select</code>·<code class="n">groupBy</code>·<code class="n">sum</code>) → 실습 csv(<code class="n">product.csv</code>) → 조건 조합·집계 복습과 <code class="n">spark.sql</code> 이식 → 실행 중 컨테이너에 API 포트(<code class="n">11111</code>) 추가 → <code class="n">travel_api.py</code> FastAPI(<code class="n">DictCursor</code>·<code class="n">&#42;&#42;</code> 언패킹·<code class="n">fetchall</code>)와 경로 파라미터(<code class="n">/travel/{ea}</code>·<code class="n">limit 0, %s</code>) → Spark가 API를 <code class="n">requests</code>로 호출해 임시 뷰로 <code class="n">spark.sql</code> 실행 → PostgreSQL 연동 준비(Debian trixie·알파인 구분·<code class="n">rds_psql</code>·5432·JDBC jar 42.6.2) → 사용자·DB·권한(<code class="n">create user</code>·<code class="n">owner</code>·<code class="n">grant</code>) → 인코딩(UTF8·<code class="n">pg_encoding_to_char</code>) → 스키마·<code class="n">search_path</code>(<code class="n">set</code>·<code class="n">alter user</code>) → DBeaver 적재·컬럼명 11개 → PostgreSQL SELECT(<code class="n">ilike</code>·<code class="n">limit offset</code>·<code class="n">concat</code>·<code class="n">concat_ws</code>·<code class="n">replace</code>) → 권한 회수 <code class="n">REVOKE</code>·<code class="n">\c</code> 전환 → <code class="n">psycopg2-binary</code>·<code class="n">psycopg[binary]</code> → <code class="n">psycopg2.connect</code>의 <code class="n">options</code>로 스키마 지정해 pandas 경유 Spark 연동 → SQLAlchemy 엔진(<code class="n">create_engine</code>·<code class="n">dispose</code>·<code class="n">with connect</code>)으로 조회 → 결과 <code class="n">long</code> 변환과 숙박 제외 집계(28건) → PyTorch·임베딩 라이브러리 설치(60장) → 벡터 컬럼 SELECT를 pandas 경유 Spark로 읽기(<code class="n">create_engine</code>·<code class="n">read_sql</code>·<code class="n">createDataFrame</code>, 61장) → 파이썬 클래스(인스턴스·정적·클래스 메서드, 62장) → VS Code에서 리눅스 Jupyter 서버 연결(<code class="n">Select Kernel</code>·<code class="n">Existing Jupyter Server</code>·토큰, 63장) → 윈도우 함수(<code class="n">partitionBy</code>·<code class="n">orderBy</code>·<code class="n">rank</code>·<code class="n">dense_rank</code>·<code class="n">sum().over</code>, 64장) → UDF(<code class="n">StringType</code>·<code class="n">fn.udf</code>·점수 → 학점, 65장). 네트워크 명령: docker.html 9장, 볼륨·포트 설정 이론: docker.html 10장, PostgreSQL 설정·인증·백업: postgresql.html</p>
+    <p class="deck">Spark 통합 학습노트 · 범위: Spark 개념·구성 요소(마스터/워커·Driver/Executor) → 서버 2대 직접 설치(<code class="n">sparkuser</code>·SSH 키·hosts·tarball·환경변수 <code class="n">.bashrc</code>·<code class="n">spark-env.sh</code>·클러스터 기동) → Standalone 운영(기동·정지·워커 증감) → <code class="n">spark-submit</code> 제출·자원 배분 → 예제(WordCount·PySpark 집계) → PySpark·JupyterLab 연동(pandas·numpy 설치·<code class="n">PYSPARK_*</code> 환경변수·토큰 접속·노트북·커널·코어·메모리 부족 실험) → pandas UDF 실습·오류 대응(설정 3종·<code class="n">show</code> 기준·pyarrow·<code class="n">p90</code>) → 공공 API(영화진흥위원회) JSON으로 MySQL 적재(INSERT SQL·<code class="n">count(*)</code>) → Spark JDBC 연동(<code class="n">mysql-connector-j</code> JAR·6옵션·<code class="n">show(5)</code>) → 박스오피스 집계(<code class="n">shuffle.partitions</code>·<code class="n">numPartitions</code>) → Spark 3.5.3 Docker 이미지 빌드(Java 17·Python 3) → 마스터 1 + 워커 2 클러스터 설계 → 사용자 정의 네트워크에서 마스터 기동. Docker 경로는 이미지 → 마스터·워커 기동까지(사용자 정의 네트워크) → 컨테이너 클러스터 운영(호스트 폴더 볼륨 연결·재생성·실행 중 포트 추가) → Spark 셸·주피터(<code class="n">notebook</code> 설치·<code class="n">PYSPARK_*</code> 3줄·토큰 로그인) → <code class="n">spark.read.csv</code>·<code class="n">spark-submit</code> → Spark SQL(임시 뷰·<code class="n">floor</code>·<code class="n">ceil</code>·<code class="n">round</code>) → 웹 크롤링 이미지 수집 → PySpark 코드로 전환(마스터·워커 <code class="n">numpy</code>·<code class="n">pandas</code>·<code class="n">pyarrow</code> 설치·<code class="n">spark1</code> 노트북·실무는 주피터를 별도 서버로) → 파이썬 문법(<code class="n">from</code>·<code class="n">as</code>·<code class="n">read_</code> 계열) → 기본 코드 템플릿(<code class="n">globals</code> 체크·<code class="n">SparkSession.builder</code>·<code class="n">getOrCreate</code>·<code class="n">spark.stop()</code> 위아래) → 고스트 세션(<code class="n">Running Application</code> 잔존·<code class="n">try/except</code> 안전 종료) → 컨테이너 시간대(<code class="n">date</code>·<code class="n">chrony</code>·<code class="n">timedatectl</code>·<code class="n">/etc/localtime</code> 심볼릭 링크) → 2차원 배열(<code class="n">createDataFrame</code>·<code class="n">schema</code>) → 조회·집계(<code class="n">filter</code>·<code class="n">where</code>·<code class="n">select</code>·<code class="n">groupBy</code>·<code class="n">sum</code>) → 실습 csv(<code class="n">product.csv</code>) → 조건 조합·집계 복습과 <code class="n">spark.sql</code> 이식 → 실행 중 컨테이너에 API 포트(<code class="n">11111</code>) 추가 → <code class="n">travel_api.py</code> FastAPI(<code class="n">DictCursor</code>·<code class="n">&#42;&#42;</code> 언패킹·<code class="n">fetchall</code>)와 경로 파라미터(<code class="n">/travel/{ea}</code>·<code class="n">limit 0, %s</code>) → Spark가 API를 <code class="n">requests</code>로 호출해 임시 뷰로 <code class="n">spark.sql</code> 실행 → PostgreSQL 연동 준비(Debian trixie·알파인 구분·<code class="n">rds_psql</code>·5432·JDBC jar 42.6.2) → 사용자·DB·권한(<code class="n">create user</code>·<code class="n">owner</code>·<code class="n">grant</code>) → 인코딩(UTF8·<code class="n">pg_encoding_to_char</code>) → 스키마·<code class="n">search_path</code>(<code class="n">set</code>·<code class="n">alter user</code>) → DBeaver 적재·컬럼명 11개 → PostgreSQL SELECT(<code class="n">ilike</code>·<code class="n">limit offset</code>·<code class="n">concat</code>·<code class="n">concat_ws</code>·<code class="n">replace</code>) → 권한 회수 <code class="n">REVOKE</code>·<code class="n">\c</code> 전환 → <code class="n">psycopg2-binary</code>·<code class="n">psycopg[binary]</code> → <code class="n">psycopg2.connect</code>의 <code class="n">options</code>로 스키마 지정해 pandas 경유 Spark 연동 → SQLAlchemy 엔진(<code class="n">create_engine</code>·<code class="n">dispose</code>·<code class="n">with connect</code>)으로 조회 → 결과 <code class="n">long</code> 변환과 숙박 제외 집계(28건) → PyTorch·임베딩 라이브러리 설치(60장) → 벡터 컬럼 SELECT를 pandas 경유 Spark로 읽기(<code class="n">create_engine</code>·<code class="n">read_sql</code>·<code class="n">createDataFrame</code>, 61장) → 파이썬 클래스(인스턴스·정적·클래스 메서드, 62장) → VS Code에서 리눅스 Jupyter 서버 연결(<code class="n">Select Kernel</code>·<code class="n">Existing Jupyter Server</code>·토큰, 63장) → 윈도우 함수(<code class="n">partitionBy</code>·<code class="n">orderBy</code>·<code class="n">rank</code>·<code class="n">dense_rank</code>·<code class="n">sum().over</code>, 64장) → UDF(<code class="n">StringType</code>·<code class="n">fn.udf</code>·점수 → 학점, 65장) → 숫자 반환 UDF(<code class="n">types as t</code>·<code class="n">IntegerType</code>)·UDF 종류와 반환 타입·SparkUI 4040 포트 경고(65장) → 이미지 유사도 검색 결과를 <code class="n">read_sql</code>·<code class="n">createDataFrame</code>로 읽기(66장). 네트워크 명령: docker.html 9장, 볼륨·포트 설정 이론: docker.html 10장, PostgreSQL 설정·인증·백업: postgresql.html</p>
 
     <div class="core-strip">
       <div>
         <div class="core-metric">개념 → 설치 → 운영</div>
-        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성 (3~7장) → 운영·제출·예제 (8~10장) → PySpark·JupyterLab 연동 (11~15장) → pandas UDF·공공 API 적재·JDBC 연동·집계 (16~20장) → 컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile 이미지를 만들어 재사용 (21장) → 호스트 폴더를 <code class="n">-v</code>로 연결한 마스터·워커 클러스터에서 셸·주피터·csv·Spark SQL 실습 (22~29장) → PySpark 코드로 기본 템플릿·고스트 세션·시간대·2차원 배열·조회·집계 (30~37장) → MariaDB 연동(pymysql+pandas)·LIMIT·LIKE·응용문제 (38~42장) → SQL 복습·포트 11111 추가·FastAPI 노출·경로 파라미터·Spark의 API 호출 (43~47장) → PostgreSQL 이미지·JDBC jar·사용자·권한·인코딩·스키마 경로·DBeaver 적재·문법 차이·REVOKE·psycopg2·Spark 연동 (48~57장) → 파이썬 클래스·정적·클래스 메서드 (62장) → VS Code 원격 Jupyter 연결·윈도우 함수·UDF (63~65장)</p>
+        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성 (3~7장) → 운영·제출·예제 (8~10장) → PySpark·JupyterLab 연동 (11~15장) → pandas UDF·공공 API 적재·JDBC 연동·집계 (16~20장) → 컨테이너마다 Spark를 직접 설치하지 않고 Dockerfile 이미지를 만들어 재사용 (21장) → 호스트 폴더를 <code class="n">-v</code>로 연결한 마스터·워커 클러스터에서 셸·주피터·csv·Spark SQL 실습 (22~29장) → PySpark 코드로 기본 템플릿·고스트 세션·시간대·2차원 배열·조회·집계 (30~37장) → MariaDB 연동(pymysql+pandas)·LIMIT·LIKE·응용문제 (38~42장) → SQL 복습·포트 11111 추가·FastAPI 노출·경로 파라미터·Spark의 API 호출 (43~47장) → PostgreSQL 이미지·JDBC jar·사용자·권한·인코딩·스키마 경로·DBeaver 적재·문법 차이·REVOKE·psycopg2·Spark 연동 (48~57장) → 파이썬 클래스·정적·클래스 메서드 (62장) → VS Code 원격 Jupyter 연결·윈도우 함수·UDF (63~65장) → 이미지 유사도 검색 결과를 Spark로 읽기 (66장)</p>
       </div>
       <div>
         <div class="core-metric">7077 · 8080 · 8888</div>
@@ -750,7 +751,8 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#spark-vscode-jupyter">63. VS Code 원격 Jupyter 서버 연결</a>
       <a href="#spark-window">64. 윈도우 함수 (partitionBy·순위·누적 합산)</a>
       <a href="#spark-udf">65. UDF (사용자 정의 함수)</a>
-      <a href="#cheatsheet">66. 통합 명령어 치트시트</a>
+      <a href="#spark-image-search">66. 이미지 유사도 결과를 Spark로 읽기</a>
+      <a href="#cheatsheet">67. 통합 명령어 치트시트</a>
     </nav>
   </header>
 
@@ -938,6 +940,17 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <tr><td><strong>구성안</strong></td><td>A 워커 1개 / B 워커 2개(각 CPU 2코어·메모리 2GB, 합계 4코어·8GB) / C 워커 3개 / D 워커 4개(각 1코어·1GB, 3개로 돌려 보니 버벅여 4개로 바꾼 사례) → 부하·비용을 바탕으로 아키텍트가 설계, 실습자는 정해진 구성대로 구축. 아키텍트가 없는 회사(비용 절감)는 본인이 설계</td></tr>
     <tr><td><strong>실무 워커 수</strong></td><td>우주·생명과학처럼 대규모 분석을 하는 곳은 워커가 많을수록 유리하지만, 워커 1~2개만 돌려도 규모 있는 회사가 많음 → 비용과 부하를 보고 정함</td></tr>
     </tbody></table></div>
+    <h3>폐쇄망 서버 구축 절차</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>순서</th><th>할 일</th><th>확인·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">① 사양 협의</td><td>서버 구매 시 영업 담당자가 서버 사양을 정리해 인프라 담당자와 협의</td><td>하드웨어 사양이 코어·메모리 배분의 기준</td></tr>
+    <tr><td class="nowrap">② 하드웨어</td><td>전달받은 사양으로 하드웨어 세팅</td><td>설치 전에 실제 사양 확인</td></tr>
+    <tr><td class="nowrap">③ OS 선택</td><td>사용할 OS 결정</td><td>배포판에 따라 패키지·경로가 달라짐</td></tr>
+    <tr><td class="nowrap">④ IP 확인</td><td>서버 IP 확인</td><td>이후 모든 접속·설정의 기준 주소</td></tr>
+    <tr><td class="nowrap">⑤ 원격 접속</td><td>원격 접속해 필요한 것 설치</td><td>설치 후 포트 개방과 IP 재확인이 이어짐</td></tr>
+    <tr><td class="nowrap">⑥ 포트 확인</td><td>설치한 서비스의 포트를 열고 IP를 다시 체크</td><td>포트가 막히면 클라이언트 접속 실패(같은 장 포트 표)</td></tr>
+    </tbody></table></div>
+
     <div class="dg-bar warn">Spark 포트 — 7077=마스터 통신(막히면 워커 연결 실패), 8080=마스터 UI, 8081=워커 UI, 8888=Jupyter. 워커 자원은 호스트 OS 몫을 남기고 코어·메모리를 지정</div>
   
 
@@ -5944,9 +5957,187 @@ spark.stop()</code></pre><button class="copy" aria-label="코드 복사" type="b
     <tr><td class="nowrap"><code>(85,)</code>의 콤마</td><td>원소가 1개인 튜플을 만드는 파이썬 문법</td><td>“반복해서 데이터를 넣는다”는 뜻이 아님 — 한 괄호가 한 행이고 행끼리는 바깥 리스트의 콤마로 구분</td></tr>
     <tr><td class="nowrap">콤마를 빼면</td><td><code>(85)</code>는 튜플이 아니라 숫자 85</td><td>행이 리스트가 아니게 되어 DataFrame 생성에서 에러</td></tr>
     </tbody></table></div>
+    <h3>숫자 반환 UDF — IntegerType과 코드 재사용</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">노트북 순서</td><td><code>spark_basic1</code> → <code>spark_basic2</code> → <code>spark_basic3</code></td><td>이번 실습은 세 번째 파일</td></tr>
+    <tr><td class="nowrap">코드 재사용</td><td><code>spark_basic2</code>의 코드를 그대로 복사 — function 가져오기부터 이어서 작성</td><td>같은 세션·import를 다시 만들지 않음</td></tr>
+    <tr><td class="nowrap">그대로 두는 부분</td><td><code>SparkSession.builder</code> 블록은 손대지 않음</td><td>클러스터 주소·드라이버 호스트가 이미 맞음</td></tr>
+    <tr><td class="nowrap">세션 정리</td><td>시작 셀에서 세션이 있으면 끄고 새로 만듦</td><td>같은 셀을 여러 번 실행해도 세션이 쌓이지 않음(33장)</td></tr>
+    <tr><td class="nowrap">종료</td><td>마지막에 <code>spark.stop()</code></td><td>남으면 Master 화면에 앱이 계속 표시됨</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · VS Code 노트북 spark_basic3 · root]</span>
+from pyspark.sql import SparkSession
+import pyspark.sql.functions as fn
+<span class="c"># 여러 타입을 쓰므로 모듈 전체를 t로 가져옴 — t.IntegerType() 처럼 씀</span>
+from pyspark.sql import types as t
+
+<span class="c"># 세션이 이미 있으면 종료하고 새로 생성</span>
+if 'spark' in globals():
+    try:
+        spark.stop()
+    except:
+        pass</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+    <h3>숫자를 반환하는 UDF</h3>
+<div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · VS Code 노트북 spark_basic3 · root]</span>
+<span class="c"># 열 2개짜리 간단한 데이터 — 이름과 점수 (컬럼명은 영문)</span>
+data = [("홍길동",65),("강감찬",80),("유관순",100)]
+df = spark.createDataFrame(data, ["name","jumsu"])
+
+<span class="c"># ① 일반 파이썬 함수 — 점수를 2배로</span>
+def testfn(a):
+    return a * 2
+
+<span class="c"># ② 반환 값이 숫자이므로 IntegerType으로 등록 (함수, 반환 타입)</span>
+result_udf = fn.udf(testfn, t.IntegerType())
+
+<span class="c"># ③ 대상은 이름이 아니라 점수 컬럼 — fn.col로 넘김</span>
+result = df.withColumn("2배수", result_udf(fn.col("jumsu")))
+
+result.show()          <span class="c"># 2배수 컬럼에 130·160·200</span>
+spark.stop()</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>단계</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">① 함수</td><td>점수를 받아 2배를 <code>return</code>하는 일반 파이썬 함수</td><td><code>def</code>까지는 일반 파이썬 코드 — UDF는 반환 타입을 쓰는 부분부터</td></tr>
+    <tr><td class="nowrap">② 등록</td><td><code>fn.udf(함수, 타입)</code>의 결과를 변수(<code>result_udf</code>)에 담아 씀</td><td>반환 값이 숫자라 <code>t.IntegerType()</code> — 문자를 반환할 때 <code>StringType</code>을 쓴 것과 같은 자리</td></tr>
+    <tr><td class="nowrap">③ 적용</td><td><code>df.withColumn("2배수", …)</code>로 새 컬럼 생성</td><td>넘길 대상은 이름이 아니라 컬럼 — <code>fn.col("컬럼명")</code></td></tr>
+    <tr><td class="nowrap">새 컬럼명</td><td>한글 이름(<code>2배수</code>)도 사용 가능</td><td>결과 확인이 쉬움</td></tr>
+    <tr><td class="nowrap">변수 이름</td><td>결과는 앞에서 쓴 <code>df</code>와 다른 이름(<code>result</code>)에 담음</td><td>원본 DataFrame을 덮어쓰지 않음</td></tr>
+    <tr><td class="nowrap">실행 결과</td><td><code>2배수</code> 컬럼에 130·160·200</td><td>65·80·100의 2배</td></tr>
+    </tbody></table></div>
+
+    <h3>UDF 규칙</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>규칙</th><th>내용</th><th>이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">return 필수</td><td>UDF를 쓰려면 <b>무조건 결과가 return</b>되어야 함</td><td>반환 값이 없으면 컬럼에 넣을 값이 없음</td></tr>
+    <tr><td class="nowrap">행 단위 실행</td><td>한 행씩 값을 받아 결과 값을 만듦</td><td>파이썬 함수를 행마다 호출하는 구조(이 장 UDF 개념의 성능 항목)</td></tr>
+    <tr><td class="nowrap">반환 타입</td><td>등록할 때 반환 타입을 함께 지정</td><td>타입이 실제 반환 값과 다르면 오류·<code>null</code>이 생김</td></tr>
+    <tr><td class="nowrap">입력 지정</td><td><code>fn.col("컬럼명")</code>으로 컬럼을 넘김</td><td>컬럼 이름 문자열을 그대로 넘기면 값이 전달되지 않음</td></tr>
+    </tbody></table></div>
+
+    <h3>UDF 종류와 반환 타입</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>구분</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">Scalar UDF</td><td>행 하나에 값 하나를 내는 사용자 정의 함수</td><td>이 장에서 다루는 형태 — 일반적으로 UDF라 부르는 것</td></tr>
+    <tr><td class="nowrap">UDAF</td><td>집계 함수 형태(여러 행 → 하나의 값)</td><td>Apache Hive에서 다룸 — 이번 범위 아님</td></tr>
+    <tr><td class="nowrap">UDTF</td><td>테이블(여러 행)을 내는 함수</td><td>Hive에서 다룸</td></tr>
+    <tr><td class="nowrap">DBMS와 구분</td><td>DB(DBMS)의 Scalar UDF와 Spark(분산처리)의 UDF는 다름</td><td>같은 이름이라도 실행 주체·문법이 달라 구분해서 사용</td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>반환 타입</th><th>설명</th><th>쓰는 자리</th></tr></thead><tbody>
+    <tr><td class="nowrap"><code>IntegerType</code></td><td>정수</td><td>점수 2배 같은 숫자 결과</td></tr>
+    <tr><td class="nowrap"><code>StringType</code></td><td>문자</td><td>점수 → 학점 변환</td></tr>
+    <tr><td class="nowrap"><code>ArrayType</code></td><td>배열을 return</td><td>한 행에서 여러 값을 낼 때</td></tr>
+    <tr><td class="nowrap"><code>MapType</code></td><td>key-value 형태</td><td>키로 꺼내 쓰는 값 묶음</td></tr>
+    <tr><td class="nowrap"><code>StructType</code></td><td>JSON 데이터에 대한 객체를 쓸 때 사용</td><td>실무에서도 자주 쓰는 형태</td></tr>
+    </tbody></table></div>
+    <ul class="facts">
+    <li><strong>반환 타입 범위</strong><div>위 5가지는 대표 예일 뿐 — <code>pyspark.sql.types</code>의 모든 DataType(<code>BooleanType</code>·<code>LongType</code>·<code>DoubleType</code>·<code>DateType</code>·<code>TimestampType</code>·<code>DecimalType</code> 등)을 returnType으로 쓸 수 있음</div></li>
+    <li><strong>SQL 자료형과 구분</strong><div><code>int</code>·<code>varchar</code>·<code>char</code>·<code>datetime</code>·<code>smallint</code>는 SQL <b>자료형(데이터 타입)</b>이고 UDF가 아님 — SQL UDF는 <code>CREATE FUNCTION</code>으로 만드는 함수이며 이 자료형들은 그 함수의 매개변수·반환 타입으로 쓰임</div></li>
+    <li><strong>Hive</strong><div><code>UDAF</code>·<code>UDTF</code>는 Apache Hive 학습에서 다룸 — 집계 관련 UDF는 이번 내용과 무관</div></li>
+    </ul>
+
+    <h3>실행 중 만난 경고와 조치</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>증상</th><th>내용</th><th>조치·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">SparkUI 포트</td><td><code>WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.</code> (4041·4042·4043 계속 시도)</td><td><b>에러 아님</b> — 기본 포트 4040이 이미 사용 중이라 다음 포트를 열어 쓰는 뜻</td></tr>
+    <tr><td class="nowrap">실행 지연</td><td>보통 2~3초인데 1분 넘게 걸림</td><td>Spark 앱을 <b>두 개 동시에</b> 돌린 상태 — 강제 종료 후 재실행</td></tr>
+    <tr><td class="nowrap">자원 경고</td><td>로그의 <code>TaskSchedulerImpl: Initial job has not accepted any resources</code></td><td>클러스터 자원이 부족할 때 나오는 경고 — 실행 중인 앱 확인</td></tr>
+    <tr><td class="nowrap">Jupyter 끊김</td><td>VS Code Jupyter 서버 연결이 끊김</td><td>새로 접속해 다시 실행</td></tr>
+    <tr><td class="nowrap">여러 명 동시 실행</td><td>서버가 느려짐</td><td>이미지 입력 단계에서도 같은 현상이 반복됨</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">4040 바인딩 실패는 에러가 아니라 다음 포트(4041…)를 쓰는 경고 — 실행이 1분 넘게 걸리면 앱이 두 개 떠 있는지부터 확인. <code>Initial job has not accepted any resources</code>는 자원 부족 신호</div>
+
     <div class="dg-bar warn">UDF 등록은 fn.udf(함수, 반환타입) — 반환 타입을 생략하면 기본 StringType이 적용되므로 숫자 결과는 IntegerType처럼 명시. 행마다 파이썬 함수를 호출하는 방식이라 단순 형 변환은 cast() 내장 함수를 씀</div>
 
-    <ul class="facts"><li><strong>pandas UDF</strong><div>벡터화 UDF 실습과 설정 3종: 이 파일 16장</div></li><li><strong>pandas UDF 오류</strong><div><code>show</code> 기준·pyarrow 오류 대응: 이 파일 17장</div></li><li><strong>윈도우 함수</strong><div><code>over(ws)</code>·순위·누적 합산: 이 파일 64장</div></li><li><strong>형 변환 실습</strong><div><code>cast("long")</code>으로 결과 컬럼 타입 바꾸기: 이 파일 59장</div></li></ul>
+    <ul class="facts"><li><strong>pandas UDF</strong><div>벡터화 UDF 실습과 설정 3종: 이 파일 16장</div></li><li><strong>pandas UDF 오류</strong><div><code>show</code> 기준·pyarrow 오류 대응: 이 파일 17장</div></li><li><strong>윈도우 함수</strong><div><code>over(ws)</code>·순위·누적 합산: 이 파일 64장</div></li><li><strong>형 변환 실습</strong><div><code>cast("long")</code>으로 결과 컬럼 타입 바꾸기: 이 파일 59장</div></li><li><strong>숫자 반환 UDF</strong><div><code>types as t</code>·<code>t.IntegerType()</code>·점수 2배: 이 파일 65장</div></li><li><strong>이미지 유사도 결과 읽기</strong><div><code>read_sql</code>·<code>createDataFrame</code>·<code>show</code>: 이 파일 66장</div></li><li><strong>벡터 SQL</strong><div><code>travel_image</code>·<code>&lt;=&gt;</code>·<code>cast(:user_vec as vector)</code>: postgresql.html 30~33장</div></li></ul>
+  </section>
+
+  <!-- 66 -->
+  <section class="sec" id="spark-image-search">
+    <h2>이미지 유사도 검색 결과를 Spark로 읽기 (img2·img3)</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 노트북 img2 → SparkSession → create_engine → read_sql(서브쿼리) → show</p><div class="dg-flow">
+      <div class="dg-node"><h4>① 노트북</h4><p class="sub">img2 · SELECT 단계</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>② 세션</h4><p class="sub">spark://spark-master:7077</p></div><div class="dg-arrow"></div>
+      <div class="dg-node key"><h4>③ 엔진</h4><p class="sub">search_path=mg_schema</p></div><div class="dg-arrow"></div>
+      <div class="dg-node"><h4>④ read_sql</h4><p class="sub">더블 셀렉트 쿼리</p></div><div class="dg-arrow"></div>
+      <div class="dg-node accent"><h4>⑤ show</h4><p class="sub">truncate=False</p></div></div>
+      <p class="dg-foot">구조는 61장과 같음 — 다른 점은 쿼리 안에 이미지 벡터 끼리의 거리 계산이 들어간다는 것</p></div>
+
+    <h3>노트북 img2</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">왜 Spark</td><td>저장된 이미지끼리 비교하는 SELECT 단계라 Spark를 사용</td><td>벡터를 만드는 INSERT 단계(img1)에는 Spark를 쓰지 않음 — postgresql.html 30장</td></tr>
+    <tr><td class="nowrap">import</td><td><code>SparkSession</code>·<code>pandas</code>·<code>create_engine</code>·<code>text</code></td><td>pandas로 접속해 SELECT하는 쪽이 빨라 함께 사용</td></tr>
+    <tr><td class="nowrap">세션</td><td>61장의 <code>SparkSession.builder</code> 구조 그대로</td><td><code>spark.driver.host</code>를 <code>spark-master</code>로 지정</td></tr>
+    <tr><td class="nowrap">SQL 출처</td><td>DBeaver에서 먼저 확인한 쿼리를 그대로 옮김</td><td>문법·순서 해석은 postgresql.html 31~32장</td></tr>
+    <tr><td class="nowrap">SQLAlchemy 엔진</td><td><code>create_engine</code>에 접속 정보와 <code>-c search_path=mg_schema,public</code> 지정</td><td>스키마 경로가 없으면 <code>travel_image</code>를 못 찾음(58장)</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · Jupyter 노트북 img2 · root]</span>
+<span class="c"># 이미지 유사도 검사 — 저장된 벡터끼리 비교한 결과를 Spark DataFrame으로 확인</span>
+from pyspark.sql import SparkSession
+import pandas as pd
+from sqlalchemy import create_engine, text
+
+spark = SparkSession.builder \
+    .master("spark://spark-master:7077") \
+    .config("spark.driver.host","spark-master") \
+    .getOrCreate()
+
+<span class="c"># SQLAlchemy 엔진 — DB 접속 정보와 스키마 검색 경로</span>
+dbinfo = create_engine(
+    "postgresql+psycopg2://계정:비밀번호@192.168.222.5/mg",
+    connect_args={"options":"-c search_path=mg_schema,public"}
+)
+
+<span class="c"># SELECT 안에 SELECT가 들어가는 더블 셀렉트 (보기 편하도록 3줄로 나눔)</span>
+query = """
+select file_path, emd &lt;=&gt;
+(select emd from travel_image where file_path ilike '%travel_13.jpg%')
+as img from travel_image order by img asc
+"""
+pdf = pd.read_sql(text(query), con=dbinfo)     <span class="c"># 쿼리 결과를 pandas DataFrame으로</span>
+dbinfo.dispose()                               <span class="c"># with를 쓰지 않아 직접 DB 접속 종료</span>
+df = spark.createDataFrame(pdf)                <span class="c"># pandas → Spark DataFrame</span>
+df.show(truncate=False)                        <span class="c"># 잘리지 않게 전체 출력</span>
+spark.stop()                                   <span class="c"># 마지막에 Spark 종료</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>요소</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">거리 컬럼</td><td><code>emd &lt;=&gt; (기준 이미지 벡터) as img</code> — 거리 값에 별칭 <code>img</code></td><td>정렬 기준이 되는 컬럼</td></tr>
+    <tr><td class="nowrap">정렬</td><td><code>order by img asc</code> — 거리가 작은(가까운) 이미지부터</td><td>정렬은 DB가 끝낸 상태로 도착</td></tr>
+    <tr><td class="nowrap"><code>dispose()</code></td><td><code>with</code>를 쓰지 않아 <code>dbinfo.dispose()</code>로 접속을 닫음</td><td>닫지 않으면 연결이 남음 — 58장의 <code>with connect</code> 방식과 차이</td></tr>
+    <tr><td class="nowrap"><code>show(truncate=False)</code></td><td>파일 경로가 길어 잘리지 않게 전체 출력</td><td>기본 <code>show()</code>는 컬럼 폭을 줄여 경로가 잘림</td></tr>
+    <tr><td class="nowrap">모델 실행</td><td>없음 — DB에 저장된 512차원 벡터끼리 비교</td><td>이미지 파일을 다시 읽지 않음</td></tr>
+    <tr><td class="nowrap">실수 사례</td><td><code>ilike '%…%'</code>의 <code>%</code>를 중복 입력</td><td>앞뒤에 하나씩만 사용</td></tr>
+    </tbody></table></div>
+
+    <h3>실행 결과</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>확인 지점</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">출력 표</td><td><code>file_path</code>와 <code>img</code> 두 컬럼</td><td><code>img</code> 값은 거리 — 작을수록 비슷</td></tr>
+    <tr><td class="nowrap">1순위</td><td>기준 이미지 자신이 <code>0.0</code>으로 맨 위</td><td>0이면 완전히 같은 벡터</td></tr>
+    <tr><td class="nowrap">확인 절차</td><td>표의 <code>file_path</code>로 이미지를 직접 열어 비교</td><td>13번 기준 결과는 postgresql.html 32장 표</td></tr>
+    <tr><td class="nowrap">Spark 화면</td><td>Master 화면(<code>192.168.222.5:8080</code>) Running Applications에 앱 표시</td><td>앱이 남아 있으면 <code>spark.stop()</code> 확인(23·33장)</td></tr>
+    </tbody></table></div>
+
+    <h3>img3 — 사용자 이미지로 검색할 때의 차이</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>img2</th><th>img3</th></tr></thead><tbody>
+    <tr><td class="nowrap">기준 벡터</td><td>DB 안 이미지를 서브쿼리로 가져옴</td><td>업로드한 <code>user.jpg</code>를 CLIP으로 벡터화</td></tr>
+    <tr><td class="nowrap">쿼리 조건</td><td><code>emd &lt;=&gt; (select emd …)</code></td><td><code>emd &lt;=&gt; cast(:user_vec as vector)</code></td></tr>
+    <tr><td class="nowrap">값 전달</td><td>SQL 안에서 해결</td><td><code>params={"user_vec":vector_str}</code></td></tr>
+    <tr><td class="nowrap">import 추가</td><td>—</td><td><code>PIL</code>·<code>transformers</code>·<code>os</code></td></tr>
+    <tr><td class="nowrap">상세</td><td>postgresql.html 32장</td><td>postgresql.html 33장</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">Spark는 조회 결과 표시를 담당 — CLIP 추론과 SQL 실행은 파이썬과 DB에서 일어나고 Spark가 분산 처리하는 구조가 아님. <code>read_sql</code>은 select 전용이고 insert는 psycopg2의 커서로 처리</div>
+
+    <ul class="facts">
+    <li><strong>벡터 SELECT 기본 구조</strong><div><code>create_engine</code>·<code>read_sql</code>·<code>createDataFrame</code>: 이 파일 61장</div></li>
+    <li><strong>SQL·결과 해석</strong><div>더블 셀렉트·<code>ilike</code>·거리 정렬·결과 표: postgresql.html 31~32장</div></li>
+    <li><strong>사용자 이미지 검색</strong><div><code>params</code>·<code>cast</code>·모델 차원: postgresql.html 33장</div></li>
+    <li><strong>모델 설치</strong><div>CLIP·PyTorch 설치 상태: 이 파일 60장</div></li>
+    </ul>
   </section>
 
   <section class="sec" id="cheatsheet">
@@ -6307,6 +6498,15 @@ spark.stop()</code></pre><button class="copy" aria-label="코드 복사" type="b
           <tr><td><code>fn.udf(jumsu, StringType())</code></td><td>파이썬 함수를 UDF로 등록 — 반환 타입 생략 시 기본 <code>StringType</code></td></tr>
           <tr><td><code>spark.createDataFrame([(85,),(92,),(76,)],["jumsu"])</code></td><td><code>(85,)</code> 콤마는 원소 1개 튜플 문법 — 한 괄호가 한 행, 콤마가 없으면 숫자</td></tr>
           <tr><td><code>df.withColumn("grade",jumsu_udf(df["jumsu"]))</code></td><td>입력 숫자 → 반환 문자(점수 → 학점). 결과 85→B+, 92→A+, 76→B+</td></tr>
+          <tr><td><code>from pyspark.sql import types as t</code> / <code>fn.udf(testfn, t.IntegerType())</code></td><td>여러 타입을 쓸 때 모듈 전체를 <code>t</code>로 가져옴 / 숫자를 반환하는 UDF 등록 — <b>return 필수</b></td></tr>
+          <tr><td><code>df.withColumn("2배수", result_udf(fn.col("jumsu")))</code></td><td>UDF 대상은 컬럼 — <code>fn.col</code>로 넘김. 결과 65→130, 80→160, 100→200</td></tr>
+          <tr><td><code>WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.</code></td><td>에러 아님 — 4040이 사용 중이라 다음 포트를 씀(4041·4042·4043)</td></tr>
+          <tr><td><code>TaskSchedulerImpl: Initial job has not accepted any resources</code></td><td>클러스터 자원 부족 경고 — 앱을 두 개 동시에 돌리고 있는지 확인</td></tr>
+
+          <tr class="group"><th colspan="2" scope="colgroup">이미지 유사도 결과 읽기 (66장)</th></tr>
+          <tr><td><code>pd.read_sql(text(query), con=dbinfo)</code></td><td>더블 셀렉트 쿼리 결과를 pandas로 — <code>dbinfo.dispose()</code>로 접속 종료(<code>with</code> 미사용)</td></tr>
+          <tr><td><code>df.show(truncate=False)</code></td><td>파일 경로가 길어 전체 출력 — 기본 <code>show()</code>는 경로가 잘림, 거리 값 <code>img</code>가 작을수록 비슷</td></tr>
+          <tr><td><code>pd.read_sql(text(query), con=dbinfo, params={"user_vec":vector_str})</code></td><td>사용자 이미지 벡터를 <code>cast(:user_vec as vector)</code> 자리에 파라미터로 전달</td></tr>
         </tbody>
       </table>
     </div>
