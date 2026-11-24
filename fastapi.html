@@ -786,7 +786,6 @@ pip3 install nest_asyncio      <span class="c"># 주피터용 — 주피터가 �
 
     <h3>워커에 설치하는 경우와 아닌 경우</h3>
     <ul class="facts"><li><strong>기본</strong><div>실습은 마스터·워커 둘 다 설치 — 워커에서도 API를 띄워 볼 수 있게</div></li><li><strong>마스터만 설치</strong><div>워커 노드에서 <b>백그라운드 작업 서버</b>(RQ·Celery·메시지 큐 등)를 돌릴 때는 마스터에만 API 라이브러리 설치</div></li><li><strong>백그라운드 작업 서버</strong><div>Celery 등은 수업에서 다루지 않음 — 경력자·사수가 담당하고 신입에게 맡기지 않는 영역 (포트 위험이 큼)</div></li></ul>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 30강 38:00~40:59</div><p>백그라운드 작업 도구로 언급된 이름 중 RQ·Celery 외 나머지 단어가 정확히 무엇인지 — 메시지 큐 계열 도구 이름은 음성만으로 확정하지 않고 영상 38분~40분대를 직접 확인</p></div>
 
     <div class="dg-bar warn">실행기 이름 — <code>uvicorn</code>("유니콘" 아님). 배포는 멀티프로세스 <code>--workers N</code>(워커 3개 → <code>--workers 3</code>). 주피터용 <code>nest_asyncio</code>는 <b>마스터에만</b>, <code>fastapi</code>·<code>uvicorn</code>은 마스터·워커 둘 다</div>
   </section>
@@ -1421,7 +1420,6 @@ def get_travel2(ea: int):                 <span class="c"># int 로 선언 — �
     <tr><td class="nowrap">실행 결과</td><td><code>http://서버IP:11111/travel/5</code> → 5건, 기존 <code>/travel</code> 전체 조회도 정상</td><td>두 라우트가 같은 파일에 함께 등록됨</td></tr>
     <tr><td class="nowrap">함수 이름</td><td>앞 라우트와 같은 이름을 쓰기도 하지만 구분이 어려우므로 <code>get_travel2</code> 처럼 다르게 지정</td><td>같은 이름으로 다시 정의해도 앞 라우트는 등록 당시 함수 객체를 그대로 가리켜 동작 — 읽는 사람이 헷갈리는 것이 문제</td></tr>
     </tbody></table></div>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 43강(PySpark3)</div><p><code>execute(sql, (ea))</code> 의 괄호는 값 하나를 감싼 것일 뿐 튜플이 아님. PyMySQL 은 튜플·리스트가 아닌 단일 값도 이스케이프해 넣으므로 동작하지만, 값이 하나일 때 <code>(ea,)</code> 처럼 콤마를 붙이는 표기가 일반적 — 화면에 콤마가 있는지 직접 확인</p></div>
     <div class="dg-bar warn">경로 파라미터 — <code>@app.get("/travel/{ea}")</code> + <code>ea: int</code> + <code>limit 0, %s</code> + <code>execute(sql, (ea))</code>. <code>%s</code> 는 타입 무관 플레이스홀더이고 값은 이스케이프돼 들어가 SQL 인젝션을 막음</div>
 
     <ul class="facts"><li><strong>앞 장 코드</strong><div>전체 조회 라우트와 <code>db_config</code>: 이 파일 15장</div></li><li><strong>LIMIT 문법</strong><div>시작 위치·개수 의미: mysql.html 4장</div></li><li><strong>같은 패턴</strong><div><code>/del/{id}</code> 경로 파라미터와 <code>%s</code> 바인딩: 이 파일 14장</div></li><li><strong>다음 단계</strong><div>이 API 를 Spark 가 읽기: pyspark.html 22장</div></li></ul>

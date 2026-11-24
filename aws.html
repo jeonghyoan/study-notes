@@ -704,8 +704,6 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     </tbody></table></div>
     <div class="dg-bar warn">Lambda 과금 — 함수 생성·Deploy·Test는 무료, <b>요청 수·실행 시간</b>부터 과금. 재귀(자기) 호출이 반복되면 요청과 실행이 끝없이 쌓여 요금이 커지므로, S3·이벤트를 연결한 뒤에는 함수가 <b>한 번만</b> 실행되는지 로그·실행 횟수로 확인</div>
 
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · AWS 클라우드 1 102:14~102:30</div><p>수업에서 “호출하는 경우”라고 말한 부분이 재귀(자기) 호출을 뜻하는지 음성으로 확인할 항목. 재귀 호출이 반복되면 요청 수·실행 시간이 계속 쌓이는 구조이므로, 연결 전에 실행 횟수와 종료 조건을 확인</p></div>
-
     <ul class="facts"><li><strong>관련 파일</strong><div>API 개념과 HTTP 메서드·JSON 응답 형식: fastapi.html 1~2장 / Lambda가 받는 이벤트 JSON과 API 호출의 관계: 이 파일 7장</div></li><li><strong>다음 흐름</strong><div>S3 버킷·presigned URL·API Gateway 결합 실습: 이 파일 13~25장</div></li></ul>
   </section>
   <!-- 2 -->
@@ -747,7 +745,6 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
     <div class="dg-bar warn">스테이트풀 vs 스테이트리스 — 스테이트풀은 서버가 <b>이전 요청을 기억</b>(세션·장바구니·채팅·게임), 스테이트리스는 <b>요청마다 모든 정보를 전달</b>(REST API·Lambda 기본). 토글은 기본값이 “끔”이고, 켜면 상태 관리가 붙어 운영이 복잡해짐</div>
 
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · AWS 클라우드 1 20:52~21:25</div><p>“이걸 켜 놓으면 ~해진다”고 한 문장의 발음이 불명확한 부분. 지속적인 실행(스테이트풀) 토글을 켰을 때 생기는 제약 — 실행 환경 재사용·동시 실행 제한·요금 구조 변화 — 을 영상 음성과 AWS Lambda 문서에서 확인할 항목</p></div>
   </section>
   <!-- 4 -->
   <section class="sec" id="advanced-settings">
@@ -1036,12 +1033,10 @@ irm https://awscli.amazonaws.com/v2/install.ps1 | iex</code></pre><button class=
 
     <h3>실패 사례와 원인</h3>
     <ul class="facts">
-      <li><strong>키 입력 후 로그인 에러 반복</strong><div>Docker 컨테이너 업데이트 메시지가 함께 뜨는 경우가 있음 → Docker 삭제 후 VS Code를 재실행하자 정상 로그인 <del class="prune-cand">(강사의 개인 경험)</del></div></li>
+      <li><strong>키 입력 후 로그인 에러 반복</strong><div>Docker 컨테이너 업데이트 메시지가 함께 뜨는 경우가 있음 → Docker 삭제 후 VS Code를 재실행하자 정상 로그인</div></li>
       <li><strong>원인 추정</strong><div>불필요한 프로그램이 설치돼 있으면 Toolkit 로그인과 충돌한다는 설명 — 일반 증상인지 확인이 필요한 부분</div></li>
       <li><strong>로그인 방식 비교</strong><div>키 없이 콘솔 자격 증명으로 로그인하는 방식은 키가 없어도 세션이 뚫리면 피해가 큼. ppk는 PuTTY용 <b>SSH 개인 키 파일 형식</b>으로 EC2 인스턴스 SSH 접속에 쓰이는 것이라 Toolkit·CLI의 계정 로그인 방식이 아님</div></li>
     </ul>
-
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · AWS 클라우드 1 77:34~78:39</div><p>강사의 개인 경험담(77:34~78:39)이라, “Docker가 설치되어 있으면 AWS Toolkit과 충돌해 로그인 에러”가 일반적으로 알려진 증상인지 AWS Toolkit 이슈 목록·공식 문서에서 확인할 항목. 재현되지 않으면 키·프로필·리전·CLI 설치 상태를 먼저 점검</p></div>
 
     <div class="dg-bar warn">Toolkit 로그인 — 세 번째 방식 <b>IAM credentials</b>에 액세스 키·비밀 키를 넣고, 하단 <code>AWS: profile:apink</code> 표시로 연결 확인. 키가 맞는데도 실패하면 다른 프로그램(예: Docker) 충돌·CLI 미설치·프로필 이름 중복을 확인</div>
   </section>
@@ -1263,9 +1258,6 @@ E2 server =&gt; 50GB =&gt; 무한(이미지, 문서(pdf), pptx, 동영상)
     <p>가용성 차이는 설계 목표 기준 <b>99.99% 대 99.95%로 약 0.04%p</b> — “약 3% 차이”는 공식 수치가 아님. 디렉터리는 <b>단일 가용 영역(AZ)에만 저장</b>되므로 그 AZ에 장애가 나면 데이터를 잃을 수 있어, 내구성이 Standard와 같다고 볼 수 없음.</p>
     <p>S3 웹사이트 호스팅은 <b>정적 콘텐츠(HTML·CSS·JS 등)만</b> 가능하고 서버 측 동적 처리는 불가 — 동적 처리는 Lambda·EC2 등이 담당. <b>정적 웹호스팅</b> 개념은 따로 찾아볼 것(웹호스팅 기본 상식).</p>
 
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · AWS 클라우드 2 · 버킷 만들기 화면</div><p>“버킷에 관련된 종류만 21가지가 나온다”의 정확한 의미·개수 — 버킷 만들기 화면 전체를 열어 항목을 직접 세어 보는 항목</p></div>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · AWS 클라우드 2 · 버킷 유형 설명</div><p>범용 버킷이 HDD, 디렉터리(Express)가 SSD라는 하드웨어 설명의 사실 여부 — AWS 공식 S3 스토리지 클래스 문서에서 확인할 항목</p></div>
-
     <div class="dg-bar warn">범용 vs 디렉터리 — 범용은 여러 가용 영역에 중복 저장하는 S3 Standard 계열(웹호스팅·파일 스토리지), 디렉터리는 단일 AZ의 Express One Zone(초저지연, AI/ML 학습·실시간 분석). 가용성 차이는 0.04%p 정도지만 단일 AZ라 <b>AZ 장애 시 데이터 손실 위험</b>이 있음</div>
   </section>
   <!-- 17 -->
@@ -1323,8 +1315,6 @@ E2 server =&gt; 50GB =&gt; 무한(이미지, 문서(pdf), pptx, 동영상)
     <p>같은 계정에 수강생 버킷이 여러 개 보여도 퍼블릭이 아니라는 것과 접근 가능 여부는 별개 — 퍼블릭 액세스 차단은 익명(외부) 공개를 막는 설정이고, 같은 계정의 IAM 사용자가 다른 버킷을 보고 쓸 수 있는지는 그 사용자의 IAM 정책으로 정해짐.</p>
 
     <div class="dg-bar warn">암호화 3종 — <b>SSE-S3</b>는 기본·무료(서버 쪽 마스터키 관리), <b>SSE-KMS</b>는 고객이 키를 관리하고 비용이 들지만 키 단위 접근 통제·접근 로그(보안감사)를 얻음, <b>DSSE-KMS</b>는 이중 계층으로 가장 비싸고 규제 준수(금융·공공)에 필요한 선택. 버킷 키는 KMS 요청 비용 절감용이라 SSE-KMS일 때만 의미</div>
-
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · AWS 클라우드 2 · 암호화 유형 설명</div><p>DSSE-KMS 비용이 정확히 2배라는 설명 — AWS S3 요금 페이지에서 DSSE-KMS 요금을 확인할 항목</p></div>
 
     <div class="dg-bar warn">버킷 만들기 기본값 — <b>계정 리전 네임스페이스 · ACL 비활성화 · 퍼블릭 액세스 차단 모두 체크 · 버전 관리 비활성화 · SSE-S3 · 객체 잠금 비활성화</b>. 퍼블릭 액세스 차단 해제와 ACL 활성화는 보안팀 영역이라 실습에서도 건드리지 않음</div>
   </section>
@@ -1591,7 +1581,7 @@ presigned_url 직접 파일 업로드를 할 수 있는 람다 규칙에 맞게 
       <li><b>추가</b> → 실행 결과 — 트리거 목록에 API Gateway(API 이름 + <code>API endpoint</code> URL) 생성</li>
     </ol>
 
-    <p><b>API endpoint</b>(예: <code>https://&lt;api-id&gt;.execute-api.ap-northeast-2.amazonaws.com/default/mz-apink</code>) 전체 복사 → HTML의 <code>API_URL</code>에 붙여넣고 저장. <del class="prune-cand">이 구축 과정은 <b>포트폴리오</b>에 넣으면 좋음.</del></p>
+    <p><b>API endpoint</b>(예: <code>https://&lt;api-id&gt;.execute-api.ap-northeast-2.amazonaws.com/default/mz-apink</code>) 전체 복사 → HTML의 <code>API_URL</code>에 붙여넣고 저장.</p>
 
     <h3>첫 업로드 시도</h3>
     <ul class="facts">

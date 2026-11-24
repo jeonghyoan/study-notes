@@ -698,7 +698,6 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <tr><td class="nowrap">다양한 언어</td><td>Scala, Java, Python, SQL류 언어(PSQL), R 지원</td><td>팀이 쓰는 언어로 작업 제출 가능</td></tr>
     <tr><td class="nowrap">내결함성</td><td>장애 대응</td><td>일부 워커·작업이 실패해도 전체 작업을 이어가는 구조</td></tr>
     </tbody></table></div>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 27강 04:04~04:15</div><p>지원 언어 목록의 "PSQL"이 정확히 어떤 언어를 가리키는지 — 음성만으로 확정하지 않고 영상 04분 04초~04분 15초 구간을 직접 확인</p></div>
     <p>면접 단골 질문 "Spark는 왜 쓰나요?" → 분산 시스템이 필요 없는 규모라면 Spark도 필요 없다는 맥락까지 답해야 함. 이유를 설명하지 못하면 탈락으로 이어지는 질문. 무작정 구축하지 말고 필요한 이유를 먼저 정리.</p>
     <div class="dg-bar warn">Spark 도입 판단 — 대규모 분산 처리가 필요 없으면 구축 불필요(비용만 발생). "왜 쓰나"를 물으면 장점 네 가지 + 분산이 필요 없는 규모에는 쓰지 않는다는 판단 기준까지 답해야 면접에서 통함</div>
 
@@ -755,7 +754,6 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <tr><td class="nowrap">증상</td><td>CPU·메모리가 갑자기 쓰임 — CPU core를 몰래 사용</td></tr>
     <tr><td class="nowrap">전파</td><td>링크를 타고 연결되며 주소를 가로채고, 컴퓨터가 아무것도 하지 않을 때 조작해 다른 바이러스를 옮기게 함</td></tr>
     </tbody></table></div>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 28강 52:37~53:30</div><p>"클러스터 바이러스"가 보안 분야의 정식 용어인지 — 영상 52분 37초~53분 30초 설명을 듣고 봇넷·크립토재킹 등 보안 자료로 대조</p></div>
     <div class="dg-bar warn">노드 용어 — 인프라의 노드는 클러스터를 이루는 서버 1대(worker=slave). 개발자의 Node.js·자료구조 노드와 무관. 클러스터 전체 제어·관리는 컨트롤 플레인(Kubernetes)이고, Spark Standalone은 Master 프로세스가 자원 배분을 직접 담당</div>
 
     <ul class="facts"><li><strong>자원 계산·포트</strong><div>코어·메모리 배분 계산과 포트 표: 이 파일 2장</div></li><li><strong>클러스터 기동·운영</strong><div>마스터·워커 기동과 워커 증감: 이 파일 8장</div></li><li><strong>작업 제출</strong><div><code>spark-submit</code> 옵션과 자원 실험: 이 파일 9장</div></li></ul>
@@ -993,7 +991,6 @@ cd /opt       <span class="c"># 설치 위치로 이동 (두 서버 모두)</spa
     <tr><td class="nowrap">/opt와 /tmp</td><td><code>/opt</code>는 패키지·앱을 설치하는 곳, <code>/tmp</code>는 임시 파일 공간</td><td>설치 대상은 <code>/opt</code> — 재부팅·정리 정책에 지워지지 않는 위치</td></tr>
     <tr><td class="nowrap">소유자</td><td><code>root:root</code></td><td>일반 사용자 설치가 막히는 이유 — 설치·소유권 변경은 root, 이후 설정은 sparkuser</td></tr>
     </tbody></table></div>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 26강 16:05</div><p>"tmp는 이미 C 디렉토리"라는 설명이 <code>/tmp</code>와 윈도우 C 드라이브 중 무엇을 가리키는지 — 음성이 불명확하므로 영상 16분 00초~16분 15초를 다시 듣고 확인</p></div>
 
     <h3>배포본 고르기</h3>
     <p>Apache Spark 사이트 Downloads에서 Spark <code>3.5.9</code> 선택 → "Choose a package type"에서 <code>bin-hadoop3</code> 계열. <b>300MB 이상</b> 파일이 바이너리 배포본(선택값 <code>spark-3.5.9-bin-hadoop3.tgz</code> 383MB)이고, 30MB대 파일은 소스(source) 배포본이라 설치용이 아님.</p>
@@ -1006,7 +1003,6 @@ cd /opt       <span class="c"># 설치 위치로 이동 (두 서버 모두)</spa
     <tr><td class="nowrap">pyspark</td><td>303M</td><td>PySpark 전용 배포본</td></tr>
     </tbody></table></div>
     <p><strong>받는 방법</strong> — 공식 다운로드 페이지 대신 <b>아카이브 주소</b> <code>https://archive.apache.org/dist/spark/spark-3.5.9/</code>를 쓰면 빠름(300Mbps). 아카이브에는 0.x부터 4.2까지 모든 버전과 Kubernetes 버전이 있고 그룹 아이디가 maven 형태. 파일 링크에서 마우스 오른쪽 → 링크 주소 복사.</p>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 26강 26:39~26:58</div><p>30MB대 파일을 "샘플"이라고 설명한 부분의 정확한 성격 — Apache Spark 다운로드 페이지의 <code>spark-3.5.9.tgz</code> 항목 설명(소스 배포본)으로 대조 확인</p></div>
 
     <h3>wget 다운로드와 실패 사례</h3>
     <div class="code"><pre><code><span class="c"># [마스터·워커 공통 · root · /opt]</span>
@@ -1023,7 +1019,6 @@ tar: Error is not recoverable</code></pre><button class="copy" type="button" ari
     <tr><td class="nowrap">해결 방향</td><td>파일을 직접 주는 링크(<code>action=download</code> 형식) 또는 아카이브 주소 사용</td><td>미러 선택 페이지는 지역 미러로 안내하는 HTML이라 tar가 풀 수 없음</td></tr>
     <tr><td class="nowrap">효과 없던 시도</td><td>옵션 순서 변경(<code>xfz</code> → <code>xzf</code>), <code>dnf update</code>(마스터 121개·워커 99개 패키지 업데이트)</td><td>파일 자체가 HTML이므로 옵션·패키지 상태와 무관 — 실패 원인을 파일로 먼저 좁히는 것이 순서</td></tr>
     </tbody></table></div>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 26강 19:31~19:50, 23:17~23:30</div><p>워커에 <code>tar</code> 명령 자체가 없어 옵션이 나오지 않았다는 설명 — 영상의 워커 화면에서 업데이트 전 <code>tar</code> 실행 결과(<code>command not found</code> 여부)로 확인</p></div>
 
     <h3>다시 받기와 서버 간 전송 (scp)</h3>
     <div class="code"><pre><code><span class="c"># [마스터·워커 공통 · root · /opt]</span>
@@ -1103,7 +1098,6 @@ vi ~/.bashrc   <span class="c"># 본인 환경변수 파일 편집 → :set nu�
     <tr><td class="nowrap">sbin</td><td><code>/opt/spark/sbin</code></td><td>bin에서 한 단계 나가 <code>ls</code>로 보면 있는 디렉토리. <code>start-master.sh</code>·<code>start-worker.sh</code>·<code>start-all.sh</code>·<code>stop-all.sh</code>가 여기 있음. <b>bin과 sbin 두 개 다 PATH에 필요</b></td></tr>
     <tr><td class="nowrap">Java(JVM)</td><td><code>/usr/lib/jvm/java-17-openjdk</code></td><td>JVM이 어디 있는지 <code>find</code>로 찾아야 함 — 배포판·설치 방식에 따라 경로가 다름</td></tr>
     </tbody></table></div>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 26강 47:25~47:40</div><p><code>sbin</code>을 "sub library 관련"이라고 설명한 부분의 의미 — 음성이 불명확하므로 영상 47분 25초~47분 40초를 다시 듣고, 화면에 보이는 <code>/opt/spark/sbin</code> 내용(클러스터 시작·중지 스크립트)으로 확인</p></div>
 
     <h3>Java 경로 찾기</h3>
     <div class="code"><pre><code><span class="c"># [마스터·워커 공통 · sparkuser]</span>
@@ -2111,7 +2105,6 @@ server time.bora.net iburst</code></pre><button class="copy" aria-label="코드 
     <tr><td class="nowrap">윈도우 대응</td><td>[윈도우 · 설정] 날짜 및 시간 → 자동 표준 시간대 설정 켬/끔, 동기화 → 시간 서버 변경</td><td>윈도우에도 같은 기능이 있음</td></tr>
     <tr><td class="nowrap">타임존만 바꾸기</td><td>chrony 대신 타임존을 강제로 잡는 방법도 있음 (아래)</td><td>동기화가 막힌 환경의 우회</td></tr>
     </tbody></table></div>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 41강 59:13</div><p>NTP를 "네트워크 타임(서버)"이라고 설명한 부분. NTP의 정식 표기와 강사 표현이 같은 뜻인지 — 영상 59분 13초 부근 chrony.conf 편집 화면과 chrony 공식 문서·RFC 5905 원문을 대조해 확인</p></div>
 
     <h3>서비스 재시작 실패 — 시도별 결과</h3>
     <div class="table-wrap"><table>
@@ -2337,7 +2330,6 @@ pip3 install psycopg2-binary    <span class="c"># 워커도 같은 드라이버 
     <tr><td class="nowrap">운영 표준</td><td>운영에서 binary 배포본을 쓴다면 psycopg 3 의 <code>psycopg[binary]</code></td><td><code>psycopg2-binary</code> 는 개발·테스트용으로 분류됨</td></tr>
     <tr><td class="nowrap">psql 패키지</td><td><code>psql</code> 이름의 파이썬 패키지는 설치 불필요</td><td>PostgreSQL 문법 처리는 <code>psycopg2-binary</code> 로 충분, JDBC jar 는 별도(21장)</td></tr>
     </tbody></table></div>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 43강(Pyspark4) 90:54~91:09</div><p>이 구간에서 "psql 은 라이벌"이라고 지목한 대상 패키지 이름을 화면으로 확정하지 못함 — <code>psycopg2</code> 계열이 아닌 <code>psql</code> 계열 라이브러리로 보이고, JDBC jar 를 이미 준비했으므로 추가 설치가 불필요하다는 결론만 확인</p></div>
 
     <h3>psycopg 3</h3>
     <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
@@ -2387,7 +2379,6 @@ docker exec -it spark-worker1 bash</code></pre><button class="copy" type="button
     <tr><td class="nowrap">명령 복사</td><td>선택을 마치면 나오는 명령을 그대로 복사해 붙여넣음</td><td>손으로 고치면 index-url·패키지 이름이 어긋나 CUDA 빌드를 받게 됨</td></tr>
     <tr><td class="nowrap">AMD 내장 그래픽</td><td>AMD CPU에 내장 그래픽 모듈이 있으면 그에 맞는 플랫폼, 없으면 CPU로 설치</td><td>Intel도 그래픽카드가 있으면 그 플랫폼, 없으면 CPU</td></tr>
     </tbody></table></div>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 45강 113:11~113:50</div><p>AMD CPU 내장 그래픽에서 ROCm 플랫폼으로 설치하면 더 빨라진다는 설명 — PyTorch·AMD ROCm 지원 GPU 목록에서 내장 그래픽이 실제 지원 대상인지 확인 필요. 화면 설명은 “그쪽 플랫폼을 선택해 설치하면 더 빨라짐”까지</p></div>
 
     <h3>PyTorch CPU 설치</h3>
 <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>

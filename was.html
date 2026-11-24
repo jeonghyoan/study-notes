@@ -742,7 +742,6 @@ mv apache-tomcat-10.1.61 tomcat</code></pre><button class="copy" type="button" a
       <tr><td class="nowrap">미리 권고</td><td>개발자에게 설정 파일은 웬만하면 수정하지 말고 고장 나면 비용이 든다고 미리 말해 둘 것</td><td>학원 환경과 실무 환경은 다름 (실무에서 학원처럼 접근하면 거의 100% 박살남)</td></tr>
       <tr><td class="nowrap">기준</td><td>자기 혼자 돌리는 서버가 아니라 다른 서버와 함께 돌리는 규정에 맞게 해야 함</td><td>같은 호스트의 포트·자원을 나눠 쓰는 환경</td></tr>
     </tbody></table></div>
-    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 18강 87:23~88:30</div><p><code>server.xml</code>을 개발자가 수정해 넣었을 때 서버가 죽고 복구 비용을 청구한 사례 — 강사 현장 경험이라 공식 문서로 확인할 수 없음, 해당 구간을 듣고 상황(어떤 수정이었는지)을 확인할 것</p></div>
     <div class="dg-bar warn">WAS 설치 주체 — root가 아니라 일반 사용자. Core tar.gz → <code>wget</code> → <code>tar xf</code> → <code>mv … tomcat</code>(dnf 설치 아님). 서버 담당자는 <code>bin</code>·<code>conf</code>만 보고, <code>server.xml</code>·<code>web.xml</code>은 개발자 수정 금지</div>
 
     <ul class="facts"><li><strong>자세한 실습</strong><div>WAS의 컨테이너 실습(Java 버전별): 8~9장 / FTP로 파일 올리는 방법: vsftpd.html 1~6장 / 사용자 전환·권한: linux.html 9~10장</div></li></ul>
@@ -767,7 +766,7 @@ vi /home/apink/tomcat/conf/server.xml</code></pre><button class="copy" type="but
     <div class="table-wrap"><table><thead><tr><th>포트</th><th>역할</th><th>주의·이유</th></tr></thead><tbody>
       <tr><td class="nowrap">8005</td><td>셧다운(정지) 포트 — 정지시킬 때 쓰는 포트</td><td>서비스 포트와 구분해서 외울 것</td></tr>
       <tr><td class="nowrap">8080</td><td>서비스(가동) 포트 — 클라이언트가 접속하는 포트</td><td>웹 브라우저에서 <code>IP:8080</code></td></tr>
-      <tr><td class="nowrap">8443</td><td>리다이렉트 포트 = 443(HTTPS) 앞에 8을 붙인 것</td><td>HTTPS·SSL 포트로 공용이라 거의 바꾸지 않음 <del class="prune-cand">(강사가 "843번"이라 말한 것은 8443의 말실수)</del></td></tr>
+      <tr><td class="nowrap">8443</td><td>리다이렉트 포트 = 443(HTTPS) 앞에 8을 붙인 것</td><td>HTTPS·SSL 포트로 공용이라 거의 바꾸지 않음</td></tr>
     </tbody></table></div>
     <p>이 화면 <code>server.xml</code>에서 확인되는 포트는 셧다운 8005, HTTP 8080, <code>redirectPort</code> 8443 세 개 — AJP 포트는 화면에 나오지 않고, AJP를 쓸 때는 <code>secret</code> 설정이 필수</p>
 
@@ -952,7 +951,7 @@ java -version</code></pre><button class="copy" type="button" aria-label="코드 
       <tr><td class="nowrap">2</td><td>압축 해제 후 디렉토리 이름을 간편하게 변경</td><td><code>mv</code>로 <code>tomcat</code>으로 변경</td><td>2장</td></tr>
       <tr><td class="nowrap">3</td><td>해당 경로(tomcat)로 입장 → <code>conf</code> 디렉토리</td><td><code>server.xml</code>, <code>web.xml</code> 두 파일의 환경설정 확인 — 서버 담당자가 먼저 세팅해 주고, 무엇을 누가 만질지 미리 정해 두는 순서</td><td>3~4장</td></tr>
       <tr><td class="nowrap">설치 주체</td><td>일반 사용자</td><td>root가 관리하면 모든 WAS 포트를 root가 관리해야 해서 힘듦 — Tomcat 다운로드·설정은 일반 사용자</td><td>2장</td></tr>
-      <tr><td class="nowrap">포트 3개</td><td><code>server.xml</code></td><td>8005 셧다운(정지) · 8080 WAS 접근(<code>IP:8080</code>에서 웹페이지) · 8443 HTTPS(SSL) — <del class="prune-cand">강사는 "843번"이라고 말함, 8443의 말실수</del></td><td>3장</td></tr>
+      <tr><td class="nowrap">포트 3개</td><td><code>server.xml</code></td><td>8005 셧다운(정지) · 8080 WAS 접근(<code>IP:8080</code>에서 웹페이지) · 8443 HTTPS(SSL)</td><td>3장</td></tr>
       <tr><td class="nowrap">Java</td><td><code>[WAS Java]</code> — root 담당</td><td><strong>개발자가 요청한 버전</strong>으로 <code>dnf install java-&lt;버전&gt;*</code>(예 <code>java-17*</code>, 버전 뒤 마이너스·별표로 해당 버전 패키지 전체 설치, <code>java*</code>는 목록 확인용) → <code>java -version</code>으로 버전 숫자까지 확인. WAS를 가동하려면 Java(데몬)가 설치돼 있어야 함</td><td>1장</td></tr>
       <tr><td class="nowrap">가동·확인</td><td><code>startup.sh</code> · 포트 확인</td><td>Tomcat 10번대 → Java 17. 가동 후 <code>IP:8080</code> 화면과 8080·8005 LISTEN 확인</td><td>1·5장</td></tr>
     </tbody></table></div>
