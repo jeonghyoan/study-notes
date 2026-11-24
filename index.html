@@ -47,6 +47,8 @@ iframe { flex:1; width:100%; border:0; background:var(--bg); }
   btn.addEventListener("click",function(){ var n=curTheme()==="dark"?"light":"dark"; applyTheme(n); try{localStorage.setItem("note-theme",n);}catch(e){} });
 
   var mobileCSS = [
+    ".prune-cand, .prune-cand *{text-decoration:line-through !important;text-decoration-color:#ef4444 !important;}",
+    ".prune-cand{opacity:0.55 !important;background:rgba(239,68,68,0.09) !important;}",
     ".deck{display:none !important;}",
     ".core-strip{display:none !important;}",
     ".core-strip.is-open{display:grid !important;gap:10px !important;margin-top:12px !important;}",

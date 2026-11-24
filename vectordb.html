@@ -685,7 +685,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <tr><td class="nowrap"><code>CAST</code></td><td>MySQL에서도 <code>CAST</code>로 형변환(문자→숫자 등)은 가능</td><td>벡터를 자유롭게 검색하는 용도로 쓰지는 않음</td></tr>
     <tr><td class="nowrap">Spark의 역할</td><td>벡터 컬럼 조회 결과를 DataFrame으로 받아 출력</td><td>저장·검색 계산은 DB가 담당(이 파일 20장·pyspark.html 26·28장)</td></tr>
     </tbody></table></div>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 48강 160:45~162:05</div><p>오라클에서 배열로 저장하는 타입이 어느 버전·타입인지 — 강의에서 “C랩”·“B랩”으로 들린 발언의 실제 이름(<code>CLOB</code>·<code>BLOB</code> 등)과 버전(12c~19c·18·19 클라우드)을 영상 160:45~162:05 구간이나 오라클 문서로 확인할 항목</p></div>
+    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 48강 160:45~162:05</div><p>오라클에서 배열로 저장하는 타입이 어느 버전·타입인지 — 강의에서 “C랩”·“B랩”으로 들린 발언의 실제 이름(<code>CLOB</code>·<code>BLOB</code> 등)과 버전(12c~19c·18·19 클라우드)을 영상 160:45~162:05 구간이나 오라클 문서로 확인할 항목</p></div>
     <div class="dg-bar warn">벡터 검색 문법은 DB마다 다름 — PostgreSQL의 <code>&lt;=&gt;</code>·<code>order by</code>가 MySQL에 그대로 옮겨지지 않음. 벡터 차원도 모델마다 달라 테이블·코드를 함께 맞춤(이 파일 17장)</div>
 
     <ul class="facts">
@@ -1007,7 +1007,7 @@ select * from test order by emb &lt;=&gt; '[1,4]';</code></pre><button class="co
     <tr><td class="nowrap">Oracle</td><td>기능은 있으나 무거움 (설치 시 4~5GB)</td><td>실습 PC에 올리기 어려운 규모 — 별도 학습 필요</td></tr>
     <tr><td class="nowrap">도입 기준</td><td>파일 누적·이전·삭제 위험이 큰 환경이면 백업 일원화 이득이 큼</td><td>성능이 중요한 대용량 트래픽이면 파일시스템·오브젝트 스토리지와 비교</td></tr>
     </tbody></table></div>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 15강 23:45</div><p>“오라클 설치에 4~5GB”는 원자료 설명만으로 확정하지 않음. Oracle 공식 설치 요구 디스크 용량 문서는 버전·설치 유형(EE·XE)마다 값이 달라, 어떤 버전의 어떤 설치 유형인지 함께 적어야 비교가 됨 — 버전별 요구 디스크 용량 문서로 확인할 것</p></div>
+    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 15강 23:45</div><p>“오라클 설치에 4~5GB”는 원자료 설명만으로 확정하지 않음. Oracle 공식 설치 요구 디스크 용량 문서는 버전·설치 유형(EE·XE)마다 값이 달라, 어떤 버전의 어떤 설치 유형인지 함께 적어야 비교가 됨 — 버전별 요구 디스크 용량 문서로 확인할 것</p></div>
 
     <h3>파일 형식 상식</h3>
     <div class="table-wrap"><table>
@@ -1395,7 +1395,7 @@ select * from members;</code></pre><button class="copy" type="button" aria-label
     <li><strong>후속 계획</strong><div>사용자 추가 등은 다음 단계에서 진행, 가능하면 프레임워크를 써서 시연 예정</div></li>
     <li><strong>이어지는 실습</strong><div>컨테이너 안에서 <code>apt-get</code>으로 pgvector를 넣고 스키마를 지정해 등록하는 절차, vector 테이블과 정렬 연산자: 7·11장</div></li>
     </ul>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 16강 118:23 · 120:03</div><p>118:23 강사가 “프레임워크” 앞에 말한 “파이사이” 단어가 무엇인지 영상 소리로 확인할 항목(전사 불명확, 무음에 가까운 구간). 120:03의 “바이브 예시, 패스트 APN”도 전사가 불명확 — 나중에 해보겠다는 맥락</p></div>
+    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 16강 118:23 · 120:03</div><p>118:23 강사가 “프레임워크” 앞에 말한 “파이사이” 단어가 무엇인지 영상 소리로 확인할 항목(전사 불명확, 무음에 가까운 구간). 120:03의 “바이브 예시, 패스트 APN”도 전사가 불명확 — 나중에 해보겠다는 맥락</p></div>
     <div class="dg-bar warn">vector 테이블 — <code>vector(3)</code> 타입 컬럼은 <code>CREATE EXTENSION vector</code>를 실행한 DB에서만 생성 가능. 데이터가 public에 들어간 것은 우선순위 미설정 때문이므로 실습 뒤 정리 필요</div>
   </section>
 
@@ -1663,7 +1663,7 @@ create table test(
     <ul class="facts">
     <li><strong>오라클 배경</strong><div>오라클은 이 노트의 수업 범위가 아니며 프로젝트 뒤 특강으로 설치 예정 — AWS에 올리면 라이선스 비용이 들어 지원이 어려움</div></li>
     </ul>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 45강 43:30~44:00</div><p>오라클을 AWS에 설치할 때 드는 라이선스가 “한 계정당 21만원”이라는 금액 — 오라클 공식 라이선스 안내·AWS 가격표에서 확인 필요. 화면에는 금액만 있고 산정 기준(인스턴스 종류·기간·계정 범위)은 나오지 않은 상태</p></div>
+    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 45강 43:30~44:00</div><p>오라클을 AWS에 설치할 때 드는 라이선스가 “한 계정당 21만원”이라는 금액 — 오라클 공식 라이선스 안내·AWS 가격표에서 확인 필요. 화면에는 금액만 있고 산정 기준(인스턴스 종류·기간·계정 범위)은 나오지 않은 상태</p></div>
 
     <h3>데이터 입력</h3>
 <div class="code"><pre><code><span class="c">-- [mg DB · DBeaver SQL 편집기 · mg]</span>
@@ -1824,7 +1824,7 @@ order by cate_emd &lt;-&gt; '[9,9]';</code></pre><button class="copy" type="butt
     <tr><td class="nowrap">실행 결과</td><td><code>&lt;-&gt; '[9,9]'</code> → 와이드호스나인 1.4142135624, 폴2 8, 라라랜드 8.5440037453, 폭설 8.94427191, 오디세이 11.313708499</td><td>와이드호스나인만 거리 1대, 나머지는 8 이상으로 벌어짐</td></tr>
     <tr><td class="nowrap">다른 질의</td><td><code>&lt;-&gt; '[1,1]'</code>(액션 취급, 해당 영화 없음) → 오디세이 0, 폭설 4, 라라랜드 5, 폴2 8, 와이드호스나인 9.8994949366</td><td>저장 값과 같은 [1,1]이 있는 오디세이가 0 — 자기 자신과의 거리</td></tr>
     </tbody></table></div>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 46강 26:05~26:39</div><p>“평문 언어로만 쓰면 편하지만 나중에 오차 범위가 많이 남아 쓰지 않음” — 평문 언어가 일반 <code>where</code> 문자열 비교를 가리키는지, 오차가 커지는 이유가 무엇인지 영상에서 다시 확인 필요</p></div>
+    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 46강 26:05~26:39</div><p>“평문 언어로만 쓰면 편하지만 나중에 오차 범위가 많이 남아 쓰지 않음” — 평문 언어가 일반 <code>where</code> 문자열 비교를 가리키는지, 오차가 커지는 이유가 무엇인지 영상에서 다시 확인 필요</p></div>
     <ul class="facts">
     <li><strong>질의 값의 척도</strong><div>저장 값과 같은 만점·눈금으로 넣어야 순서가 맞음 — 한쪽만 0~1 소수로 넣으면 거리 비교가 어긋남</div></li>
     <li><strong>DBeaver 비교</strong><div>같은 쿼리를 Jupyter에서도 실행해 결과가 같은지 대조: pyspark.html 26장</div></li>
@@ -2206,7 +2206,7 @@ query = f"select title,des from movie_data order by emb &lt;=&gt; '{vector_str}'
     <tr><td class="nowrap">이름 보관</td><td>모델 카드의 모델명을 복사해 메모장에 붙여 둠</td><td>직접 타이핑하면 오타로 로드 실패</td></tr>
     <tr><td class="nowrap">파생 모델</td><td>원본 모델을 확장해 특정 분야에 맞춘 모델이 여럿 있음</td><td>양자화는 가중치 정밀도를 낮춰(fp32→int8) 용량·메모리를 줄이는 기법 — 용량이 늘지 않음</td></tr>
     <tr><td class="nowrap">모델 선택 기준</td><td>성능만 보지 않고 지원하는 색상 체계·입력 크기를 함께 확인</td><td>이미지 AI는 모델 선택이 결과를 크게 바꿈</td></tr>
-    <tr><td class="nowrap">시행착오</td><td>전날 여러 모델을 테스트하다 색상 체계·PNG 문제에 부딪힘</td><td>아래 색상·형식 주의가 여기서 나온 항목</td></tr>
+    <tr class="prune-cand"><td class="nowrap">시행착오</td><td>전날 여러 모델을 테스트하다 색상 체계·PNG 문제에 부딪힘</td><td>아래 색상·형식 주의가 여기서 나온 항목</td></tr>
     </tbody></table></div>
 
     <h3>모델 이름 읽기 — base와 patch32</h3>
@@ -2235,7 +2235,7 @@ query = f"select title,des from movie_data order by emb &lt;=&gt; '{vector_str}'
     <tr><td class="nowrap">이번 데이터</td><td>이미지 33장이 전부 jpg라 색상 문제 없음</td><td>jpg는 RGB 계열</td></tr>
     <tr><td class="nowrap">양자화 모델 경험</td><td>양자화한 모델은 RGBA도 처리되지만 용량이 커 무거움</td><td>강의에서 써 보지 않고 기본 모델을 쓰기로 함</td></tr>
     </tbody></table></div>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 48강 44:51</div><p>야간투시(녹색·검정) 이미지를 CLIP이 실제로 인식하지 못하는지 — 직접 야간투시 사진을 <code>user.jpg</code>로 넣고 유사도 검색을 돌려 결과로 확인할 항목. 녹색+검정 이미지는 무슨 이미지인지 파악하지 못한다는 설명이 강의 발언 기준</p></div>
+    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 48강 44:51</div><p>야간투시(녹색·검정) 이미지를 CLIP이 실제로 인식하지 못하는지 — 직접 야간투시 사진을 <code>user.jpg</code>로 넣고 유사도 검색을 돌려 결과로 확인할 항목. 녹색+검정 이미지는 무슨 이미지인지 파악하지 못한다는 설명이 강의 발언 기준</p></div>
     <ul class="facts">
     <li><strong>인식하지 못하는 색상 예</strong><div>야간 투시 카메라처럼 녹색+검정으로 나오는 이미지 → 무슨 이미지인지 파악하지 못함</div></li>
     <li><strong>원칙</strong><div>이미지 AI는 아무 모델이나 쓰지 말고 그 모델이 어떤 색상 체계로 처리하는지 알고 써야 함</div></li>
@@ -2289,7 +2289,7 @@ query = f"select title,des from movie_data order by emb &lt;=&gt; '{vector_str}'
     <tr><td class="nowrap">판단 방식</td><td>같은 자리 패치끼리 비교</td><td>첫 패치가 흰색인데 비교 이미지 같은 자리 배경이 파란색이면 그 두 이미지는 다르다고 판단하기 시작</td></tr>
     <tr><td class="nowrap">기본 구조</td><td>픽셀 단위로 블록을 잡아 처리하는 것이 CLIP 모델의 기본 러닝 구조</td><td>블록 단위 비교가 이미지 임베딩의 바탕</td></tr>
     </tbody></table></div>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 48강 127:20~127:50</div><p>224×224 입력이 총 몇 개 블록으로 나뉘는지 — 강의에서 “500 몇 개”라고 말한 정확한 숫자를 영상 127:20~127:50 구간을 다시 듣고 확인할 항목. <code>patch32</code> 기준 계산(7×7=49 패치)과 다른 수치라 발언 확인이 필요</p></div>
+    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 48강 127:20~127:50</div><p>224×224 입력이 총 몇 개 블록으로 나뉘는지 — 강의에서 “500 몇 개”라고 말한 정확한 숫자를 영상 127:20~127:50 구간을 다시 듣고 확인할 항목. <code>patch32</code> 기준 계산(7×7=49 패치)과 다른 수치라 발언 확인이 필요</p></div>
 
     <h3>CLIP 모델의 특징</h3>
     <div class="table-wrap"><table>

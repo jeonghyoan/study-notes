@@ -690,7 +690,7 @@ make install</code></pre><button class="copy" type="button" aria-label="코드 �
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
     <tr><td class="nowrap">선택 이유</td><td>가장 가볍고 켜고 끄기가 빠름</td><td>실습 PC로 Oracle을 올리면 시작에 밥 먹고 와야 할 정도라 진행 불가</td></tr>
-    <tr><td class="nowrap">난이도</td><td>MySQL(가장 쉽고 무난) &lt; PostgreSQL &lt; Oracle</td><td>강사의 경험 기준 — 인프라 세팅 관점의 체감 순서</td></tr>
+    <tr class="prune-cand"><td class="nowrap">난이도</td><td>MySQL(가장 쉽고 무난) &lt; PostgreSQL &lt; Oracle</td><td>강사의 경험 기준 — 인프라 세팅 관점의 체감 순서</td></tr>
     <tr><td class="nowrap">Oracle 설치</td><td>oracle-database-ee-21c 같은 RPM 패키지를 제공하고 preinstall RPM을 먼저 설치</td><td>100% 소스 설치가 아님 — 환경이 MySQL·PostgreSQL과 크게 달라 별도 학습 필요</td></tr>
     <tr><td class="nowrap">Oracle 특징</td><td>설치가 끝나면 설치 경로를 알려 주고, 그 경로를 기준으로 보안을 잡음</td><td>DB마다 설정 파일 위치가 다르다는 점이 이후 경로 학습으로 이어짐</td></tr>
     </tbody></table></div>
@@ -1333,7 +1333,7 @@ grant all privileges on database apink to apink;
 alter user apink set search_path to sample_schema, public;
 <span class="c">-- 설정 확인 — 세션을 새로 열어야 바뀐 값이 보임</span>
 show search_path;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 16강 26:00~26:45</div><p><code>alter user</code>와 <code>alter role</code>이 같은 명령이라는 설명은 PostgreSQL <code>ALTER USER</code> 문서의 “<code>ALTER ROLE</code>의 별칭” 문구로 확인할 항목. 응답이 <code>ALTER ROLE</code>로 나오는 이유를 문서에서 재확인</p></div>
+    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 16강 26:00~26:45</div><p><code>alter user</code>와 <code>alter role</code>이 같은 명령이라는 설명은 PostgreSQL <code>ALTER USER</code> 문서의 “<code>ALTER ROLE</code>의 별칭” 문구로 확인할 항목. 응답이 <code>ALTER ROLE</code>로 나오는 이유를 문서에서 재확인</p></div>
     <div class="dg-bar warn">search_path — 스키마 생성만으로 끝내면 테이블이 public에 만들어짐. <code>alter user … set search_path to 스키마명, public</code>의 맨 앞이 기본 스키마이고 적용은 새 세션부터</div>
 
     <h3>실습 — AI로 테이블·데이터 만들기</h3>
@@ -1535,8 +1535,8 @@ psql -U postgres -f sample.sql
 <span class="c">-- [호스트 리눅스 · psql 프롬프트 · postgres]</span>
 <span class="c">-- 잘못 복구된 스키마 정리</span>
 drop schema sample_schema cascade;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 16강 51:35</div><p>강사가 “파이프를 쓰지는 않습니다”라고 한 뜻(파이프 기호인지 다른 단어인지)을 영상 소리로 확인할 항목. 전사를 다시 받아도 같은 문장이고 화면에 설명이 없음</p></div>
-    <div class="note-verify"><div class="tag">🔍 직접 확인 · 16강 54:30</div><p>레플리카와 함께 “추후 다룰 심화 주제”로 말한 “리부크”의 정확한 단어를 영상으로 확인할 항목. 전사·화면 모두 불명확</p></div>
+    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 16강 51:35</div><p>강사가 “파이프를 쓰지는 않습니다”라고 한 뜻(파이프 기호인지 다른 단어인지)을 영상 소리로 확인할 항목. 전사를 다시 받아도 같은 문장이고 화면에 설명이 없음</p></div>
+    <div class="note-verify prune-cand"><div class="tag">🔍 직접 확인 · 16강 54:30</div><p>레플리카와 함께 “추후 다룰 심화 주제”로 말한 “리부크”의 정확한 단어를 영상으로 확인할 항목. 전사·화면 모두 불명확</p></div>
     <ul class="facts">
     <li><strong>이 절의 범위</strong><div>복구까지 하면 PostgreSQL 기초 파트 종료 — 심화(리부크·레플리카 등)는 추후 더 깊게 다룸</div></li>
     </ul>

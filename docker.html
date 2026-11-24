@@ -945,7 +945,7 @@ docker rmi quay.io/centos/centos:stream9</code></pre><button class="copy" type="
     <tr><td><strong>판단법</strong></td><td>이미지 용량(1GB 등)으로는 판단 불가 → <code class="n">ls -l /usr/sbin/init</code>로 직접 확인</td></tr>
     </tbody></table></div>
 
-    <div class="note-verify">
+    <div class="note-verify prune-cand">
       <div class="tag">🔍 직접 확인 · 32강 10:07 부근</div>
       <p>과거에는 init가 들어 있는 이미지가 허브에 올라왔는지 등 이미지 변천 — 강사 발언만으로 확인되지 않음. 도커 허브의 해당 이미지 설명·태그 이력 페이지에서 확인 필요</p>
     </div>
@@ -1201,7 +1201,7 @@ docker rm test</code></pre><button class="copy" type="button" aria-label="코드
       </table>
     </div>
     <div class="dg-bar warn">DB vs 웹 할당 감각 — 강사 예시: DB는 디스크 크게(예 10GB)·연산 자원 적게(512MB, 0.5코어), 웹은 연산 자원 많이 (실무 워크로드별 확인 필요)</div>
-    <div class="note-verify">
+    <div class="note-verify prune-cand">
       <div class="tag">🔍 직접 확인 · 33강 11:05~12:39</div>
       <p>DB 10GB·메모리 512MB·0.5코어, DB는 연산 자원을 적게 준다는 배분은 강사 경험 예시 — 워크로드마다 달라 표준 권장값이 없음. 실제 서비스 값은 부하를 재서 결정</p>
     </div>
@@ -1238,7 +1238,7 @@ docker rm test</code></pre><button class="copy" type="button" aria-label="코드
     <tr><td><strong>작성 도구</strong></td><td><ul><li>서버의 vi는 주석·한글 입력이 불편 → VS Code로 작성 후 서버에 올리거나 붙여넣기</li><li>파일명이 <code>compose.yaml</code>이면 VS Code가 도커(고래) 아이콘으로 인식 → 어떤 파일인지 바로 구분</li><li>주석은 <code>#</code></li><li>윈도우 메모장으로 작성해 붙여넣는 방법도 씀 — 들여쓰기 칸을 눈으로 맞추기 쉬움</li></ul></td></tr>
     <tr><td><strong>자동완성</strong></td><td>편집기 자동완성 제안을 그대로 믿으면 틀림 — <code>command</code> 제안값이 <code>/sbin/init</code>이 아니어서 직접 고침. 제안은 후보일 뿐 실제 값은 이미지·<code>docker run</code> 검증 결과로 확정</td></tr>
     <tr><td><strong>직접 검증 후 Compose</strong></td><td>이미지·포트·실행 명령을 먼저 <code>docker run</code>으로 한 항목씩 확인 → 같은 옵션으로 Compose 작성. 하드웨어·이미지를 모르는 AI에 통째로 맡기지 않음 (실무 원칙)</td></tr>
-    <tr><td><strong>AI 사용 주의</strong></td><td>AI는 내 하드웨어·이미지 정보를 몰라 컨테이너 환경에서 에러가 반복되고, 결국 보안을 다 풀어 작동시키는 사고로 이어짐 → 강사 회사는 이 영역에 AI를 쓰지 않음</td></tr>
+    <tr><td><strong>AI 사용 주의</strong></td><td>AI는 내 하드웨어·이미지 정보를 몰라 컨테이너 환경에서 에러가 반복되고, 결국 보안을 다 풀어 작동시키는 사고로 이어짐 → <del class="prune-cand">강사 회사는 이 영역에 AI를 쓰지 않음</del></td></tr>
     <tr><td><strong>composerize.com</strong></td><td><ul><li><code>docker run</code> 문장 → Compose YAML 변환 도구 (실무자가 사용)</li><li>Docker Compose version(CommonSpec 등)·들여쓰기(4 spaces 등) 선택 가능</li><li><code>docker run</code> 문장을 그대로 붙여 넣고 프로젝트·컨테이너 이름만 바꾸면 나머지 옵션은 동일하게 유지 (실습: <code>mariadb11</code>과 겹치지 않게 <code>testdb</code>)</li><li>결과를 처음부터 끝까지 복사해 파일로 만들면 다운로드·시작까지 자동 처리 가능</li><li>결과를 그대로 믿지 말고 이미지·포트·권한·비밀값 검토</li></ul></td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">Compose 속성 — <code>tty</code>=<code>-t</code>, <code>stdin_open</code>=<code>-i</code>, <code>environment</code>=<code>-e</code>, <code>ports</code>=<code>-p</code>. 최상위 <code>version</code>은 obsolete(무시). 강의 기준 Compose 속성은 다음 필기 평가 범위이며, 이번 필기 범위는 도커까지·문제는 스파크·주피터까지 많이 출제</div>
@@ -1351,7 +1351,7 @@ docker images</code></pre><button class="copy" type="button" aria-label="코드 
     <tr><td><strong>운영에서의 마무리</strong></td><td>결국 compose를 <b>bash shell script</b>로 감싸 호출 → 사람이 직접 치는 명령을 줄이고 실행 순서·대상을 고정</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">compose down — 파일 하나로 서비스 전부가 내려가는 것이 편의이자 위험. 실행 전 <code>docker compose ps</code>·현재 폴더·<code>-f</code> 대상 확인, 데이터가 있으면 <code>-v</code> 금지</div>
-    <div class="note-verify">
+    <div class="note-verify prune-cand">
       <div class="tag">🔍 직접 확인 · 37강 36:12~36:40</div>
       <p>자료에서 이미지 설명 직후 RDS 쪽 DB 형태를 가리킨 말이 "프리비에스드/프리베이스디"로 들렸다고 기록돼 있으나 정확한 표현은 미확인 (RDS 계열 DB 이미지에 대한 발언) → 의미를 임의로 확정하지 않음. 해당 구간 음성을 다시 들어 정리 (자세한 실습: postgresql.html 11장)</p>
     </div>
@@ -2124,7 +2124,7 @@ systemctl stop docker docker.socket                    <span class="c"># 데몬�
     <tr><td class="nowrap">아키텍트와 인프라 담당</td><td>아키텍트는 무엇이 잘못인지 알려 주지 않고 설계도대로 요청</td><td>인프라는 아키텍처와 보안 사이에 있어 마음대로 바꾸지 않고 양쪽과 협의</td></tr>
     <tr><td class="nowrap">지시 형태</td><td>처음에는 한글 메모장, 이후에는 아키텍처 다이어그램 그림</td><td>그림이 이해되지 않으면 그 자리에서 질문해 수정받음 — 그림은 AI로도 그릴 수 있어 요구가 늘어남</td></tr>
     <tr><td class="nowrap">책임 구분</td><td>구축 후 "이것도 해 달라"는 요구가 오면 설계도에 있던 항목인지 확인</td><td>설계도에 없던 항목이면 아키텍처 쪽 책임 — 구현자의 실수로 단정하지 않음</td></tr>
-    <tr><td class="nowrap">포트폴리오</td><td>사수가 설계도를 주고 그대로 세팅하게 하는 과제 형태</td><td>실무와 같은 순서(설계도 → 구현 → 검증)를 미리 연습</td></tr>
+    <tr class="prune-cand"><td class="nowrap">포트폴리오</td><td>사수가 설계도를 주고 그대로 세팅하게 하는 과제 형태</td><td>실무와 같은 순서(설계도 → 구현 → 검증)를 미리 연습</td></tr>
     </tbody></table></div>
 
     <ul class="facts"><li><strong>실제 적용</strong><div>Spark 마스터·워커 컨테이너에 <code>-v</code>를 넣어 재생성하고 마운트 검증: spark.html 14장</div></li><li><strong>네임드 볼륨</strong><div><code>docker volume create</code>와 Compose 선언: postgresql.html 11장</div></li><li><strong>디스크 여유</strong><div><code>/var/lib/docker</code>가 차지하는 공간과 파티션 배분: linux.html 12장</div></li><li><strong>실시간 동기화와 구분</strong><div>lsyncd는 파일을 복사해 맞추는 도구, <code>-v</code>는 같은 폴더를 함께 봄: linux.html 4장</div></li></ul>
@@ -2417,7 +2417,7 @@ docker rmi rocky:9                 <span class="c"># 용량 정리를 위해 안
           <li>설치: 웹·WAS·FTP·DB(RDBMS·NoSQL)·Spark·Jupyter를 버전별로</li>
         </ul>
       </li>
-      <li><strong>이미지 제작·등록</strong>: 약 일주일간 이미지로 제작 → 사내 Private 레지스트리에 업로드 (이미지에 오류가 있으면 원인 추적에 야근 발생)</li>
+      <li><strong>이미지 제작·등록</strong>: 약 일주일간 이미지로 제작 → 사내 Private 레지스트리에 업로드 <del class="prune-cand">(이미지에 오류가 있으면 원인 추적에 야근 발생)</del></li>
       <li><strong>고객 오더 처리</strong>: 셸 스크립트로 CPU 코어 수·사용자 ID 입력받기 → 해당 이미지로 즉시 컨테이너 세팅</li>
     </ol>
   
