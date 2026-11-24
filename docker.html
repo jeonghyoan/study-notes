@@ -602,10 +602,10 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#container-ops">4. 컨테이너 생성·자원·관리</a></li>
         <li><a href="#compose">5. Docker Compose</a></li>
         <li><a href="#container-access">6. 접속·기본 세팅(SSH)</a></li>
-        <li><a href="#services">7. 서비스 구성(웹·FTP·MySQL)</a></li>
-        <li><a href="#hub-cicd">8. 이미지화·Docker Hub·CI/CD</a></li>
-        <li><a href="#docker-network">9. 포트 게시·iptables·네트워크</a></li>
-        <li><a href="#volume-config">10. 볼륨 마운트·실행 중 설정 변경</a></li>
+        <li><a href="#docker-network">7. 포트 게시·iptables·네트워크</a></li>
+        <li><a href="#volume-config">8. 볼륨 마운트·실행 중 설정 변경</a></li>
+        <li><a href="#services">9. 서비스 구성(웹·FTP·MySQL)</a></li>
+        <li><a href="#hub-cicd">10. 이미지화·Docker Hub·CI/CD</a></li>
         <li><a href="#cheatsheet">11. 통합 명령어 치트시트</a></li>
       </ol>
     </nav>
@@ -622,11 +622,11 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       </div>
       <div>
         <div class="core-metric">CPU · MEM · DISK</div>
-        <p class="core-desc"><code class="n">--cpus</code>, <code class="n">--memory</code>, <code class="n">--storage-opt size</code>로 자원 제한 → 호스트 마비·디스크 고갈 방지. 여러 컨테이너는 Compose 파일 하나로 정의 (4·5장). 저장 공간은 <code class="n">-v</code> 바인드 마운트로 호스트 폴더와 연결하고, 빠뜨린 포트는 <code class="n">hostconfig.json</code>으로 추가 (10장)</p>
+        <p class="core-desc"><code class="n">--cpus</code>, <code class="n">--memory</code>, <code class="n">--storage-opt size</code>로 자원 제한 → 호스트 마비·디스크 고갈 방지. 여러 컨테이너는 Compose 파일 하나로 정의 (4~5장). 저장 공간은 <code class="n">-v</code> 바인드 마운트로 호스트 폴더와 연결하고, 빠뜨린 포트는 <code class="n">hostconfig.json</code>으로 추가 (8장)</p>
       </div>
       <div>
         <div class="core-metric">commit → tag → push</div>
-        <p class="core-desc">세팅 끝난 컨테이너를 이미지화 → 레포 이름으로 태그 → Docker Hub 업로드 → 어디서든 <code class="n">pull</code> + <code class="n">run</code>으로 같은 환경 복원 (8장)</p>
+        <p class="core-desc">세팅 끝난 컨테이너를 이미지화 → 레포 이름으로 태그 → Docker Hub 업로드 → 어디서든 <code class="n">pull</code> + <code class="n">run</code>으로 같은 환경 복원 (10장)</p>
       </div>
     </div>
 
@@ -637,10 +637,10 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#container-ops">4. 컨테이너 생성·자원·관리</a>
       <a href="#compose">5. Docker Compose</a>
       <a href="#container-access">6. 접속·기본 세팅(SSH)</a>
-      <a href="#services">7. 서비스 구성(웹·FTP·MySQL)</a>
-      <a href="#hub-cicd">8. 이미지화·Docker Hub·CI/CD</a>
-      <a href="#docker-network">9. 포트 게시·iptables·네트워크</a>
-      <a href="#volume-config">10. 볼륨 마운트·실행 중 설정 변경</a>
+      <a href="#docker-network">7. 포트 게시·iptables·네트워크</a>
+      <a href="#volume-config">8. 볼륨 마운트·실행 중 설정 변경</a>
+      <a href="#services">9. 서비스 구성(웹·FTP·MySQL)</a>
+      <a href="#hub-cicd">10. 이미지화·Docker Hub·CI/CD</a>
       <a href="#cheatsheet">11. 통합 명령어 치트시트</a>
     </nav>
   </header>
@@ -654,7 +654,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>비교 대상</strong></td><td>서버마다 직접 설치하는 온프레미스(on-premise) ↔ 이 노트의 클라우드(컨테이너) 방식</td></tr>
     <tr><td><strong>클라우드의 핵심</strong></td><td><strong>서버 1대에서 여러 사용자가 서로 다른 DB·운영체제를 각자 만들 수 있게 하는 것</strong></td></tr>
-    <tr><td><strong>관련 노트</strong></td><td>AWS·GCP 실습은 <code class="n">GCP 클라우드 셋팅1·2</code> 노트 참고</td></tr>
+    <tr><td><strong>관련 노트</strong></td><td>AWS 실습은 <code class="n">aws.html</code>, GCP DB 실습은 <code class="n">mysql.html</code> 25~26장(GCP VM·Cloud SQL·MariaDB) 참고</td></tr>
     </tbody></table></div>
 
     <div class="dg">
@@ -1341,7 +1341,7 @@ docker images</code></pre><button class="copy" type="button" aria-label="코드 
     <tr><td><strong>다른 YAML 파일</strong></td><td><ul><li>기본 파일 = <code>compose.yaml</code>, 다른 파일은 <code>-f &lt;파일&gt;</code></li><li><code>up</code>한 파일과 같은 <code>-f</code> 값으로 <code>ps</code>·<code>logs</code>·<code>down</code> 실행 → 파일을 생략하면 기본 파일이 선택돼 엉뚱한 프로젝트를 내릴 수 있음</li></ul></td></tr>
     <tr><td><strong>파일 분리</strong></td><td><ul><li>서비스가 많으면 서비스별 YAML 파일을 두고 <code>-f</code>로 선택 (예: <code>cp compose.yaml cloud_compose.yaml</code> 후 필요한 부분만 관리)</li><li>기본 파일명을 바꿔 두면(<code>compose___.yaml</code>) 인자 없는 compose 명령이 실패 → 기본 선택에 따른 실수 감소. 단 파일명 변경만으로 접근 권한·비밀값이 보호되지는 않음</li></ul></td></tr>
     <tr><td><strong>비밀값</strong></td><td><ul><li>YAML에 평문 비밀번호가 있으면 GitHub 공개 저장소는 물론, 계정 탈취 위험이 있는 비공개 저장소에도 올리지 않음 → 실습 파일은 root 권한으로 관리, GitHub 계정에는 MFA</li><li>일반 사용자 홈에 두고 작업하다 yml이 웹 루트로 노출된 사례가 있음 — 파일 안에 DB 주소·계정·패스워드가 다 들어 있어 그대로 유출됨</li></ul></td></tr>
-    <tr><td><strong>실습 전제</strong></td><td><ul><li>Compose 폴더 <code>~/yaml</code>, 설정 파일 폴더 <code>~/rds</code></li><li>직접 만든 <code>mariadb11</code>(<code>mariadb:11.4-ubi9</code>, <code>3309→3306</code>)과 <code>mysql8</code>(<code>dhi.io/mysql:8</code>)은 Compose 서비스 목록과 별개 → 자세한 실습: mysql.html 10~12장</li></ul></td></tr>
+    <tr><td><strong>실습 전제</strong></td><td><ul><li>Compose 폴더 <code>~/yaml</code>, 설정 파일 폴더 <code>~/rds</code></li><li>직접 만든 <code>mariadb11</code>(<code>mariadb:11.4-ubi9</code>, <code>3309→3306</code>)과 <code>mysql8</code>(<code>dhi.io/mysql:8</code>)은 Compose 서비스 목록과 별개 → 자세한 실습: mysql.html 12~14장</li></ul></td></tr>
     <tr><td><strong>실습 화면의 서비스 값</strong></td><td>별도 MariaDB 예: 서비스 <code>mariadb</code>, 컨테이너 <code>testmdb</code>, 이미지 <code>mariadb:11.4-ubi9</code>, <code>7306:3306</code>, 연습 비밀번호 <code>MYSQL_ROOT_PASSWORD=a1234</code> (webserver 값은 위 compose.yaml 블록 참고)</td></tr>
     </tbody></table></div>
     <div class="table-wrap"><table>
@@ -1652,7 +1652,7 @@ netstat -lntpu</code></pre><button class="copy" type="button" aria-label="코드
       <tr><td><strong>원리</strong></td><td>컨테이너는 호스트 커널의 시계를 공유하고 시간대만 이미지 기본값(UTC)으로 보임</td><td>생성 후 <code class="n">date</code>로 먼저 확인 — 확인 없이 DB 등을 설치하면 기록·로그 시각이 어긋남</td></tr>
       <tr><td><strong>시간대 변경</strong></td><td><code class="n">/etc/localtime</code>이 심볼릭 링크라 링크 대상만 서울로 교체하면 KST로 표시</td><td>파일 변경은 stop/start 후에도 유지, 컨테이너 삭제 시 사라짐. Dockerfile에 <code class="n">RUN ln -sf …</code>를 넣으면 이미지에서 처음부터 서울 시간</td></tr>
       <tr><td><strong>chrony로 맞추기</strong></td><td>NTP 데몬 설정 파일은 <code class="n">/etc/chrony.conf</code>, <code class="n">systemctl restart chronyd</code>는 PID 1이 systemd여야 동작</td><td>systemd가 있어도 시계 변경에는 <code class="n">CAP_SYS_TIME</code> 권한 필요 — 없으면 <code class="n">adjtimex(0x8001) failed : Operation not permitted</code></td></tr>
-      <tr><td><strong>적용 실습</strong></td><td>Spark 마스터·워커 컨테이너를 UTC에서 KST로 맞춘 과정</td><td>자세한 실습: spark.html 18장</td></tr>
+      <tr><td><strong>적용 실습</strong></td><td>Spark 마스터·워커 컨테이너를 UTC에서 KST로 맞춘 과정</td><td>자세한 실습: spark.html 19장</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [컨테이너 · root]</span>
 <span class="c"># 현재 시간·시간대 확인 — UTC로 보이면 시간대가 이미지 기본값</span>
@@ -1663,300 +1663,6 @@ ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime</code></pre><button class="
   </section>
 
   <!-- 7 -->
-  <section class="sec" id="services">
-    <h2>서비스 컨테이너 구성: 웹·FTP, MySQL, WAS</h2>
-    <div class="dg"><p class="dg-title">한눈에 보기 — 컨테이너마다 역할 하나씩</p><div class="dg-flow"><div class="dg-node"><h4>① megaweb</h4><p class="sub">vsftpd :21 · httpd :80</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② userdir.conf</h4><p class="sub">UserDir www · chmod 755</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ megadb</h4><p class="sub">mysql-server :3306</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 외부 접속</h4><p class="sub">FileZilla 9021 · DBeaver 3306</p></div></div></div>
-
-    <h3>웹 컨테이너(<code class="n">megaweb</code>): vsftpd + httpd 사용자별 웹 호스팅</h3>
-    <ul class="facts"><li><strong>전제</strong><div>컨테이너 <code class="n">megaweb</code>에 사용자 <code class="n">mega</code> 생성 완료 — 웹(httpd)과 FTP(vsftpd) 모두 <code class="n">mega</code> 계정 사용. 컨테이너에는 <code class="n">firewalld</code>가 없어 vsftpd·httpd 설정만 하면 됨</div></li></ul>
-    <p><strong>vsftpd 설정과 FileZilla 접속</strong></p>
-    <ul class="facts"><li><strong>자세한 설정</strong><div>vsftpd.conf 지시어별 설정·이유(익명·chroot·포트 변경 등): vsftpd.html 2~6장</div></li></ul>
-<div class="code"><pre><code><span class="c"># [megaweb 컨테이너 · root]</span>
-dnf install vsftpd             <span class="c"># vsftpd 3.0.5 + 의존 패키지 logrotate</span>
-<span class="c"># listen_port는 바꾸지 않음: -p 9021:21로 만들었으므로 컨테이너 안은 21번 그대로, 환경 설정만 수정</span>
-vi /etc/vsftpd/vsftpd.conf     <span class="c"># :set number</span>
-
-<span class="c"># [megaweb 컨테이너 · /etc/vsftpd/vsftpd.conf 파일 안]</span>
-<span class="c"># 설정 파일은 줄 끝 주석을 쓰지 않고 위 줄에 주석을 씀 (줄 끝 주석은 값의 일부로 읽혀 에러)</span>
-<span class="c"># chroot 보안 설정: 기존 항목은 # 주석만 풀고 아래 항목 추가 (지시어 의미·500 OOPS 재현: vsftpd.html 5장)</span>
-<span class="c"># 로컬 사용자를 자기 홈 디렉터리에 가둠 (기본은 주석)</span>
-chroot_local_user=YES
-<span class="c"># 예외 목록 사용 여부 — 이 컨테이너는 처음 YES → 최종 NO (예외 없이 모두 가둠). NO면 아래 파일은 실제로 안 쓰임</span>
-chroot_list_enable=NO
-<span class="c"># 쓰기 가능한 홈에서도 chroot 허용 — 없으면 refusing to run with writable root inside chroot() 오류</span>
-allow_writeable_chroot=YES
-<span class="c"># 예외 사용자 목록 파일. 기본값은 /etc/vsftpd/chroot_list, 이름은 자유 → ftp_user</span>
-chroot_list_file=/etc/vsftpd/ftp_user
-
-<span class="c"># Passive 모드 설정 (파일 맨 아래)</span>
-<span class="c"># 패시브는 서버가 알려준 데이터 포트로 클라이언트가 다시 접속 → 그 포트를 -p로 안 열면 FileZilla 디렉터리 조회가 한참 멈춤</span>
-<span class="c"># 이 컨테이너는 22·80·21만 열려 있어 능동형(Active)으로 접속 → 아래 pasv_*는 실제로 안 쓰임. 패시브로 쓰려면 5000~5100도 -p로 개방 (아래 표준 예시)</span>
-pasv_enable=YES
-<span class="c"># 데이터 포트 범위를 5000~5100으로 고정 (범위가 고정돼야 -p로 열 수 있음)</span>
-pasv_min_port=5000
-pasv_max_port=5100
-
-<span class="c"># [megaweb 컨테이너 · root]</span>
-<span class="c"># chroot 예외 목록 파일에 mega 등록</span>
-vi /etc/vsftpd/ftp_user
-<span class="c"># 설정을 바꾼 뒤에는 restart (첫 기동은 start)</span>
-systemctl restart vsftpd</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>FileZilla 접속</strong></td><td><strong>[윈도우 · FileZilla]</strong> 리눅스 IP(<code class="n">192.168.222.5</code>) / 사용자 <code class="n">mega</code> / 포트 <code class="n">9021</code> / 전송 설정 <strong>능동형(Active)</strong> → 테스트 파일(예: <code class="n">test_table.py</code>) 업로드 확인. 리눅스 IP로 접속하면 VirtualBox 포트포워딩 등록 없이 바로 접속(윈도우 IP는 등록 필요). 업로드한 파일이 컨테이너 <code class="n">/home/mega</code>에서 보이면 클라우드 환경에서 FTP 동작</td></tr>
-    <tr><td><strong>ftp_user 파일</strong></td><td>파일 이름만 바꿔서는 보안 효과 거의 없음 (서버 내부 설정 파일)</td></tr>
-    </tbody></table></div>
-    <div class="dg-bar warn">vsftpd 핵심 — 컨테이너 안 <code class="n">listen_port</code>는 21 유지. <code class="n">chroot_local_user=YES</code>, <code>allow_writeable_chroot=YES</code>, <code class="n">chroot_list_enable=NO</code>. 패시브 모드 실사용 시 <code class="n">pasv_min_port~max_port</code>도 <code class="n">-p</code>로 개방</div>
-<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># 표준 예시: 패시브 데이터 포트 범위(5000~5100)까지 열어서 컨테이너 생성 (포트는 생성 후 변경 불가이므로 처음부터 지정)</span>
-docker run -it -d --privileged -p 9022:22 -p 80:80 -p 9021:21 -p 5000-5100:5000-5100 --name megaweb rocky:9 /sbin/init</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="dg-bar warn">패시브 모드의 인과 — 서버가 알려준 데이터 포트를 <code class="n">docker run -p</code>로 열지 않으면 FileZilla 디렉터리 조회가 멈춤. <code class="n">pasv_min_port~pasv_max_port</code>(5000~5100)를 고정해 <code class="n">-p</code>로 열거나, 열지 않았다면 능동형(Active)으로 접속</div>
-
-    <p><strong>httpd 사용자별 웹 (<code class="n">userdir.conf</code>)</strong></p>
-    <ul class="facts"><li><strong>자세한 설정</strong><div>httpd 설치·기동·httpd.conf 줄별 의미·DocumentRoot·DirectoryIndex: httpd.html 3~7장 / userdir.conf 전체 블록·<code class="n">Require method</code> 의미·403 해결: httpd.html 9장</div></li></ul>
-<div class="code"><pre><code><span class="c"># [megaweb 컨테이너 · root]</span>
-dnf install httpd
-<span class="c"># 사용자별 웹은 httpd.conf(하나만 뜸)가 아니라 conf.d의 userdir.conf를 수정 (블록 전체·Require method 의미: httpd.html 9장)</span>
-cd /etc/httpd/conf.d/
-<span class="c"># 목록: README, autoindex.conf, userdir.conf, welcome.conf</span>
-ls
-<span class="c"># :set number 후 17번·31번 라인 수정 (수정 내용은 바로 아래 설정 파일 블록)</span>
-vi /etc/httpd/conf.d/userdir.conf
-
-<span class="c"># [megaweb 컨테이너 · /etc/httpd/conf.d/userdir.conf 파일 안]</span>
-<span class="c"># 17번 라인: 기본값 UserDir disabled를 바꿈. www = 홈 아래 웹 디렉터리 이름</span>
-UserDir www
-<span class="c"># 31번 라인: 위 디렉터리 이름과 맞추기 위해 public_html → www (31~35번이 &lt;Directory&gt; 블록, 나머지 줄은 그대로)</span>
-&lt;Directory "/home/*/www"&gt;
-
-<span class="c"># [megaweb 컨테이너 · root]</span>
-<span class="c"># 설정 적용 (설정을 바꿨으므로 restart)</span>
-systemctl restart httpd.service
-<span class="c"># 사용자 홈 아래 웹 디렉터리 생성 (이름은 UserDir 값과 같게 www)</span>
-mkdir /home/mega/www
-<span class="c"># ls -al /home 에서 mega가 drwx------(700)</span>
-chmod 755 /home/mega               <span class="c"># 700이면 웹 접속 불가! (root에서 최소 755)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>나머지 주석</strong></td><td><code>Require method GET POST OPTIONS</code> 등은 그대로 유지</td></tr>
-    <tr><td><strong>이름 변경</strong></td><td>사용자 디렉터리 이름을 바꾸려면 위 두 곳(17번·31번)만 바꾸면 됨</td></tr>
-    <tr><td><strong>확인</strong></td><td>설정 직후 접속하면 로키 Apache 기본 테스트 페이지. 이후 <code>/home/mega/www/index.html</code>을 <strong>root가 아니라 mega 계정</strong>으로 FTP 업로드 → 브라우저 접속 → 호스트가 아닌 컨테이너 웹 페이지가 열림</td></tr>
-    </tbody></table></div>
-    <div class="dg-bar warn">사용자별 웹 호스팅 — <code class="n">httpd.conf</code>가 아니라 <code>/etc/httpd/conf.d/userdir.conf</code>의 17번(<code class="n">UserDir www</code>)·31번(<code class="n">Directory</code> 경로) 수정 + 홈 디렉터리 <strong><code class="n">chmod 755</code></strong> (700이면 접속 불가)</div>
-
-    <h3>DB 컨테이너(<code class="n">megadb</code>): MySQL 8.0.46 설치와 DBeaver 연결</h3>
-<div class="code"><pre><code><span class="c"># [megadb 컨테이너 · root]</span>
-<span class="c"># DB 컨테이너 안(root)에서 작업. 이 컨테이너에는 웹(httpd) 없이 MySQL만 둠</span>
-dnf info mysql             <span class="c"># 버전 확인: 8.0.46 (Release 1.el9). dnf search mysql로도 찾을 수 있음</span>
-dnf install mysql          <span class="c"># 클라이언트</span>
-<span class="c"># 서버. 안 깔면 작동 안 함 → 클라이언트와 둘 다 설치 필수. python 등 의존 패키지가 같이 깔림(python으로 DB 핸들링 가능)</span>
-dnf install mysql-server
-systemctl start mysqld     <span class="c"># 최초 기동은 느림. 컨테이너를 껐다 켜면 다시 기동</span>
-netstat -lntpu             <span class="c"># 3306, 33060(mysqld), 22(sshd) 확인</span>
-mysql -u root -p           <span class="c"># 초기 root 비밀번호 없음(엔터)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <p><strong>사용자·DB 생성</strong> — <strong>표준 예시</strong>(강의 화면에서 SQL이 안 보여 표준 방식으로 채움) / 비밀번호는 강사 <strong>연습값</strong>. GRANT 문법·<code>%</code>와 <code>localhost</code> 차이·최소권한: mysql.html 4·5장</p>
-<div class="code"><pre><code><span class="c">-- [megadb 컨테이너 · MySQL 프롬프트 · root]</span>
-<span class="c">-- 표준 예시 (root로 접속한 mysql 안에서 실행)</span>
-<span class="c">-- DB 생성</span>
-CREATE DATABASE mega;
-<span class="c">-- 사용자 생성. 비밀번호는 연습값(강사 설정 A1234 계열, 필기상 a1234로도 표기 → 비밀번호는 대소문자 구분이므로 만든 값 그대로 입력). 실무 금지</span>
-<span class="c">-- '%' = 어느 호스트에서든 접속 허용 → 윈도우의 DBeaver가 포트포워딩으로 들어올 때 필요 (localhost만 쓰면 외부 접속이 거부됨)</span>
-CREATE USER 'mega'@'%' IDENTIFIED BY 'A1234';
-<span class="c">-- mega DB의 모든 권한을 mega 사용자에게 부여</span>
-GRANT ALL PRIVILEGES ON mega.* TO 'mega'@'%';
-<span class="c">-- 권한 반영 (MySQL 8.0은 GRANT 시 자동 반영이라 생략 가능)</span>
-FLUSH PRIVILEGES;
-<span class="c">-- [megadb 컨테이너 · MySQL 프롬프트 · mega]  ← 셸에서 mysql -u mega -p로 다시 접속한 뒤</span>
-<span class="c">-- mega DB가 보이면 정상</span>
-SHOW DATABASES;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="note-verify">
-      <div class="tag">🔍 직접 확인 · 33강 24:39~25:12</div>
-      <p>사용자 <code>mega</code>·비밀번호 <code>A1234</code>를 만들 때 실행한 SQL 문 전체 — 붙여넣은 뒤 화면이 지워져 영상에 남지 않음. 위 블록은 표준 예시이므로 실제 문장은 직접 실행해 확인</p>
-    </div>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>DB·사용자</strong></td><td>DB <code class="n">mega</code>, 사용자 <code class="n">mega</code> (위 표준 예시) → <code class="n">mysql -u mega -p</code> → <code class="n">show databases;</code>로 확인</td></tr>
-    <tr><td><strong>포트포워딩</strong></td><td><strong>[윈도우 · VirtualBox]</strong> VirtualBox NAT에 <code class="n">Mysql-C</code> 규칙 추가 — 프로토콜 TCP, 호스트 윈도우 IP <code class="n">3306</code> → 게스트 리눅스 IP <code class="n">3306</code>. 이름의 C = 클라우드, 기존 SSH용 규칙 옆에 추가 (기존 규칙 이름·포트는 1장 접속 표)</td></tr>
-    <tr><td><strong>DBeaver</strong></td><td><strong>[윈도우 · DBeaver]</strong> 기존 연결을 Edit Connection → IP는 그대로 두고 포트만 <code class="n">3306</code> (DB <code class="n">mega</code>, 사용자 <code class="n">mega</code>) → Test Connection 정상(MySQL 8.0.46). 테이블은 아직 없음 → <strong>컨테이너에서 도는 DB</strong></td></tr>
-    </tbody></table></div>
-    <div class="dg-bar warn">MySQL 설치 — <code class="n">dnf install mysql</code>(클라이언트) + <code class="n">mysql-server</code>(서버) <strong>둘 다 설치</strong> → <code class="n">systemctl start mysqld</code></div>
-    <div class="dg-bar warn">MySQL 계정 생성(표준 예시) — <code class="n">CREATE DATABASE</code> → <code class="n">CREATE USER 'mega'@'%'</code> → <code class="n">GRANT</code>. <code class="n">'%'</code>여야 DBeaver 같은 외부 접속 가능. VirtualBox <code class="n">Mysql-C</code>(3306)를 추가하고 DBeaver는 포트만 <code class="n">3306</code>. 비밀번호는 연습값이며 실무 금지</div>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>연결 파일</strong></td><td>Docker Hub 이미지(<code>dhi.io/mysql:8</code>)로 띄운 MySQL 컨테이너의 문자셋·설정·백업·복구 실습: mysql.html 11·14장</td></tr>
-    </tbody></table></div>
-
-    <h3>WAS 컨테이너 (요약)</h3>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>실습 조합</strong></td><td><code>was11</code> = Java 11 + Tomcat 8.5.98, 호스트 <code>9800</code> → 컨테이너 <code>8080</code> / <code>was17</code> = Java 17 + Tomcat 10.1.60, 호스트 <code>9801</code> → 컨테이너 <code>8080</code></td></tr>
-    <tr><td><strong>Docker 쪽 흐름</strong></td><td><code>hosting.yaml</code>에 두 WAS 서비스 정의 → <code>docker compose -f hosting.yaml up -d</code> → <code>docker ps</code>·<code>docker compose -f hosting.yaml ps</code>로 9800·9801 게시 확인 → <code>docker exec -it was11 /bin/bash</code>로 접속</td></tr>
-    <tr><td><strong>포트 원칙</strong></td><td>컨테이너 안쪽 포트는 둘 다 8080 유지, 호스트 포트만 다르게 (4장 포트 매핑 원칙과 같음)</td></tr>
-    <tr><td><strong>자세한 실습</strong></td><td>was.html 7~10장 (컨테이너별 자바·Tomcat 설치, 일반 사용자 mz, <code>update-alternatives</code> 버전 전환, Tomcat과 Spring 관계)</td></tr>
-    </tbody></table></div>
-
-  
-
-  </section>
-
-  <!-- 8 -->
-  <section class="sec" id="hub-cicd">
-    <h2>컨테이너 이미지화(commit), Docker Hub 배포와 CI/CD 파이프라인</h2>
-    <div class="dg"><p class="dg-title">한눈에 보기 — 만든 환경을 이미지로 배포</p><div class="dg-flow"><div class="dg-node"><h4>① commit</h4><p class="sub">컨테이너 → 이미지</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② docker login</h4><p class="sub">Hub 계정</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ tag</h4><p class="sub">레포 이름과 일치</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ push</h4><p class="sub">Hub 업로드</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>⑤ pull + run</h4><p class="sub">같은 환경 복원</p></div></div></div>
-
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>대상</strong></td><td>설치·환경설정(httpd, vsftpd, 사용자 등)까지 끝낸 컨테이너</td></tr>
-    <tr><td><strong>흐름</strong></td><td>이미지로 묶기 → Docker Hub 업로드 → 다른 서버에서 <code class="n">docker pull</code> + <code class="n">run</code>만으로 같은 환경을 수 초 만에 복원</td></tr>
-    </tbody></table></div>
-
-    <div class="dg">
-      <p class="dg-title">이미지가 배포 파이프라인의 중심이 된다</p>
-      <p class="dg-foot" style="margin:0 0 10px"><strong>실습 이미지 생명주기 (3장 빌드 → 8장 배포, CD 단계)</strong></p>
-      <div class="dg-flow">
-        <div class="dg-node"><h4>Dockerfile</h4><ul><li>systemd 넣어 빌드</li></ul></div>
-        <div class="dg-arrow"></div>
-        <div class="dg-node"><h4>run + 세팅</h4><ul><li>웹·FTP·사용자</li></ul></div>
-        <div class="dg-arrow"></div>
-        <div class="dg-node accent"><h4>commit → tag</h4><ul><li>레포명과 일치</li></ul></div>
-        <div class="dg-arrow"></div>
-        <div class="dg-node key"><h4>Docker Hub</h4><ul><li>push / pull</li></ul></div>
-        <div class="dg-arrow"></div>
-        <div class="dg-node"><h4>복원 run</h4><ul><li>동일 환경</li></ul></div>
-      </div>
-      <p class="dg-foot" style="margin:22px 0 10px"><strong>실무 CI/CD 자동화 5단계 (GitHub Actions + Docker Hub)</strong></p>
-      <div class="dg-flow">
-        <div class="dg-node"><h4><span class="num">1</span>Source</h4><ul><li>GitHub Main</li><li>코드 Push</li></ul></div>
-        <div class="dg-arrow"></div>
-        <div class="dg-node"><h4><span class="num">2</span>CI</h4><ul><li>GitHub Actions</li><li>python 환경 설정</li><li>단위 테스트</li></ul></div>
-        <div class="dg-arrow"></div>
-        <div class="dg-node"><h4><span class="num">3</span>Build</h4><ul><li>이미지 빌드</li><li>단일·멀티아키(multi-architecture)</li></ul></div>
-        <div class="dg-arrow"></div>
-        <div class="dg-node key"><h4><span class="num">4</span>Registry</h4><ul><li>Docker Hub</li><li>버전 관리(Private)</li></ul></div>
-        <div class="dg-arrow"></div>
-        <div class="dg-node accent"><h4><span class="num">5</span>CD</h4><ul><li>대상 서버 SSH</li><li>docker pull 배포</li></ul></div>
-      </div>
-      <p class="dg-foot"><strong>레포지토리</strong>(이미지를 올릴 장소) ≠ <strong>레지스트리</strong>(저장소 서비스 전체) / Docker Hub 화면에는 레지스트리라는 항목이 따로 없음 / 1단계의 Main Branch 개념은 뒤에서 다룸 / 현재 실습은 4~5단계(CD)까지 완료 / 추후 GitHub Actions(YML 워크플로우)를 연동하면 1~5단계 전체 자동화 → 포트폴리오에서 파이프라인 경험을 증명할 핵심 자료</p>
-    </div>
-    <div class="dg-bar warn">CI/CD와 용어 구분 — 코드(GitHub) → CI(GitHub Actions 단위 테스트·빌드) → 레지스트리(Docker Hub) push → CD(대상 서버 SSH <code class="n">docker pull</code> 배포). <strong>레포(올릴 장소) ≠ 레지스트리(저장소 서비스)</strong></div>
-
-    <h3>1. 컨테이너 → 이미지화 (<code class="n">docker commit</code>)</h3>
-<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># OS 확인 → Rocky Linux release 9.8 (Blue Onyx). 이미지 이름·버전은 이 값을 보고 정함 (rocky, 9)</span>
-cat /etc/redhat-release
-<span class="c"># 데이터 손실 방지 및 속도를 위해 정지 후 commit 권장. 설치한 것이 많아 압축하며 만들느라 시간이 한참 걸림</span>
-docker stop megaweb
-docker commit -a "apink" -m "" megaweb apink_rocky:9
-docker images   <span class="c"># 1.55GB (content size 447MB)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>-a / -m</strong></td><td><code class="n">-a</code>: 제작자 / <code class="n">-m</code>: 메모 (한글은 깨지므로 비워 둬도 무방)</td></tr>
-    <tr><td><strong>형식</strong></td><td><code>docker commit -a "제작자" -m "메모" 컨테이너명 이미지명:버전</code> — 컨테이너명은 실제 가동 중인 이름(<code class="n">megaweb</code>), 이미지명은 <code class="n">이름:버전</code> 관례</td></tr>
-    <tr><td><strong>원리</strong></td><td>AWS·GCP의 유료 백업 이미지 기능과 같음. 만든 이미지에 httpd·ftp 환경설정까지 담겨 컨테이너로 만들면 그대로 복원</td></tr>
-    </tbody></table></div>
-    <div class="dg-bar warn">컨테이너 이미지화 — <code>docker commit -a "제작자" -m "메모" 컨테이너명 이미지:버전</code> (정지 후 실행 권장)</div>
-
-    <h3>2. Docker Hub 가입·패스워드 리셋·로그인</h3>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>사이트</strong></td><td><code class="n">hub.docker.com</code> (공식 사이트 <code class="n">docker.com</code>과 별개)</td></tr>
-    <tr><td><strong>가입</strong></td><td><strong>[윈도우 · 웹 브라우저(hub.docker.com)]</strong> 자기 허브(저장소)를 자기가 관리해야 하므로 회원가입 필수 (이후 파이프라인으로 사용). 구글 계정 → username 지정 → Sign up → 이메일 6자리 보안 코드 입력 → My Hub 생성 (결제 불필요: Billing 화면이 떠도 한도 초과 시에만 필요). 리눅스 로그인에 이 username·패스워드를 쓰므로 오타 주의</td></tr>
-    <tr><td><strong>패스워드 Reset 필수</strong></td><td><strong>[윈도우 · 웹 브라우저(hub.docker.com)]</strong> 구글 가입자는 비밀번호가 없어 리눅스 로그인 실패 → 마이페이지 &gt; Account Settings &gt; <strong>Reset Password</strong> → 이메일 링크로 새 비밀번호 생성(토큰은 불필요) → <code class="n">changed</code> 메시지 확인 → 이메일이 아닌 <strong>username만 넣고 Continue</strong> → 비밀번호로 웹 로그인 확인</td></tr>
-    <tr><td><strong>로그인 위치</strong></td><td><strong>리눅스 호스트</strong>에서 수행 (컨테이너 안에서는 안 되고 윈도우 데스크톱 앱도 안 씀). 토큰은 <code class="n">~/.docker/config.json</code>에 저장 (지우면 다시 승인 필요, 계정을 더 안 쓸 때 삭제)</td></tr>
-    <tr><td><strong>주의</strong></td><td>외국 서버라 rate limit·보안 확인·로그인 불안정으로 막힐 때가 있음 (오전에 잦고 오후에는 보통 정상)</td></tr>
-    <tr><td><strong>실무</strong></td><td>회사 공용 ID로 만든 이미지를 허브에 올려 두고 파이프라인에서 나중에 사용</td></tr>
-    </tbody></table></div>
-<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># 1인 사용: USING WEB-BASED LOGIN + 일회용 코드·URL 표시 → 브라우저에서 코드 입력 → Continue → Confirm</span>
-<span class="c"># 정상 확인: Login Succeeded, /root/.docker/config.json 생성 (로그인 정보·token)</span>
-docker login
-
-<span class="c"># 여러 명/팀 사용 (계정별 config.json 분리): ~/.docker/계정디렉터리/config.json 생성, 계정마다 디렉터리 추가</span>
-<span class="c"># 패스워드는 Docker Hub 로그인 패스워드(리셋해 둔 것). -p로 명령행에 쓰면 Using --password via the CLI is insecure 경고가 뜸 (보충 · 표준 동작, 실습용)</span>
-docker --config ~/.docker/계정디렉터리 login -u 아이디 -p 패스워드
-docker info   <span class="c"># Username 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="dg-bar warn">Docker Hub 로그인 — 구글 가입자는 패스워드 Reset 필수. 1인: <code class="n">docker login</code>(웹 코드) / 여러 명: <code>docker --config ~/.docker/&lt;폴더&gt; login -u -p</code> (토큰은 <code class="n">config.json</code>에 저장)</div>
-
-    <h3>3. 레포지토리 설정 &amp; <code class="n">tag</code> → <code class="n">push</code> → <code class="n">pull</code> 복원</h3>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>레포 생성</strong></td><td><strong>[윈도우 · 웹 브라우저(hub.docker.com)]</strong> <code class="n">허브아이디/apink_rocky</code></td></tr>
-    <tr><td><strong>공개 범위</strong></td><td>무료 계정은 Private 1개 한도. 연습은 Public, <strong>회사 실무는 무조건 Private + 그룹</strong> (Public은 DB·개인정보 유출 위험)</td></tr>
-    <tr><td><strong>Settings</strong></td><td><strong>[윈도우 · 웹 브라우저(hub.docker.com)]</strong> 
-        <ul>
-          <li>Docker Scout(Image security insight): 이미지 취약점·바이러스 분석 → <code class="n">None</code></li>
-          <li>Tag mutability: <code class="n">All tags are mutable</code> 기본 유지 (같은 태그면 덮어쓰고 다른 태그면 새로 생김)</li>
-          <li>Archive repository: 잠금 → 해제 유지 (잠그면 push 불가)</li>
-          <li>Visibility settings: public ↔ private 전환</li>
-          <li>Upgrade plan: 유료, 패스</li>
-          <li>Delete repository 등 아래쪽 항목: 더 이상 안 쓸 때만, 지금은 하지 말 것</li>
-          <li>Webhooks: <code class="n">skip guide</code></li>
-          <li>Settings에 느낌표가 뜨면 설정이 필요한 상태 → 안 하고 push하면 에러 (Continue로 활성화해도 됨). 생성 직후 레포는 비어 있음</li>
-        </ul></td></tr>
-    <tr><td><strong>push 에러</strong></td><td>Docker Hub 안내(<code class="n">docker push 레포:tagname</code>, 화면 문구 To push a new tag to this repository) 그대로 치면 레포명 불일치로 실패 → <code class="n">docker tag</code>로 <strong>이미지 이름을 레포 이름과 일치</strong>시킨 뒤 push</td></tr>
-    </tbody></table></div>
-<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># tag는 이미지 복사가 아니라 같은 이미지에 이름(별칭)을 더하는 것 → docker images에 같은 IMAGE ID(영상 화면 0034c2377319)로 두 줄이 생기고 원본 이름도 남음</span>
-<span class="c"># 레포 이름에 맞춰 tag → push. 1) 연습용 임시 태그(tagname)로 먼저 올려 허브에서 태그 생성 확인</span>
-docker tag apink_rocky:9 mzleejh/apink_rocky:tagname
-docker push mzleejh/apink_rocky:tagname
-<span class="c"># 2) 원래는 버전을 태그로 씀 (다음 버전은 9-1 식). 압축되어 올라가 5초도 안 걸림</span>
-docker tag apink_rocky:9 mzleejh/apink_rocky:9
-docker push mzleejh/apink_rocky:9
-<span class="c"># 응용 숙제: 임시 tagname 이미지는 rmi로 지우고, 레포 이름 + 버전으로 만든 이미지를 push해 허브에서 확인</span>
-docker rmi mzleejh/apink_rocky:tagname
-
-<span class="c"># 로컬 정리 후 허브에서 내려받아 복원 검증</span>
-<span class="c"># 기존 웹 컨테이너 정지 (삭제·재가동은 안 함)</span>
-docker stop megaweb
-docker rmi apink_rocky:9 mzleejh/apink_rocky:9
-<span class="c"># 정상 확인: docker images에 cs:9, rocky:9 두 개만 남고 docker ps에는 megadb만 동작</span>
-<span class="c"># pull 경로는 허브 태그 화면의 pull 명령을 복사</span>
-docker pull mzleejh/apink_rocky:9
-<span class="c"># -p 80:80 = 웹 컨테이너라 80 필요. DB 컨테이너가 10021·10022를 쓰므로 9022·9021 (처음 10000번대에서 변경), 8080은 안 씀</span>
-<span class="c"># 포트는 한 줄에 다 씀 → WAS도 쓸 거면 지금 추가 (나중에 추가하면 컨테이너가 망가질 수 있음)</span>
-docker run -it -d --privileged -p 9022:22 -p 80:80 -p 9021:21 --name megaweb2 mzleejh/apink_rocky:9 /sbin/init
-<span class="c"># 헷갈리지 않게 이름 되돌림</span>
-docker rename megaweb2 megaweb</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>push 대상</strong></td><td>올리는 것은 <strong>이미지</strong>이지 컨테이너가 아님. 처음부터 레포 이름으로 이미지를 만들었다면 tag 없이 바로 push 가능. push가 끝나면 tag로 만든 이름과 원본 이미지는 지워도 됨(허브에 올라간 이미지는 그대로). 이번에는 웹(로키)만 올리고 DB는 아직 안 올림</td></tr>
-    <tr><td><strong>버전 관리</strong></td><td>레포 이름에 맞춰 tag → push하는 것이 <strong>버전 관리 = 파이프라인 구조</strong> (Git과 비슷). 허브 태그 상세에는 레이어·run·container 설정, 총 용량, Linux AMD64, pull 명령이 표시되고 Upgrade는 유료</td></tr>
-    <tr><td><strong>복원 확인</strong></td><td>브라우저 접속 시 기존에 만든 <code class="n">mega</code> 웹 페이지까지 그대로 복원. 같은 이미지를 집(로키 + docker)에서 pull → run 하면 여기 환경이 그대로 재현됨 = 실무 <strong>배포 방식</strong></td></tr>
-    <tr><td><strong>허브 레포 화면</strong></td><td>레이어·용량·Linux AMD64·Pulls(다운로드 횟수) 표시. public 레포는 주소만 알면 누구나 pull — 아마존 같은 클라우드가 내부 구성을 외부에 보여주지 않는 것과 반대. 이번 실습 범위는 배포(push) → 받아서 설치(pull + run)까지</td></tr>
-    </tbody></table></div>
-    <div class="dg-bar warn">tag → push → pull 복원 — 허브 안내 그대로 push하면 에러 → <code class="n">docker tag</code>로 이미지 이름을 레포 이름과 일치 → <code class="n">push</code>(배포) → <code class="n">pull</code> + <code class="n">run</code>(복원). Settings의 Tag mutability는 기본 Mutable 유지, 회사는 무조건 <strong>Private + 그룹</strong></div>
-
-    <h3>배포 후 정리 — 컨테이너 먼저, 이미지 나중</h3>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>순서</strong></td><td><code class="n">docker ps -a</code>로 정지된 컨테이너까지 확인 → 필요 없는 컨테이너 <code class="n">docker rm</code> → 안 쓰는 이미지 <code class="n">docker rmi</code></td></tr>
-    <tr><td><strong>확인 기준</strong></td><td><code class="n">docker images</code>의 EXTRA 열 <code class="n">U</code>(In Use)가 빠지면 그 이미지를 쓰는 컨테이너가 없음 → 삭제 가능</td></tr>
-    <tr><td><strong>판단</strong></td><td>이미지를 지우기 전에 필요한 이미지인지, 연결된 컨테이너가 있는지 확인. 컨테이너가 쓰는 이미지는 <code class="n">docker rmi</code>가 거부하고, <code class="n">-f</code>로 지워도 태그만 해제되어 이미 만든 컨테이너는 유지</td></tr>
-    </tbody></table></div>
-<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># 복원 검증이 끝난 뒤 정리 — 정지해 둔 예전 웹 컨테이너를 지우면 docker images의 U 표시가 빠짐</span>
-docker ps -a                       <span class="c"># ps는 돌고 있는 것만, -a는 정지된 megaweb까지</span>
-docker rm megaweb                  <span class="c"># 실행 중이면 stop 먼저 (stop the container before removing)</span>
-docker rmi rocky:9                 <span class="c"># 용량 정리를 위해 안 쓰는 기본 이미지 삭제</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="dg-bar warn">삭제 순서 — 컨테이너(<code class="n">rm</code>) → 이미지(<code class="n">rmi</code>). 컨테이너 삭제는 내부 데이터까지 영구 소실이므로 백업·필요 여부를 먼저 확인</div>
-
-    <h3>실무 배포 사례</h3>
-    <ol class="wide-list">
-      <li><strong>베이스 이미지 준비</strong>: 신입·인턴이 설치만 해 둠 (사용자·Java 제외)
-        <ul>
-          <li>OS: Rocky 9·10 또는 AlmaLinux 9.8 (9.9 Beta는 불안정해 제외, CentOS 미사용)</li>
-          <li>설치: 웹·WAS·FTP·DB(RDBMS·NoSQL)·Spark·Jupyter를 버전별로</li>
-        </ul>
-      </li>
-      <li><strong>이미지 제작·등록</strong>: 약 일주일간 이미지로 제작 → 사내 Private 레지스트리에 업로드 (이미지에 오류가 있으면 원인 추적에 야근 발생)</li>
-      <li><strong>고객 오더 처리</strong>: 셸 스크립트로 CPU 코어 수·사용자 ID 입력받기 → 해당 이미지로 즉시 컨테이너 세팅</li>
-    </ol>
-  
-
-  </section>
-
-  <!-- 9 -->
   <section class="sec" id="docker-network">
     <h2>포트 게시, iptables·NAT, 브라우저 포트 차단과 사용자 정의 네트워크</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — 요청이 지나는 계층을 하나씩 확인</p><div class="dg-flow"><div class="dg-node"><h4>① 포트 게시</h4><p class="sub">-p 10080:80</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② iptables·NAT</h4><p class="sub">INPUT · PREROUTING</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 서버 응답</h4><p class="sub">curl → HTTP 200</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 브라우저</h4><p class="sub">ERR_UNSAFE_PORT</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>⑤ 사용자 정의 네트워크</h4><p class="sub">spark-net · 이름 DNS</p></div></div></div>
@@ -2256,7 +1962,7 @@ chrome.exe --explicitly-allowed-ports=10080</code></pre><button class="copy" typ
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>목적</strong></td><td>마스터 1개 + 워커 2개 Spark 클러스터를 컨테이너로 구성 → 컨테이너끼리 이름으로 통신할 전용 네트워크부터 만듦</td></tr>
-    <tr><td><strong>자세한 실습</strong></td><td>spark.html 2장·13~14장 (클러스터 포트·자원, Spark 3.5.3 이미지 Dockerfile·빌드·검증, 마스터 기동) / 서버 2대 직접 설치·운영·제출: spark.html 3~9장 / 예제(WordCount·PySpark 집계): pyspark.html 1장 / PySpark·JupyterLab 연동(pandas·numpy 설치·환경변수·노트북·코어 실험): pyspark.html 2~6장 / pandas UDF: pyspark.html 7~8장 / 공공 API 적재·JDBC 연동·박스오피스 집계: spark.html 10~12장 / 개념·구성 요소: spark.html 1장</td></tr>
+    <tr><td><strong>자세한 실습</strong></td><td>spark.html 2장·13~14장 (클러스터 포트·자원, Spark 3.5.3 이미지 Dockerfile·빌드·검증, 마스터 기동) / 서버 2대 직접 설치·운영·제출: spark.html 3~9장 / 예제(WordCount·PySpark 집계): pyspark.html 7장 / PySpark·JupyterLab 연동(pandas·numpy 설치·환경변수·노트북·코어 실험): pyspark.html 2~5·8장 / pandas UDF: pyspark.html 9~10장 / 공공 API 적재·JDBC 연동·박스오피스 집계: spark.html 10~12장 / 개념·구성 요소: spark.html 1장</td></tr>
     </tbody></table></div>
 
     <h3>전용 네트워크를 먼저 구성</h3>
@@ -2283,7 +1989,7 @@ docker network rm spark-net             <span class="c"># 미사용 네트워크
 
   </section>
 
-  <!-- 10 -->
+  <!-- 8 -->
   <section class="sec" id="volume-config">
     <h2>볼륨 마운트와 실행 중 컨테이너 설정 변경</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — 만든 뒤에는 못 바꾸는 두 가지를 다루는 방법</p><div class="dg-flow"><div class="dg-node key"><h4>① 호스트 폴더 준비</h4><p class="sub">mkdir /home/spark-data</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② -v로 다시 생성</h4><p class="sub">호스트경로:컨테이너경로</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 양방향 확인</h4><p class="sub">컨테이너 파일 ↔ 호스트</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 포트 추가</h4><p class="sub">hostconfig.json</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 소켓 정지</h4><p class="sub">docker·docker.socket</p></div></div><p class="dg-foot">볼륨과 포트는 <b>컨테이너를 만드는 순간에만</b> 정해짐 — 빠뜨렸으면 정지·삭제 후 다시 만들거나(볼륨), 설정 파일을 고치고 소켓까지 정지한 상태에서 되살림(포트)</p></div>
@@ -2294,7 +2000,7 @@ docker network rm spark-net             <span class="c"># 미사용 네트워크
     <tr><td class="nowrap">문제</td><td>컨테이너 안 경로(예: <code>/opt/spark/data</code>)는 호스트에 없는 공간 — 호스트에서 <code>ls</code>로도 보이지 않음</td><td>컨테이너를 지우면 그 안의 파일도 함께 사라짐 (이미지에 없는 데이터)</td></tr>
     <tr><td class="nowrap">해결</td><td>호스트 폴더와 컨테이너 폴더를 <code>-v 호스트경로:컨테이너경로</code>로 이어 둠</td><td>양쪽이 같은 내용을 보므로 로컬에서 올린 파일이 컨테이너에 바로 보임</td></tr>
     <tr><td class="nowrap">정체</td><td><b>Docker 바인드 마운트</b> — Docker의 저장소 기능</td><td>Spark·애플리케이션 기능이 아니고, 온프레미스·클라우드 구분 없이 쓰는 Docker 기능 (출처: docs.docker.com bind mounts)</td></tr>
-    <tr><td class="nowrap">"연결"의 의미</td><td>두 곳을 이어 하나처럼 쓴다는 뜻</td><td>실시간 라이브 싱크 도구(lsyncd 등, linux.html 14장)와 다른 개념 — 파일을 복사해 맞추는 것이 아니라 같은 폴더를 함께 봄</td></tr>
+    <tr><td class="nowrap">"연결"의 의미</td><td>두 곳을 이어 하나처럼 쓴다는 뜻</td><td>실시간 라이브 싱크 도구(lsyncd 등, linux.html 4장)와 다른 개념 — 파일을 복사해 맞추는 것이 아니라 같은 폴더를 함께 봄</td></tr>
     <tr><td class="nowrap">설계도 요구</td><td>아키텍처 설계도에 맵드(mapped)·공유 볼륨 항목이 들어 있음</td><td>이 항목을 빠뜨리고 컨테이너를 만들면 설계가 어긋나 서버를 다시 구축해야 함</td></tr>
     </tbody></table></div>
 
@@ -2421,7 +2127,301 @@ systemctl stop docker docker.socket                    <span class="c"># 데몬�
     <tr><td class="nowrap">포트폴리오</td><td>사수가 설계도를 주고 그대로 세팅하게 하는 과제 형태</td><td>실무와 같은 순서(설계도 → 구현 → 검증)를 미리 연습</td></tr>
     </tbody></table></div>
 
-    <ul class="facts"><li><strong>실제 적용</strong><div>Spark 마스터·워커 컨테이너에 <code>-v</code>를 넣어 재생성하고 마운트 검증: spark.html 14장</div></li><li><strong>네임드 볼륨</strong><div><code>docker volume create</code>와 Compose 선언: postgresql.html 11장</div></li><li><strong>디스크 여유</strong><div><code>/var/lib/docker</code>가 차지하는 공간과 파티션 배분: linux.html 12장</div></li><li><strong>실시간 동기화와 구분</strong><div>lsyncd는 파일을 복사해 맞추는 도구, <code>-v</code>는 같은 폴더를 함께 봄: linux.html 14장</div></li></ul>
+    <ul class="facts"><li><strong>실제 적용</strong><div>Spark 마스터·워커 컨테이너에 <code>-v</code>를 넣어 재생성하고 마운트 검증: spark.html 14장</div></li><li><strong>네임드 볼륨</strong><div><code>docker volume create</code>와 Compose 선언: postgresql.html 11장</div></li><li><strong>디스크 여유</strong><div><code>/var/lib/docker</code>가 차지하는 공간과 파티션 배분: linux.html 12장</div></li><li><strong>실시간 동기화와 구분</strong><div>lsyncd는 파일을 복사해 맞추는 도구, <code>-v</code>는 같은 폴더를 함께 봄: linux.html 4장</div></li></ul>
+  </section>
+
+  <!-- 9 -->
+  <section class="sec" id="services">
+    <h2>서비스 컨테이너 구성: 웹·FTP, MySQL, WAS</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 컨테이너마다 역할 하나씩</p><div class="dg-flow"><div class="dg-node"><h4>① megaweb</h4><p class="sub">vsftpd :21 · httpd :80</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② userdir.conf</h4><p class="sub">UserDir www · chmod 755</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ megadb</h4><p class="sub">mysql-server :3306</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 외부 접속</h4><p class="sub">FileZilla 9021 · DBeaver 3306</p></div></div></div>
+
+    <h3>웹 컨테이너(<code class="n">megaweb</code>): vsftpd + httpd 사용자별 웹 호스팅</h3>
+    <ul class="facts"><li><strong>전제</strong><div>컨테이너 <code class="n">megaweb</code>에 사용자 <code class="n">mega</code> 생성 완료 — 웹(httpd)과 FTP(vsftpd) 모두 <code class="n">mega</code> 계정 사용. 컨테이너에는 <code class="n">firewalld</code>가 없어 vsftpd·httpd 설정만 하면 됨</div></li></ul>
+    <p><strong>vsftpd 설정과 FileZilla 접속</strong></p>
+    <ul class="facts"><li><strong>자세한 설정</strong><div>vsftpd.conf 지시어별 설정·이유(익명·chroot·포트 변경 등): vsftpd.html 2~6장</div></li></ul>
+<div class="code"><pre><code><span class="c"># [megaweb 컨테이너 · root]</span>
+dnf install vsftpd             <span class="c"># vsftpd 3.0.5 + 의존 패키지 logrotate</span>
+<span class="c"># listen_port는 바꾸지 않음: -p 9021:21로 만들었으므로 컨테이너 안은 21번 그대로, 환경 설정만 수정</span>
+vi /etc/vsftpd/vsftpd.conf     <span class="c"># :set number</span>
+
+<span class="c"># [megaweb 컨테이너 · /etc/vsftpd/vsftpd.conf 파일 안]</span>
+<span class="c"># 설정 파일은 줄 끝 주석을 쓰지 않고 위 줄에 주석을 씀 (줄 끝 주석은 값의 일부로 읽혀 에러)</span>
+<span class="c"># chroot 보안 설정: 기존 항목은 # 주석만 풀고 아래 항목 추가 (지시어 의미·500 OOPS 재현: vsftpd.html 6장)</span>
+<span class="c"># 로컬 사용자를 자기 홈 디렉터리에 가둠 (기본은 주석)</span>
+chroot_local_user=YES
+<span class="c"># 예외 목록 사용 여부 — 이 컨테이너는 처음 YES → 최종 NO (예외 없이 모두 가둠). NO면 아래 파일은 실제로 안 쓰임</span>
+chroot_list_enable=NO
+<span class="c"># 쓰기 가능한 홈에서도 chroot 허용 — 없으면 refusing to run with writable root inside chroot() 오류</span>
+allow_writeable_chroot=YES
+<span class="c"># 예외 사용자 목록 파일. 기본값은 /etc/vsftpd/chroot_list, 이름은 자유 → ftp_user</span>
+chroot_list_file=/etc/vsftpd/ftp_user
+
+<span class="c"># Passive 모드 설정 (파일 맨 아래)</span>
+<span class="c"># 패시브는 서버가 알려준 데이터 포트로 클라이언트가 다시 접속 → 그 포트를 -p로 안 열면 FileZilla 디렉터리 조회가 한참 멈춤</span>
+<span class="c"># 이 컨테이너는 22·80·21만 열려 있어 능동형(Active)으로 접속 → 아래 pasv_*는 실제로 안 쓰임. 패시브로 쓰려면 5000~5100도 -p로 개방 (아래 표준 예시)</span>
+pasv_enable=YES
+<span class="c"># 데이터 포트 범위를 5000~5100으로 고정 (범위가 고정돼야 -p로 열 수 있음)</span>
+pasv_min_port=5000
+pasv_max_port=5100
+
+<span class="c"># [megaweb 컨테이너 · root]</span>
+<span class="c"># chroot 예외 목록 파일에 mega 등록</span>
+vi /etc/vsftpd/ftp_user
+<span class="c"># 설정을 바꾼 뒤에는 restart (첫 기동은 start)</span>
+systemctl restart vsftpd</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>FileZilla 접속</strong></td><td><strong>[윈도우 · FileZilla]</strong> 리눅스 IP(<code class="n">192.168.222.5</code>) / 사용자 <code class="n">mega</code> / 포트 <code class="n">9021</code> / 전송 설정 <strong>능동형(Active)</strong> → 테스트 파일(예: <code class="n">test_table.py</code>) 업로드 확인. 리눅스 IP로 접속하면 VirtualBox 포트포워딩 등록 없이 바로 접속(윈도우 IP는 등록 필요). 업로드한 파일이 컨테이너 <code class="n">/home/mega</code>에서 보이면 클라우드 환경에서 FTP 동작</td></tr>
+    <tr><td><strong>ftp_user 파일</strong></td><td>파일 이름만 바꿔서는 보안 효과 거의 없음 (서버 내부 설정 파일)</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">vsftpd 핵심 — 컨테이너 안 <code class="n">listen_port</code>는 21 유지. <code class="n">chroot_local_user=YES</code>, <code>allow_writeable_chroot=YES</code>, <code class="n">chroot_list_enable=NO</code>. 패시브 모드 실사용 시 <code class="n">pasv_min_port~max_port</code>도 <code class="n">-p</code>로 개방</div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 표준 예시: 패시브 데이터 포트 범위(5000~5100)까지 열어서 컨테이너 생성 (포트는 생성 후 변경 불가이므로 처음부터 지정)</span>
+docker run -it -d --privileged -p 9022:22 -p 80:80 -p 9021:21 -p 5000-5100:5000-5100 --name megaweb rocky:9 /sbin/init</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">패시브 모드의 인과 — 서버가 알려준 데이터 포트를 <code class="n">docker run -p</code>로 열지 않으면 FileZilla 디렉터리 조회가 멈춤. <code class="n">pasv_min_port~pasv_max_port</code>(5000~5100)를 고정해 <code class="n">-p</code>로 열거나, 열지 않았다면 능동형(Active)으로 접속</div>
+
+    <p><strong>httpd 사용자별 웹 (<code class="n">userdir.conf</code>)</strong></p>
+    <ul class="facts"><li><strong>자세한 설정</strong><div>httpd 설치·기동·httpd.conf 줄별 의미·DocumentRoot·DirectoryIndex: httpd.html 4~8장 / userdir.conf 전체 블록·<code class="n">Require method</code> 의미·403 해결: httpd.html 9장</div></li></ul>
+<div class="code"><pre><code><span class="c"># [megaweb 컨테이너 · root]</span>
+dnf install httpd
+<span class="c"># 사용자별 웹은 httpd.conf(하나만 뜸)가 아니라 conf.d의 userdir.conf를 수정 (블록 전체·Require method 의미: httpd.html 9장)</span>
+cd /etc/httpd/conf.d/
+<span class="c"># 목록: README, autoindex.conf, userdir.conf, welcome.conf</span>
+ls
+<span class="c"># :set number 후 17번·31번 라인 수정 (수정 내용은 바로 아래 설정 파일 블록)</span>
+vi /etc/httpd/conf.d/userdir.conf
+
+<span class="c"># [megaweb 컨테이너 · /etc/httpd/conf.d/userdir.conf 파일 안]</span>
+<span class="c"># 17번 라인: 기본값 UserDir disabled를 바꿈. www = 홈 아래 웹 디렉터리 이름</span>
+UserDir www
+<span class="c"># 31번 라인: 위 디렉터리 이름과 맞추기 위해 public_html → www (31~35번이 &lt;Directory&gt; 블록, 나머지 줄은 그대로)</span>
+&lt;Directory "/home/*/www"&gt;
+
+<span class="c"># [megaweb 컨테이너 · root]</span>
+<span class="c"># 설정 적용 (설정을 바꿨으므로 restart)</span>
+systemctl restart httpd.service
+<span class="c"># 사용자 홈 아래 웹 디렉터리 생성 (이름은 UserDir 값과 같게 www)</span>
+mkdir /home/mega/www
+<span class="c"># ls -al /home 에서 mega가 drwx------(700)</span>
+chmod 755 /home/mega               <span class="c"># 700이면 웹 접속 불가! (root에서 최소 755)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>나머지 주석</strong></td><td><code>Require method GET POST OPTIONS</code> 등은 그대로 유지</td></tr>
+    <tr><td><strong>이름 변경</strong></td><td>사용자 디렉터리 이름을 바꾸려면 위 두 곳(17번·31번)만 바꾸면 됨</td></tr>
+    <tr><td><strong>확인</strong></td><td>설정 직후 접속하면 로키 Apache 기본 테스트 페이지. 이후 <code>/home/mega/www/index.html</code>을 <strong>root가 아니라 mega 계정</strong>으로 FTP 업로드 → 브라우저 접속 → 호스트가 아닌 컨테이너 웹 페이지가 열림</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">사용자별 웹 호스팅 — <code class="n">httpd.conf</code>가 아니라 <code>/etc/httpd/conf.d/userdir.conf</code>의 17번(<code class="n">UserDir www</code>)·31번(<code class="n">Directory</code> 경로) 수정 + 홈 디렉터리 <strong><code class="n">chmod 755</code></strong> (700이면 접속 불가)</div>
+
+    <h3>DB 컨테이너(<code class="n">megadb</code>): MySQL 8.0.46 설치와 DBeaver 연결</h3>
+<div class="code"><pre><code><span class="c"># [megadb 컨테이너 · root]</span>
+<span class="c"># DB 컨테이너 안(root)에서 작업. 이 컨테이너에는 웹(httpd) 없이 MySQL만 둠</span>
+dnf info mysql             <span class="c"># 버전 확인: 8.0.46 (Release 1.el9). dnf search mysql로도 찾을 수 있음</span>
+dnf install mysql          <span class="c"># 클라이언트</span>
+<span class="c"># 서버. 안 깔면 작동 안 함 → 클라이언트와 둘 다 설치 필수. python 등 의존 패키지가 같이 깔림(python으로 DB 핸들링 가능)</span>
+dnf install mysql-server
+systemctl start mysqld     <span class="c"># 최초 기동은 느림. 컨테이너를 껐다 켜면 다시 기동</span>
+netstat -lntpu             <span class="c"># 3306, 33060(mysqld), 22(sshd) 확인</span>
+mysql -u root -p           <span class="c"># 초기 root 비밀번호 없음(엔터)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <p><strong>사용자·DB 생성</strong> — <strong>표준 예시</strong>(강의 화면에서 SQL이 안 보여 표준 방식으로 채움) / 비밀번호는 강사 <strong>연습값</strong>. GRANT 문법·<code>%</code>와 <code>localhost</code> 차이·최소권한: mysql.html 6~7장</p>
+<div class="code"><pre><code><span class="c">-- [megadb 컨테이너 · MySQL 프롬프트 · root]</span>
+<span class="c">-- 표준 예시 (root로 접속한 mysql 안에서 실행)</span>
+<span class="c">-- DB 생성</span>
+CREATE DATABASE mega;
+<span class="c">-- 사용자 생성. 비밀번호는 연습값(강사 설정 A1234 계열, 필기상 a1234로도 표기 → 비밀번호는 대소문자 구분이므로 만든 값 그대로 입력). 실무 금지</span>
+<span class="c">-- '%' = 어느 호스트에서든 접속 허용 → 윈도우의 DBeaver가 포트포워딩으로 들어올 때 필요 (localhost만 쓰면 외부 접속이 거부됨)</span>
+CREATE USER 'mega'@'%' IDENTIFIED BY 'A1234';
+<span class="c">-- mega DB의 모든 권한을 mega 사용자에게 부여</span>
+GRANT ALL PRIVILEGES ON mega.* TO 'mega'@'%';
+<span class="c">-- 권한 반영 (MySQL 8.0은 GRANT 시 자동 반영이라 생략 가능)</span>
+FLUSH PRIVILEGES;
+<span class="c">-- [megadb 컨테이너 · MySQL 프롬프트 · mega]  ← 셸에서 mysql -u mega -p로 다시 접속한 뒤</span>
+<span class="c">-- mega DB가 보이면 정상</span>
+SHOW DATABASES;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="note-verify">
+      <div class="tag">🔍 직접 확인 · 33강 24:39~25:12</div>
+      <p>사용자 <code>mega</code>·비밀번호 <code>A1234</code>를 만들 때 실행한 SQL 문 전체 — 붙여넣은 뒤 화면이 지워져 영상에 남지 않음. 위 블록은 표준 예시이므로 실제 문장은 직접 실행해 확인</p>
+    </div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>DB·사용자</strong></td><td>DB <code class="n">mega</code>, 사용자 <code class="n">mega</code> (위 표준 예시) → <code class="n">mysql -u mega -p</code> → <code class="n">show databases;</code>로 확인</td></tr>
+    <tr><td><strong>포트포워딩</strong></td><td><strong>[윈도우 · VirtualBox]</strong> VirtualBox NAT에 <code class="n">Mysql-C</code> 규칙 추가 — 프로토콜 TCP, 호스트 윈도우 IP <code class="n">3306</code> → 게스트 리눅스 IP <code class="n">3306</code>. 이름의 C = 클라우드, 기존 SSH용 규칙 옆에 추가 (기존 규칙 이름·포트는 1장 접속 표)</td></tr>
+    <tr><td><strong>DBeaver</strong></td><td><strong>[윈도우 · DBeaver]</strong> 기존 연결을 Edit Connection → IP는 그대로 두고 포트만 <code class="n">3306</code> (DB <code class="n">mega</code>, 사용자 <code class="n">mega</code>) → Test Connection 정상(MySQL 8.0.46). 테이블은 아직 없음 → <strong>컨테이너에서 도는 DB</strong></td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">MySQL 설치 — <code class="n">dnf install mysql</code>(클라이언트) + <code class="n">mysql-server</code>(서버) <strong>둘 다 설치</strong> → <code class="n">systemctl start mysqld</code></div>
+    <div class="dg-bar warn">MySQL 계정 생성(표준 예시) — <code class="n">CREATE DATABASE</code> → <code class="n">CREATE USER 'mega'@'%'</code> → <code class="n">GRANT</code>. <code class="n">'%'</code>여야 DBeaver 같은 외부 접속 가능. VirtualBox <code class="n">Mysql-C</code>(3306)를 추가하고 DBeaver는 포트만 <code class="n">3306</code>. 비밀번호는 연습값이며 실무 금지</div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>연결 파일</strong></td><td>Docker Hub 이미지(<code>dhi.io/mysql:8</code>)로 띄운 MySQL 컨테이너의 문자셋·설정·백업·복구 실습: mysql.html 13·16장</td></tr>
+    </tbody></table></div>
+
+    <h3>WAS 컨테이너 (요약)</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>실습 조합</strong></td><td><code>was11</code> = Java 11 + Tomcat 8.5.98, 호스트 <code>9800</code> → 컨테이너 <code>8080</code> / <code>was17</code> = Java 17 + Tomcat 10.1.60, 호스트 <code>9801</code> → 컨테이너 <code>8080</code></td></tr>
+    <tr><td><strong>Docker 쪽 흐름</strong></td><td><code>hosting.yaml</code>에 두 WAS 서비스 정의 → <code>docker compose -f hosting.yaml up -d</code> → <code>docker ps</code>·<code>docker compose -f hosting.yaml ps</code>로 9800·9801 게시 확인 → <code>docker exec -it was11 /bin/bash</code>로 접속</td></tr>
+    <tr><td><strong>포트 원칙</strong></td><td>컨테이너 안쪽 포트는 둘 다 8080 유지, 호스트 포트만 다르게 (4장 포트 매핑 원칙과 같음)</td></tr>
+    <tr><td><strong>자세한 실습</strong></td><td>was.html 6·8~10장 (컨테이너별 자바·Tomcat 설치, 일반 사용자 mz, <code>update-alternatives</code> 버전 전환, Tomcat과 Spring 관계)</td></tr>
+    </tbody></table></div>
+
+  
+
+  </section>
+
+  <!-- 10 -->
+  <section class="sec" id="hub-cicd">
+    <h2>컨테이너 이미지화(commit), Docker Hub 배포와 CI/CD 파이프라인</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 만든 환경을 이미지로 배포</p><div class="dg-flow"><div class="dg-node"><h4>① commit</h4><p class="sub">컨테이너 → 이미지</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② docker login</h4><p class="sub">Hub 계정</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ tag</h4><p class="sub">레포 이름과 일치</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ push</h4><p class="sub">Hub 업로드</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>⑤ pull + run</h4><p class="sub">같은 환경 복원</p></div></div></div>
+
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>대상</strong></td><td>설치·환경설정(httpd, vsftpd, 사용자 등)까지 끝낸 컨테이너</td></tr>
+    <tr><td><strong>흐름</strong></td><td>이미지로 묶기 → Docker Hub 업로드 → 다른 서버에서 <code class="n">docker pull</code> + <code class="n">run</code>만으로 같은 환경을 수 초 만에 복원</td></tr>
+    </tbody></table></div>
+
+    <div class="dg">
+      <p class="dg-title">이미지가 배포 파이프라인의 중심이 된다</p>
+      <p class="dg-foot" style="margin:0 0 10px"><strong>실습 이미지 생명주기 (3장 빌드 → 10장 배포, CD 단계)</strong></p>
+      <div class="dg-flow">
+        <div class="dg-node"><h4>Dockerfile</h4><ul><li>systemd 넣어 빌드</li></ul></div>
+        <div class="dg-arrow"></div>
+        <div class="dg-node"><h4>run + 세팅</h4><ul><li>웹·FTP·사용자</li></ul></div>
+        <div class="dg-arrow"></div>
+        <div class="dg-node accent"><h4>commit → tag</h4><ul><li>레포명과 일치</li></ul></div>
+        <div class="dg-arrow"></div>
+        <div class="dg-node key"><h4>Docker Hub</h4><ul><li>push / pull</li></ul></div>
+        <div class="dg-arrow"></div>
+        <div class="dg-node"><h4>복원 run</h4><ul><li>동일 환경</li></ul></div>
+      </div>
+      <p class="dg-foot" style="margin:22px 0 10px"><strong>실무 CI/CD 자동화 5단계 (GitHub Actions + Docker Hub)</strong></p>
+      <div class="dg-flow">
+        <div class="dg-node"><h4><span class="num">1</span>Source</h4><ul><li>GitHub Main</li><li>코드 Push</li></ul></div>
+        <div class="dg-arrow"></div>
+        <div class="dg-node"><h4><span class="num">2</span>CI</h4><ul><li>GitHub Actions</li><li>python 환경 설정</li><li>단위 테스트</li></ul></div>
+        <div class="dg-arrow"></div>
+        <div class="dg-node"><h4><span class="num">3</span>Build</h4><ul><li>이미지 빌드</li><li>단일·멀티아키(multi-architecture)</li></ul></div>
+        <div class="dg-arrow"></div>
+        <div class="dg-node key"><h4><span class="num">4</span>Registry</h4><ul><li>Docker Hub</li><li>버전 관리(Private)</li></ul></div>
+        <div class="dg-arrow"></div>
+        <div class="dg-node accent"><h4><span class="num">5</span>CD</h4><ul><li>대상 서버 SSH</li><li>docker pull 배포</li></ul></div>
+      </div>
+      <p class="dg-foot"><strong>레포지토리</strong>(이미지를 올릴 장소) ≠ <strong>레지스트리</strong>(저장소 서비스 전체) / Docker Hub 화면에는 레지스트리라는 항목이 따로 없음 / 1단계의 Main Branch 개념은 뒤에서 다룸 / 현재 실습은 4~5단계(CD)까지 완료 / 추후 GitHub Actions(YML 워크플로우)를 연동하면 1~5단계 전체 자동화 → 포트폴리오에서 파이프라인 경험을 증명할 핵심 자료</p>
+    </div>
+    <div class="dg-bar warn">CI/CD와 용어 구분 — 코드(GitHub) → CI(GitHub Actions 단위 테스트·빌드) → 레지스트리(Docker Hub) push → CD(대상 서버 SSH <code class="n">docker pull</code> 배포). <strong>레포(올릴 장소) ≠ 레지스트리(저장소 서비스)</strong></div>
+
+    <h3>1. 컨테이너 → 이미지화 (<code class="n">docker commit</code>)</h3>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># OS 확인 → Rocky Linux release 9.8 (Blue Onyx). 이미지 이름·버전은 이 값을 보고 정함 (rocky, 9)</span>
+cat /etc/redhat-release
+<span class="c"># 데이터 손실 방지 및 속도를 위해 정지 후 commit 권장. 설치한 것이 많아 압축하며 만들느라 시간이 한참 걸림</span>
+docker stop megaweb
+docker commit -a "apink" -m "" megaweb apink_rocky:9
+docker images   <span class="c"># 1.55GB (content size 447MB)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>-a / -m</strong></td><td><code class="n">-a</code>: 제작자 / <code class="n">-m</code>: 메모 (한글은 깨지므로 비워 둬도 무방)</td></tr>
+    <tr><td><strong>형식</strong></td><td><code>docker commit -a "제작자" -m "메모" 컨테이너명 이미지명:버전</code> — 컨테이너명은 실제 가동 중인 이름(<code class="n">megaweb</code>), 이미지명은 <code class="n">이름:버전</code> 관례</td></tr>
+    <tr><td><strong>원리</strong></td><td>AWS·GCP의 유료 백업 이미지 기능과 같음. 만든 이미지에 httpd·ftp 환경설정까지 담겨 컨테이너로 만들면 그대로 복원</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">컨테이너 이미지화 — <code>docker commit -a "제작자" -m "메모" 컨테이너명 이미지:버전</code> (정지 후 실행 권장)</div>
+
+    <h3>2. Docker Hub 가입·패스워드 리셋·로그인</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>사이트</strong></td><td><code class="n">hub.docker.com</code> (공식 사이트 <code class="n">docker.com</code>과 별개)</td></tr>
+    <tr><td><strong>가입</strong></td><td><strong>[윈도우 · 웹 브라우저(hub.docker.com)]</strong> 자기 허브(저장소)를 자기가 관리해야 하므로 회원가입 필수 (이후 파이프라인으로 사용). 구글 계정 → username 지정 → Sign up → 이메일 6자리 보안 코드 입력 → My Hub 생성 (결제 불필요: Billing 화면이 떠도 한도 초과 시에만 필요). 리눅스 로그인에 이 username·패스워드를 쓰므로 오타 주의</td></tr>
+    <tr><td><strong>패스워드 Reset 필수</strong></td><td><strong>[윈도우 · 웹 브라우저(hub.docker.com)]</strong> 구글 가입자는 비밀번호가 없어 리눅스 로그인 실패 → 마이페이지 &gt; Account Settings &gt; <strong>Reset Password</strong> → 이메일 링크로 새 비밀번호 생성(토큰은 불필요) → <code class="n">changed</code> 메시지 확인 → 이메일이 아닌 <strong>username만 넣고 Continue</strong> → 비밀번호로 웹 로그인 확인</td></tr>
+    <tr><td><strong>로그인 위치</strong></td><td><strong>리눅스 호스트</strong>에서 수행 (컨테이너 안에서는 안 되고 윈도우 데스크톱 앱도 안 씀). 토큰은 <code class="n">~/.docker/config.json</code>에 저장 (지우면 다시 승인 필요, 계정을 더 안 쓸 때 삭제)</td></tr>
+    <tr><td><strong>주의</strong></td><td>외국 서버라 rate limit·보안 확인·로그인 불안정으로 막힐 때가 있음 (오전에 잦고 오후에는 보통 정상)</td></tr>
+    <tr><td><strong>실무</strong></td><td>회사 공용 ID로 만든 이미지를 허브에 올려 두고 파이프라인에서 나중에 사용</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 1인 사용: USING WEB-BASED LOGIN + 일회용 코드·URL 표시 → 브라우저에서 코드 입력 → Continue → Confirm</span>
+<span class="c"># 정상 확인: Login Succeeded, /root/.docker/config.json 생성 (로그인 정보·token)</span>
+docker login
+
+<span class="c"># 여러 명/팀 사용 (계정별 config.json 분리): ~/.docker/계정디렉터리/config.json 생성, 계정마다 디렉터리 추가</span>
+<span class="c"># 패스워드는 Docker Hub 로그인 패스워드(리셋해 둔 것). -p로 명령행에 쓰면 Using --password via the CLI is insecure 경고가 뜸 (보충 · 표준 동작, 실습용)</span>
+docker --config ~/.docker/계정디렉터리 login -u 아이디 -p 패스워드
+docker info   <span class="c"># Username 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">Docker Hub 로그인 — 구글 가입자는 패스워드 Reset 필수. 1인: <code class="n">docker login</code>(웹 코드) / 여러 명: <code>docker --config ~/.docker/&lt;폴더&gt; login -u -p</code> (토큰은 <code class="n">config.json</code>에 저장)</div>
+
+    <h3>3. 레포지토리 설정 &amp; <code class="n">tag</code> → <code class="n">push</code> → <code class="n">pull</code> 복원</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>레포 생성</strong></td><td><strong>[윈도우 · 웹 브라우저(hub.docker.com)]</strong> <code class="n">허브아이디/apink_rocky</code></td></tr>
+    <tr><td><strong>공개 범위</strong></td><td>무료 계정은 Private 1개 한도. 연습은 Public, <strong>회사 실무는 무조건 Private + 그룹</strong> (Public은 DB·개인정보 유출 위험)</td></tr>
+    <tr><td><strong>Settings</strong></td><td><strong>[윈도우 · 웹 브라우저(hub.docker.com)]</strong> 
+        <ul>
+          <li>Docker Scout(Image security insight): 이미지 취약점·바이러스 분석 → <code class="n">None</code></li>
+          <li>Tag mutability: <code class="n">All tags are mutable</code> 기본 유지 (같은 태그면 덮어쓰고 다른 태그면 새로 생김)</li>
+          <li>Archive repository: 잠금 → 해제 유지 (잠그면 push 불가)</li>
+          <li>Visibility settings: public ↔ private 전환</li>
+          <li>Upgrade plan: 유료, 패스</li>
+          <li>Delete repository 등 아래쪽 항목: 더 이상 안 쓸 때만, 지금은 하지 말 것</li>
+          <li>Webhooks: <code class="n">skip guide</code></li>
+          <li>Settings에 느낌표가 뜨면 설정이 필요한 상태 → 안 하고 push하면 에러 (Continue로 활성화해도 됨). 생성 직후 레포는 비어 있음</li>
+        </ul></td></tr>
+    <tr><td><strong>push 에러</strong></td><td>Docker Hub 안내(<code class="n">docker push 레포:tagname</code>, 화면 문구 To push a new tag to this repository) 그대로 치면 레포명 불일치로 실패 → <code class="n">docker tag</code>로 <strong>이미지 이름을 레포 이름과 일치</strong>시킨 뒤 push</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># tag는 이미지 복사가 아니라 같은 이미지에 이름(별칭)을 더하는 것 → docker images에 같은 IMAGE ID(영상 화면 0034c2377319)로 두 줄이 생기고 원본 이름도 남음</span>
+<span class="c"># 레포 이름에 맞춰 tag → push. 1) 연습용 임시 태그(tagname)로 먼저 올려 허브에서 태그 생성 확인</span>
+docker tag apink_rocky:9 mzleejh/apink_rocky:tagname
+docker push mzleejh/apink_rocky:tagname
+<span class="c"># 2) 원래는 버전을 태그로 씀 (다음 버전은 9-1 식). 압축되어 올라가 5초도 안 걸림</span>
+docker tag apink_rocky:9 mzleejh/apink_rocky:9
+docker push mzleejh/apink_rocky:9
+<span class="c"># 응용 숙제: 임시 tagname 이미지는 rmi로 지우고, 레포 이름 + 버전으로 만든 이미지를 push해 허브에서 확인</span>
+docker rmi mzleejh/apink_rocky:tagname
+
+<span class="c"># 로컬 정리 후 허브에서 내려받아 복원 검증</span>
+<span class="c"># 기존 웹 컨테이너 정지 (삭제·재가동은 안 함)</span>
+docker stop megaweb
+docker rmi apink_rocky:9 mzleejh/apink_rocky:9
+<span class="c"># 정상 확인: docker images에 cs:9, rocky:9 두 개만 남고 docker ps에는 megadb만 동작</span>
+<span class="c"># pull 경로는 허브 태그 화면의 pull 명령을 복사</span>
+docker pull mzleejh/apink_rocky:9
+<span class="c"># -p 80:80 = 웹 컨테이너라 80 필요. DB 컨테이너가 10021·10022를 쓰므로 9022·9021 (처음 10000번대에서 변경), 8080은 안 씀</span>
+<span class="c"># 포트는 한 줄에 다 씀 → WAS도 쓸 거면 지금 추가 (나중에 추가하면 컨테이너가 망가질 수 있음)</span>
+docker run -it -d --privileged -p 9022:22 -p 80:80 -p 9021:21 --name megaweb2 mzleejh/apink_rocky:9 /sbin/init
+<span class="c"># 헷갈리지 않게 이름 되돌림</span>
+docker rename megaweb2 megaweb</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>push 대상</strong></td><td>올리는 것은 <strong>이미지</strong>이지 컨테이너가 아님. 처음부터 레포 이름으로 이미지를 만들었다면 tag 없이 바로 push 가능. push가 끝나면 tag로 만든 이름과 원본 이미지는 지워도 됨(허브에 올라간 이미지는 그대로). 이번에는 웹(로키)만 올리고 DB는 아직 안 올림</td></tr>
+    <tr><td><strong>버전 관리</strong></td><td>레포 이름에 맞춰 tag → push하는 것이 <strong>버전 관리 = 파이프라인 구조</strong> (Git과 비슷). 허브 태그 상세에는 레이어·run·container 설정, 총 용량, Linux AMD64, pull 명령이 표시되고 Upgrade는 유료</td></tr>
+    <tr><td><strong>복원 확인</strong></td><td>브라우저 접속 시 기존에 만든 <code class="n">mega</code> 웹 페이지까지 그대로 복원. 같은 이미지를 집(로키 + docker)에서 pull → run 하면 여기 환경이 그대로 재현됨 = 실무 <strong>배포 방식</strong></td></tr>
+    <tr><td><strong>허브 레포 화면</strong></td><td>레이어·용량·Linux AMD64·Pulls(다운로드 횟수) 표시. public 레포는 주소만 알면 누구나 pull — 아마존 같은 클라우드가 내부 구성을 외부에 보여주지 않는 것과 반대. 이번 실습 범위는 배포(push) → 받아서 설치(pull + run)까지</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">tag → push → pull 복원 — 허브 안내 그대로 push하면 에러 → <code class="n">docker tag</code>로 이미지 이름을 레포 이름과 일치 → <code class="n">push</code>(배포) → <code class="n">pull</code> + <code class="n">run</code>(복원). Settings의 Tag mutability는 기본 Mutable 유지, 회사는 무조건 <strong>Private + 그룹</strong></div>
+
+    <h3>배포 후 정리 — 컨테이너 먼저, 이미지 나중</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
+    <tr><td><strong>순서</strong></td><td><code class="n">docker ps -a</code>로 정지된 컨테이너까지 확인 → 필요 없는 컨테이너 <code class="n">docker rm</code> → 안 쓰는 이미지 <code class="n">docker rmi</code></td></tr>
+    <tr><td><strong>확인 기준</strong></td><td><code class="n">docker images</code>의 EXTRA 열 <code class="n">U</code>(In Use)가 빠지면 그 이미지를 쓰는 컨테이너가 없음 → 삭제 가능</td></tr>
+    <tr><td><strong>판단</strong></td><td>이미지를 지우기 전에 필요한 이미지인지, 연결된 컨테이너가 있는지 확인. 컨테이너가 쓰는 이미지는 <code class="n">docker rmi</code>가 거부하고, <code class="n">-f</code>로 지워도 태그만 해제되어 이미 만든 컨테이너는 유지</td></tr>
+    </tbody></table></div>
+<div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 복원 검증이 끝난 뒤 정리 — 정지해 둔 예전 웹 컨테이너를 지우면 docker images의 U 표시가 빠짐</span>
+docker ps -a                       <span class="c"># ps는 돌고 있는 것만, -a는 정지된 megaweb까지</span>
+docker rm megaweb                  <span class="c"># 실행 중이면 stop 먼저 (stop the container before removing)</span>
+docker rmi rocky:9                 <span class="c"># 용량 정리를 위해 안 쓰는 기본 이미지 삭제</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="dg-bar warn">삭제 순서 — 컨테이너(<code class="n">rm</code>) → 이미지(<code class="n">rmi</code>). 컨테이너 삭제는 내부 데이터까지 영구 소실이므로 백업·필요 여부를 먼저 확인</div>
+
+    <h3>실무 배포 사례</h3>
+    <ol class="wide-list">
+      <li><strong>베이스 이미지 준비</strong>: 신입·인턴이 설치만 해 둠 (사용자·Java 제외)
+        <ul>
+          <li>OS: Rocky 9·10 또는 AlmaLinux 9.8 (9.9 Beta는 불안정해 제외, CentOS 미사용)</li>
+          <li>설치: 웹·WAS·FTP·DB(RDBMS·NoSQL)·Spark·Jupyter를 버전별로</li>
+        </ul>
+      </li>
+      <li><strong>이미지 제작·등록</strong>: 약 일주일간 이미지로 제작 → 사내 Private 레지스트리에 업로드 (이미지에 오류가 있으면 원인 추적에 야근 발생)</li>
+      <li><strong>고객 오더 처리</strong>: 셸 스크립트로 CPU 코어 수·사용자 ID 입력받기 → 해당 이미지로 즉시 컨테이너 세팅</li>
+    </ol>
+  
+
   </section>
 
   <!-- 11 -->
@@ -2589,7 +2589,7 @@ systemctl stop docker docker.socket                    <span class="c"># 데몬�
           <tr class="group"><th colspan="2" scope="colgroup">사용자 정의 네트워크</th></tr>
           <tr><td><code>docker network ls</code> / <code>docker network create spark-net</code></td><td>네트워크 목록 확인 / Spark 이름 DNS용 사용자 정의 네트워크 생성</td></tr>
           <tr><td><code>docker network inspect spark-net</code> / <code>docker network rm spark-net</code></td><td>서브넷·게이트웨이·컨테이너 IP 확인 / 미사용 네트워크 삭제</td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">볼륨·실행 중 설정 변경 (10장)</th></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">볼륨·실행 중 설정 변경 (8장)</th></tr>
           <tr><td><code>-v 호스트경로:컨테이너경로</code></td><td>바인드 마운트 — 콜론이 구분자, 옵션은 이미지 이름 앞. 호스트 폴더와 컨테이너 폴더가 같은 내용을 보고 양방향 반영</td></tr>
           <tr><td><code>docker stop</code> 이름들 → <code>docker rm</code> 이름</td><td>볼륨은 생성 시점에만 붙음 → 정지·삭제 후 재생성. 볼륨 없이 만든 컨테이너에는 나중에 추가 불가</td></tr>
           <tr><td><code>mkdir /home/spark-data</code></td><td>호스트 볼륨 폴더 — root 기준 절대 경로 (Spark 데이터 폴더 예시)</td></tr>

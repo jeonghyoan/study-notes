@@ -593,9 +593,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
   <aside class="side">
     <nav aria-label="목차 (사이드)">
       <p class="side-title">목차</p>
-      <ol><li><a href="#sec-concept">1. 웹 서비스 종류 · 호스팅 · HTTPS</a></li><li><a href="#sec-install">2. httpd 설치 전 확인 · dnf 검색 · 버전 · wget</a></li><li><a href="#sec-service">3. httpd 설치 · 기동 · 포트포워딩 · 자동 시작</a></li><li><a href="#sec-conf">4. httpd.conf 구조 · 줄별 의미</a></li><li><a href="#sec-listen">5. 포트 변경 실습 (Listen)</a></li><li><a href="#sec-docroot">6. 사용자 웹 디렉토리 (DocumentRoot · 권한 · Directory 블록)</a></li><li><a href="#sec-index">7. 기본 페이지 (DirectoryIndex) · 랜딩 페이지</a></li>
-
-<li><a href="#sec-copilot">8. AI 웹 제작(GitHub Copilot) · 웹 디자인 팁</a></li><li><a href="#sec-vhost">9. 가상 호스팅 (Virtual Hosting · userdir.conf · 배포판 차이)</a></li><li><a href="#sec-status">10. HTTP 상태 코드 — 대역별 책임·코드별 의미</a></li><li><a href="#cheatsheet">11. 통합 명령어 치트시트</a></li></ol>
+      <ol><li><a href="#sec-concept">1. 웹 서비스 종류 · 호스팅 · HTTPS</a></li><li><a href="#sec-status">2. HTTP 상태 코드 — 대역별 책임·코드별 의미</a></li><li><a href="#sec-install">3. httpd 설치 전 확인 · dnf 검색 · 버전 · wget</a></li><li><a href="#sec-service">4. httpd 설치 · 기동 · 포트포워딩 · 자동 시작</a></li><li><a href="#sec-conf">5. httpd.conf 구조 · 줄별 의미</a></li><li><a href="#sec-listen">6. 포트 변경 실습 (Listen)</a></li><li><a href="#sec-docroot">7. 사용자 웹 디렉토리 (DocumentRoot · 권한 · Directory 블록)</a></li><li><a href="#sec-index">8. 기본 페이지 (DirectoryIndex) · 랜딩 페이지</a></li><li><a href="#sec-vhost">9. 가상 호스팅 (Virtual Hosting · userdir.conf · 배포판 차이)</a></li><li><a href="#sec-copilot">10. AI 웹 제작(GitHub Copilot) · 웹 디자인 팁</a></li><li><a href="#cheatsheet">11. 통합 명령어 치트시트</a></li></ol>
     </nav>
   </aside>
   <main class="main">
@@ -603,12 +601,53 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
   <header>
     <h1>httpd(Apache) 통합 학습노트</h1>
     <div class="core-strip"><div><div class="core-metric">웹 / WAS / Node 구분 · 호스팅 ≠ 클라우드</div><p class="core-desc">패키지명에 jsp·tomcat·spring·war가 있으면 WAS, 없으면 웹(Apache <code>httpd</code>·Nginx), node는 Node. 웹호스팅은 클라우드 안의 작은 단위. 개인정보를 받는 사이트는 HTTPS(443) 필수. 설정은 <code>/etc/httpd/conf/httpd.conf</code>(root, 오타 하나면 restart 실패), </p></div><div><div class="core-metric">httpd 설치 → start → 포트포워딩 → enable</div><p class="core-desc">Apache 데몬명은 <code>httpd</code>(apache로는 설치 안 됨). 설치만 되고 가동은 root가 <code>systemctl start httpd.service</code>. VirtualBox 80 → 80 포워딩 후 윈도우 IP로 테스트 페이지 확인, 부팅 자동 시작은 <code>ntsysv</code> 또는 <code>systemctl enable</code>. HTTP는 4xx(요청·설정)와 5xx(서버 = 인프라 책임) 대역으로 책임이 갈리고, 실무에서 가장 스트레스인 코드는 502·503·504.</p></div><div><div class="core-metric">DocumentRoot · 705 · DirectoryIndex · Copilot 웹 제작</div><p class="core-desc">환경설정은 <code>/etc/httpd/conf/httpd.conf</code>(root, 오타 하나면 restart 실패). 웹 접속자는 전부 게스트(others) → 홈 디렉토리 <code>705</code>. 경로가 없으면 데몬 기동 실패. <code>DirectoryIndex</code>는 왼쪽부터 순서대로 검사, 대문 = 랜딩 페이지. Copilot은 Gmail로 연결해 30일 무료(다른 PC 연결 시 0부터), 프롬프트에 <code>default.css</code>·<code>default.js</code> 파일명을 적어야 분리 생성, F12 디바이스 토글·메인 컬러 5색 이내. 가상 호스팅은 <code>conf.d/userdir.conf</code>의 <code>UserDir html</code>과 <code>&lt;Directory "/home/*/html"&gt;</code> 이름을 맞추고 restart, 홈이 <code>700</code>이면 <code>~아이디</code> 접속이 403 → <code>chmod 705</code>.</p></div></div>
-    <nav class="toc" aria-label="목차"><a href="#sec-concept">1. 웹 서비스 종류 · 호스팅 · HTTPS</a><a href="#sec-install">2. httpd 설치 전 확인 · dnf 검색 · 버전 · wget</a><a href="#sec-service">3. httpd 설치 · 기동 · 포트포워딩 · 자동 시작</a><a href="#sec-conf">4. httpd.conf 구조 · 줄별 의미</a><a href="#sec-listen">5. 포트 변경 실습 (Listen)</a><a href="#sec-docroot">6. 사용자 웹 디렉토리 (DocumentRoot · 권한 · Directory 블록)</a><a href="#sec-index">7. 기본 페이지 (DirectoryIndex) · 랜딩 페이지</a><a href="#sec-copilot">8. AI 웹 제작(GitHub Copilot) · 웹 디자인 팁</a><a href="#sec-vhost">9. 가상 호스팅 (Virtual Hosting · userdir.conf · 배포판 차이)</a><a href="#sec-status">10. HTTP 상태 코드 — 대역별 책임·코드별 의미</a><a href="#cheatsheet">11. 통합 명령어 치트시트</a></nav>
+    <nav class="toc" aria-label="목차"><a href="#sec-concept">1. 웹 서비스 종류 · 호스팅 · HTTPS</a><a href="#sec-status">2. HTTP 상태 코드 — 대역별 책임·코드별 의미</a><a href="#sec-install">3. httpd 설치 전 확인 · dnf 검색 · 버전 · wget</a><a href="#sec-service">4. httpd 설치 · 기동 · 포트포워딩 · 자동 시작</a><a href="#sec-conf">5. httpd.conf 구조 · 줄별 의미</a><a href="#sec-listen">6. 포트 변경 실습 (Listen)</a><a href="#sec-docroot">7. 사용자 웹 디렉토리 (DocumentRoot · 권한 · Directory 블록)</a><a href="#sec-index">8. 기본 페이지 (DirectoryIndex) · 랜딩 페이지</a><a href="#sec-vhost">9. 가상 호스팅 (Virtual Hosting · userdir.conf · 배포판 차이)</a><a href="#sec-copilot">10. AI 웹 제작(GitHub Copilot) · 웹 디자인 팁</a><a href="#cheatsheet">11. 통합 명령어 치트시트</a></nav>
   </header>
 
   <section class="sec" id="sec-concept"><h2>웹 서비스 종류 · 호스팅 · HTTPS</h2><div class="dg"><p class="dg-title">한눈에 보기 — 서비스 종류는 패키지명으로 구분</p><div class="dg-flow"><div class="dg-node key"><h4>웹</h4><p class="sub">Apache(<code>httpd</code>) · Nginx — 정적 페이지·PHP</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>WAS</h4><p class="sub">Tomcat — Spring·JSP(자바), <code>.war</code></p></div><div class="dg-arrow"></div><div class="dg-node "><h4>Node</h4><p class="sub">Node.js + Express — 자바스크립트로 포트를 열어 서비스</p></div></div><p class="dg-foot">패키지명에 jsp·tomcat·spring·war가 있으면 WAS, 없으면 웹, node는 Node</p></div><h3>웹 서비스 종류</h3><div class="table-wrap"><table><thead><tr><th>구분</th><th>데몬/방식</th><th>주 사용처</th></tr></thead><tbody><tr><td class="nowrap">웹(Web)</td><td>Apache(데몬명 <code>httpd</code>), Nginx</td><td>정적 페이지, PHP 등</td></tr><tr><td class="nowrap">WAS</td><td>Tomcat 등</td><td>백엔드 개발자가 Spring/Spring Boot, JSP(자바 기반)로 만들 때</td></tr><tr><td class="nowrap">Node</td><td>Node.js + Express</td><td>자바스크립트로 포트를 열어 서비스</td></tr></tbody></table></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">패키지명 구분</td><td><code>jsp</code>, <code>tomcat</code>, <code>spring</code>, <code>war</code>가 있으면 WAS, 없으면 웹, <code>node</code>는 Node</td><td>이 구분은 외워야 함</td></tr><tr><td class="nowrap">WAS 세팅 기준</td><td>JSP를 쓰거나 Spring/Spring Boot 기반이면 WAS. <code>.war</code>로 패키징하면 WAS 세팅, <code>.jar</code>로 만들면 WAS는 깔지 않고 포트만 열어줌</td><td>WAS 상세는 was.html, Tomcat 버전과 Spring 관계는 was.html 10장</td></tr><tr><td class="nowrap">PHP</td><td>카페24 PHP + MariaDB + UTF-8 환경으로 서비스할 때는 WAS 불필요</td><td></td></tr><tr><td class="nowrap">담당 범위</td><td>인프라 담당은 백엔드 세부(ECMA, jQuery 등)를 다루지 않음</td><td>코드는 개발자·AI가 작성</td></tr><tr><td class="nowrap">이 노트의 범위</td><td>WAS는 범위 밖, 웹 서비스(Apache)만 진행</td><td></td></tr></tbody></table></div><div class="dg-bar warn">웹/WAS/Node 구분 — 패키지명에 jsp·tomcat·spring·war가 있으면 WAS, 없으면 웹, node는 Node. 웹 = Apache(httpd)·Nginx, WAS = Tomcat/JSP/Spring, Node = Node.js. 이 구분은 외워야 함</div><h3>스크립트 언어 기초</h3><div class="table-wrap"><table><thead><tr><th>확장자</th><th>의미</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap"><code>.js</code></td><td>자바스크립트 파일</td><td></td></tr><tr><td class="nowrap"><code>.css</code></td><td>스타일시트</td><td></td></tr><tr><td class="nowrap"><code>.php</code>, <code>.asp</code>, <code>.jsp</code> (ASPX도 있음)</td><td>백엔드 스크립트 언어</td><td><strong>서버(데몬)가 있어야만 돌아감</strong>. 크게 이 세 가지 정도로 알면 됨</td></tr></tbody></table></div><h3>호스팅 실무 (카페24 예시)</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">호스팅 회사·요금</td><td>카페24. 웹호스팅(무제한 호스팅, 단독 웹호스팅), 월 36,000원대 요금제를 매달 결제</td><td></td></tr><tr><td class="nowrap">무료 도메인</td><td>도메인 1개를 구매해 두고 앞에 서브도메인을 붙여 사용자별로 무제한 발급</td><td></td></tr><tr><td class="nowrap">서버 환경 표기</td><td>PHP / MariaDB / UTF-8 (언어셋)</td><td></td></tr><tr><td class="nowrap">호스팅 종류</td><td>웹호스팅, 스페셜 호스팅(Tomcat·JSP 기반 = WAS), 이미지 호스팅, 서버 호스팅, 개발 호스팅, 워드프레스 호스팅, AI 호스팅, Node.js 호스팅, 파이썬, VPS(가상 서버, 클라우드 IaaS 성격)</td><td>호스팅 서비스는 종류마다 완전히 다름</td></tr><tr><td class="nowrap">실무 사고 사례</td><td>백엔드가 JSP로 개발하는데 웹호스팅으로 잘못 신청 → 서버 담당자는 웹만 세팅 → JSP 파일을 올려도 하나도 작동 안 함 → 개발자가 잘못 신청한 것을 알고 WAS로 재신청</td><td>서버 담당자는 어떤 서비스(웹/WAS/Node/DB 등)인지 정확히 알아야 세팅 요청에 대응 가능</td></tr><tr><td class="nowrap">완료 전달</td><td>세팅 후 웹 창이 뜨는지 확인하고 완료를 전달</td><td>→ 백엔드가 작업 시작</td></tr></tbody></table></div><h3>호스팅 vs 클라우드</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">회사 구분</td><td>호스팅 회사 = 카페24 등 / 클라우드 회사 = 네이버 클라우드(NCP), AWS, GCP, Azure, 메가존 등</td><td>입사할 회사가 어느 쪽인지 정확히 알아야 함. 메가존클라우드도 서비스가 많아 서비스별 담당자가 따로 있음</td></tr><tr><td class="nowrap">네이버 클라우드 예</td><td>AI(CLOVA, 네이버 자체 AI), Compute(Server, SSD Server, GPU Server, Bare Metal Server, Auto Scaling, Cloud Functions), Database(Cloud DB for MySQL / PostgreSQL / MSSQL / MongoDB / Cache, Serverless 등), 스토리지, 네트워킹, 보안 등</td><td>DynamoDB는 AWS 전용 DB, GCP·NCP는 각자 다른 클라우드 DB 사용</td></tr><tr><td class="nowrap">차이</td><td>호스팅과 클라우드는 완전히 다름. 웹호스팅은 클라우드(IaaS/PaaS) 안에 장착되는 더 작은 단위</td><td>웹호스팅을 받는다고 클라우드가 되는 것은 아님 (그냥 호스팅)</td></tr><tr><td class="nowrap">용어</td><td>웹호스팅, DB호스팅, 스트림 호스팅(실시간 영상 송출, 스트리밍)</td><td></td></tr><tr><td class="nowrap">웹클라우드</td><td>보통은 그냥 클라우드 서비스라고 부름. 웹호스팅과 대비해 퍼블릭 클라우드(EC2 등 IaaS, PaaS)를 편의상 웹클라우드로 외우면 됨</td><td></td></tr><tr><td class="nowrap">실수 사례</td><td>사수에게 호스팅이라고만 전하면 웹호스팅으로 받아들임</td><td>클라우드 작업 중이면 혼선이 생기므로 용어를 정확히 구분</td></tr></tbody></table></div><div class="dg-bar warn">호스팅 ≠ 클라우드 — 웹호스팅은 클라우드(IaaS/PaaS) 안에 장착되는 더 작은 단위. 웹호스팅을 받는다고 클라우드가 되는 것이 아님</div><h3>웹 서비스 포트와 HTTPS</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">포트</td><td>HTTP = <code>80</code>, HTTPS = <code>443</code></td><td>80번이 이미 다른 서비스로 돌고 있으면 충돌 (같은 포트에 서비스를 또 올릴 수 없음)</td></tr><tr><td class="nowrap">443 단독</td><td><code>Listen</code>은 열 포트를 지정하는 지시자라 80 없이 443만 여는 설정도 가능</td><td>기본 베이스는 80이고 그 위에 환경설정·인증서를 해야 443이 돌아감</td></tr><tr><td class="nowrap">HTTPS 필요</td><td>결제 시스템, 회원가입, 로그인 등 <strong>개인정보를 받는 사이트</strong></td><td></td></tr><tr><td class="nowrap">HTTPS 불필요</td><td>단순 홍보 사이트(공지, 상품 소개, 대표 인사말, 연혁, 조직도, 찾아오는 길, R&amp;D, IR), 회원 전용이 아닌 누구나 쓰는 게시판</td><td></td></tr><tr><td class="nowrap">모니터링</td><td>담당자가 신규 도메인 목록 등을 받아 접속해 HTTPS 여부 확인</td><td>개인정보 입력이 있으면 신고 대상</td></tr><tr><td class="nowrap">요청 대응</td><td>사이트 인프라 제작 요청을 받으면 회원가입·로그인이 있는지 묻고, 있으면 HTTPS도 준비해야 한다고 꼭 안내</td><td>법 관련 자료는 인터넷진흥원 사이트에서 확인 가능</td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 9강 80 없이 443만 여는 설정</div><p>Apache Lounge 포럼 답변이 <code>Listen 80</code>을 주석 처리하는 방법을 안내함 (공식 문서로는 확인 못 함). 강사는 "443만 돌리고 80은 안 돌리는 경우는 없다"고 설명</p></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 9강 개인정보 HTTPS 미적용 제재 절차</div><p>강사 설명 : 개인정보를 받는데 HTTPS를 안 붙이면 한국인터넷진흥원 경고장 1차 → 일주일 내 미이행 시 2차(과태료 시작) → 3차 사이트 차단(경찰 차단 화면), 해제하려면 과태료 납부 후 해제. 방송통신위원회가 전송구간 암호화 의무를 이행하지 않은 2,496개 사업자에 시정 행정지도를 한 사례(2017)는 확인함. 경고장 1~3차 단계, 과태료 시작 시점, 사이트 차단 절차와 담당 기관은 확인 못 함 → 한국인터넷진흥원·개인정보 보호 법령 안내에서 확인 필요</p></div><div class="dg-bar warn">HTTP 80 · HTTPS 443 — 개인정보(회원가입·결제·로그인)를 받는 사이트는 HTTPS 필수. 80번이 이미 쓰이면 포트 충돌</div>
-<ul class="facts"><li><strong>다른 웹 서버</strong><div>nginx 설치·<code>nginx.conf</code>·웹 루트·에러 페이지·프록시(80 → 8080): nginx.html 1~6장</div></li></ul></section>
-  <section class="sec" id="sec-install"><h2>httpd 설치 전 확인 · dnf 검색 · 버전 · wget</h2><div class="dg"><p class="dg-title">한눈에 보기 — 설치 전 점검 순서</p><div class="dg-flow"><div class="dg-node "><h4>① 포트 확인</h4><p class="sub"><code>netstat -lnp</code> — 80번 없음</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 패키지 검색</h4><p class="sub"><code>dnf search</code> · <code>info</code> · <code>list</code> — 데몬명 <code>httpd</code></p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ 버전 확인</h4><p class="sub"><code>dnf list available "httpd*"</code> — 2.4대만 제공</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 없는 버전</h4><p class="sub">Apache 사이트에서 <code>wget</code>으로 직접 다운로드</p></div></div><p class="dg-foot">개발자가 원하는 버전·옵션대로 설치해야 함</p></div><h3>환경</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">OS·패키지</td><td>CentOS Stream 9, <code>httpd 2.4.62-17.el9</code> (저장소 appstream)</td><td></td></tr><tr><td class="nowrap">접속</td><td>VirtualBox NAT 네트워크 + 포트포워딩, PuTTY 접속 (root 1개 + 일반 사용자 <code>megazone</code> 1개 동시 접속)</td><td>포트포워딩·PuTTY 기본은 linux.html 2·3장</td></tr><tr><td class="nowrap">포트포워딩 규칙</td><td>호스트 IP(윈도우 IP) <code>10.143.242.155</code> → 게스트 IP(리눅스 IP) <code>192.168.222.2</code> (22, 80)</td><td></td></tr><tr><td class="nowrap">선행 지식</td><td>FTP(vsftpd) 설정, 권한(chmod), vi 편집기, 디렉토리 생성</td><td>vsftpd.html 1장, linux.html 5·7장</td></tr></tbody></table></div><h3>포트 확인과 dnf 검색</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<ul class="facts"><li><strong>다른 웹 서버</strong><div>nginx 설치·<code>nginx.conf</code>·웹 루트·에러 페이지·프록시(80 → 8080): nginx.html 1~4·6~7장</div></li></ul></section>
+  <section class="sec" id="sec-status">
+<h2>HTTP 상태 코드 — 대역별 책임과 코드별 의미</h2>
+<div class="dg"><p class="dg-title">한눈에 보기 — 번호 대역이 곧 책임 구간</p><div class="dg-flow"><div class="dg-node"><h4>3xx</h4><p class="sub">리다이렉션 · 백엔드에서 확인</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>4xx</h4><p class="sub">요청 문제 · 개발·인프라 함께</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>5xx</h4><p class="sub">서버 문제 · 인프라 책임</p></div></div><p class="dg-foot">600번대는 없음 — 500번대가 끝</p></div>
+
+<h3>대역별 책임</h3>
+<div class="table-wrap"><table><thead><tr><th>대역</th><th>책임</th><th>설명</th></tr></thead><tbody>
+<tr><td class="nowrap">3xx</td><td>개발자(백엔드) 쪽에서 확인</td><td>리다이렉션 응답이라 오류 분류는 아니고, 인프라는 거의 신경 쓰지 않음. 주로 Node.js, Spring/Spring Boot 같은 백엔드 문제 → 브라우저 개발자도구(F12) → Network 탭에서 확인</td></tr>
+<tr><td class="nowrap">4xx</td><td>개발자·인프라 둘 다 확인</td><td>요청이 맞는지 틀린지 살펴서 따짐</td></tr>
+<tr><td class="nowrap">5xx</td><td><strong>인프라 담당자</strong></td><td>뜨면 일단 인프라 책임 → 바로 사과. 소스코드를 보는 개발자에게 떠넘기기 불가</td></tr>
+</tbody></table></div>
+<p>웹 환경 문제가 터질 때 나오는 코드가 <strong>HTTP 상태 코드</strong>이고, 이 코드로 <strong>책임 소재</strong>를 따지는 경우가 많음 (책임 구분은 현장 관행이고 표준 규정은 아님). 300번대는 신경 쓰지 말고 <strong>400·500번대 위주로 구분</strong>, 전부 외울 필요는 없음</p>
+
+<h3>코드별 의미</h3>
+<div class="table-wrap"><table><thead><tr><th>코드</th><th>의미</th><th>상황·메모</th></tr></thead><tbody>
+<tr><td class="nowrap">401</td><td>인증 필요</td><td>로그인·토큰이 없어 인증이 안 된 상태. 접근 권한 없음(permission)은 403으로 구분</td></tr>
+<tr><td class="nowrap">402</td><td>요금 제한(Payment)</td><td>유료 API 서비스에서 요금 미납 등으로 걸리는 경우가 있고 자기 서버 문제가 아님. API 서버 구축(환율·실시간 정보 API)을 요청받으면 알아야 함. 표준 관례가 거의 없는 코드이며 요청 횟수·요금 제한은 <code>429 Too Many Requests</code>가 일반적</td></tr>
+<tr><td class="nowrap">403</td><td>승인 거부·접근 금지</td><td>관리자(최고 관리자) 페이지를 특정 IP 외 접근 못 하게 막을 때 뜸, 페이지 자체가 안 열림</td></tr>
+<tr><td class="nowrap">404</td><td>경로·파일 없음</td><td>웹 서버에 없는 파일 요청 (예: <code>index2.html</code>을 만들지 않았을 때)</td></tr>
+<tr><td class="nowrap">405</td><td>메소드 허용 안 됨 (GET·POST 등)</td><td>가장 걸리면 괴로운 코드, 서버에서 GET·POST 통신을 허용했는지 확인</td></tr>
+<tr><td class="nowrap">406</td><td>콘텐츠 협상 실패</td><td>요청 조건(<code>Accept</code> 등)에 맞는 콘텐츠가 없을 때의 응답. JSON 형식을 허용하지 않는 경우로 설명되지만 JSON 허용 설정과 직접 관계는 없음. 일반 웹 서비스에서는 거의 안 뜨고 단독 DB 서버·CDN 서버에서 주로 발생</td></tr>
+<tr><td class="nowrap">500</td><td>서버 내부 오류</td><td>뜨면 인프라 책임, 사과</td></tr>
+<tr><td class="nowrap">501</td><td>메소드 인식 불가 (Ajax 메소드)</td><td>서버가 요청 메소드를 지원하지 않을 때(GET·HEAD 외 구현 안 됨). 개발자가 구현한 Ajax 요청 방식(POST·GET 외 UPDATE·PATCH 등)을 서버가 인식 못 하는 경우, 포트를 안 열어서 나는 코드는 아님</td></tr>
+<tr><td class="nowrap">502</td><td>게이트웨이 불량</td><td>중간 서버 문제 — 로드 밸런서 사용 시 WAS와 잘못 연결됐을 때 많이 발생, 웹 서비스(nginx·아파치)에서 걸림</td></tr>
+<tr><td class="nowrap">503</td><td>서비스 불능</td><td>콜이 안 나가는 비상사태로 보는 코드. 점검·과부하 등으로 서버가 일시적으로 요청을 처리할 준비가 안 된 상태이고 <code>Retry-After</code> 헤더를 쓸 수 있음</td></tr>
+<tr><td class="nowrap">504</td><td>게이트웨이 지연(시간 초과)</td><td>백엔드에서 DB를 무겁게 돌리거나 로드가 너무 많을 때. 로그로 원인 규명 — 개발자 코드의 <strong>무한 루프</strong>(CPU 100%)면 개발자 책임, 아니면 <strong>워커 서버(마스터-워커 구조)가 응답을 못 한 것</strong> → 워커 쪽 점검</td></tr>
+<tr><td class="nowrap">505</td><td>HTTP 버전 문제(프로토콜)</td><td>요청의 HTTP 버전을 서버가 지원하지 않을 때의 응답 — 세부로는 HTTP/2·HTTP/3 버전 문제</td></tr>
+<tr><td class="nowrap">506</td><td>-</td><td>거의 볼 일 없음, 신경 안 써도 됨</td></tr>
+</tbody></table></div>
+
+<h3>실무에서 중요한 코드</h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+<tr><td class="nowrap">가장 스트레스</td><td><strong>502, 503, 504</strong></td><td>번호를 알아야 대처 가능</td></tr>
+<tr><td class="nowrap">실제 빈도</td><td>많이 나는 에러 코드는 404·403</td><td>요청 경로·권한 문제가 일상적</td></tr>
+<tr><td class="nowrap">50x 정리 메모</td><td>501: Ajax Method(POST·GET·UPDATE·PATCH)/API 관련, 502·503, 504: Gateway 타임아웃</td><td>강사가 화면에 정리한 표</td></tr>
+<tr><td class="nowrap">웹 서버 종류</td><td>웹 서버는 nginx·아파치 외에 IIS·LiteSpeed·Caddy 등도 사용됨</td><td>웹 서버가 둘뿐이라는 전제는 부정확</td></tr>
+<tr><td class="nowrap">nginx TLS 주석</td><td><code>nginx.conf</code>의 TLS(55~80행) 설정을 풀면 505 같은 에러가 터진다는 설명</td><td>505는 HTTP 버전 미지원 응답이라 주석을 푼 설정과 직접 관계 없음 (nginx.html 2장)</td></tr>
+</tbody></table></div>
+<div class="dg-bar warn">상태 코드 — 4xx는 요청·설정 문제로 개발·인프라가 함께 보고, 5xx는 서버(인프라) 책임으로 바로 대응. 실무에서 가장 스트레스인 코드는 502·503·504, 실제로 자주 나는 코드는 404·403, 600번대는 없음</div>
+
+<ul class="facts"><li><strong>자세한 실습</strong><div>502·503·504를 만드는 프록시 구성과 WAS 연결: nginx.html 7장 / WAS 포트·가동 확인: was.html 3·5장</div></li><li><strong>405의 실제 사례</strong><div>API 서버 데코레이터(<code>@app.post</code>)와 화면이 보낸 메서드(GET)가 어긋나 <code>405</code> 계열이 나는 경우: fastapi.html 10장</div></li><li><strong>서버 쪽 500</strong><div>DB 접속 실패·코드 예외로 <code>500</code>번대가 나는 경우와 traceback 확인: fastapi.html 14장</div></li></ul>
+</section>
+  <section class="sec" id="sec-install"><h2>httpd 설치 전 확인 · dnf 검색 · 버전 · wget</h2><div class="dg"><p class="dg-title">한눈에 보기 — 설치 전 점검 순서</p><div class="dg-flow"><div class="dg-node "><h4>① 포트 확인</h4><p class="sub"><code>netstat -lnp</code> — 80번 없음</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 패키지 검색</h4><p class="sub"><code>dnf search</code> · <code>info</code> · <code>list</code> — 데몬명 <code>httpd</code></p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ 버전 확인</h4><p class="sub"><code>dnf list available "httpd*"</code> — 2.4대만 제공</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 없는 버전</h4><p class="sub">Apache 사이트에서 <code>wget</code>으로 직접 다운로드</p></div></div><p class="dg-foot">개발자가 원하는 버전·옵션대로 설치해야 함</p></div><h3>환경</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">OS·패키지</td><td>CentOS Stream 9, <code>httpd 2.4.62-17.el9</code> (저장소 appstream)</td><td></td></tr><tr><td class="nowrap">접속</td><td>VirtualBox NAT 네트워크 + 포트포워딩, PuTTY 접속 (root 1개 + 일반 사용자 <code>megazone</code> 1개 동시 접속)</td><td>포트포워딩·PuTTY 기본은 linux.html 2~3장</td></tr><tr><td class="nowrap">포트포워딩 규칙</td><td>호스트 IP(윈도우 IP) <code>10.143.242.155</code> → 게스트 IP(리눅스 IP) <code>192.168.222.2</code> (22, 80)</td><td></td></tr><tr><td class="nowrap">선행 지식</td><td>FTP(vsftpd) 설정, 권한(chmod), vi 편집기, 디렉토리 생성</td><td>vsftpd.html 1장, linux.html 6·9장</td></tr></tbody></table></div><h3>포트 확인과 dnf 검색</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 netstat -lnp   <span class="c"># 열려 있는 포트 확인 (80번 확인). 설치 전에는 80번이 없음 (웹 서비스 미작동)</span>
 <span class="c"># 데몬명은 httpd — apache로 설치하면 실패</span>
 dnf install apache   <span class="c"># 실패 : 일치하는 항목 없음</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>명령</th><th>기능</th><th>메모</th></tr></thead><tbody><tr><td class="nowrap"><code>dnf search 이름</code></td><td>패키지(데몬)가 있는지, 깔려 있는지 검색</td><td>결과가 분홍색으로 강조 표시됨. <code>apache</code>로 검색하면 Apache Tomcat 등도 같이 뜸</td></tr><tr><td class="nowrap"><code>dnf info 이름</code></td><td>버전 등 상세 정보</td><td>지금 몇 버전까지 쓰는지·세팅돼 있는지 확인. 실무에서 많이 씀</td></tr><tr><td class="nowrap"><code>dnf list 이름</code></td><td>해당 단어 포함한 것 전부 출력</td><td>범위가 너무 넓어 오만 건이 뜸 (apache로 시작하는 spark 등까지)</td></tr><tr><td class="nowrap"><code>dnf list available "httpd*"</code></td><td>설치 가능한 버전 목록을 더 상세히</td><td>필요한 버전이 있는지, 지원 버전 체크용</td></tr></tbody></table></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">dnf = yum</td><td>CentOS에서 <code>dnf</code>와 <code>yum</code>은 같은 구조(같은 뜻)</td><td></td></tr><tr><td class="nowrap">Nginx</td><td>Nginx만 무조건 깔면 되는 건 아님. Apache로도 모두 서비스 가능</td><td>이번 실습은 Apache로 진행. Nginx는 <code>nginx</code></td></tr><tr><td class="nowrap">데몬명</td><td>Apache의 데몬명은 <strong>httpd</strong></td><td>이름은 <code>httpd</code>까지 정확히 입력 (<code>http</code>만 쓰면 안 됨)</td></tr></tbody></table></div><div class="dg-bar warn">데몬명 — Apache = httpd (apache로 검색·설치하면 일치하는 항목 없음), Nginx = nginx. dnf = yum, search / info / list</div><h3>버전 선택과 구버전</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
@@ -621,19 +660,19 @@ cd download       <span class="c"># 디렉토리 이동</span>
 pwd               <span class="c"># 현재 경로 확인</span>
 <span class="c"># 복사한 링크로 다운로드 (화면 예). wget 입력 후 Shift + Insert 로 붙여넣기 (PuTTY)</span>
 wget https://dlcdn.apache.org/httpd/httpd-2.4.69.tar.bz2
-ls -l             <span class="c"># 받은 파일 확인 : httpd-2.4.69.tar.bz2 8,513,053바이트(8.1M)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">준비</td><td>구글에서 Apache 구버전 아카이브 검색 → 2.4 아래 Old version의 Other files에서 옛 버전 소스 목록으로 이동</td><td>링크를 클릭하면 PC로 받아지므로 <strong>클릭하지 않고</strong> 우클릭 → 링크 주소 복사</td></tr><tr><td class="nowrap">브라우저 vs wget</td><td>브라우저에서 파일 링크를 클릭하면 PC에 받아짐</td><td>서버에 직접 받으려면 링크 주소 복사 후 서버에서 <code>wget</code></td></tr><tr><td class="nowrap">wget</td><td>web get (웹에서 가져온다). URL이 있으면 바로 다운로드 가능</td><td></td></tr><tr><td class="nowrap">받은 파일</td><td><code>httpd-2.4.69.tar.bz2</code> (2.4 계열)</td><td>연습용이라 설치하지 않고 다운로드 방법만 학습</td></tr><tr><td class="nowrap">실무</td><td>사수가 필요한 버전들을 모아둔 디렉토리(예 <code>download</code>)를 알려주면 그 안의 파일을 가져다 설치</td><td></td></tr></tbody></table></div><h3>설치 방식 두 가지 (참고)</h3><div class="table-wrap"><table><thead><tr><th>방식</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">패키지 설치</td><td><code>dnf</code>(CentOS, RPM 형식) / <code>apt</code>(우분투·데비안, DEB 형식)로 설치. 이번에 한 방식</td><td>RPM은 Red Hat 계열(<code>dnf</code>)의 패키지 형식, <code>apt</code>는 DEB 패키지를 다룸</td></tr><tr><td class="nowrap">소스 설치</td><td>받은 <code>.tar.gz</code>를 풀어 <code>./configure --prefix=/usr/local/apache</code> 같은 옵션으로 경로를 지정해 설치</td><td>이 경우 ServerRoot(34번 줄) 등을 바꿔야 함 → 4장</td></tr><tr><td class="nowrap">실무</td><td>사수가 압축 파일을 주고 내부 채팅·A4 용지에 적어준 순서대로 해당 경로에 소스 설치를 지시하면 그대로 따라 설치</td><td>지금은 두 가지가 있다는 것만 알면 됨 (심화는 추후). 궁금하면 AI에 리눅스 RPM(DNF) 설치 및 소스 설치를 검색</td></tr></tbody></table></div><div class="dg-bar warn">설치 방식 — 패키지(dnf·apt)와 소스 설치(.tar.gz + ./configure --prefix) 두 가지. 소스 설치로 경로를 바꾸면 ServerRoot를 수정</div></section>
+ls -l             <span class="c"># 받은 파일 확인 : httpd-2.4.69.tar.bz2 8,513,053바이트(8.1M)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">준비</td><td>구글에서 Apache 구버전 아카이브 검색 → 2.4 아래 Old version의 Other files에서 옛 버전 소스 목록으로 이동</td><td>링크를 클릭하면 PC로 받아지므로 <strong>클릭하지 않고</strong> 우클릭 → 링크 주소 복사</td></tr><tr><td class="nowrap">브라우저 vs wget</td><td>브라우저에서 파일 링크를 클릭하면 PC에 받아짐</td><td>서버에 직접 받으려면 링크 주소 복사 후 서버에서 <code>wget</code></td></tr><tr><td class="nowrap">wget</td><td>web get (웹에서 가져온다). URL이 있으면 바로 다운로드 가능</td><td></td></tr><tr><td class="nowrap">받은 파일</td><td><code>httpd-2.4.69.tar.bz2</code> (2.4 계열)</td><td>연습용이라 설치하지 않고 다운로드 방법만 학습</td></tr><tr><td class="nowrap">실무</td><td>사수가 필요한 버전들을 모아둔 디렉토리(예 <code>download</code>)를 알려주면 그 안의 파일을 가져다 설치</td><td></td></tr></tbody></table></div><h3>설치 방식 두 가지 (참고)</h3><div class="table-wrap"><table><thead><tr><th>방식</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">패키지 설치</td><td><code>dnf</code>(CentOS, RPM 형식) / <code>apt</code>(우분투·데비안, DEB 형식)로 설치. 이번에 한 방식</td><td>RPM은 Red Hat 계열(<code>dnf</code>)의 패키지 형식, <code>apt</code>는 DEB 패키지를 다룸</td></tr><tr><td class="nowrap">소스 설치</td><td>받은 <code>.tar.gz</code>를 풀어 <code>./configure --prefix=/usr/local/apache</code> 같은 옵션으로 경로를 지정해 설치</td><td>이 경우 ServerRoot(34번 줄) 등을 바꿔야 함 → 5장</td></tr><tr><td class="nowrap">실무</td><td>사수가 압축 파일을 주고 내부 채팅·A4 용지에 적어준 순서대로 해당 경로에 소스 설치를 지시하면 그대로 따라 설치</td><td>지금은 두 가지가 있다는 것만 알면 됨 (심화는 추후). 궁금하면 AI에 리눅스 RPM(DNF) 설치 및 소스 설치를 검색</td></tr></tbody></table></div><div class="dg-bar warn">설치 방식 — 패키지(dnf·apt)와 소스 설치(.tar.gz + ./configure --prefix) 두 가지. 소스 설치로 경로를 바꾸면 ServerRoot를 수정</div></section>
   <section class="sec" id="sec-service"><h2>httpd 설치 · 기동 · 포트포워딩 · 자동 시작</h2><div class="dg"><p class="dg-title">한눈에 보기 — 설치만 되고 가동은 root가 직접</p><div class="dg-flow"><div class="dg-node "><h4>① 설치</h4><p class="sub"><code>dnf install httpd</code> — 11개 패키지</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 기동</h4><p class="sub"><code>systemctl start httpd.service</code> — 80번 열림</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ 포트포워딩</h4><p class="sub">VirtualBox 80 → 80</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 브라우저</h4><p class="sub">윈도우 IP → HTTP Server Test Page</p></div><div class="dg-arrow"></div><div class="dg-node "><h4>⑤ 자동 시작</h4><p class="sub"><code>ntsysv</code> / <code>systemctl enable</code></p></div></div><p class="dg-foot">설치 직후에는 80번 없음 → 기동 후 80번이 열려 있으면 정상</p></div><h3>dnf로 httpd 설치</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 dnf install httpd   <span class="c"># Apache 설치 (y 입력 시 받자마자 바로 설치)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">설치 패키지</td><td>총 <strong>11개</strong> : httpd, httpd-core, httpd-filesystem, httpd-tools, apr, apr-util, apr-util-bdb, apr-util-openssl, centos-logos-httpd, mod_http2, mod_lua</td><td>다운로드 3.6M, 설치 후 8.6M</td></tr><tr><td class="nowrap"><code>httpd*</code> 차이</td><td><code>dnf install httpd*</code>(별표) = httpd 관련 전부 설치, 별표 없는 <code>dnf install httpd</code> = httpd 일정 부분(필요 의존성)만 설치. 둘은 다름</td><td>이번에는 별표 없이 설치</td></tr><tr><td class="nowrap">가동</td><td><strong>데몬은 설치만 되고 가동은 root가 직접 해야 함</strong></td><td>윈도우처럼 설치 후 자동 실행되지 않음</td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 9강 httpd* 설치 개수 · 53:29~54:40</div><p><code>httpd*</code> 설치 시 패키지 개수·버전 설명이 불명확 (화면 기준 2.4.62-17.el9, 11개는 확인됨) — 영상 53:30~54:40 화면으로 확인 필요</p></div><div class="dg-bar warn">데몬 가동 — dnf로 설치해도 자동 실행되지 않음. root가 systemctl start 로 기동해야 80번이 열림</div><h3>기동·정지·재시작</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 systemctl start httpd.service     <span class="c"># 기동 (Tab으로 서비스 이름 자동 완성)</span>
 netstat -lnp                      <span class="c"># 80번이 열려 있으면 정상 가동</span>
 systemctl stop httpd.service      <span class="c"># 정지</span>
-systemctl restart httpd.service   <span class="c"># 재시작 (순식간에 꺼졌다 켜짐)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>단계</th><th>결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">설치 직후</td><td>80번 없음</td><td></td></tr><tr><td class="nowrap">기동 후</td><td>80번이 열려 있으면 정상 가동</td><td></td></tr><tr><td class="nowrap">정지 후</td><td>80번이 사라지고, 브라우저 새로고침 시 사이트가 안 열림</td><td>실무 : 사이트가 안 된다는 연락이 오면 서버에 들어가 서비스가 죽었는지 확인</td></tr></tbody></table></div><h3>포트포워딩과 서비스 확인</h3><div class="table-wrap"><table><thead><tr><th>단계</th><th>내용</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">규칙 추가</td><td>[윈도우 · VirtualBox] <code>네트워크</code> → <code>NAT 네트워크</code> → <code>포트 포워딩</code>에 규칙 추가 (기존 FTP·SSH 규칙 있음). 이름 <code>httpd</code>(또는 <code>http</code>) / <code>TCP</code> / 호스트 IP = 윈도우 IP(<code>10.143.242.155</code>) / 호스트 포트 <code>80</code> / 게스트 IP = 리눅스 IP(<code>192.168.222.2</code>) / 게스트 포트 <code>80</code> → 적용</td><td></td></tr><tr><td class="nowrap">접속 확인</td><td>[윈도우 · 브라우저] <strong>윈도우 IP</strong> 입력</td><td>Apache 기본 <strong>테스트 페이지(HTTP Server Test Page)</strong>가 뜨면 웹 서비스 정상. 안 보이면 웹 서비스가 중지된 것</td></tr><tr><td class="nowrap">주의</td><td>도메인은 가상 환경이라 걸 수 없어 IP로 확인</td><td></td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 9강 포트포워딩 입력 순서 · 57:00~58:00</div><p>포트포워딩 입력 순서는 전사 기준으로 정리함 — 영상 57:00~58:00 화면으로 순서 확인 필요</p></div><ul class="facts"><li><strong>자세한 실습</strong><div>포트포워딩 설정 화면: linux.html 2장 / FTP 포트 포워딩: vsftpd.html 6장</div></li><li><strong>기동을 조건문으로 자동화</strong><div>데몬 이름에 따라 <code>systemctl start</code>를 고르는 <code>if</code>·<code>elif</code>·<code>read</code>: shell.html 2장</div></li><li><strong>여러 데몬을 반복 기동</strong><div>데몬 목록을 배열에 담아 <code>for</code>로 <code>systemctl start</code>를 차례로 실행: shell.html 3장</div></li><li><strong>start/stop을 함수로 묶기</strong><div><code>d_start</code>·<code>d_stop</code> + <code>if [[ $act == "st" ]]</code>, <code>process "start"</code> 인자 전달: shell.html 4장</div></li></ul><h3>부팅 시 자동 시작</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+systemctl restart httpd.service   <span class="c"># 재시작 (순식간에 꺼졌다 켜짐)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>단계</th><th>결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">설치 직후</td><td>80번 없음</td><td></td></tr><tr><td class="nowrap">기동 후</td><td>80번이 열려 있으면 정상 가동</td><td></td></tr><tr><td class="nowrap">정지 후</td><td>80번이 사라지고, 브라우저 새로고침 시 사이트가 안 열림</td><td>실무 : 사이트가 안 된다는 연락이 오면 서버에 들어가 서비스가 죽었는지 확인</td></tr></tbody></table></div><h3>포트포워딩과 서비스 확인</h3><div class="table-wrap"><table><thead><tr><th>단계</th><th>내용</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">규칙 추가</td><td>[윈도우 · VirtualBox] <code>네트워크</code> → <code>NAT 네트워크</code> → <code>포트 포워딩</code>에 규칙 추가 (기존 FTP·SSH 규칙 있음). 이름 <code>httpd</code>(또는 <code>http</code>) / <code>TCP</code> / 호스트 IP = 윈도우 IP(<code>10.143.242.155</code>) / 호스트 포트 <code>80</code> / 게스트 IP = 리눅스 IP(<code>192.168.222.2</code>) / 게스트 포트 <code>80</code> → 적용</td><td></td></tr><tr><td class="nowrap">접속 확인</td><td>[윈도우 · 브라우저] <strong>윈도우 IP</strong> 입력</td><td>Apache 기본 <strong>테스트 페이지(HTTP Server Test Page)</strong>가 뜨면 웹 서비스 정상. 안 보이면 웹 서비스가 중지된 것</td></tr><tr><td class="nowrap">주의</td><td>도메인은 가상 환경이라 걸 수 없어 IP로 확인</td><td></td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 9강 포트포워딩 입력 순서 · 57:00~58:00</div><p>포트포워딩 입력 순서는 전사 기준으로 정리함 — 영상 57:00~58:00 화면으로 순서 확인 필요</p></div><ul class="facts"><li><strong>자세한 실습</strong><div>포트포워딩 설정 화면: linux.html 2장 / FTP 포트 포워딩: vsftpd.html 3장</div></li><li><strong>기동을 조건문으로 자동화</strong><div>데몬 이름에 따라 <code>systemctl start</code>를 고르는 <code>if</code>·<code>elif</code>·<code>read</code>: shell.html 2장</div></li><li><strong>여러 데몬을 반복 기동</strong><div>데몬 목록을 배열에 담아 <code>for</code>로 <code>systemctl start</code>를 차례로 실행: shell.html 3장</div></li><li><strong>start/stop을 함수로 묶기</strong><div><code>d_start</code>·<code>d_stop</code> + <code>if [[ $act == "st" ]]</code>, <code>process "start"</code> 인자 전달: shell.html 4장</div></li></ul><h3>부팅 시 자동 시작</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 ntsysv                           <span class="c"># 자동 시작 서비스 체크 화면 실행</span>
 systemctl enable httpd.service   <span class="c"># ntsysv 체크와 같은 기능 (ntsysv를 쓰면 생략 가능)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">필요성</td><td>서버를 껐다 켜면 웹 서비스가 죽어 있음</td><td>부팅 시 자동 시작 설정 필요</td></tr><tr><td class="nowrap">ntsysv 화면</td><td>파란/빨간 화면에서 <code>httpd</code> 항목을 찾아 <strong>Space</strong>로 체크 → Tab으로 이동해 OK</td><td><code>httpd.service</code>만 체크. 아래 소켓(socket)은 소켓 통신을 쓸 때만</td></tr><tr><td class="nowrap">결과</td><td>서버 재부팅 후에도 웹 서비스가 자동으로 작동</td><td></td></tr><tr><td class="nowrap">참고(검색 확인)</td><td>ntsysv는 텍스트 화면에서 부팅 시 시작할 서비스를 고르는 도구. 선택해도 서비스를 지금 시작·정지하지는 않음</td><td>그래서 <code>start</code>도 따로 함</td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 9강 ntsysv 약자·지원 계열 · 63:49 · 64:30</div><p>강사 설명 : ntsysv는 "네트워크 시스템 뷰"의 약자(화면은 ntsysv 1.24, RedHat)이고 레드햇(RedHat) 계열에만 있음(데비안·우분투·SUSE에는 없고 다른 명령 사용). 약자 풀이는 검색으로도 확정하지 못함 → Red Hat 공식 문서(<code>man ntsysv</code>)로 확인 필요. ntsysv가 Red Hat 문서의 도구임은 확인했으나 데비안·SUSE에 없다는 부분은 미확인</p></div><div class="dg-bar warn">자동 시작 — 서버를 껐다 켜면 웹 서비스가 죽어 있음 → ntsysv(Space 체크, httpd.service만) 또는 systemctl enable httpd.service. 설치 후 start는 root가 직접</div></section>
   <section class="sec" id="sec-conf"><h2>httpd.conf 구조 · 줄별 의미</h2><div class="dg"><p class="dg-title">한눈에 보기 — 환경설정은 /etc 아래 root가 수정</p><div class="dg-flow"><div class="dg-node key"><h4>경로</h4><p class="sub"><code>/etc/httpd/conf/httpd.conf</code></p></div><div class="dg-arrow"></div><div class="dg-node "><h4>접속 설정</h4><p class="sub">47 <code>Listen</code> · 124 <code>DocumentRoot</code></p></div><div class="dg-arrow"></div><div class="dg-node "><h4>접근 설정</h4><p class="sub"><code>&lt;Directory&gt;</code> 블록 · <code>Require all granted</code></p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>기본 페이지</h4><p class="sub">170~172 <code>DirectoryIndex</code></p></div></div><p class="dg-foot">오타 하나(점 하나)라도 있으면 restart 실패</p></div><h3>설정 파일 위치와 편집 요령</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 cd /etc/httpd/conf   <span class="c"># 환경설정 경로로 이동</span>
 ls -al               <span class="c"># 파일 목록 확인</span>
-vi httpd.conf        <span class="c"># 편집 (vi 안에서 :set number 로 줄 번호 표시)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">위치</td><td>데몬을 설치하면 환경설정은 거의 다 <code>/etc</code>로 들어감</td><td><code>/etc</code>가 망가지면 모든 서비스가 정지. 일반 사용자는 접근 불가 → 환경설정은 root가 <code>/etc</code>에서 함</td></tr><tr><td class="nowrap">파일</td><td><code>/etc/httpd/conf/httpd.conf</code> (<code>conf</code> 파일 = 환경설정 파일)</td><td>vsftpd.conf와 같은 개념 → vsftpd.html 2장</td></tr><tr><td class="nowrap">오타</td><td><strong>오타 하나(점 하나)라도 틀리면 서비스 재시작이 안 됨</strong></td><td>원본 줄은 지우지 않고 앞에 <code>#</code>으로 주석 처리 후 복사해서 수정</td></tr><tr><td class="nowrap">줄 번호</td><td>아래 줄 번호는 강의 화면 기준</td><td>줄을 추가하면 아래 번호가 밀리므로 지시어 이름으로 확인</td></tr></tbody></table></div><h3>httpd.conf 줄별 의미 (이 환경 기준 줄 번호)</h3><div class="table-wrap"><table><thead><tr><th>줄</th><th>내용</th><th>의미</th><th>메모 · 실습 후 최종</th></tr></thead><tbody><tr><td class="nowrap">34</td><td><code>ServerRoot "/etc/httpd"</code></td><td>아파치(httpd)가 설치된 경로</td><td>설치 경로가 바뀌면 수정. rpm(dnf) 설치면 기본값 그대로, <strong>소스 설치</strong>로 경로를 바꿨을 때만 변경</td></tr><tr><td class="nowrap">47</td><td><code>Listen 80</code></td><td>httpd가 여는 포트(리슨 포트)</td><td>바꾸면 웹 포트가 바뀜 (9000 실습 후 80으로 원복 → 5장). IP까지 쓰는 예시(<code>Listen 12.34.56.78:80</code>)는 고정 IP일 때. 도메인을 쓰면 IP는 건드리지 않음. <strong>도메인을 여기에 걸면 안 됨(이상해짐)</strong></td></tr><tr><td class="nowrap">61</td><td><code>Include conf.modules.d/*.conf</code></td><td>모듈 가져오기 (웹에서 MySQL 같은 DB, PHP·JSP를 쓰려면 해당 모듈 장착 필요)</td><td>데몬 설치 시 알아서 붙음. 지금은 손대지 말 것. 모듈 심화는 추후</td></tr><tr><td class="nowrap">71·72</td><td><code>User apache</code> / <code>Group apache</code></td><td>httpd 데몬이 직접 사용하는 사용자·그룹 (사용자 계정 아님)</td><td><strong>건드리지 말 것</strong> (<code>nobody</code>로 바꾸지 말 것)</td></tr><tr><td class="nowrap">124</td><td><code>DocumentRoot "/var/www/html"</code></td><td><strong>도큐멘트 루트</strong> : IP/도메인을 치고 엔터 시 어느 디렉토리의 페이지를 띄울지</td><td>기본은 /var/www/html → 그래서 테스트 페이지가 뜸. 실습 후 <code>#</code> 추가 + 125번에 새 경로 → 6장</td></tr><tr><td class="nowrap">129~134</td><td><code>&lt;Directory "/var/www"&gt; ... &lt;/Directory&gt;</code></td><td>위 경로에 대한 접근 설정 블록</td><td>128줄 부근 주석(Relax access to content within /var/www)이 이 블록 설명 → 6장</td></tr><tr><td class="nowrap">137~</td><td><code>&lt;Directory "/var/www/html"&gt;</code></td><td>기본 문서 경로 설정 블록</td><td>6장</td></tr><tr><td class="nowrap">154~163</td><td><code>AllowOverride None</code>, <code>Require all granted</code></td><td>.htaccess 설정 허용 범위, 접근 허용</td><td>6장</td></tr><tr><td class="nowrap">170~172</td><td><code>&lt;IfModule dir_module&gt; DirectoryIndex index.html &lt;/IfModule&gt;</code></td><td>기본 페이지(랜딩 페이지) 파일명</td><td>7장. 실습 후 171번 <code>index.html default.html</code></td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 9강 User를 nobody로 바꾸면</div><p>강사 설명 : <code>User</code>를 <code>nobody</code>로 바꾸면 외부 익명 사용자도 컨트롤하게 돼 망함. Apache 문서(mod_unixd)는 서버 전용 사용자·그룹을 따로 만들어 쓰길 권장하고 <code>nobody</code>는 시스템의 다른 용도와 겹칠 수 있어 늘 바람직하진 않다고 안내함. 외부 익명 사용자까지 컨트롤하게 된다는 설명은 문서에서 확인 못 함</p></div><div class="dg-bar warn">httpd.conf 핵심 — 34 ServerRoot / 47 Listen / 124 DocumentRoot / Directory 블록 / DirectoryIndex(index.html). 데몬 설정은 /etc 아래, 오타 하나면 restart 실패 → 원본은 #으로 남기고 복사해서 수정</div><ul class="facts"><li><strong>설정 디렉토리 바로가기</strong><div><code>ln -s /etc/httpd/conf/ httpd</code>로 링크를 걸어 두고 작업: linux.html 6장</div></li></ul></section>
+vi httpd.conf        <span class="c"># 편집 (vi 안에서 :set number 로 줄 번호 표시)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">위치</td><td>데몬을 설치하면 환경설정은 거의 다 <code>/etc</code>로 들어감</td><td><code>/etc</code>가 망가지면 모든 서비스가 정지. 일반 사용자는 접근 불가 → 환경설정은 root가 <code>/etc</code>에서 함</td></tr><tr><td class="nowrap">파일</td><td><code>/etc/httpd/conf/httpd.conf</code> (<code>conf</code> 파일 = 환경설정 파일)</td><td>vsftpd.conf와 같은 개념 → vsftpd.html 2장</td></tr><tr><td class="nowrap">오타</td><td><strong>오타 하나(점 하나)라도 틀리면 서비스 재시작이 안 됨</strong></td><td>원본 줄은 지우지 않고 앞에 <code>#</code>으로 주석 처리 후 복사해서 수정</td></tr><tr><td class="nowrap">줄 번호</td><td>아래 줄 번호는 강의 화면 기준</td><td>줄을 추가하면 아래 번호가 밀리므로 지시어 이름으로 확인</td></tr></tbody></table></div><h3>httpd.conf 줄별 의미 (이 환경 기준 줄 번호)</h3><div class="table-wrap"><table><thead><tr><th>줄</th><th>내용</th><th>의미</th><th>메모 · 실습 후 최종</th></tr></thead><tbody><tr><td class="nowrap">34</td><td><code>ServerRoot "/etc/httpd"</code></td><td>아파치(httpd)가 설치된 경로</td><td>설치 경로가 바뀌면 수정. rpm(dnf) 설치면 기본값 그대로, <strong>소스 설치</strong>로 경로를 바꿨을 때만 변경</td></tr><tr><td class="nowrap">47</td><td><code>Listen 80</code></td><td>httpd가 여는 포트(리슨 포트)</td><td>바꾸면 웹 포트가 바뀜 (9000 실습 후 80으로 원복 → 6장). IP까지 쓰는 예시(<code>Listen 12.34.56.78:80</code>)는 고정 IP일 때. 도메인을 쓰면 IP는 건드리지 않음. <strong>도메인을 여기에 걸면 안 됨(이상해짐)</strong></td></tr><tr><td class="nowrap">61</td><td><code>Include conf.modules.d/*.conf</code></td><td>모듈 가져오기 (웹에서 MySQL 같은 DB, PHP·JSP를 쓰려면 해당 모듈 장착 필요)</td><td>데몬 설치 시 알아서 붙음. 지금은 손대지 말 것. 모듈 심화는 추후</td></tr><tr><td class="nowrap">71·72</td><td><code>User apache</code> / <code>Group apache</code></td><td>httpd 데몬이 직접 사용하는 사용자·그룹 (사용자 계정 아님)</td><td><strong>건드리지 말 것</strong> (<code>nobody</code>로 바꾸지 말 것)</td></tr><tr><td class="nowrap">124</td><td><code>DocumentRoot "/var/www/html"</code></td><td><strong>도큐멘트 루트</strong> : IP/도메인을 치고 엔터 시 어느 디렉토리의 페이지를 띄울지</td><td>기본은 /var/www/html → 그래서 테스트 페이지가 뜸. 실습 후 <code>#</code> 추가 + 125번에 새 경로 → 7장</td></tr><tr><td class="nowrap">129~134</td><td><code>&lt;Directory "/var/www"&gt; ... &lt;/Directory&gt;</code></td><td>위 경로에 대한 접근 설정 블록</td><td>128줄 부근 주석(Relax access to content within /var/www)이 이 블록 설명 → 7장</td></tr><tr><td class="nowrap">137~</td><td><code>&lt;Directory "/var/www/html"&gt;</code></td><td>기본 문서 경로 설정 블록</td><td>7장</td></tr><tr><td class="nowrap">154~163</td><td><code>AllowOverride None</code>, <code>Require all granted</code></td><td>.htaccess 설정 허용 범위, 접근 허용</td><td>7장</td></tr><tr><td class="nowrap">170~172</td><td><code>&lt;IfModule dir_module&gt; DirectoryIndex index.html &lt;/IfModule&gt;</code></td><td>기본 페이지(랜딩 페이지) 파일명</td><td>8장. 실습 후 171번 <code>index.html default.html</code></td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 9강 User를 nobody로 바꾸면</div><p>강사 설명 : <code>User</code>를 <code>nobody</code>로 바꾸면 외부 익명 사용자도 컨트롤하게 돼 망함. Apache 문서(mod_unixd)는 서버 전용 사용자·그룹을 따로 만들어 쓰길 권장하고 <code>nobody</code>는 시스템의 다른 용도와 겹칠 수 있어 늘 바람직하진 않다고 안내함. 외부 익명 사용자까지 컨트롤하게 된다는 설명은 문서에서 확인 못 함</p></div><div class="dg-bar warn">httpd.conf 핵심 — 34 ServerRoot / 47 Listen / 124 DocumentRoot / Directory 블록 / DirectoryIndex(index.html). 데몬 설정은 /etc 아래, 오타 하나면 restart 실패 → 원본은 #으로 남기고 복사해서 수정</div><ul class="facts"><li><strong>설정 디렉토리 바로가기</strong><div><code>ln -s /etc/httpd/conf/ httpd</code>로 링크를 걸어 두고 작업: linux.html 7장</div></li></ul></section>
   <section class="sec" id="sec-listen"><h2>포트 변경 실습 (Listen)</h2><div class="dg"><p class="dg-title">한눈에 보기 — Listen 변경 → 포트포워딩도 같이</p><div class="dg-flow"><div class="dg-node key"><h4>① Listen</h4><p class="sub">47번 <code>80</code> → <code>9000</code></p></div><div class="dg-arrow"></div><div class="dg-node "><h4>② 재시작</h4><p class="sub"><code>systemctl restart httpd.service</code></p></div><div class="dg-arrow"></div><div class="dg-node "><h4>③ 포워딩</h4><p class="sub">호스트 9000 → 게스트 9000</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 접속</h4><p class="sub"><code>윈도우IP:9000</code> → 테스트 페이지</p></div></div><p class="dg-foot">80번은 안 되고 뒤에 포트 번호를 붙여야 뜸</p></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · /etc/httpd/conf/httpd.conf 파일 안 · root]</span>
 <span class="c"># 47번 : 웹 포트 80 → 9000 (연습값, 실습 후 80으로 복구)</span>
 Listen 9000</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>단계</th><th>내용</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">1. 수정·재시작</td><td>47번 줄 수정 후 저장 → 재시작 → 브라우저 새로고침</td><td>안 뜸 (포트포워딩에 9000이 없으므로)</td></tr><tr><td class="nowrap">2. 포워딩 추가</td><td>[윈도우 · VirtualBox] 이름 <code>테스트 HTTP</code>, 호스트 IP(윈도우 IP)·포트 9000 → 게스트 IP(리눅스 IP)·포트 9000</td><td>포트를 바꾸면 같은 방식으로 포트포워딩도 맞춰야 함</td></tr><tr><td class="nowrap">3. 접속</td><td>[윈도우 · 브라우저] <code>윈도우IP:9000</code> 입력</td><td>뜸 (HTTP Server Test Page). 80번은 이제 안 되고 <strong>뒤에 포트 번호를 붙여야</strong> 뜸</td></tr><tr><td class="nowrap">4. 복구</td><td>47번 줄을 80으로 되돌림 (설명용 실습)</td><td></td></tr></tbody></table></div><div class="note-verify"><div class="tag">🔍 직접 확인 · 9강 복구 시 발화 · 88:06</div><p>강사 발화가 "9000번 없애고 지금 8080으로 다시 돌려놨죠"인데 화면은 <code>IP:9000</code> 테스트 페이지로 보임 — 8080 언급이 맞는지 영상 88:00~88:15로 확인 필요</p></div><div class="dg-bar warn">Listen — httpd가 여는 포트를 정함. 바꾸면 접속 시 포트 번호를 붙이고 포트포워딩도 맞춰야 함. 도메인을 Listen에 걸면 안 됨</div></section>
@@ -652,7 +691,7 @@ mkdir html
 <span class="c"># 에러 없이 재시작되면 해결</span>
 systemctl restart httpd.service</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="dg-bar warn">DocumentRoot — 기본 디렉토리(경로)가 없으면 웹 데몬은 작동하지 않음 (Job for httpd.service failed). 사용자 디렉토리는 해당 사용자가 만들 것, root가 만들면 안 됨</div><h3>권한(permission) 문제</h3><div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">증상</td><td>경로를 바꾼 직후 새로고침 → <strong>permission 오류</strong> 에러 페이지</td><td>모바일 접속 등도 똑같음 → permission 오류가 뜨면 이 부분 확인</td></tr><tr><td class="nowrap">원인</td><td>홈 디렉토리 <code>megazone</code>의 권한이 <code>700</code> (others 0) → 웹 브라우저 접속자(게스트)가 접근 불가</td><td><strong>웹 브라우저로 접속하는 사람은 전부 게스트(others)</strong>. 로그인을 해도 게스트</td></tr><tr><td class="nowrap">기준</td><td>others에 최소 읽기+실행(5)은 있어야 함</td><td><strong>쓰기(w)를 주면 큰일남</strong> (웹 브라우저가 마구 쓰게 됨)</td></tr><tr><td class="nowrap">그룹 자리</td><td>그대로 둬도 됨 (웹에선 필요 없음, 0이어도 됨)</td><td><strong>others(게스트)가 중요 → 705 또는 755</strong></td></tr><tr><td class="nowrap">결과</td><td>새로고침하면 다시 테스트 페이지가 뜸</td><td>아직 설정 미완료, 정상</td></tr></tbody></table></div><div class="code"><pre><code><span class="c"># [호스트 리눅스 · megazone · /home 에서]</span>
 <span class="c"># 홈 디렉토리 others에 r-x 부여 (megazone이 직접 실행, root 불필요)</span>
-chmod 705 megazone</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="dg-bar warn">웹 접속자 = 게스트(others) — 홈 디렉토리에 최소 r-x(5): 705 또는 755. others에 쓰기(w)를 주면 안 됨. permission 오류가 뜨면 홈 디렉토리 권한 확인</div><ul class="facts"><li><strong>자세한 실습</strong><div>권한 숫자·chmod·디렉터리 권한은 상위부터: linux.html 7장</div></li></ul><h3>index.html 만들고 Directory 블록 설정</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · megazone]</span>
+chmod 705 megazone</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="dg-bar warn">웹 접속자 = 게스트(others) — 홈 디렉토리에 최소 r-x(5): 705 또는 755. others에 쓰기(w)를 주면 안 됨. permission 오류가 뜨면 홈 디렉토리 권한 확인</div><ul class="facts"><li><strong>자세한 실습</strong><div>권한 숫자·chmod·디렉터리 권한은 상위부터: linux.html 9장</div></li></ul><h3>index.html 만들고 Directory 블록 설정</h3><div class="code"><pre><code><span class="c"># [호스트 리눅스 · megazone]</span>
 cd ~/html        <span class="c"># 웹 문서 디렉토리로 이동</span>
 <span class="c"># 내용은 test web server (한글은 빼고)</span>
 vi index.html
@@ -676,6 +715,210 @@ DirectoryIndex index.html default.html
 vi default.html
 <span class="c"># 이름 변경 — root 작업·서버 재가동 불필요. 새로고침 → default.html 발견 → 데모 페이지(default) 출력</span>
 mv index.html index2.html</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div><div class="table-wrap"><table><thead><tr><th>단계</th><th>결과</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">index.html + default.html 둘 다 있음</td><td><code>index.html</code>이 뜸</td><td><strong>배열 구조 : 앞에서부터 순서대로 검사</strong>, 먼저 존재하는 파일을 띄움. 제일 앞 파일 우선</td></tr><tr><td class="nowrap"><code>mv index.html index2.html</code> 후</td><td>default.html 출력 (데모 페이지)</td><td>httpd는 계속 돌고 있으므로 재가동이 필요 없고, 파일명 변경은 일반 사용자 작업</td></tr></tbody></table></div><div class="dg-bar warn">DirectoryIndex — 왼쪽부터 순서대로 검사해 먼저 있는 파일을 첫 페이지로 출력. 대문 페이지 = 랜딩 페이지 (면접 용어). index 파일이 없으면 404가 아니라 목록 또는 403</div></section>
+
+
+<section class="sec" id="sec-vhost">
+<h2>가상 호스팅 (Virtual Hosting · userdir.conf · 배포판 차이)</h2>
+
+<div class="dg">
+<p class="dg-title">한눈에 보기 — 메인 사이트 1개 → 사용자별 사이트</p>
+
+<div class="dg-flow">
+<div class="dg-node key"><h4>① 메인 설정</h4>
+<p class="sub"><code>/etc/httpd/conf/httpd.conf</code> · 메가존 사이트</p>
+</div>
+
+<div class="dg-arrow"></div>
+
+<div class="dg-node "><h4>② 가상 설정</h4>
+<p class="sub"><code>conf.d/userdir.conf</code> · <code>UserDir html</code></p>
+</div>
+
+<div class="dg-arrow"></div>
+
+<div class="dg-node "><h4>③ 사용자 문서</h4>
+<p class="sub"><code>/home/korea/html/index.html</code></p>
+</div>
+
+<div class="dg-arrow"></div>
+
+<div class="dg-node accent"><h4>④ 접속</h4>
+<p class="sub"><code>http://IP/~korea</code> · 403이면 <code>chmod 705</code></p>
+</div>
+</div>
+
+<p class="dg-foot">사이트가 1개뿐이면 설정 불필요. 사용자(<code>~아이디</code>)별 페이지를 같은 서버·같은 <code>httpd</code> 하나로 서비스</p>
+</div>
+
+<h3>실습 환경과 개념</h3>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">서버</td><td>[윈도우 · VirtualBox] CentOS Stream 9, 메모리 4GB, CPU 2코어</td><td>VM 창은 최소화만, 닫으면 서버 종료 (linux.html 1장)</td></tr><tr><td class="nowrap">접속</td><td>[윈도우 · PuTTY] SSH 포트 <code>9022</code>(포트포워딩), <code>root</code> 창 + <code>korea</code> 창 동시 사용</td><td>창마다 프롬프트 확인 — <code>#</code> root / <code>$</code> 일반 (linux.html 10장)</td></tr><tr><td class="nowrap">기반 서비스</td><td><code>httpd</code>·<code>vsftpd</code>는 앞에서 구성 완료 → 이 장은 그 위에 얹는 사용자별 웹 서비스</td><td>FTP 설정: vsftpd.html 2·6장</td></tr><tr><td class="nowrap">계정</td><td><code>korea</code> 계정이 홈(<code>/home/korea</code>)에 웹 디렉토리를 만들고 페이지를 올림</td><td><code>useradd</code>·<code>passwd</code>: linux.html 10장</td></tr></tbody></table>
+</div>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">Virtual Hosting</td><td><b>가상 호스팅</b> = 같은 서버·같은 서비스 하나로 <b>여러 사이트</b>를 운영하는 방식 (실무에서는 "버추얼 호스트")</td><td>호스트명(도메인)에 따라 다른 사이트가 뜸</td></tr><tr><td class="nowrap">동작 예</td><td><code>cafe24.com</code> → 카페24 메인 / 홍길동 도메인 → 홍길동 사이트 / 김유신 도메인 → 김유신 사이트</td><td>도메인이 있으면 도메인 앞부분(<code>www</code> 대신 아이디)으로 사용자 사이트가 뜸. 지금은 도메인이 없어 IP로 확인</td></tr><tr><td class="nowrap">올릴 수 있는 수</td><td>서버 1대에 올릴 수 있는 사이트 수는 <b>메모리·CPU에 비례</b></td><td>남은 메모리 확인법 : linux.html 12장 (<code>free -h</code>)</td></tr><tr><td class="nowrap">효율</td><td>사용자 1명 때문에 호스팅 서버를 따로 운영하는 건 비효율 → 대규모가 아니면 가상 호스팅이 일반적</td><td>사이트가 1개뿐이면 이 설정 자체가 불필요</td></tr><tr><td class="nowrap">호스팅사 규모</td><td>강사 경험 : 카페24·메이크샵·고도몰 같은 호스팅사는 한 서버에 대략 <b>250명</b> 수준으로 올림 (연 6만원 × 250 식의 수익 구조)</td><td>메모리 요구량이 매우 커서 서버를 크게 잡아야 함</td></tr></tbody></table>
+</div>
+
+<div class="note-verify">
+<div class="tag">🔍 직접 확인 · 11강 42:54</div>
+
+<p>호스팅 서버 1대 수용 수(250명)와 연 6만원 수익 예시는 강사 경험담 — 호스팅사 공개 자료나 요금표로 확인 필요. 영상 화면에도 수치가 표시되지 않음</p>
+</div>
+
+<h3>설정 파일 구조 (CentOS 기준)</h3>
+
+<div class="code">
+<pre><code><span class="c"># [호스트 리눅스 · root]</span>
+<span class="c"># 설정 디렉토리로 이동 — httpd.conf 옆에 conf.d가 같은 단계로 있는지 확인</span>
+cd /etc/httpd/conf
+<span class="c"># cd conf 까지만 치고 Tab → conf.d가 유일하면 자동완성됨</span>
+ls -al   <span class="c"># 목록 확인 (conf·conf.d·magic·mime.types)</span>
+
+<span class="c"># [호스트 리눅스 · vi 편집기 안 · root]</span>
+:set number   <span class="c"># 줄 번호 표시 — 라인 번호로 지시자 위치 확인</span>
+:q!           <span class="c"># 저장 없이 나가기 (Esc 후 입력)</span></code></pre>
+
+<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+<div class="table-wrap">
+<table><thead><tr><th>경로·위치</th><th>역할</th><th>주의·이해</th></tr></thead><tbody><tr><td class="nowrap"><code>/etc/httpd/conf/httpd.conf</code></td><td><b>메인 환경설정</b>(메인 엔진). 기본 사이트 = 메가존 사이트</td><td>약 130번 라인의 <code>&lt;Directory&gt;</code>부터 164번 <code>&lt;/Directory&gt;</code>까지가 메인 사이트 설정 (130~164번 라인 범위)</td></tr><tr><td class="nowrap"><code>/etc/httpd/conf.d/</code></td><td><b>가상으로 잡는 설정</b>을 모아 두는 디렉토리 — <code>welcome.conf</code>, <code>userdir.conf</code>, <code>autoindex.conf</code></td><td>파일을 새로 만들기보다 여기 파일을 수정하는 방식으로 가상 호스트를 추가</td></tr><tr><td class="nowrap"><code>Include</code> (맨 아래)</td><td><code>httpd.conf</code> 맨 아래에서 <code>Shift + G</code>로 이동하면 <code>Include</code>로 <code>conf.d</code> 안의 <code>.conf</code> 파일들을 불러오는 줄이 있음</td><td>경로가 다 적혀 있어 추가 설정이 자동으로 적용됨</td></tr><tr><td class="nowrap">메인 설정 복사</td><td><code>httpd.conf</code>를 그대로 복사해 <code>conf.d</code>에 한 번 더 만들면 <b>에러</b></td><td>같은 지시자가 두 번 정의되어 기동 실패 → 복사 금지, 필요한 블록만 따로 작성</td></tr></tbody></table>
+</div>
+
+<div class="note-verify">
+<div class="tag">🔍 직접 확인 · 11강 04:49 · 16:54</div>
+
+<p>130·138번 라인의 정확한 지시자는 화면에 잡히지 않음 (164번 <code>&lt;/Directory&gt;</code>와 170~172번 <code>DirectoryIndex</code>만 확인) — 본인 서버에서 <code>vi /etc/httpd/conf/httpd.conf</code> → <code>:set number</code>로 130~138번 확인 필요</p>
+</div>
+
+<h3>기본 페이지 지시자 (DirectoryIndex)</h3>
+
+<div class="code">
+<pre><code><span class="c"># [호스트 리눅스 · /etc/httpd/conf/httpd.conf 파일 안 · root]</span>
+<span class="c"># 디렉토리 요청(/)이 오면 왼쪽부터 순서대로 파일을 찾아 서비스 (170~172번 라인)</span>
+&lt;IfModule dir_module&gt;
+    <span class="c"># 없으면 디렉토리 목록만 나오거나 403 — index.html이 첫 후보</span>
+    DirectoryIndex index.html index.htm default.html
+&lt;/IfModule&gt;</code></pre>
+
+<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">적용 범위</td><td><code>httpd.conf</code>의 이 설정은 <b>게스트(가상 호스트) 사용자에게도 동일 적용</b></td><td>사용자 홈에 <code>index.html</code>만 만들면 그게 메인(랜딩) 페이지로 뜸</td></tr><tr><td class="nowrap">우선순위</td><td>목록의 여러 파일을 함께 만들면 <b>앞에 있는 파일</b>이 먼저 뜸 (뒤 파일은 안 뜸)</td><td><code>index.html</code>·<code>index.htm</code>·<code>default.html</code>을 모두 만들면 <code>index.html</code>만 보임 → 랜딩 페이지를 바꾸려면 <code>mv</code>로 파일명을 바꾸는 방법 사용 (이 파일 8장)</td></tr></tbody></table>
+</div>
+
+<h3>userdir.conf 수정 (사용자별 웹 디렉토리)</h3>
+
+<div class="code">
+<pre><code><span class="c"># [호스트 리눅스 · /etc/httpd/conf.d/userdir.conf 파일 안 · root]</span>
+<span class="c"># 기본값은 #UserDir disabled(활성) + #UserDir public_html(주석) → 기능이 꺼진 상태</span>
+<span class="c"># 기능을 켜려면 disabled 줄을 주석 처리하고 UserDir 줄의 주석을 푼다 (둘 중 하나만 활성)</span>
+#UserDir disabled
+<span class="c"># 사용자 웹 디렉토리 이름 — 메인 사이트가 html을 쓰므로 html로 통일 (기본값 public_html)</span>
+UserDir html
+
+<span class="c"># 사용자 홈 아래 웹 디렉토리 블록 — UserDir 값과 디렉토리 이름이 반드시 같아야 함</span>
+&lt;Directory "/home/*/html"&gt;
+    <span class="c"># .htaccess로 허용할 지시자 범위 (Override 설정)</span>
+    AllowOverride FileInfo AuthConfig Limit Indexes
+    <span class="c"># 사용자 디렉토리에서 허용할 기능 — Indexes는 디렉토리 목록 표시 허용</span>
+    Options MultiViews Indexes SymLinksIfOwnerMatch IncludesNoExec
+    <span class="c"># 허용 HTTP 메소드(전송 방식) — GET/POST/OPTIONS 를 지우면 그 통신이 막힘</span>
+    Require method GET POST OPTIONS
+&lt;/Directory&gt;</code></pre>
+
+<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">기본 상태</td><td><code>#UserDir disabled</code>가 활성 줄이고 <code>#UserDir public_html</code>은 주석 → 기능이 꺼져 있음</td><td>파일 안내 주석 : <code>/~user/</code> 요청을 사용자의 <code>public_html</code>로 서비스하려면 <code>UserDir disabled</code> 줄을 지우고 아래 줄의 주석을 풀라고 안내</td></tr><tr><td class="nowrap">하나만 세팅</td><td><code>disabled</code> 줄과 <code>UserDir ...</code> 줄은 <b>하나만</b> 살려 둠</td><td>둘 다 풀거나 따로따로 돌게 하면 기능이 꺼지거나 기동 에러</td></tr><tr><td class="nowrap">이름 일치 필수</td><td><code>UserDir</code> 값과 <code>&lt;Directory&gt;</code> 블록의 경로가 같은 이름(<code>html</code>)이어야 함</td><td>실수 사례 : <code>UserDir</code>만 <code>html</code>, <code>&lt;Directory&gt;</code>는 <code>public_html</code> → <b>재시작(start) 순간 에러</b></td></tr><tr><td class="nowrap">public_html 유지 시</td><td>기본 <code>public_html</code>을 그대로 쓰면 사용자는 <code>public_html</code> 안에 HTML·CSS·JavaScript를 넣어야 웹이 뜸</td><td>메인 사이트의 <code>html</code>과 이름이 달라 관리가 헷갈림 → <code>html</code>로 통일</td></tr><tr><td class="nowrap"><code>Require method</code></td><td>허용 HTTP 메소드 — <code>GET</code>은 조회, <code>POST</code>는 전송(입력), <code>OPTIONS</code>는 지원 메소드 확인</td><td><b>건드리지 말 것</b> : GET 삭제 시 GET 통신 불가, POST 삭제 시 POST 통신 불가, 둘 다 삭제 시 전송 불가</td></tr><tr><td class="nowrap">form 전송</td><td>HTML <code>form</code> 태그 통신은 method에 get/post를 사용</td><td>인프라에서 POST를 막으면 개발자의 form POST 전송이 안 됨 (회원가입·로그인 불가)</td></tr><tr><td class="nowrap"><code>Limit</code></td><td>메소드를 <code>&lt;Limit&gt;</code>로 따로 제한하는 방식도 있으나 이번 범위 아님</td><td>메소드는 이후 별도로 다룸</td></tr></tbody></table>
+</div>
+
+<div class="dg-bar warn">userdir.conf — <code>#UserDir disabled</code>를 주석 처리하고 <code>UserDir html</code>을 활성. <code>UserDir</code> 값과 <code>&lt;Directory&gt;</code> 경로 이름이 다르면 restart 순간 에러. <code>Require method GET POST OPTIONS</code>는 삭제 금지</div>
+
+<ul class="facts"><li><strong>컨테이너 실습</strong><div>컨테이너(megaweb) 안에서는 <code class="n">UserDir www</code>·<code class="n">&lt;Directory "/home/*/www"&gt;</code>·<code class="n">chmod 755 /home/mega</code>로 같은 기능을 구성: docker.html 9장</div></li><li><strong>포트 게시</strong><div>httpd를 끄고 nginx로 교체해도 같은 게시 포트에서 응답하는지, 호스트 포트를 10080으로 바꾸면 브라우저만 실패하는 이유: docker.html 7장</div></li></ul>
+
+<h3>재시작과 korea 사이트</h3>
+
+<div class="code">
+<pre><code><span class="c"># [호스트 리눅스 · root]</span>
+systemctl restart httpd.service   <span class="c"># 설정 반영 — stop이 아니라 restart</span>
+<span class="c"># stop을 쓰면 안 되는 이유 : 지금 회원가입 중인 사용자가 있으면 입력이 날아감</span>
+
+<span class="c"># [호스트 리눅스 · korea · 프롬프트 $] — 사용자 창에서 실행</span>
+mkdir html        <span class="c"># 홈 아래 웹 디렉토리 (메인과 이름 통일)</span>
+cd html
+vi index.html     <span class="c"># 내용 예 : Korea Web Page (저장은 :wq)</span>
+cat index.html    <span class="c"># 작성 후 항상 내용 확인</span>
+<span class="c"># 정상 출력: Korea Web Page</span></code></pre>
+
+<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+<div class="table-wrap">
+<table><thead><tr><th>단계</th><th>내용</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">접속 주소</td><td>[윈도우 · 브라우저] <code>http://IP</code> = 메가존 페이지 / <code>http://IP/~korea</code> = korea 페이지</td><td>물결(<code>~</code>) + 사용자명 = 도메인이 없을 때의 사용자 사이트 표기</td></tr><tr><td class="nowrap">IP</td><td>관리자(강사) IP를 복사하되 <b>본인 서버 IP</b>를 사용</td><td>포트포워딩 80 → 80 이 되어 있어야 함 (이 파일 4장)</td></tr><tr><td class="nowrap">확인</td><td>페이지가 뜨면 사용자별 가상 호스팅 완료</td><td>메인 / <code>korea</code> / 다른 사용자(예 : <code>apink</code>)가 각각 다른 페이지를 서비스</td></tr></tbody></table>
+</div>
+
+<h3>403 Forbidden 해결</h3>
+
+<div class="code">
+<pre><code><span class="c"># [호스트 리눅스 · root]</span>
+cd /home
+ls -al             <span class="c"># korea 홈 권한 확인 → drwx------ (700)</span>
+<span class="c"># 증상 : ~korea 접속 시 Permission denied / Forbidden</span>
+<span class="c"># 원인 : 게스트(웹서버)가 홈 디렉토리에 들어갈 x 권한이 없음</span>
+chmod 705 korea    <span class="c"># others에 읽기·실행(r-x) 부여 — 자기 계정 디렉토리 이름 지정</span>
+ls -al             <span class="c"># 정상 출력: drwx---r-x (705)</span></code></pre>
+
+<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">증상</td><td><code>403 Forbidden</code> — 페이지 파일은 있는데 접근이 거부됨</td><td>파일이 없을 때의 <code>404 Not Found</code>와 구분</td></tr><tr><td class="nowrap">원인·해결</td><td><code>korea</code> 홈이 <code>700</code> → 게스트(웹서버 프로세스)가 들어갈 x 권한이 없음 → <code>chmod 705 korea</code> 후 새로고침하면 <code>korea</code> 페이지가 뜸</td><td>705 = 오너 rwx(7) / 그룹 없음(0) / 게스트 r-x(5) — 웹 접속자 = 게스트(others)·705 vs 755 기준은 이 파일 7장</td></tr><tr><td class="nowrap">주석 기준</td><td><code>userdir.conf</code> 상단 주석에 같은 내용 : 사용자 홈은 <code>711</code>, <code>public_html</code>은 <code>755</code>, 문서는 world-readable이어야 하며 아니면 403</td><td>홈 디렉토리는 통과(x)만 필요해 711도 가능, 이 실습은 705로 해결</td></tr><tr><td class="nowrap">도메인 연결</td><td>도메인이 있으면 <code>~</code> 없이 사용자 도메인만 쳐도 해당 경로로 자동 연결(redirect)</td><td>도메인 연결은 DNS·가상 도메인 설정으로 처리 — 지금은 IP 기반</td></tr></tbody></table>
+</div>
+
+<div class="dg-bar warn">403 Forbidden — 홈이 <code>700</code>이면 웹서버(게스트)가 못 들어감 → <code>chmod 705 korea</code>. 404는 파일 없음, 403은 권한 문제. 설정 반영은 <code>stop</code>이 아니라 <code>restart</code>(입력 중인 사용자 보호)</div>
+
+<h3>배포판별 경로 차이 (CentOS vs Ubuntu/Debian)</h3>
+
+<div class="dg">
+<p class="dg-title">한눈에 보기 — 같은 Apache라도 계열이 다르면 명령·경로가 다름</p>
+
+<div class="dg-flow">
+<div class="dg-node key"><h4>CentOS / RHEL</h4>
+<p class="sub"><code>dnf</code> · <code>httpd</code> · <code>/etc/httpd/...</code></p>
+</div>
+
+<div class="dg-arrow"></div>
+
+<div class="dg-node accent"><h4>Ubuntu / Debian</h4>
+<p class="sub"><code>apt install</code> · <code>apache2</code> · <code>/etc</code> 구조 상이</p>
+</div>
+</div>
+
+<p class="dg-foot">CentOS 경험으로 Ubuntu를 바로 하지 못하고 반대도 마찬가지 → 경험이 따로 필요</p>
+</div>
+
+<div class="table-wrap">
+<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">CentOS/RHEL</td><td>패키지 설치 <code>dnf</code>, 웹서버 패키지명 <code>httpd</code>, 설정 <code>/etc/httpd/...</code></td><td>이 노트의 실습 환경</td></tr><tr><td class="nowrap">Ubuntu/Debian</td><td>설치 <code>apt install</code>, 데몬 이름 <b>apache2</b>(<code>httpd</code>가 아님), <code>/etc</code> 아래 디렉토리 이름·구조 자체가 다름</td><td>예 : <code>mods-available</code> 쪽에 <code>userdir.conf</code>가 있고 <code>a2enmod</code>로 활성화</td></tr><tr><td class="nowrap">실무 담당</td><td>리눅스 담당자는 <b>주 사용 OS</b>와 <b>보조 사용 OS</b>(약 60% 수준)를 가짐</td><td>주 담당 공백(휴가 등) 시 보조 담당이 응급 대응, 큰 장애는 주 담당이 접속해 처리</td></tr><tr><td class="nowrap">커뮤니케이션</td><td><code>httpd</code> 데몬이라 하면 Ubuntu 쪽은 못 알아듣고, <code>apache2</code> 데몬이라 하면 CentOS 쪽이 되묻는 일이 있음</td><td>같은 Apache라도 계열에 따라 이름이 달라 혼선 → 어느 OS인지 먼저 확인 (linux.html 12장)</td></tr></tbody></table>
+</div>
+
+<div class="dg-bar warn">배포판 차이 — CentOS/RHEL은 <code>dnf</code>·<code>httpd</code>·<code>/etc/httpd</code>, Ubuntu/Debian은 <code>apt</code>·<code>apache2</code>·<code>/etc</code> 구조 상이. <code>userdir.conf</code> 위치도 달라 경험을 따로 쌓아야 함</div>
+
+<ul class="facts">
+<li><strong>사용자·홈 디렉토리</strong>
+<div><code>korea</code> 계정 생성과 <code>/home/korea</code> 확인: linux.html 10장</div>
+</li>
+<li><strong>메모리·OS 확인</strong>
+<div>사이트 수용 수의 기준이 되는 <code>free -h</code>와 배포판 확인 <code>uname -r</code>·<code>cat /etc/os-release</code>: linux.html 12장</div>
+</li>
+<li><strong>FTP</strong>
+<div><code>korea</code> 계정의 FTP 접속 가능 여부와 허용 목록: vsftpd.html 6장</div>
+</li>
+<li><strong>웹 루트·첫 페이지</strong>
+<div>메인 사이트의 <code>DocumentRoot</code>·권한은 이 파일 7장, <code>DirectoryIndex</code>와 랜딩 페이지는 8장</div>
+</li>
+</ul>
+</section>
+
+
   <section class="sec" id="sec-copilot">
 <h2>AI 웹 제작(GitHub Copilot) · 웹 디자인 팁</h2>
 
@@ -736,7 +979,7 @@ mv index.html index2.html</code></pre><button class="copy" type="button" aria-la
 <h3>AI 웹 제작 실습 — 프롬프트</h3>
 
 <div class="table-wrap">
-<table><thead><tr><th>준비</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">백지 만들기</td><td>[윈도우 · VS Code] <code>default.html</code>의 내용을 전부 지우고 저장</td><td>빈 화면에서 시작해야 AI가 만든 결과와 기존 코드가 섞이지 않음. <code>default.html</code>은 7장에서 랜딩 페이지로 쓴 파일</td></tr><tr><td class="nowrap">프롬프트 작성</td><td>메모장에 요구사항을 정리한 뒤 <code>Ctrl+C</code> → Copilot 채팅창에 <code>Ctrl+V</code> → Enter</td><td>한 번에 길게 쓰는 편이 결과가 덜 흔들림</td></tr><tr><td class="nowrap">대기</td><td>가만히 두면 파일 생성·수정을 스스로 진행</td><td>중간에 <b>Allow(허용)</b>를 물으면 계속 Allow로 승인 (영화 데이터를 찾으러 다니는 작업)</td></tr></tbody></table>
+<table><thead><tr><th>준비</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">백지 만들기</td><td>[윈도우 · VS Code] <code>default.html</code>의 내용을 전부 지우고 저장</td><td>빈 화면에서 시작해야 AI가 만든 결과와 기존 코드가 섞이지 않음. <code>default.html</code>은 8장에서 랜딩 페이지로 쓴 파일</td></tr><tr><td class="nowrap">프롬프트 작성</td><td>메모장에 요구사항을 정리한 뒤 <code>Ctrl+C</code> → Copilot 채팅창에 <code>Ctrl+V</code> → Enter</td><td>한 번에 길게 쓰는 편이 결과가 덜 흔들림</td></tr><tr><td class="nowrap">대기</td><td>가만히 두면 파일 생성·수정을 스스로 진행</td><td>중간에 <b>Allow(허용)</b>를 물으면 계속 Allow로 승인 (영화 데이터를 찾으러 다니는 작업)</td></tr></tbody></table>
 </div>
 
 <div class="table-wrap">
@@ -758,7 +1001,7 @@ mv index.html index2.html</code></pre><button class="copy" type="button" aria-la
 <h3>AI 활용처 — 시스템 관리·센터 페이지</h3>
 
 <div class="table-wrap">
-<table><thead><tr><th>항목</th><th>내용</th><th>이유</th></tr></thead><tbody><tr><td class="nowrap">실제 용도</td><td><b>시스템 관리/센터 페이지</b> 제작에 AI를 씀</td><td>영화 소개 사이트를 만들 일은 없고, 실습은 기능 확인용</td></tr><tr><td class="nowrap">화면에 넣는 값</td><td>CPU 할당 현황, 워커 서버 상태, 커넥션 상태, 마스터 서버 메모리 잔량, 디스크 용량</td><td>네트워크·시스템 관리 시스템의 대시보드</td></tr><tr><td class="nowrap">이 단계의 범위</td><td>여기까지가 <b>웹 호스팅 서비스 구축</b></td><td>클라우드는 아직 시작 전 (6장의 웹호스팅과 같은 단계)</td></tr><tr><td class="nowrap">코딩</td><td>사이트를 만든 것 외에는 직접 코딩하지 않음</td><td>AI에게 요구사항을 주고 결과를 검수하는 방식</td></tr></tbody></table>
+<table><thead><tr><th>항목</th><th>내용</th><th>이유</th></tr></thead><tbody><tr><td class="nowrap">실제 용도</td><td><b>시스템 관리/센터 페이지</b> 제작에 AI를 씀</td><td>영화 소개 사이트를 만들 일은 없고, 실습은 기능 확인용</td></tr><tr><td class="nowrap">화면에 넣는 값</td><td>CPU 할당 현황, 워커 서버 상태, 커넥션 상태, 마스터 서버 메모리 잔량, 디스크 용량</td><td>네트워크·시스템 관리 시스템의 대시보드</td></tr><tr><td class="nowrap">이 단계의 범위</td><td>여기까지가 <b>웹 호스팅 서비스 구축</b></td><td>클라우드는 아직 시작 전 (7장의 웹호스팅과 같은 단계)</td></tr><tr><td class="nowrap">코딩</td><td>사이트를 만든 것 외에는 직접 코딩하지 않음</td><td>AI에게 요구사항을 주고 결과를 검수하는 방식</td></tr></tbody></table>
 </div>
 
 <h3>웹 디자인 팁</h3>
@@ -774,260 +1017,15 @@ mv index.html index2.html</code></pre><button class="copy" type="button" aria-la
 <div>만든 <code>default.html</code>·<code>default.css</code>·<code>default.js</code>를 서버 <code>html</code>로 올리는 동기화: vsftpd.html 8장 (ftp-kr)</div>
 </li>
 <li><strong>웹 루트·첫 페이지</strong>
-<div>웹 디렉토리 경로·권한은 이 파일 6장, <code>DirectoryIndex</code>와 랜딩 페이지는 7장</div>
+<div>웹 디렉토리 경로·권한은 이 파일 7장, <code>DirectoryIndex</code>와 랜딩 페이지는 8장</div>
 </li>
 <li><strong>서버 디렉토리 백업</strong>
-<div>사이트 파일을 통째로 묶고 암호까지 거는 <code>tar</code>·<code>gpg</code>: linux.html 11장</div>
+<div>사이트 파일을 통째로 묶고 암호까지 거는 <code>tar</code>·<code>gpg</code>: linux.html 8장</div>
 </li>
 <li><strong>여러 서버에 같은 웹 문서</strong>
-<div>마스터에서 고친 사이트 파일을 워커로 수동 복제(<code>rsync</code>)·자동 반영(<code>lsyncd</code>): linux.html 14장</div>
+<div>마스터에서 고친 사이트 파일을 워커로 수동 복제(<code>rsync</code>)·자동 반영(<code>lsyncd</code>): linux.html 4장</div>
 </li>
 </ul>
-</section>
-
-
-<section class="sec" id="sec-vhost">
-<h2>가상 호스팅 (Virtual Hosting · userdir.conf · 배포판 차이)</h2>
-
-<div class="dg">
-<p class="dg-title">한눈에 보기 — 메인 사이트 1개 → 사용자별 사이트</p>
-
-<div class="dg-flow">
-<div class="dg-node key"><h4>① 메인 설정</h4>
-<p class="sub"><code>/etc/httpd/conf/httpd.conf</code> · 메가존 사이트</p>
-</div>
-
-<div class="dg-arrow"></div>
-
-<div class="dg-node "><h4>② 가상 설정</h4>
-<p class="sub"><code>conf.d/userdir.conf</code> · <code>UserDir html</code></p>
-</div>
-
-<div class="dg-arrow"></div>
-
-<div class="dg-node "><h4>③ 사용자 문서</h4>
-<p class="sub"><code>/home/korea/html/index.html</code></p>
-</div>
-
-<div class="dg-arrow"></div>
-
-<div class="dg-node accent"><h4>④ 접속</h4>
-<p class="sub"><code>http://IP/~korea</code> · 403이면 <code>chmod 705</code></p>
-</div>
-</div>
-
-<p class="dg-foot">사이트가 1개뿐이면 설정 불필요. 사용자(<code>~아이디</code>)별 페이지를 같은 서버·같은 <code>httpd</code> 하나로 서비스</p>
-</div>
-
-<h3>실습 환경과 개념</h3>
-
-<div class="table-wrap">
-<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">서버</td><td>[윈도우 · VirtualBox] CentOS Stream 9, 메모리 4GB, CPU 2코어</td><td>VM 창은 최소화만, 닫으면 서버 종료 (linux.html 1장)</td></tr><tr><td class="nowrap">접속</td><td>[윈도우 · PuTTY] SSH 포트 <code>9022</code>(포트포워딩), <code>root</code> 창 + <code>korea</code> 창 동시 사용</td><td>창마다 프롬프트 확인 — <code>#</code> root / <code>$</code> 일반 (linux.html 8장)</td></tr><tr><td class="nowrap">기반 서비스</td><td><code>httpd</code>·<code>vsftpd</code>는 앞에서 구성 완료 → 이 장은 그 위에 얹는 사용자별 웹 서비스</td><td>FTP 설정: vsftpd.html 2·5장</td></tr><tr><td class="nowrap">계정</td><td><code>korea</code> 계정이 홈(<code>/home/korea</code>)에 웹 디렉토리를 만들고 페이지를 올림</td><td><code>useradd</code>·<code>passwd</code>: linux.html 8장</td></tr></tbody></table>
-</div>
-
-<div class="table-wrap">
-<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">Virtual Hosting</td><td><b>가상 호스팅</b> = 같은 서버·같은 서비스 하나로 <b>여러 사이트</b>를 운영하는 방식 (실무에서는 "버추얼 호스트")</td><td>호스트명(도메인)에 따라 다른 사이트가 뜸</td></tr><tr><td class="nowrap">동작 예</td><td><code>cafe24.com</code> → 카페24 메인 / 홍길동 도메인 → 홍길동 사이트 / 김유신 도메인 → 김유신 사이트</td><td>도메인이 있으면 도메인 앞부분(<code>www</code> 대신 아이디)으로 사용자 사이트가 뜸. 지금은 도메인이 없어 IP로 확인</td></tr><tr><td class="nowrap">올릴 수 있는 수</td><td>서버 1대에 올릴 수 있는 사이트 수는 <b>메모리·CPU에 비례</b></td><td>남은 메모리 확인법 : linux.html 12장 (<code>free -h</code>)</td></tr><tr><td class="nowrap">효율</td><td>사용자 1명 때문에 호스팅 서버를 따로 운영하는 건 비효율 → 대규모가 아니면 가상 호스팅이 일반적</td><td>사이트가 1개뿐이면 이 설정 자체가 불필요</td></tr><tr><td class="nowrap">호스팅사 규모</td><td>강사 경험 : 카페24·메이크샵·고도몰 같은 호스팅사는 한 서버에 대략 <b>250명</b> 수준으로 올림 (연 6만원 × 250 식의 수익 구조)</td><td>메모리 요구량이 매우 커서 서버를 크게 잡아야 함</td></tr></tbody></table>
-</div>
-
-<div class="note-verify">
-<div class="tag">🔍 직접 확인 · 11강 42:54</div>
-
-<p>호스팅 서버 1대 수용 수(250명)와 연 6만원 수익 예시는 강사 경험담 — 호스팅사 공개 자료나 요금표로 확인 필요. 영상 화면에도 수치가 표시되지 않음</p>
-</div>
-
-<h3>설정 파일 구조 (CentOS 기준)</h3>
-
-<div class="code">
-<pre><code><span class="c"># [호스트 리눅스 · root]</span>
-<span class="c"># 설정 디렉토리로 이동 — httpd.conf 옆에 conf.d가 같은 단계로 있는지 확인</span>
-cd /etc/httpd/conf
-<span class="c"># cd conf 까지만 치고 Tab → conf.d가 유일하면 자동완성됨</span>
-ls -al   <span class="c"># 목록 확인 (conf·conf.d·magic·mime.types)</span>
-
-<span class="c"># [호스트 리눅스 · vi 편집기 안 · root]</span>
-:set number   <span class="c"># 줄 번호 표시 — 라인 번호로 지시자 위치 확인</span>
-:q!           <span class="c"># 저장 없이 나가기 (Esc 후 입력)</span></code></pre>
-
-<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-
-<div class="table-wrap">
-<table><thead><tr><th>경로·위치</th><th>역할</th><th>주의·이해</th></tr></thead><tbody><tr><td class="nowrap"><code>/etc/httpd/conf/httpd.conf</code></td><td><b>메인 환경설정</b>(메인 엔진). 기본 사이트 = 메가존 사이트</td><td>약 130번 라인의 <code>&lt;Directory&gt;</code>부터 164번 <code>&lt;/Directory&gt;</code>까지가 메인 사이트 설정 (130~164번 라인 범위)</td></tr><tr><td class="nowrap"><code>/etc/httpd/conf.d/</code></td><td><b>가상으로 잡는 설정</b>을 모아 두는 디렉토리 — <code>welcome.conf</code>, <code>userdir.conf</code>, <code>autoindex.conf</code></td><td>파일을 새로 만들기보다 여기 파일을 수정하는 방식으로 가상 호스트를 추가</td></tr><tr><td class="nowrap"><code>Include</code> (맨 아래)</td><td><code>httpd.conf</code> 맨 아래에서 <code>Shift + G</code>로 이동하면 <code>Include</code>로 <code>conf.d</code> 안의 <code>.conf</code> 파일들을 불러오는 줄이 있음</td><td>경로가 다 적혀 있어 추가 설정이 자동으로 적용됨</td></tr><tr><td class="nowrap">메인 설정 복사</td><td><code>httpd.conf</code>를 그대로 복사해 <code>conf.d</code>에 한 번 더 만들면 <b>에러</b></td><td>같은 지시자가 두 번 정의되어 기동 실패 → 복사 금지, 필요한 블록만 따로 작성</td></tr></tbody></table>
-</div>
-
-<div class="note-verify">
-<div class="tag">🔍 직접 확인 · 11강 04:49 · 16:54</div>
-
-<p>130·138번 라인의 정확한 지시자는 화면에 잡히지 않음 (164번 <code>&lt;/Directory&gt;</code>와 170~172번 <code>DirectoryIndex</code>만 확인) — 본인 서버에서 <code>vi /etc/httpd/conf/httpd.conf</code> → <code>:set number</code>로 130~138번 확인 필요</p>
-</div>
-
-<h3>기본 페이지 지시자 (DirectoryIndex)</h3>
-
-<div class="code">
-<pre><code><span class="c"># [호스트 리눅스 · /etc/httpd/conf/httpd.conf 파일 안 · root]</span>
-<span class="c"># 디렉토리 요청(/)이 오면 왼쪽부터 순서대로 파일을 찾아 서비스 (170~172번 라인)</span>
-&lt;IfModule dir_module&gt;
-    <span class="c"># 없으면 디렉토리 목록만 나오거나 403 — index.html이 첫 후보</span>
-    DirectoryIndex index.html index.htm default.html
-&lt;/IfModule&gt;</code></pre>
-
-<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-
-<div class="table-wrap">
-<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">적용 범위</td><td><code>httpd.conf</code>의 이 설정은 <b>게스트(가상 호스트) 사용자에게도 동일 적용</b></td><td>사용자 홈에 <code>index.html</code>만 만들면 그게 메인(랜딩) 페이지로 뜸</td></tr><tr><td class="nowrap">우선순위</td><td>목록의 여러 파일을 함께 만들면 <b>앞에 있는 파일</b>이 먼저 뜸 (뒤 파일은 안 뜸)</td><td><code>index.html</code>·<code>index.htm</code>·<code>default.html</code>을 모두 만들면 <code>index.html</code>만 보임 → 랜딩 페이지를 바꾸려면 <code>mv</code>로 파일명을 바꾸는 방법 사용 (이 파일 7장)</td></tr></tbody></table>
-</div>
-
-<h3>userdir.conf 수정 (사용자별 웹 디렉토리)</h3>
-
-<div class="code">
-<pre><code><span class="c"># [호스트 리눅스 · /etc/httpd/conf.d/userdir.conf 파일 안 · root]</span>
-<span class="c"># 기본값은 #UserDir disabled(활성) + #UserDir public_html(주석) → 기능이 꺼진 상태</span>
-<span class="c"># 기능을 켜려면 disabled 줄을 주석 처리하고 UserDir 줄의 주석을 푼다 (둘 중 하나만 활성)</span>
-#UserDir disabled
-<span class="c"># 사용자 웹 디렉토리 이름 — 메인 사이트가 html을 쓰므로 html로 통일 (기본값 public_html)</span>
-UserDir html
-
-<span class="c"># 사용자 홈 아래 웹 디렉토리 블록 — UserDir 값과 디렉토리 이름이 반드시 같아야 함</span>
-&lt;Directory "/home/*/html"&gt;
-    <span class="c"># .htaccess로 허용할 지시자 범위 (Override 설정)</span>
-    AllowOverride FileInfo AuthConfig Limit Indexes
-    <span class="c"># 사용자 디렉토리에서 허용할 기능 — Indexes는 디렉토리 목록 표시 허용</span>
-    Options MultiViews Indexes SymLinksIfOwnerMatch IncludesNoExec
-    <span class="c"># 허용 HTTP 메소드(전송 방식) — GET/POST/OPTIONS 를 지우면 그 통신이 막힘</span>
-    Require method GET POST OPTIONS
-&lt;/Directory&gt;</code></pre>
-
-<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-
-<div class="table-wrap">
-<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">기본 상태</td><td><code>#UserDir disabled</code>가 활성 줄이고 <code>#UserDir public_html</code>은 주석 → 기능이 꺼져 있음</td><td>파일 안내 주석 : <code>/~user/</code> 요청을 사용자의 <code>public_html</code>로 서비스하려면 <code>UserDir disabled</code> 줄을 지우고 아래 줄의 주석을 풀라고 안내</td></tr><tr><td class="nowrap">하나만 세팅</td><td><code>disabled</code> 줄과 <code>UserDir ...</code> 줄은 <b>하나만</b> 살려 둠</td><td>둘 다 풀거나 따로따로 돌게 하면 기능이 꺼지거나 기동 에러</td></tr><tr><td class="nowrap">이름 일치 필수</td><td><code>UserDir</code> 값과 <code>&lt;Directory&gt;</code> 블록의 경로가 같은 이름(<code>html</code>)이어야 함</td><td>실수 사례 : <code>UserDir</code>만 <code>html</code>, <code>&lt;Directory&gt;</code>는 <code>public_html</code> → <b>재시작(start) 순간 에러</b></td></tr><tr><td class="nowrap">public_html 유지 시</td><td>기본 <code>public_html</code>을 그대로 쓰면 사용자는 <code>public_html</code> 안에 HTML·CSS·JavaScript를 넣어야 웹이 뜸</td><td>메인 사이트의 <code>html</code>과 이름이 달라 관리가 헷갈림 → <code>html</code>로 통일</td></tr><tr><td class="nowrap"><code>Require method</code></td><td>허용 HTTP 메소드 — <code>GET</code>은 조회, <code>POST</code>는 전송(입력), <code>OPTIONS</code>는 지원 메소드 확인</td><td><b>건드리지 말 것</b> : GET 삭제 시 GET 통신 불가, POST 삭제 시 POST 통신 불가, 둘 다 삭제 시 전송 불가</td></tr><tr><td class="nowrap">form 전송</td><td>HTML <code>form</code> 태그 통신은 method에 get/post를 사용</td><td>인프라에서 POST를 막으면 개발자의 form POST 전송이 안 됨 (회원가입·로그인 불가)</td></tr><tr><td class="nowrap"><code>Limit</code></td><td>메소드를 <code>&lt;Limit&gt;</code>로 따로 제한하는 방식도 있으나 이번 범위 아님</td><td>메소드는 이후 별도로 다룸</td></tr></tbody></table>
-</div>
-
-<div class="dg-bar warn">userdir.conf — <code>#UserDir disabled</code>를 주석 처리하고 <code>UserDir html</code>을 활성. <code>UserDir</code> 값과 <code>&lt;Directory&gt;</code> 경로 이름이 다르면 restart 순간 에러. <code>Require method GET POST OPTIONS</code>는 삭제 금지</div>
-
-<ul class="facts"><li><strong>컨테이너 실습</strong><div>컨테이너(megaweb) 안에서는 <code class="n">UserDir www</code>·<code class="n">&lt;Directory "/home/*/www"&gt;</code>·<code class="n">chmod 755 /home/mega</code>로 같은 기능을 구성: docker.html 7장</div></li><li><strong>포트 게시</strong><div>httpd를 끄고 nginx로 교체해도 같은 게시 포트에서 응답하는지, 호스트 포트를 10080으로 바꾸면 브라우저만 실패하는 이유: docker.html 9장</div></li></ul>
-
-<h3>재시작과 korea 사이트</h3>
-
-<div class="code">
-<pre><code><span class="c"># [호스트 리눅스 · root]</span>
-systemctl restart httpd.service   <span class="c"># 설정 반영 — stop이 아니라 restart</span>
-<span class="c"># stop을 쓰면 안 되는 이유 : 지금 회원가입 중인 사용자가 있으면 입력이 날아감</span>
-
-<span class="c"># [호스트 리눅스 · korea · 프롬프트 $] — 사용자 창에서 실행</span>
-mkdir html        <span class="c"># 홈 아래 웹 디렉토리 (메인과 이름 통일)</span>
-cd html
-vi index.html     <span class="c"># 내용 예 : Korea Web Page (저장은 :wq)</span>
-cat index.html    <span class="c"># 작성 후 항상 내용 확인</span>
-<span class="c"># 정상 출력: Korea Web Page</span></code></pre>
-
-<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-
-<div class="table-wrap">
-<table><thead><tr><th>단계</th><th>내용</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">접속 주소</td><td>[윈도우 · 브라우저] <code>http://IP</code> = 메가존 페이지 / <code>http://IP/~korea</code> = korea 페이지</td><td>물결(<code>~</code>) + 사용자명 = 도메인이 없을 때의 사용자 사이트 표기</td></tr><tr><td class="nowrap">IP</td><td>관리자(강사) IP를 복사하되 <b>본인 서버 IP</b>를 사용</td><td>포트포워딩 80 → 80 이 되어 있어야 함 (이 파일 3장)</td></tr><tr><td class="nowrap">확인</td><td>페이지가 뜨면 사용자별 가상 호스팅 완료</td><td>메인 / <code>korea</code> / 다른 사용자(예 : <code>apink</code>)가 각각 다른 페이지를 서비스</td></tr></tbody></table>
-</div>
-
-<h3>403 Forbidden 해결</h3>
-
-<div class="code">
-<pre><code><span class="c"># [호스트 리눅스 · root]</span>
-cd /home
-ls -al             <span class="c"># korea 홈 권한 확인 → drwx------ (700)</span>
-<span class="c"># 증상 : ~korea 접속 시 Permission denied / Forbidden</span>
-<span class="c"># 원인 : 게스트(웹서버)가 홈 디렉토리에 들어갈 x 권한이 없음</span>
-chmod 705 korea    <span class="c"># others에 읽기·실행(r-x) 부여 — 자기 계정 디렉토리 이름 지정</span>
-ls -al             <span class="c"># 정상 출력: drwx---r-x (705)</span></code></pre>
-
-<button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-
-<div class="table-wrap">
-<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">증상</td><td><code>403 Forbidden</code> — 페이지 파일은 있는데 접근이 거부됨</td><td>파일이 없을 때의 <code>404 Not Found</code>와 구분</td></tr><tr><td class="nowrap">원인·해결</td><td><code>korea</code> 홈이 <code>700</code> → 게스트(웹서버 프로세스)가 들어갈 x 권한이 없음 → <code>chmod 705 korea</code> 후 새로고침하면 <code>korea</code> 페이지가 뜸</td><td>705 = 오너 rwx(7) / 그룹 없음(0) / 게스트 r-x(5) — 웹 접속자 = 게스트(others)·705 vs 755 기준은 이 파일 6장</td></tr><tr><td class="nowrap">주석 기준</td><td><code>userdir.conf</code> 상단 주석에 같은 내용 : 사용자 홈은 <code>711</code>, <code>public_html</code>은 <code>755</code>, 문서는 world-readable이어야 하며 아니면 403</td><td>홈 디렉토리는 통과(x)만 필요해 711도 가능, 이 실습은 705로 해결</td></tr><tr><td class="nowrap">도메인 연결</td><td>도메인이 있으면 <code>~</code> 없이 사용자 도메인만 쳐도 해당 경로로 자동 연결(redirect)</td><td>도메인 연결은 DNS·가상 도메인 설정으로 처리 — 지금은 IP 기반</td></tr></tbody></table>
-</div>
-
-<div class="dg-bar warn">403 Forbidden — 홈이 <code>700</code>이면 웹서버(게스트)가 못 들어감 → <code>chmod 705 korea</code>. 404는 파일 없음, 403은 권한 문제. 설정 반영은 <code>stop</code>이 아니라 <code>restart</code>(입력 중인 사용자 보호)</div>
-
-<h3>배포판별 경로 차이 (CentOS vs Ubuntu/Debian)</h3>
-
-<div class="dg">
-<p class="dg-title">한눈에 보기 — 같은 Apache라도 계열이 다르면 명령·경로가 다름</p>
-
-<div class="dg-flow">
-<div class="dg-node key"><h4>CentOS / RHEL</h4>
-<p class="sub"><code>dnf</code> · <code>httpd</code> · <code>/etc/httpd/...</code></p>
-</div>
-
-<div class="dg-arrow"></div>
-
-<div class="dg-node accent"><h4>Ubuntu / Debian</h4>
-<p class="sub"><code>apt install</code> · <code>apache2</code> · <code>/etc</code> 구조 상이</p>
-</div>
-</div>
-
-<p class="dg-foot">CentOS 경험으로 Ubuntu를 바로 하지 못하고 반대도 마찬가지 → 경험이 따로 필요</p>
-</div>
-
-<div class="table-wrap">
-<table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody><tr><td class="nowrap">CentOS/RHEL</td><td>패키지 설치 <code>dnf</code>, 웹서버 패키지명 <code>httpd</code>, 설정 <code>/etc/httpd/...</code></td><td>이 노트의 실습 환경</td></tr><tr><td class="nowrap">Ubuntu/Debian</td><td>설치 <code>apt install</code>, 데몬 이름 <b>apache2</b>(<code>httpd</code>가 아님), <code>/etc</code> 아래 디렉토리 이름·구조 자체가 다름</td><td>예 : <code>mods-available</code> 쪽에 <code>userdir.conf</code>가 있고 <code>a2enmod</code>로 활성화</td></tr><tr><td class="nowrap">실무 담당</td><td>리눅스 담당자는 <b>주 사용 OS</b>와 <b>보조 사용 OS</b>(약 60% 수준)를 가짐</td><td>주 담당 공백(휴가 등) 시 보조 담당이 응급 대응, 큰 장애는 주 담당이 접속해 처리</td></tr><tr><td class="nowrap">커뮤니케이션</td><td><code>httpd</code> 데몬이라 하면 Ubuntu 쪽은 못 알아듣고, <code>apache2</code> 데몬이라 하면 CentOS 쪽이 되묻는 일이 있음</td><td>같은 Apache라도 계열에 따라 이름이 달라 혼선 → 어느 OS인지 먼저 확인 (linux.html 12장)</td></tr></tbody></table>
-</div>
-
-<div class="dg-bar warn">배포판 차이 — CentOS/RHEL은 <code>dnf</code>·<code>httpd</code>·<code>/etc/httpd</code>, Ubuntu/Debian은 <code>apt</code>·<code>apache2</code>·<code>/etc</code> 구조 상이. <code>userdir.conf</code> 위치도 달라 경험을 따로 쌓아야 함</div>
-
-<ul class="facts">
-<li><strong>사용자·홈 디렉토리</strong>
-<div><code>korea</code> 계정 생성과 <code>/home/korea</code> 확인: linux.html 8장</div>
-</li>
-<li><strong>메모리·OS 확인</strong>
-<div>사이트 수용 수의 기준이 되는 <code>free -h</code>와 배포판 확인 <code>uname -r</code>·<code>cat /etc/os-release</code>: linux.html 12장</div>
-</li>
-<li><strong>FTP</strong>
-<div><code>korea</code> 계정의 FTP 접속 가능 여부와 허용 목록: vsftpd.html 5장</div>
-</li>
-<li><strong>웹 루트·첫 페이지</strong>
-<div>메인 사이트의 <code>DocumentRoot</code>·권한은 이 파일 6장, <code>DirectoryIndex</code>와 랜딩 페이지는 7장</div>
-</li>
-</ul>
-</section>
-
-
-  <section class="sec" id="sec-status">
-<h2>HTTP 상태 코드 — 대역별 책임과 코드별 의미</h2>
-<div class="dg"><p class="dg-title">한눈에 보기 — 번호 대역이 곧 책임 구간</p><div class="dg-flow"><div class="dg-node"><h4>3xx</h4><p class="sub">리다이렉션 · 백엔드에서 확인</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>4xx</h4><p class="sub">요청 문제 · 개발·인프라 함께</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>5xx</h4><p class="sub">서버 문제 · 인프라 책임</p></div></div><p class="dg-foot">600번대는 없음 — 500번대가 끝</p></div>
-
-<h3>대역별 책임</h3>
-<div class="table-wrap"><table><thead><tr><th>대역</th><th>책임</th><th>설명</th></tr></thead><tbody>
-<tr><td class="nowrap">3xx</td><td>개발자(백엔드) 쪽에서 확인</td><td>리다이렉션 응답이라 오류 분류는 아니고, 인프라는 거의 신경 쓰지 않음. 주로 Node.js, Spring/Spring Boot 같은 백엔드 문제 → 브라우저 개발자도구(F12) → Network 탭에서 확인</td></tr>
-<tr><td class="nowrap">4xx</td><td>개발자·인프라 둘 다 확인</td><td>요청이 맞는지 틀린지 살펴서 따짐</td></tr>
-<tr><td class="nowrap">5xx</td><td><strong>인프라 담당자</strong></td><td>뜨면 일단 인프라 책임 → 바로 사과. 소스코드를 보는 개발자에게 떠넘기기 불가</td></tr>
-</tbody></table></div>
-<p>웹 환경 문제가 터질 때 나오는 코드가 <strong>HTTP 상태 코드</strong>이고, 이 코드로 <strong>책임 소재</strong>를 따지는 경우가 많음 (책임 구분은 현장 관행이고 표준 규정은 아님). 300번대는 신경 쓰지 말고 <strong>400·500번대 위주로 구분</strong>, 전부 외울 필요는 없음</p>
-
-<h3>코드별 의미</h3>
-<div class="table-wrap"><table><thead><tr><th>코드</th><th>의미</th><th>상황·메모</th></tr></thead><tbody>
-<tr><td class="nowrap">401</td><td>인증 필요</td><td>로그인·토큰이 없어 인증이 안 된 상태. 접근 권한 없음(permission)은 403으로 구분</td></tr>
-<tr><td class="nowrap">402</td><td>요금 제한(Payment)</td><td>유료 API 서비스에서 요금 미납 등으로 걸리는 경우가 있고 자기 서버 문제가 아님. API 서버 구축(환율·실시간 정보 API)을 요청받으면 알아야 함. 표준 관례가 거의 없는 코드이며 요청 횟수·요금 제한은 <code>429 Too Many Requests</code>가 일반적</td></tr>
-<tr><td class="nowrap">403</td><td>승인 거부·접근 금지</td><td>관리자(최고 관리자) 페이지를 특정 IP 외 접근 못 하게 막을 때 뜸, 페이지 자체가 안 열림</td></tr>
-<tr><td class="nowrap">404</td><td>경로·파일 없음</td><td>웹 서버에 없는 파일 요청 (예: <code>index2.html</code>을 만들지 않았을 때)</td></tr>
-<tr><td class="nowrap">405</td><td>메소드 허용 안 됨 (GET·POST 등)</td><td>가장 걸리면 괴로운 코드, 서버에서 GET·POST 통신을 허용했는지 확인</td></tr>
-<tr><td class="nowrap">406</td><td>콘텐츠 협상 실패</td><td>요청 조건(<code>Accept</code> 등)에 맞는 콘텐츠가 없을 때의 응답. JSON 형식을 허용하지 않는 경우로 설명되지만 JSON 허용 설정과 직접 관계는 없음. 일반 웹 서비스에서는 거의 안 뜨고 단독 DB 서버·CDN 서버에서 주로 발생</td></tr>
-<tr><td class="nowrap">500</td><td>서버 내부 오류</td><td>뜨면 인프라 책임, 사과</td></tr>
-<tr><td class="nowrap">501</td><td>메소드 인식 불가 (Ajax 메소드)</td><td>서버가 요청 메소드를 지원하지 않을 때(GET·HEAD 외 구현 안 됨). 개발자가 구현한 Ajax 요청 방식(POST·GET 외 UPDATE·PATCH 등)을 서버가 인식 못 하는 경우, 포트를 안 열어서 나는 코드는 아님</td></tr>
-<tr><td class="nowrap">502</td><td>게이트웨이 불량</td><td>중간 서버 문제 — 로드 밸런서 사용 시 WAS와 잘못 연결됐을 때 많이 발생, 웹 서비스(nginx·아파치)에서 걸림</td></tr>
-<tr><td class="nowrap">503</td><td>서비스 불능</td><td>콜이 안 나가는 비상사태로 보는 코드. 점검·과부하 등으로 서버가 일시적으로 요청을 처리할 준비가 안 된 상태이고 <code>Retry-After</code> 헤더를 쓸 수 있음</td></tr>
-<tr><td class="nowrap">504</td><td>게이트웨이 지연(시간 초과)</td><td>백엔드에서 DB를 무겁게 돌리거나 로드가 너무 많을 때. 로그로 원인 규명 — 개발자 코드의 <strong>무한 루프</strong>(CPU 100%)면 개발자 책임, 아니면 <strong>워커 서버(마스터-워커 구조)가 응답을 못 한 것</strong> → 워커 쪽 점검</td></tr>
-<tr><td class="nowrap">505</td><td>HTTP 버전 문제(프로토콜)</td><td>요청의 HTTP 버전을 서버가 지원하지 않을 때의 응답 — 세부로는 HTTP/2·HTTP/3 버전 문제</td></tr>
-<tr><td class="nowrap">506</td><td>-</td><td>거의 볼 일 없음, 신경 안 써도 됨</td></tr>
-</tbody></table></div>
-
-<h3>실무에서 중요한 코드</h3>
-<div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-<tr><td class="nowrap">가장 스트레스</td><td><strong>502, 503, 504</strong></td><td>번호를 알아야 대처 가능</td></tr>
-<tr><td class="nowrap">실제 빈도</td><td>많이 나는 에러 코드는 404·403</td><td>요청 경로·권한 문제가 일상적</td></tr>
-<tr><td class="nowrap">50x 정리 메모</td><td>501: Ajax Method(POST·GET·UPDATE·PATCH)/API 관련, 502·503, 504: Gateway 타임아웃</td><td>강사가 화면에 정리한 표</td></tr>
-<tr><td class="nowrap">웹 서버 종류</td><td>웹 서버는 nginx·아파치 외에 IIS·LiteSpeed·Caddy 등도 사용됨</td><td>웹 서버가 둘뿐이라는 전제는 부정확</td></tr>
-<tr><td class="nowrap">nginx TLS 주석</td><td><code>nginx.conf</code>의 TLS(55~80행) 설정을 풀면 505 같은 에러가 터진다는 설명</td><td>505는 HTTP 버전 미지원 응답이라 주석을 푼 설정과 직접 관계 없음 (nginx.html 2장)</td></tr>
-</tbody></table></div>
-<div class="dg-bar warn">상태 코드 — 4xx는 요청·설정 문제로 개발·인프라가 함께 보고, 5xx는 서버(인프라) 책임으로 바로 대응. 실무에서 가장 스트레스인 코드는 502·503·504, 실제로 자주 나는 코드는 404·403, 600번대는 없음</div>
-
-<ul class="facts"><li><strong>자세한 실습</strong><div>502·503·504를 만드는 프록시 구성과 WAS 연결: nginx.html 6장 / WAS 포트·가동 확인: was.html 2·5장</div></li><li><strong>405의 실제 사례</strong><div>API 서버 데코레이터(<code>@app.post</code>)와 화면이 보낸 메서드(GET)가 어긋나 <code>405</code> 계열이 나는 경우: fastapi.html 10장</div></li><li><strong>서버 쪽 500</strong><div>DB 접속 실패·코드 예외로 <code>500</code>번대가 나는 경우와 traceback 확인: fastapi.html 14장</div></li></ul>
 </section>
 
 <section class="sec" id="cheatsheet"><h2>통합 명령어 치트시트</h2><p>이 카테고리에서 나온 명령어를 영역별로 모음. 내용이 추가되면 해당 영역 묶음 아래에 줄을 추가.</p><div class="table-wrap"><table class="cheat"><thead><tr><th>명령어</th><th>기능 및 핵심 메모</th></tr></thead><tbody><tr class="group"><th colspan="2" scope="colgroup">설치 전 확인·다운로드</th></tr><tr><td><code>netstat -lnp</code></td><td>열려 있는 포트 확인. 80번 확인</td></tr><tr><td><code>dnf search</code> / <code>dnf info</code> / <code>dnf list 이름</code></td><td>패키지 검색 / 정보 / 목록. 데몬명은 httpd</td></tr><tr><td><code>dnf list available "httpd*"</code></td><td>설치 가능 버전 목록. 버전 확인</td></tr><tr><td><code>dnf install httpd</code></td><td>Apache 설치. 11개 패키지, y 입력</td></tr><tr><td><code>wget URL</code></td><td>서버에서 직접 다운로드. 붙여넣기 Shift + Insert</td></tr><tr class="group"><th colspan="2" scope="colgroup">서비스 기동</th></tr><tr><td><code>systemctl start</code> / <code>stop</code> / <code>restart httpd.service</code></td><td>서비스 기동 / 정지 / 재시작. 설치 후엔 start 필요</td></tr><tr><td><code>systemctl enable httpd.service</code></td><td>부팅 시 자동 시작. ntsysv와 같은 기능</td></tr><tr><td><code>ntsysv</code></td><td>자동 시작 서비스 체크 화면. 레드햇 계열, Space 체크</td></tr><tr class="group"><th colspan="2" scope="colgroup">환경설정·웹 디렉토리</th></tr><tr><td><code>cd /etc/httpd/conf</code></td><td>환경설정 경로 (httpd.conf)</td></tr><tr><td><code>vi httpd.conf</code> / <code>:set number</code></td><td>편집 / 줄 번호. 오타 주의</td></tr><tr><td><code>:124 co 124</code></td><td>vi에서 124번 줄을 바로 아래(125번)에 복사. co = copy (<code>:124 co 125</code>는 126번에 생김)</td></tr><tr><td><code>chmod 705 megazone</code></td><td>홈 디렉토리 others에 r-x. 웹 접속은 게스트(others)</td></tr><tr><td><code>mkdir html</code></td><td>웹 문서 디렉토리. 사용자 홈 안, root 금지</td></tr><tr><td><code>mv index.html index2.html</code></td><td>파일명 변경. 랜딩 페이지 실습</td></tr><tr class="group"><th colspan="2" scope="colgroup">AI 웹 제작 (GitHub Copilot) · 디자인 팁</th></tr><tr><td>Chat 패널 → <b>Sign in</b> → Google → 체크 후 열기</td><td>Copilot 연결. <code>Copilot Free</code> · <code>Credits</code> · <code>Inline Suggestions</code>가 보이면 정상</td></tr><tr><td><code>Ctrl+Shift+P</code> 없이 채팅창 <code>Ctrl+V</code> → Enter</td><td>프롬프트 실행. 중간에 <b>Allow</b>를 물으면 계속 승인</td></tr><tr><td><code>default.html</code> 내용 전체 삭제 후 저장</td><td>백지 상태에서 시작. 기존 코드와 AI 결과가 섞이지 않게 함</td></tr><tr><td><code>default.css</code> · <code>default.js</code> 지정</td><td>프롬프트에 파일명을 적어야 <code>.html</code>·<code>.css</code>·<code>.js</code> 분리 생성</td></tr><tr><td><code>F12</code> → 디바이스(휴대폰) 아이콘</td><td>모바일/PC 화면 전환으로 반응형 확인. 다시 누르면 PC</td></tr><tr><td><code>color.adobe.com</code> → Create color palette</td><td>메인 컬러 5색 추출(무료). color code를 프롬프트에 전달</td></tr><tr><td>Color → Image 업로드</td><td>캡처한 이미지(그림판 PNG 저장)에서 색 추출 — 기존 사이트와 같은 느낌 만들기</td></tr><tr class="group"><th colspan="2" scope="colgroup">가상 호스팅</th></tr><tr><td><code>vi /etc/httpd/conf.d/userdir.conf</code></td><td>사용자별 웹 디렉토리 설정. <code>#UserDir disabled</code> 주석, <code>UserDir html</code> 활성, <code>&lt;Directory "/home/*/html"&gt;</code> 이름 일치</td></tr><tr><td><code>Shift+G</code> → <code>Include</code></td><td><code>httpd.conf</code> 맨 아래에서 <code>conf.d</code>의 <code>.conf</code>를 불러오는 줄 확인</td></tr><tr><td><code>systemctl restart httpd.service</code></td><td>설정 반영. <code>stop</code>은 입력 중인 사용자 데이터가 날아가므로 금지</td></tr><tr><td><code>http://IP/~korea</code></td><td>도메인 없이 사용자 사이트 접속 (물결 + 아이디). <code>http://IP</code> = 메인 사이트</td></tr><tr><td><code>chmod 705 /home/사용자</code></td><td>403 Forbidden 해결 — 홈이 <code>700</code>이면 게스트(웹서버)가 접근 못 함. 주석 기준 홈 711·<code>public_html</code> 755</td></tr><tr class="group"><th colspan="2" scope="colgroup">HTTP 상태 코드</th></tr><tr><td><code>3xx</code> / <code>4xx</code> / <code>5xx</code></td><td>리다이렉션 / 요청·설정 문제(개발·인프라) / 서버 문제(인프라 책임). 600번대 없음</td></tr><tr><td><code>401</code> / <code>403</code> / <code>404</code> / <code>405</code></td><td>인증 필요 / 접근 금지 / 경로·파일 없음 / 메소드 허용 안 됨 — 자주 나는 코드는 404·403</td></tr><tr><td><code>502</code> / <code>503</code> / <code>504</code></td><td>게이트웨이 불량 / 서비스 불능 / 게이트웨이 시간 초과 — 실무에서 가장 스트레스인 50x</td></tr></tbody></table></div></section>

@@ -656,7 +656,7 @@ import numpy as np</code></pre><button class="copy" aria-label="코드 복사" t
     <div class="table-wrap"><table>
     <thead><tr><th>구성</th><th>의미</th><th>메모</th></tr></thead><tbody>
     <tr><td class="nowrap"><code>pyspark</code></td><td>파이썬 스파크</td><td>패키지 이름</td></tr>
-    <tr><td class="nowrap"><code>.sql</code></td><td>SQL 쿼리 문을 쓰는 영역</td><td><code>spark.sql</code>·DataFrame API (pyspark.html 11장)</td></tr>
+    <tr><td class="nowrap"><code>.sql</code></td><td>SQL 쿼리 문을 쓰는 영역</td><td><code>spark.sql</code>·DataFrame API (pyspark.html 14장)</td></tr>
     <tr><td class="nowrap"><code>SparkSession</code></td><td>스파크 세션 객체</td><td>이 줄이 없으면 스파크가 안 돌고 일반 파이썬으로만 동작</td></tr>
     </tbody></table></div>
 
@@ -695,7 +695,7 @@ print(aa['total'])</code></pre><button class="copy" type="button" aria-label="�
     </tbody></table></div>
     <div class="dg-bar warn">Spark 코드의 시작은 <code>from pyspark.sql import SparkSession</code> — 이 줄이 없으면 Spark가 아니라 일반 파이썬으로 돎. <code>pd.read_csv</code>만 있는 코드도 Spark 명령이 없으니 로컬 실행일 뿐이고, <code>from</code>은 다른 쪽에 일을 넘기는 문법이 아니라 지정한 이름만 현재 네임스페이스로 가져오는 문법</div>
 
-    <ul class="facts"><li><strong>라이브러리 역할</strong><div>pandas·numpy·pyarrow: pyspark.html 2장</div></li><li><strong>세션 만들기</strong><div><code>SparkSession.builder</code> 전체 구조: pyspark.html 14장</div></li><li><strong>파일 읽기 다른 방식</strong><div><code>spark.read.csv</code>: pyspark.html 9장</div></li><li><strong>클래스·메서드</strong><div>인스턴스·정적·클래스 메서드 구분: 이 파일 4장</div></li></ul>
+    <ul class="facts"><li><strong>라이브러리 역할</strong><div>pandas·numpy·pyarrow: pyspark.html 2장</div></li><li><strong>세션 만들기</strong><div><code>SparkSession.builder</code> 전체 구조: pyspark.html 16장</div></li><li><strong>파일 읽기 다른 방식</strong><div><code>spark.read.csv</code>: pyspark.html 12장</div></li><li><strong>클래스·메서드</strong><div>인스턴스·정적·클래스 메서드 구분: 이 파일 4장</div></li></ul>
   </section>
   <!-- 2 -->
   <section class="sec" id="py-basics">
@@ -703,7 +703,7 @@ print(aa['total'])</code></pre><button class="copy" type="button" aria-label="�
     <div class="dg"><p class="dg-title">한눈에 보기 — 함수 안에 쓰면 콘솔 로그로 확인</p><div class="dg-flow"><div class="dg-node"><h4>① handler 안에 작성</h4><p class="sub">if · for · lambda</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② VS Code 저장</h4><p class="sub">= Lambda 업로드</p></div><div class="dg-arrow">새로고침</div><div class="dg-node"><h4>③ 콘솔 Accept</h4><p class="sub">최신 배포 받기</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ 콘솔 Test</h4><p class="sub">Function Logs에서 확인</p></div></div><p class="dg-foot">출력은 콘솔 Test 결과의 <strong>Function Logs</strong>에서 확인 — 파이썬 문법 확인도 이 순서로 반복</p></div>
 
     <h3>실행 순서</h3>
-    <p><code>lambda_handler</code> <b>안에</b> 작성 → VS Code 저장 → (필요 시 콘솔 새로고침·Accept) → 콘솔 Test → Function Logs 확인</p>
+    <p><code>lambda_handler</code> <b>안에</b> 작성 → VS Code 저장 → (필요 시 콘솔 새로고침·Accept) → 콘솔 Test → Function Logs 확인 (콘솔 Deploy·Accept·Test 절차: aws.html 5~6·12장)</p>
 
     <h3>조건문 — if / else</h3>
     <div class="code"><pre><code><span class="c"># [VS Code · Lambda 프로젝트 mz-apink · lambda_function.py · lambda_handler 안]</span>
@@ -776,7 +776,7 @@ print(aa['total'])</code></pre><button class="copy" type="button" aria-label="�
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
     <tr><td class="nowrap">서버</td><td>Rocky Linux <code>192.168.222.5</code> — 컨테이너 <code>spark-master</code>·<code>spark-worker1</code></td><td>Spark 실습과 같은 클러스터, 클래스 파트는 Spark를 쓰지 않음</td></tr>
-    <tr><td class="nowrap">노트북</td><td>JupyterLab(<code>192.168.222.5:8888</code>)의 <code>basic.ipynb</code> — <code>travel_images</code> 폴더</td><td>VS Code로 접속해 쓰는 방식은 pyspark.html 25장</td></tr>
+    <tr><td class="nowrap">노트북</td><td>JupyterLab(<code>192.168.222.5:8888</code>)의 <code>basic.ipynb</code> — <code>travel_images</code> 폴더</td><td>VS Code로 접속해 쓰는 방식은 pyspark.html 6장</td></tr>
     <tr><td class="nowrap">파이썬 버전</td><td>서버 파이썬 <code>3.9</code> — f-string(<code>f"…"</code>) 사용 가능</td><td>f-string은 3.6 이상 문법</td></tr>
     <tr><td class="nowrap">범위</td><td>Spark와 무관한 <b>순수 파이썬</b> 클래스 문법</td><td>기본 문법(<code>import</code>·<code>from</code>·<code>as</code>)은 이 파일 1장에서 마친 상태</td></tr>
     </tbody></table></div>
@@ -944,7 +944,7 @@ print(test3.get_data())  <span class="c"># 4 출력</span></code></pre><button c
     <div class="dg-bar warn">세 메서드 구분 — 첫 인자가 무엇을 받는지가 기준. 인스턴스 메서드는 <code>self</code>, 정적 메서드는 인자 없음, 클래스 메서드는 <code>cls</code>. 정적 메서드와 클래스 메서드의 차이가 평가에서 갈리는 지점</div>
     <p>클래스 메서드는 인스턴스 메서드·정적 메서드보다 구조가 독특 — 각 메서드가 무엇을 하는지만 정리해 두면 구분 문제는 정리된 순서대로 답이 나옴.</p>
 
-    <ul class="facts"><li><strong>파이썬 기본 문법</strong><div><code>import</code>·<code>from</code>·<code>as</code>·파일 읽기: 이 파일 1장</div></li><li><strong>세션 생성 코드</strong><div><code>SparkSession.builder</code>·<code>getOrCreate</code>: pyspark.html 14장</div></li><li><strong>클래스로 만든 객체의 실제 사용</strong><div><code>app = FastAPI()</code>처럼 객체에 라우트를 붙이는 구조: fastapi.html 6장</div></li><li><strong>노트북을 VS Code에서</strong><div>윈도우 PC에서 리눅스 Jupyter 서버로 연결: pyspark.html 25장</div></li></ul>
+    <ul class="facts"><li><strong>파이썬 기본 문법</strong><div><code>import</code>·<code>from</code>·<code>as</code>·파일 읽기: 이 파일 1장</div></li><li><strong>세션 생성 코드</strong><div><code>SparkSession.builder</code>·<code>getOrCreate</code>: pyspark.html 16장</div></li><li><strong>클래스로 만든 객체의 실제 사용</strong><div><code>app = FastAPI()</code>처럼 객체에 라우트를 붙이는 구조: fastapi.html 6장</div></li><li><strong>노트북을 VS Code에서</strong><div>윈도우 PC에서 리눅스 Jupyter 서버로 연결: pyspark.html 6장</div></li></ul>
   </section>
   <!-- 5 -->
   <section class="sec" id="py-crawling">

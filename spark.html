@@ -606,13 +606,13 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
         <li><a href="#spark-api-mysql">10. 공공 API 데이터 확보·MySQL 적재</a></li>
         <li><a href="#spark-jdbc">11. JDBC 연동 (MySQL 테이블 읽기)</a></li>
         <li><a href="#spark-movie-agg">12. 응용: 박스오피스 집계</a></li>
-        <li><a href="#spark-image">13. Spark 이미지 (Dockerfile·빌드)</a></li>
+        <li><a href="#spark-image">13. [컨테이너] Spark 이미지 (Dockerfile·빌드)</a></li>
         <li><a href="#spark-master">14. 마스터·워커 컨테이너 기동·재시작과 볼륨 연결</a></li>
-        <li><a href="#spark-shell">15. Spark 셸 실행과 앱 상태</a></li>
-        <li><a href="#spark-jupyter-container">16. 컨테이너 주피터 설치·PySpark 연동</a></li>
-        <li><a href="#spark-ghost">17. 고스트 세션 (Running Application 잔존)</a></li>
-        <li><a href="#spark-time-sync">18. 컨테이너 시간대·시계 동기화</a></li>
-        <li><a href="#spark-api-port">19. 실행 중인 컨테이너에 API 포트 추가</a></li>
+        <li><a href="#spark-api-port">15. 실행 중인 컨테이너에 API 포트 추가</a></li>
+        <li><a href="#spark-shell">16. Spark 셸 실행과 앱 상태</a></li>
+        <li><a href="#spark-jupyter-container">17. 컨테이너 주피터 설치·PySpark 연동</a></li>
+        <li><a href="#spark-ghost">18. 고스트 세션 (Running Application 잔존)</a></li>
+        <li><a href="#spark-time-sync">19. 컨테이너 시간대·시계 동기화</a></li>
         <li><a href="#spark-pg-env">20. PostgreSQL 환경 (이미지·컨테이너·psql 접속)</a></li>
         <li><a href="#spark-pg-jdbc">21. Spark ↔ PostgreSQL 연결 방식과 JDBC jar</a></li>
         <li><a href="#spark-pg-psycopg2">22. Python용 PostgreSQL 드라이버 (psycopg2)</a></li>
@@ -629,11 +629,11 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <div class="core-strip">
       <div>
         <div class="core-metric">개념 → 설치 → 운영</div>
-        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성(3~7장) → Standalone 운영·<code class="n">spark-submit</code> 제출(8~9장) → 공공 API 적재·JDBC 연동·박스오피스 집계(10~12장) → Dockerfile 이미지·마스터·워커 컨테이너 기동과 볼륨(13~14장) → 셸·컨테이너 주피터·고스트 세션·시간대(15~18장) → 실행 중 포트 추가(19장) → PostgreSQL 환경·JDBC jar·psycopg2(20~22장) → PyTorch·임베딩 라이브러리 설치(23장). 사용자·권한·인코딩·스키마·DBeaver 적재·문법 차이·REVOKE는 postgresql.html 14~19장. PySpark 분석 코드·노트북은 pyspark.html</p>
+        <p class="core-desc">개념·구성 요소(1장) → 서버 2대에 <code class="n">sparkuser</code>·SSH 키·hosts·<code class="n">/opt</code> 설치·<code class="n">.bashrc</code>로 직접 구성(3~7장) → Standalone 운영·<code class="n">spark-submit</code> 제출(8~9장) → 공공 API 적재·JDBC 연동·박스오피스 집계(10~12장) → Dockerfile 이미지·마스터·워커 컨테이너 기동과 볼륨(13~14장) → 셸·컨테이너 주피터·고스트 세션·시간대(16~19장) → 실행 중 포트 추가(15장) → PostgreSQL 환경·JDBC jar·psycopg2(20~22장) → PyTorch·임베딩 라이브러리 설치(23장). 사용자·권한·인코딩·스키마·DBeaver 적재·문법 차이·REVOKE는 postgresql.html 14~19장. PySpark 분석 코드·노트북은 pyspark.html</p>
       </div>
       <div>
         <div class="core-metric">7077 · 8080 · 8888</div>
-        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI(Running 앱 확인), 8888 Jupyter(토큰 로그인, 재기동마다 토큰 변경 — 컨테이너에서는 hostconfig.json으로 추가), 11111 FastAPI(같은 방법으로 추가 — 19장), 8081 워커 UI, 3306 MySQL(2장·4장·11장·16장), 5432 PostgreSQL(충돌 확인 20장·연결 실습 pyspark.html 21장)</p>
+        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI(Running 앱 확인), 8888 Jupyter(토큰 로그인, 재기동마다 토큰 변경 — 컨테이너에서는 hostconfig.json으로 추가), 11111 FastAPI(같은 방법으로 추가 — 15장), 8081 워커 UI, 3306 MySQL(2장·4장·11장·17장), 5432 PostgreSQL(충돌 확인 20장·연결 실습 pyspark.html 23장)</p>
       </div>
       <div>
         <div class="core-metric">spark-net + --host</div>
@@ -654,13 +654,13 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       <a href="#spark-api-mysql">10. 공공 API 데이터 확보·MySQL 적재</a>
       <a href="#spark-jdbc">11. JDBC 연동 (MySQL 테이블 읽기)</a>
       <a href="#spark-movie-agg">12. 응용: 박스오피스 집계</a>
-      <a href="#spark-image">13. Spark 이미지 (Dockerfile·빌드)</a>
+      <a href="#spark-image">13. [컨테이너] Spark 이미지 (Dockerfile·빌드)</a>
       <a href="#spark-master">14. 마스터·워커 컨테이너 기동·재시작과 볼륨 연결</a>
-      <a href="#spark-shell">15. Spark 셸 실행과 앱 상태</a>
-      <a href="#spark-jupyter-container">16. 컨테이너 주피터 설치·PySpark 연동</a>
-      <a href="#spark-ghost">17. 고스트 세션 (Running Application 잔존)</a>
-      <a href="#spark-time-sync">18. 컨테이너 시간대·시계 동기화</a>
-      <a href="#spark-api-port">19. 실행 중인 컨테이너에 API 포트 추가</a>
+      <a href="#spark-api-port">15. 실행 중인 컨테이너에 API 포트 추가</a>
+      <a href="#spark-shell">16. Spark 셸 실행과 앱 상태</a>
+      <a href="#spark-jupyter-container">17. 컨테이너 주피터 설치·PySpark 연동</a>
+      <a href="#spark-ghost">18. 고스트 세션 (Running Application 잔존)</a>
+      <a href="#spark-time-sync">19. 컨테이너 시간대·시계 동기화</a>
       <a href="#spark-pg-env">20. PostgreSQL 환경 (이미지·컨테이너·psql 접속)</a>
       <a href="#spark-pg-jdbc">21. Spark ↔ PostgreSQL 연결 방식과 JDBC jar</a>
       <a href="#spark-pg-psycopg2">22. Python용 PostgreSQL 드라이버 (psycopg2)</a>
@@ -708,9 +708,9 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <tr><td class="nowrap">Spark SQL</td><td>구조화된 데이터용 SQL 쿼리문, DataFrame·Dataset API — RDBMS를 다루듯 쓰는 용도. 별개 제품이 아니라 Spark의 모듈이며 같은 실행 엔진 위에서 동작</td><td>지금 세팅한 클러스터와 다른 층 — 같다고 생각하면 큰일. Spark SQL을 돌리는 것 = 데이터프레임</td></tr>
     <tr><td class="nowrap">GraphX</td><td>테이블이 아닌 그래프 구조·분산 그래프 연산을 다루는, RDD를 확장한 컴포넌트. GPU·CUDA 요건은 없어 GPU 인스턴스(G3·N3 등) 없이도 동작</td><td>다루지 않음</td></tr>
     <tr><td class="nowrap">MLlib</td><td>분류·회귀·클러스터링 등 머신러닝 알고리즘, 대규모 머신러닝 파이프라인</td><td>개념만</td></tr>
-    <tr><td class="nowrap">RDD</td><td>Spark의 가장 기초적인 분산 데이터 컬렉션(데이터셋)</td><td>실습에서 쓰는 부분 — 예제 프로그램이 RDD 연산 (pyspark.html 1장)</td></tr>
+    <tr><td class="nowrap">RDD</td><td>Spark의 가장 기초적인 분산 데이터 컬렉션(데이터셋)</td><td>실습에서 쓰는 부분 — 예제 프로그램이 RDD 연산 (pyspark.html 7장)</td></tr>
     </tbody></table></div>
-    <ul class="facts"><li><strong>RDBMS 경험 질문</strong><div>MS SQL류 경험을 물으면 Spark SQL 이야기로 연결 — DataFrame을 SQL처럼 다루는 층</div></li><li><strong>옵션에 따라 결과가 달라짐</strong><div>같은 Spark라도 옵션을 어떻게 주느냐에 따라 결과·현상이 달라짐 — 이 노트에서 가장 중요한 사항. 자원 옵션: 9장</div></li><li><strong>실시간 분석</strong><div>Spark는 실시간 데이터 분석에도 쓰여 도입 사례가 많음</div></li><li><strong>PySpark·Jupyter</strong><div>PySpark·JupyterLab 연동 — Jupyter 포트 <code>8888</code> (2장). 라이브러리 설치·환경변수·노트북·코어 실험: pyspark.html 2~6장</div></li></ul>
+    <ul class="facts"><li><strong>RDBMS 경험 질문</strong><div>MS SQL류 경험을 물으면 Spark SQL 이야기로 연결 — DataFrame을 SQL처럼 다루는 층</div></li><li><strong>옵션에 따라 결과가 달라짐</strong><div>같은 Spark라도 옵션을 어떻게 주느냐에 따라 결과·현상이 달라짐 — 이 노트에서 가장 중요한 사항. 자원 옵션: 9장</div></li><li><strong>실시간 분석</strong><div>Spark는 실시간 데이터 분석에도 쓰여 도입 사례가 많음</div></li><li><strong>PySpark·Jupyter</strong><div>PySpark·JupyterLab 연동 — Jupyter 포트 <code>8888</code> (2장). 라이브러리 설치·환경변수·노트북·코어 실험: pyspark.html 2~5·8장</div></li></ul>
 
     <h3>아키텍처 용어 — Master·Driver·Executor·Task</h3>
     <p>아키텍트가 쓰는 용어와 다른 부분이 있어 소통을 위해 정리 — 같은 대상을 다른 이름으로 부르는 경우가 많음.</p>
@@ -777,7 +777,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <tr><td class="nowrap">접속 사용자</td><td><code>sparkuser</code></td><td>3장에서 두 서버에 같은 이름·같은 그룹으로 생성</td></tr>
     <tr><td class="nowrap">설치 경로</td><td><code>/opt/spark</code></td><td>4장에서 <code>mv</code>로 정한 이름 — 이후 모든 명령의 기준 경로</td></tr>
     <tr><td class="nowrap">마스터 IP</td><td><code>192.168.222.2</code></td><td>강의 환경의 IP — 수강생은 각자 서버 IP</td></tr>
-    <tr><td class="nowrap">마스터 URL</td><td><code>spark://192.168.222.2:7077</code></td><td><code>--master</code>와 코드 <code>.master()</code>에 그대로 들어감 (9장·pyspark.html 1장)</td></tr>
+    <tr><td class="nowrap">마스터 URL</td><td><code>spark://192.168.222.2:7077</code></td><td><code>--master</code>와 코드 <code>.master()</code>에 그대로 들어감 (9장·pyspark.html 7장)</td></tr>
     <tr><td class="nowrap">합계 코어</td><td>4 + 2 + 2 = 8코어</td><td>클러스터 전체가 쓸 수 있는 코어 — 요청 값이 이 합을 넘으면 연산 불가</td></tr>
     <tr><td class="nowrap">시연 구성</td><td>마스터 1대 + 워커 1대</td><td>설계는 워커 2대, 시연은 워커 1대로 진행</td></tr>
     </tbody></table></div>
@@ -881,7 +881,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
     <tr><td class="nowrap">설치 버전</td><td>Spark <code>3.5.9</code>(bin-hadoop3), Java <code>17</code>(OpenJDK, 이미 설치된 상태), Scala <code>2.12.18</code></td><td>Scala·JDK 값은 <code>spark-submit --version</code> 출력에서 확인</td></tr>
     <tr><td class="nowrap">Spark 포트</td><td><code>7077</code> 마스터 / <code>8080</code> Master WEB UI / <code>8081</code> Worker WEB UI</td><td>포트 역할 비교: 이 파일 2장. <code>8888</code>은 Jupyter(2장)</td></tr>
     <tr><td class="nowrap">SSH 포트</td><td>두 서버 모두 <code>22</code></td><td>실무에서는 서버마다 다르게 설정 — 그때는 <code>ssh-copy-id -p 포트</code>처럼 포트를 함께 지정</td></tr>
-    <tr><td class="nowrap">선행 지식</td><td><code>useradd</code>·<code>su</code>·<code>chown</code>·<code>find</code>·<code>tar</code>·<code>ssh</code></td><td>계정: linux.html 8장 / 권한: linux.html 7장 / 아카이브: linux.html 11장 / SSH 키: linux.html 14장 / 검색: linux.html 16장</td></tr>
+    <tr><td class="nowrap">선행 지식</td><td><code>useradd</code>·<code>su</code>·<code>chown</code>·<code>find</code>·<code>tar</code>·<code>ssh</code></td><td>계정: linux.html 10장 / 권한: linux.html 9장 / 아카이브: linux.html 8장 / SSH 키: linux.html 4장 / 검색: linux.html 16장</td></tr>
     </tbody></table></div>
 
     <div class="table-wrap"><table>
@@ -917,7 +917,7 @@ pwd                           <span class="c"># 두 서버의 경로가 같은�
     </tbody></table></div>
 
     <h3>SSH 키 생성</h3>
-    <ul class="facts"><li><strong>키 인증 원리</strong><div>공개 키·개인 키·<code>authorized_keys</code>·<code>known_hosts</code>의 동작과 <code>ssh-keygen</code>·<code>ssh-copy-id</code> 일반 절차: linux.html 14장 — 이 장은 클러스터에서 달라지는 점만</div></li></ul>
+    <ul class="facts"><li><strong>키 인증 원리</strong><div>공개 키·개인 키·<code>authorized_keys</code>·<code>known_hosts</code>의 동작과 <code>ssh-keygen</code>·<code>ssh-copy-id</code> 일반 절차: linux.html 4장 — 이 장은 클러스터에서 달라지는 점만</div></li></ul>
     <div class="code"><pre><code><span class="c"># [마스터·워커 공통 · sparkuser · 각 서버에서 자기 키]</span>
 ssh-keygen -t rsa -b 3072   <span class="c"># RSA 방식(-t), 3072비트(-b) 키 생성</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
@@ -972,7 +972,7 @@ vi /etc/hosts   <span class="c"># root로 편집 (두 서버 모두 root로 전�
     <tr><td class="nowrap">같은 VPC</td><td>AWS·GCP에서도 <b>같은 VPC 안</b>의 서버끼리는 사설 IP로 Spark 통신 가능</td><td>마스터·워커가 같은 네트워크 그룹에 있어야 하는 조건이 VPC</td></tr>
     <tr><td class="nowrap">다른 VPC</td><td>VPC 피어링(VPC Peering)을 만들면 서로 다른 VPC도 사설 IP로 통신</td><td>피어링 없이 다른 VPC에 있는 서버는 사설 IP 직접 통신 불가 (출처: AWS VPC Peering 문서)</td></tr>
     </tbody></table></div>
-    <ul class="facts"><li><strong>자세한 실습</strong><div>계정·그룹 관리: linux.html 8장 / <code>su</code>·wheel: linux.html 7장 / SSH 키 인증 원리·<code>rsync</code>: linux.html 14장 / 컨테이너 네트워크로 같은 클러스터 구성: 이 파일 13~14장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div>계정·그룹 관리: linux.html 10장 / <code>su</code>·wheel: linux.html 9장 / SSH 키 인증 원리·<code>rsync</code>: linux.html 4장 / 컨테이너 네트워크로 같은 클러스터 구성: 이 파일 13~14장</div></li></ul>
   
 
   </section>
@@ -1062,7 +1062,7 @@ ls -al                              <span class="c"># spark 및 하위 파일 �
     <tr><td class="nowrap">단계 완료</td><td>여기까지가 설치(압축 해제) 완료</td><td>설치만으로는 실행되지 않음 → 다음은 환경변수(5장)</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">설치 후 소유권 — <code>chown -R sparkuser:sparkuser /opt/spark</code>를 두 서버 모두에서 실행. 소유자가 root나 다른 계정으로 남으면 sparkuser가 <code>conf</code> 수정·스크립트 실행 불가. 설치는 root, 사용은 sparkuser</div>
-    <ul class="facts"><li><strong>자세한 실습</strong><div><code>tar</code> 옵션·gzip: linux.html 11장 / <code>chown -R</code>·권한: linux.html 7장 / <code>wget</code>·패키지: linux.html 13장 / 컨테이너에 같은 설치를 Dockerfile로: 이 파일 13장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div><code>tar</code> 옵션·gzip: linux.html 8장 / <code>chown -R</code>·권한: linux.html 9장 / <code>wget</code>·패키지: linux.html 13장 / 컨테이너에 같은 설치를 Dockerfile로: 이 파일 13장</div></li></ul>
   
 
   </section>
@@ -1144,7 +1144,7 @@ spark-submit --version    <span class="c"># Spark·JDK 버전 출력 (두 서버
     <tr><td class="nowrap">에러 시</td><td><code>spark-class: 줄 71: …/bin/java: 그런 파일이나 디렉터리가 없습니다</code></td><td><code>JAVA_HOME</code> 경로 문제 → 7장 트러블슈팅</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">환경변수 확인 — <code>source ~/.bashrc</code> 후 <code>spark-submit --version</code>에서 Spark 3.5.9와 OpenJDK 17이 <b>둘 다</b> 나와야 완료. <code>PATH</code>는 기존 값 뒤에 덧붙이고, <code>JAVA_HOME</code>은 <code>find</code>로 확인한 실제 경로</div>
-    <ul class="facts"><li><strong>자세한 실습</strong><div><code>find</code> 옵션: linux.html 16장 / <code>vi</code> 편집 키: linux.html 5장 / 컨테이너 이미지에서는 <code>ENV</code>로 같은 값 지정: 이 파일 13장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div><code>find</code> 옵션: linux.html 16장 / <code>vi</code> 편집 키: linux.html 6장 / 컨테이너 이미지에서는 <code>ENV</code>로 같은 값 지정: 이 파일 13장</div></li></ul>
   
 
   </section>
@@ -1405,7 +1405,7 @@ free -h                               <span class="c"># 초기화 후 여유 메
     <tr><td class="nowrap">작업 후 복귀</td><td><code>su sparkuser</code>로 돌아가 <code>/opt/spark</code>에서 계속 작업</td><td>root 세션에 남아 있으면 이후 파일 소유자가 root로 바뀜</td></tr>
     </tbody></table></div>
 
-    <ul class="facts"><li><strong>기동·워커 상태</strong><div>ALIVE/DEAD·워커 증감: 이 파일 8장</div></li><li><strong>예제 프로그램</strong><div>WordCount·PySpark 집계와 코어 상한: pyspark.html 1장</div></li><li><strong>메모리 확인</strong><div><code>free -h</code>의 used·buff/cache 해석: linux.html 12장</div></li></ul>
+    <ul class="facts"><li><strong>기동·워커 상태</strong><div>ALIVE/DEAD·워커 증감: 이 파일 8장</div></li><li><strong>예제 프로그램</strong><div>WordCount·PySpark 집계와 코어 상한: pyspark.html 7장</div></li><li><strong>메모리 확인</strong><div><code>free -h</code>의 used·buff/cache 해석: linux.html 12장</div></li></ul>
   </section>
   <!-- 10 -->
   <section class="sec" id="spark-api-mysql">
@@ -1460,7 +1460,7 @@ use testdb;   <span class="c">-- 적재할 DB 선택 — 테이블은 DB 안에�
     <h3>적재 확인 — 건수와 접속 계정</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>확인 항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">계정·호스트</td><td>root로 <code>use mysql;</code> → <code>select * from user;</code>에서 계정과 접속 허용 호스트 확인</td><td>외부(웹·다른 서버)에서 접속하려면 사용자 호스트가 <code>%</code>인 계정 필요 (예: <code>hong</code>(<code>%</code>)) — 계정·권한: mysql.html 5장</td></tr>
+    <tr><td class="nowrap">계정·호스트</td><td>root로 <code>use mysql;</code> → <code>select * from user;</code>에서 계정과 접속 허용 호스트 확인</td><td>외부(웹·다른 서버)에서 접속하려면 사용자 호스트가 <code>%</code>인 계정 필요 (예: <code>hong</code>(<code>%</code>)) — 계정·권한: mysql.html 7장</td></tr>
     <tr><td class="nowrap">적재 확인</td><td><code>hong</code> 계정으로 접속해 <code>use testdb;</code> → <code>show tables;</code> → <code>select count(*) from DailyBoxOffice;</code></td><td>테이블명 <code>DailyBoxOffice</code>는 AI가 정한 이름이라 사람마다 다름 — 자기 SQL 파일에서 확인</td></tr>
     <tr><td class="nowrap">실행 결과</td><td><b>500건</b></td><td>작은 용량 — 빅데이터라 하려면 적어도 5만 건 필요</td></tr>
     </tbody></table></div>
@@ -1477,7 +1477,7 @@ show tables;                         <span class="c">-- 테이블 목록 — AI�
 select count(*) from DailyBoxOffice; <span class="c">-- 적재 건수 확인 → 500</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="dg-bar warn">적재 확인 — <code>select count(*) from DailyBoxOffice</code>로 건수(500건)를 보고 테이블명이 AI마다 다르다는 점을 기억. 5만 건은 되어야 빅데이터 실습 규모</div>
 
-    <ul class="facts"><li><strong>테이블 생성·AI 활용</strong><div>CREATE TABLE 문 만들기: mysql.html 3장</div></li><li><strong>계정·호스트 권한</strong><div><code>hong</code>@<code>%</code>·최소 권한: mysql.html 5장</div></li><li><strong>Spark에서 읽기</strong><div>이 테이블을 JDBC로 조회: 이 파일 11장</div></li><li><strong>API 창구로 노출</strong><div>수집·집계 결과를 FastAPI·uvicorn으로 외부에 내보내는 구성(포트 9999·경로 파라미터 접근 제어): fastapi.html 3~4장·9장</div></li><li><strong>같은 테이블을 API에서 조회·삭제</strong><div><code>DailyBoxOffice</code>를 <code>pymysql</code>로 연결해 SELECT·DELETE 라우트로 제공하는 절차: fastapi.html 14장</div></li></ul>
+    <ul class="facts"><li><strong>테이블 생성·AI 활용</strong><div>CREATE TABLE 문 만들기: mysql.html 3장</div></li><li><strong>계정·호스트 권한</strong><div><code>hong</code>@<code>%</code>·최소 권한: mysql.html 7장</div></li><li><strong>Spark에서 읽기</strong><div>이 테이블을 JDBC로 조회: 이 파일 11장</div></li><li><strong>API 창구로 노출</strong><div>수집·집계 결과를 FastAPI·uvicorn으로 외부에 내보내는 구성(포트 9999·경로 파라미터 접근 제어): fastapi.html 3~4장·9장</div></li><li><strong>같은 테이블을 API에서 조회·삭제</strong><div><code>DailyBoxOffice</code>를 <code>pymysql</code>로 연결해 SELECT·DELETE 라우트로 제공하는 절차: fastapi.html 14장</div></li></ul>
   </section>
   <!-- 11 -->
   <section class="sec" id="spark-jdbc">
@@ -1551,7 +1551,7 @@ mysql_df.show(5)                                           <span class="c"># 5�
     <h3>접속 정보 확인과 실행</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">접속 정보</td><td>외울 필요 없음 — DBeaver 연결 편집 화면에서 URL·포트·DB명을 보고 그대로 복사</td><td>연결 정보 확인: mysql.html 4장</td></tr>
+    <tr><td class="nowrap">접속 정보</td><td>외울 필요 없음 — DBeaver 연결 편집 화면에서 URL·포트·DB명을 보고 그대로 복사</td><td>연결 정보 확인: mysql.html 6장</td></tr>
     <tr><td class="nowrap">IP</td><td>실습은 <code>192.168.2.x</code> 대역 — 이 노트 클러스터는 <code>192.168.222.2</code>·<code>192.168.222.3</code> (3장)</td><td>남의 IP를 그대로 입력하면 접속이 막힘</td></tr>
     <tr><td class="nowrap">실행 위치</td><td><code>cd ~</code>로 홈 디렉터리로 이동한 뒤 <code>spark-submit</code></td><td>파일이 홈에 있으므로 경로를 맞춤</td></tr>
     <tr><td class="nowrap">실행 결과</td><td>5건 출력</td><td>로그는 Standalone → Warehouse → 파일 읽기 → DB 체크 → 블록 등록 순서로 진행</td></tr>
@@ -1563,7 +1563,7 @@ cd ~                         <span class="c"># 홈 디렉터리로 이동 — te
 spark-submit test_table.py   <span class="c"># JDBC 읽기 실행 — show(5) 결과가 터미널에 출력</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="dg-bar warn">JDBC 읽기 6옵션 — <code>format("jdbc")</code>에 <code>url</code>(<code>jdbc:mysql://IP:3306/DB명</code>)·<code>dbtable</code>·<code>user</code>·<code>password</code>·<code>driver</code>. url에 테이블명을 넣으면 실패하고, JAR가 없으면 드라이버 클래스에서 실패</div>
 
-    <ul class="facts"><li><strong>테이블·적재</strong><div>읽을 테이블을 만든 과정: 이 파일 10장</div></li><li><strong>세션 설정</strong><div><code>executor.memory</code>·<code>driver.memory</code>·<code>cores.max</code>: pyspark.html 7장</div></li><li><strong>DBeaver 연결</strong><div>호스트·포트·DB명 확인: mysql.html 4장</div></li><li><strong>pymysql 방식</strong><div>JDBC 대신 커넥터로 읽고 데이터 프레임으로 변환: pyspark.html 18~19장</div></li></ul>
+    <ul class="facts"><li><strong>테이블·적재</strong><div>읽을 테이블을 만든 과정: 이 파일 10장</div></li><li><strong>세션 설정</strong><div><code>executor.memory</code>·<code>driver.memory</code>·<code>cores.max</code>: pyspark.html 9장</div></li><li><strong>DBeaver 연결</strong><div>호스트·포트·DB명 확인: mysql.html 6장</div></li><li><strong>pymysql 방식</strong><div>JDBC 대신 커넥터로 읽고 데이터 프레임으로 변환: pyspark.html 20~21장</div></li></ul>
   </section>
   <!-- 12 -->
   <section class="sec" id="spark-movie-agg">
@@ -1584,7 +1584,7 @@ spark-submit test_table.py   <span class="c"># JDBC 읽기 실행 — show(5) �
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
     <tr><td class="nowrap">프롬프트</td><td><code>@movie.py MySQL 접속하여 테이블에 저장된 값을 이용하여 다음과 같이 분산 처리 코드를 작성해주세요. 1. ... 2. ...</code> + 테이블 구조는 <code>@cobis_박스오피스.sql</code> 파일 기준으로 지정</td><td>테이블 구조 파일을 함께 지정해야 컬럼명이 맞는 코드가 나옴</td></tr>
     <tr><td class="nowrap">AI가 비워 두는 값</td><td>호스트·계정 등을 비워 두는 경우가 있음 → DB IP, 포트 <code>3306</code>, DB명 <code>testdb</code>, 유저 <code>hong</code>, 패스워드, 앱 이름(박스오피스), 마스터 주소를 직접 채움</td><td>빈칸을 그대로 두면 접속 단계에서 실패 — 11장 코드의 옵션 값과 같은 형식</td></tr>
-    <tr><td class="nowrap">자원 설정</td><td>앞서 쓴 config(executor 메모리·코어·driver 메모리)를 그대로 붙임</td><td>새로 계산하지 않고 검증된 값 재사용 (pyspark.html 7장)</td></tr>
+    <tr><td class="nowrap">자원 설정</td><td>앞서 쓴 config(executor 메모리·코어·driver 메모리)를 그대로 붙임</td><td>새로 계산하지 않고 검증된 값 재사용 (pyspark.html 9장)</td></tr>
     <tr><td class="nowrap">실행</td><td><code>spark-submit movie.py</code></td><td>결과는 두 집계의 출력으로 확인</td></tr>
     </tbody></table></div>
 
@@ -1626,16 +1626,16 @@ spark-submit test_table.py   <span class="c"># JDBC 읽기 실행 — show(5) �
     </tbody></table></div>
     <div class="dg-bar warn">JAR 두 방법 — <code>spark.jars</code>(절대 경로) 또는 <code>spark.jars.packages</code>(Maven 좌표). 이미 <code>/opt/spark/jars</code>에 있으면 아무 설정도 필요 없고, 응용 과제는 <b>새 테이블</b>을 만들어 진행</div>
 
-    <ul class="facts"><li><strong>테이블 적재</strong><div>박스오피스 데이터를 넣은 과정: 이 파일 10장</div></li><li><strong>JDBC 옵션</strong><div><code>format("jdbc")</code>·<code>url</code>·<code>dbtable</code>: 이 파일 11장</div></li><li><strong>에러 전달</strong><div>에러 줄·문구를 AI에 넘기는 방식: pyspark.html 8장</div></li></ul>
+    <ul class="facts"><li><strong>테이블 적재</strong><div>박스오피스 데이터를 넣은 과정: 이 파일 10장</div></li><li><strong>JDBC 옵션</strong><div><code>format("jdbc")</code>·<code>url</code>·<code>dbtable</code>: 이 파일 11장</div></li><li><strong>에러 전달</strong><div>에러 줄·문구를 AI에 넘기는 방식: pyspark.html 10장</div></li></ul>
   </section>
   <!-- 13 -->
   <section class="sec" id="spark-image">
-    <h2>Spark 3.5.3 이미지: Dockerfile 작성·빌드·검증</h2>
+    <h2>[컨테이너] Spark 3.5.3 이미지: Dockerfile 작성·빌드·검증</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — Spark를 이미지에 미리 설치</p><div class="dg-flow"><div class="dg-node"><h4>① 기존 파일 백업</h4><p class="sub">mv Dockerfile Dockerfile_backup</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 베이스 점검</h4><p class="sub">java -version → 없음이 정상</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ Dockerfile</h4><p class="sub">Java 17 · Spark 3.5.3</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 빌드</h4><p class="sub">docker build -t spark-rocky9:3.5.3 .</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>⑤ 검증</h4><p class="sub">java -version · python3 --version</p></div></div></div>
 
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>선행 작업</strong></td><td>마스터·워커·Jupyter가 이름으로 통신할 사용자 정의 네트워크 <code>spark-net</code>을 먼저 생성 → 자세한 실습: docker.html 9장</td></tr>
+    <tr><td><strong>선행 작업</strong></td><td>마스터·워커·Jupyter가 이름으로 통신할 사용자 정의 네트워크 <code>spark-net</code>을 먼저 생성 → 자세한 실습: docker.html 7장</td></tr>
     <tr><td><strong>구축 순서</strong></td><td><ul><li>① 전용 네트워크 생성 → ② Dockerfile 작성·이미지 빌드·검증 → ③ 마스터 컨테이너 기동·확인 → ④ 워커 2개 추가</li><li>컨테이너 3개 구성(마스터 1 + 워커 2), 마스터를 먼저 올려야 워커를 붙일 수 있음</li></ul></td></tr>
     <tr><td><strong>실습 환경</strong></td><td><ul><li>Rocky 9 VM 호스트 전용 IP <code>192.168.222.5</code>, PuTTY 접속, 작업 경로 <code>/root/docker</code></li><li>강사 빌드 베이스 <code>mzleejh/apink_rocky:9</code>, 수강생은 각자 만든 Rocky 9 이미지 사용</li></ul></td></tr>
     <tr><td><strong>기존 파일</strong></td><td>이전 용도의 Dockerfile → <code>Dockerfile_backup</code>으로 이름 변경 후 새 <code>Dockerfile</code> 작성. 기본 파일명 오타는 빌드를 막음</td></tr>
@@ -1734,7 +1734,7 @@ docker start spark-master                            <span class="c"># 시작 �
     <div class="dg-bar warn">마스터 기동 — <code>docker run</code> 옵션 → 이미지 → 실행 명령 순서. <code>--ip</code>는 deprecated라 <code>--host spark-master</code>, 주소는 <code>spark://spark-master:7077</code>. 정상 = UI에서 Status ALIVE, 버전 3.5.3</div>
 
     <h3>볼륨 연결(-v)을 넣어 클러스터 다시 만들기</h3>
-    <ul class="facts"><li><strong>상황</strong><div>csv를 마스터에서 처리해야 하는데 호스트에는 <code>/opt/spark</code>가 없음 — 마스터 컨테이너 안에만 존재. 로컬에 올린 파일이 마스터로 자동 전달되고 마스터 작업물을 로컬에서 바로 가져오게 하려면 호스트 폴더와 컨테이너 폴더를 <code>-v</code>로 연결(bind mount)</div></li><li><strong>제약</strong><div>볼륨은 생성 시점에만 붙음 → 마스터·워커1·워커2 정지·삭제 후 재생성. <code>docker run</code> 명령을 적어 둔 메모장은 재생성 때 그대로 붙여 넣는 원본이라 지우지 않음</div></li><li><strong>원리·규칙</strong><div>bind mount의 정체, 바인드·이름 볼륨·<code>:ro</code> 구분, <code>-v</code> 위치 규칙(이미지 이름 앞): docker.html 10장</div></li></ul>
+    <ul class="facts"><li><strong>상황</strong><div>csv를 마스터에서 처리해야 하는데 호스트에는 <code>/opt/spark</code>가 없음 — 마스터 컨테이너 안에만 존재. 로컬에 올린 파일이 마스터로 자동 전달되고 마스터 작업물을 로컬에서 바로 가져오게 하려면 호스트 폴더와 컨테이너 폴더를 <code>-v</code>로 연결(bind mount)</div></li><li><strong>제약</strong><div>볼륨은 생성 시점에만 붙음 → 마스터·워커1·워커2 정지·삭제 후 재생성. <code>docker run</code> 명령을 적어 둔 메모장은 재생성 때 그대로 붙여 넣는 원본이라 지우지 않음</div></li><li><strong>원리·규칙</strong><div>bind mount의 정체, 바인드·이름 볼륨·<code>:ro</code> 구분, <code>-v</code> 위치 규칙(이미지 이름 앞): docker.html 8장</div></li></ul>
     <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># 호스트 볼륨 폴더 생성 — root 기준 절대 경로 (일반 사용자 홈 안이 아님)</span>
 mkdir /home/spark-data
@@ -1747,7 +1747,7 @@ docker rm spark-worker2
 docker ps</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># -v 호스트경로:컨테이너경로 — 콜론이 두 경로의 구분자, 이미지 이름 바로 앞에 두면 눈에 잘 띔</span>
-<span class="c"># 이번 run에는 -p 8888을 넣지 않음 — 주피터 포트는 16장에서 hostconfig.json으로 추가</span>
+<span class="c"># 이번 run에는 -p 8888을 넣지 않음 — 주피터 포트는 17장에서 hostconfig.json으로 추가</span>
 <span class="c"># --host spark-master: 이름 DNS로 찾을 주소 (메모장 원문은 --ip이며 Spark가 deprecated로 표시)</span>
 docker run -d --name spark-master --hostname spark-master --network spark-net \
     -p 8080:8080 -p 7077:7077 \
@@ -1782,15 +1782,82 @@ docker exec -it spark-master ls -al /opt/spark/data    <span class="c"># 컨테�
     <tr><td class="nowrap">컨테이너 → 호스트</td><td>컨테이너 <code>/opt/spark/data</code>에 만든 파일이 호스트 <code>/home/spark-data</code>에 그대로 존재</td><td>두 경로가 같은 폴더를 가리킴</td></tr>
     <tr><td class="nowrap">호스트 → 컨테이너</td><td>호스트에서 지운 파일이 컨테이너 안에서도 사라짐</td><td>복사본이 아니라 하나의 폴더 — 양방향 반영</td></tr>
     <tr><td class="nowrap">워커 검증</td><td><code>docker exec -it spark-worker1 /bin/bash</code> → <code>cd /opt/spark/data</code> → <code>vi 123.txt</code> 저장 → 호스트 <code>ls -l</code>로 반영 확인 후 삭제</td><td>워커도 같은 호스트 폴더를 같은 경로에 연결했기 때문</td></tr>
-    <tr><td class="nowrap">워커 환경</td><td><code>SPARK_WORKER_CORES=1</code>, <code>SPARK_WORKER_MEMORY=2G</code></td><td>워커가 쓸 코어·메모리 상한 (pyspark.html 6장)</td></tr>
+    <tr><td class="nowrap">워커 환경</td><td><code>SPARK_WORKER_CORES=1</code>, <code>SPARK_WORKER_MEMORY=2G</code></td><td>워커가 쓸 코어·메모리 상한 (pyspark.html 8장)</td></tr>
     <tr><td class="nowrap">활용 사례</td><td>볼륨 폴더를 실시간으로 감시해 위험한 파일을 강제 삭제</td><td>csv에 심은 악성코드가 서버에서 실행되면 서버 정보가 외부로 유출 → 업로드 자체를 차단. 막은 사유는 파일에 악성코드가 있다는 설명으로 충분</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">볼륨 연결 — <code>-v 호스트경로:컨테이너경로</code>의 콜론이 구분자이고 옵션은 이미지 이름 <b>앞</b>에 둠. 볼륨은 생성 시점에만 붙으므로 빠뜨렸으면 정지·삭제 후 재생성. <code>-v</code>가 없으면 아키텍처의 공유 볼륨 요구가 충족되지 않아 재구축으로 이어짐</div>
 
-    <ul class="facts"><li><strong>원리·포트 추가</strong><div>바인드 마운트의 정체, hostconfig.json, 서비스와 소켓의 차이: docker.html 10장</div></li><li><strong>다음 단계</strong><div>이 클러스터에서 셸 실행·주피터 연동: 이 파일 15~16장</div></li><li><strong>이미지</strong><div>Dockerfile·빌드·검증: 이 파일 13장</div></li></ul>
+    <ul class="facts"><li><strong>원리·포트 추가</strong><div>바인드 마운트의 정체, hostconfig.json, 서비스와 소켓의 차이: docker.html 8장</div></li><li><strong>다음 단계</strong><div>이 클러스터에서 셸 실행·주피터 연동: 이 파일 16~17장</div></li><li><strong>이미지</strong><div>Dockerfile·빌드·검증: 이 파일 13장</div></li></ul>
 
   </section>
   <!-- 15 -->
+  <section class="sec" id="spark-api-port">
+    <h2>실행 중인 컨테이너에 API 포트 추가</h2>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 만든 뒤에는 못 바꾸는 포트를 설정 파일로 추가</p><div class="dg-flow"><div class="dg-node"><h4>① 전부 정지</h4><p class="sub">컨테이너 3개 · docker</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② ID 폴더</h4><p class="sub">/var/lib/docker/containers</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ PortBindings</h4><p class="sub">11111/tcp 추가</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 재기동</h4><p class="sub">마스터 먼저</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 5개 포트</h4><p class="sub">0.0.0.0:11111-&gt;11111/tcp</p></div></div><p class="dg-foot">컨테이너를 다시 만들지 않고 <code>hostconfig.json</code> 을 직접 고쳐 포트를 하나 더 여는 절차 — Docker 데몬이 멈춰 있을 때만 수정이 반영됨</p></div>
+
+    <h3>필요한 포트와 위치</h3>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">이미 연 포트</td><td>마스터 생성 시 <code>7077</code>(마스터 통신)·<code>8080</code>(마스터 UI)·<code>8888</code>(주피터) 등</td><td>API 를 올릴 포트는 없음 — 그래서 추가가 필요(14장)</td></tr>
+    <tr><td class="nowrap">API 포트</td><td><code>11111</code></td><td>이 번호로 <code>hostconfig.json</code> 에 블록을 하나 더 넣음</td></tr>
+    <tr><td class="nowrap">API 위치</td><td>마스터 컨테이너에만 올림</td><td>워커에는 올리지 않음 — DB 연결·API 응답은 마스터의 파이썬이 담당</td></tr>
+    <tr><td class="nowrap">다른 환경</td><td>Kubernetes 는 포트를 여는 방식이 달라 이 방법을 쓰지 않음</td><td>컨테이너 정의를 파일로 직접 고치는 방식은 Docker 단독 환경의 수단</td></tr>
+    <tr><td class="nowrap">원리</td><td>컨테이너 정의는 <code>/var/lib/docker/containers/&lt;컨테이너ID&gt;/hostconfig.json</code> 에 저장</td><td>서비스·소켓의 관계와 백업 절차: docker.html 8장, 8888 때의 같은 절차: 이 파일 17장</td></tr>
+    </tbody></table></div>
+
+    <h3>컨테이너 정지와 설정 폴더 진입</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+docker stop mariadb11                <span class="c"># DB → 워커 → 마스터 순서로 정지</span>
+docker stop spark-worker1
+docker stop spark-master
+systemctl stop docker                <span class="c"># Docker 서비스 정지 — 데몬이 멈춰야 파일 수정이 반영</span>
+docker ps -a                         <span class="c"># 마스터 컨테이너 ID 확인 (이 명령을 치면 Docker 가 다시 켜짐)</span>
+cd /var/lib/docker/containers        <span class="c"># 컨테이너별 설정 폴더</span>
+ls -a                                <span class="c"># 컨테이너 ID 이름의 폴더 목록</span>
+cd f0f24                             <span class="c"># 마스터 ID 앞자리 + Tab 자동완성 (이 환경 ID 는 f0f24…)</span>
+ls -a                                <span class="c"># hostconfig.json 확인</span>
+vi hostconfig.json                   <span class="c"># 내용 확인용 — 수정은 메모장에서</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts"><li><strong>소켓 재활성화</strong><div><code>docker.service</code>는 <code>docker.socket</code>에 의해 다시 활성화될 수 있음 → <code>docker ps</code>를 치는 순간 Docker가 다시 작동하며 수정이 원복 → 다시 정지해 <b>완전히 정지된 상태</b>에서 수정 (서비스·소켓 관계표: docker.html 8장)</div></li><li><strong>ID 확인</strong><div>정지 상태라 <code>docker ps -a</code>로 마스터 ID를 먼저 확인 — 폴더 이름이 컨테이너 ID. ID 전체를 외우지 않고 앞자리 몇 글자 + <code>Tab</code> (환경마다 달라 화면의 <code>f0f24…</code>는 예시)</div></li></ul>
+
+    <h3>PortBindings 에 11111 블록 추가</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · /var/lib/docker/containers/&lt;마스터 ID&gt;/hostconfig.json 파일 안 · root]</span>
+<span class="c"># 파일 전체가 이름:값 쌍을 중괄호로 감싼 JSON 객체 — PortBindings 안에 포트마다 "포트/tcp" 블록이 들어 있음</span>
+<span class="c"># 7077 블록을 쉼표까지 복사해 앞에 하나 더 넣고 포트 값만 11111 로 변경</span>
+<span class="c"># 쉼표·따옴표·중괄호 하나만 틀려도 컨테이너가 아예 뜨지 않음</span>
+"PortBindings":{"11111/tcp":[{"HostIp":"","HostPort":"11111"}],"7077/tcp":[{"HostIp":"","HostPort":"7077"}],"8080/tcp":[{"HostIp":"","HostPort":"8080"}],"8888/tcp":[{"HostIp":"","HostPort":"8888"}]}</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <ul class="facts"><li><strong>편집 절차</strong><div>[호스트 리눅스 · vi] 내용 전체 복사 후 <code>:q!</code>로 저장 없이 나옴 → [윈도우 · 메모장] <code>PortBindings</code> 맨 앞에 11111 블록 추가(원본은 다른 이름으로 백업) → [호스트 리눅스 · vi] 기존 내용 전부 삭제 → <code>i</code> → <code>Shift+Insert</code> → <code>Esc</code> → <code>:wq</code>. 남은 글자가 있으면 JSON 문법 오류로 컨테이너 미기동, vi에서 마우스 오른쪽 클릭 붙여넣기는 원치 않는 위치에 붙어 파일이 깨질 수 있음</div></li><li><strong>원리·백업</strong><div>hostconfig.json 구조(<code>Binds</code>·<code>PortBindings</code>)·한 글자 오타 위험: docker.html 8장</div></li></ul>
+
+    <h3>재기동과 포트 확인</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+docker ps                      <span class="c"># Docker 소켓을 다시 열어 서비스 기동</span>
+docker start spark-master      <span class="c"># 마스터 먼저 — 바꾼 포트부터 확인</span>
+docker ps                      <span class="c"># PORTS 에 0.0.0.0:11111-&gt;11111/tcp 확인</span>
+docker start spark-worker1
+docker start mariadb11
+docker ps                      <span class="c"># 3개 컨테이너가 모두 Up 인지 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">정상 결과</td><td>마스터 PORTS 에 <code>7077</code>·<code>8080</code>·<code>8888</code>·<code>11111</code> 등 5개 포트 표시</td><td><code>0.0.0.0:11111-&gt;11111/tcp</code> 한 줄이 보이면 성공</td></tr>
+    <tr><td class="nowrap">11111 이 안 보이면</td><td>Docker 전체 정지 → <code>hostconfig.json</code> 에 다시 추가 → 같은 순서로 재기동</td><td>파일이 원복됐거나 블록 위치가 틀린 경우</td></tr>
+    <tr><td class="nowrap">확인 순서</td><td>마스터를 먼저 올려 포트를 확인한 뒤 워커·DB</td><td>전체를 올린 뒤 찾으면 어느 단계에서 틀렸는지 알 수 없음</td></tr>
+    <tr><td class="nowrap">UI 확인</td><td>8080 마스터 UI 새로고침 → 워커까지 모두 Alive</td><td>포트를 고친 뒤에도 클러스터가 정상인지 함께 확인</td></tr>
+    </tbody></table></div>
+    <div class="dg-bar warn">포트 추가 — 컨테이너 정지 → <code>docker</code>·<code>docker.socket</code> 까지 정지 → <code>PortBindings</code> 에 새 블록 → <code>docker ps</code> 로 소켓 재연결 → <code>start</code>. 소켓을 살려 두면 수정이 원복되고, JSON 한 글자 오타는 컨테이너 미기동으로 이어짐</div>
+
+    <h3>터미널·주피터 준비</h3>
+    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
+docker exec -it spark-master bash   <span class="c"># 마스터 컨테이너 진입 — API 코드를 올릴 곳</span>
+<span class="c"># [spark-master 컨테이너 · root]</span>
+pyspark                             <span class="c"># 주피터 기동 — 이 창은 이후 입력 불가, PuTTY 를 하나 더 열어 사용</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
+    <div class="table-wrap"><table>
+    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
+    <tr><td class="nowrap">PuTTY 2개</td><td>하나는 주피터·PySpark 전용, 다른 하나는 파일·API 실행용</td><td>주피터를 띄운 창은 다른 명령을 받지 않음(17장)</td></tr>
+    <tr><td class="nowrap">확인</td><td>마스터 UI(8080) 새로고침 → 워커까지 모두 Alive, 주피터(8888)도 새로고침해 정상 동작</td><td>포트를 고친 뒤 클러스터 전체 상태를 한 번에 확인</td></tr>
+    </tbody></table></div>
+
+    <ul class="facts"><li><strong>포트 추가 원리</strong><div>hostconfig.json·서비스와 소켓·백업: docker.html 8장</div></li><li><strong>8888 때의 절차</strong><div>같은 방법으로 주피터 포트를 연 기록: 이 파일 17장</div></li><li><strong>클러스터 포트</strong><div>7077·8080·8888 의 역할: 이 파일 2장</div></li><li><strong>다음 단계</strong><div>연 포트로 API 실행(<code>--port 11111</code>): fastapi.html 15장</div></li></ul>
+  </section>
+  <!-- 16 -->
   <section class="sec" id="spark-shell">
     <h2>Spark 셸 실행과 앱 상태</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — 셸을 띄우면 마스터 UI에 앱이 대기 상태로 뜸</p><div class="dg-flow"><div class="dg-node"><h4>① pyspark 실행</h4><p class="sub">spark://…:7077</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② 셸 프롬프트</h4><p class="sub">&gt;&gt;&gt; · 라이선스 문구</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ jps</h4><p class="sub">Master 프로세스 확인</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ exit</h4><p class="sub">앱 종료·UI에서 사라짐</p></div></div><p class="dg-foot">셸이 떠 있는 동안 = 마스터 UI의 Running Applications에 앱이 표시되는 <b>대기 상태</b>. 셸을 나가면 앱도 끝나 목록에서 사라짐 — 누가 앱을 띄웠는지 보는 것이 관제의 기본</p></div>
@@ -1801,7 +1868,7 @@ docker exec -it spark-master ls -al /opt/spark/data    <span class="c"># 컨테�
     <tr><td class="nowrap">서버</td><td>Rocky Linux 9 VM(VirtualBox), PuTTY로 서버 IP·22번 포트 접속</td></tr>
     <tr><td class="nowrap">컨테이너</td><td><code>spark-master</code>·<code>spark-worker1</code>·<code>spark-worker2</code> (Docker 네트워크 <code>spark-net</code>)</td></tr>
     <tr><td class="nowrap">이미지</td><td><code>spark-rocky9:3.5.3</code> — Spark 3.5.3, 컨테이너 안 Python 3.9.25 (13장)</td></tr>
-    <tr><td class="nowrap">포트</td><td>마스터 UI 8080 · 마스터 통신 7077 · 워커 UI 8081(워커1)·8082(워커2) · 주피터 8888(16장에서 추가)</td></tr>
+    <tr><td class="nowrap">포트</td><td>마스터 UI 8080 · 마스터 통신 7077 · 워커 UI 8081(워커1)·8082(워커2) · 주피터 8888(17장에서 추가)</td></tr>
     <tr><td class="nowrap">호스트 폴더</td><td><code>/home/spark-data</code> ↔ 컨테이너 <code>/opt/spark/data</code> (14장)</td></tr>
     <tr><td class="nowrap">윈도우 PC</td><td>VS Code 작업 경로 <code>D:\py</code>, 브라우저, 메모장(긴 <code>docker run</code> 명령 백업용)</td></tr>
     </tbody></table></div>
@@ -1828,16 +1895,16 @@ jps                                                   <span class="c"># 자바 �
     <tr><td class="nowrap">셸에 코드 입력 전</td><td>앱은 계속 표시, 워커는 움직이지 않음</td><td>세션만 만든 상태라 자원을 쓰는 연산은 없음</td></tr>
     <tr><td class="nowrap"><code>exit</code>로 셸 종료</td><td>앱이 사라짐</td><td>셸이 곧 드라이버 프로세스 — 셸을 나가면 앱도 끝남</td></tr>
     <tr><td class="nowrap">UI에 앱이 보일 때</td><td>누군가 테스트 중이라고 판단</td><td>관제 관점 — 남의 작업을 끊거나 자원을 빼앗지 않도록 확인하는 습관</td></tr>
-    <tr><td class="nowrap">이 방식의 위치</td><td>Spark를 설치만 하고 쓰는 방식</td><td>실무에서는 쓰지 않음 — 코드를 파일로 만들어 제출하는 방식(pyspark.html 10장)이 기본</td></tr>
+    <tr><td class="nowrap">이 방식의 위치</td><td>Spark를 설치만 하고 쓰는 방식</td><td>실무에서는 쓰지 않음 — 코드를 파일로 만들어 제출하는 방식(pyspark.html 13장)이 기본</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">셸과 앱은 함께 살고 함께 죽음 — <code>pyspark</code> 셸이 떠 있으면 8080 UI에 앱이 Running으로 보이고, <code>exit</code>하면 사라짐. UI의 앱 = 누군가 대화형 세션을 열어 둔 상태라는 신호</div>
 
-    <ul class="facts"><li><strong>클러스터 기동</strong><div>마스터·워커 컨테이너와 볼륨 연결: 이 파일 14장</div></li><li><strong>이미지</strong><div>Spark 3.5.3 Dockerfile·빌드: 이 파일 13장</div></li><li><strong>파일 제출</strong><div><code>spark-submit</code>으로 코드 실행: pyspark.html 10장</div></li><li><strong>대화형 노트북</strong><div>pyspark를 주피터로 띄우기: 이 파일 16장</div></li></ul>
+    <ul class="facts"><li><strong>클러스터 기동</strong><div>마스터·워커 컨테이너와 볼륨 연결: 이 파일 14장</div></li><li><strong>이미지</strong><div>Spark 3.5.3 Dockerfile·빌드: 이 파일 13장</div></li><li><strong>파일 제출</strong><div><code>spark-submit</code>으로 코드 실행: pyspark.html 13장</div></li><li><strong>대화형 노트북</strong><div>pyspark를 주피터로 띄우기: 이 파일 17장</div></li></ul>
   </section>
-  <!-- 16 -->
+  <!-- 17 -->
   <section class="sec" id="spark-jupyter-container">
     <h2>컨테이너에 주피터 설치와 PySpark 연동</h2>
-    <div class="dg"><p class="dg-title">한눈에 보기 — 설치 → 환경변수 3줄 → pyspark가 주피터로</p><div class="dg-flow"><div class="dg-node"><h4>① 포트 확인</h4><p class="sub">8888 게시</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② notebook 설치</h4><p class="sub">pip3 install notebook</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ .bashrc 3줄</h4><p class="sub">PYSPARK_* 설정</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ pyspark</h4><p class="sub">셸 대신 주피터 서버</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 토큰 로그인</h4><p class="sub">서버IP:8888</p></div></div><p class="dg-foot">주피터는 열려 있는 포트에만 접속되므로 <b>8888 게시가 먼저</b> — 포트가 없으면 컨테이너를 다시 만들지 않고 설정 파일로 추가(14장·docker.html 10장)</p></div>
+    <div class="dg"><p class="dg-title">한눈에 보기 — 설치 → 환경변수 3줄 → pyspark가 주피터로</p><div class="dg-flow"><div class="dg-node"><h4>① 포트 확인</h4><p class="sub">8888 게시</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② notebook 설치</h4><p class="sub">pip3 install notebook</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ .bashrc 3줄</h4><p class="sub">PYSPARK_* 설정</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ pyspark</h4><p class="sub">셸 대신 주피터 서버</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 토큰 로그인</h4><p class="sub">서버IP:8888</p></div></div><p class="dg-foot">주피터는 열려 있는 포트에만 접속되므로 <b>8888 게시가 먼저</b> — 포트가 없으면 컨테이너를 다시 만들지 않고 설정 파일로 추가(14장·docker.html 8장)</p></div>
 
     <h3>8888 포트 열기</h3>
     <div class="table-wrap"><table>
@@ -1847,7 +1914,7 @@ jps                                                   <span class="c"># 자바 �
     <tr><td class="nowrap">3</td><td><code>systemctl stop docker docker.socket</code> → 붙여넣기 → <code>docker ps</code> → <code>docker start</code></td><td>소켓을 살려 두면 수정이 원복됨</td></tr>
     <tr><td class="nowrap">4</td><td><code>0.0.0.0:8888-&gt;8888/tcp</code> 표시 확인</td><td>다른 포트(예: 8889)를 깜빡 빠뜨렸을 때도 같은 방법</td></tr>
     </tbody></table></div>
-    <ul class="facts"><li><strong>자세한 절차</strong><div>hostconfig.json 수정·소켓 정지·서비스와 소켓의 차이: docker.html 10장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 절차</strong><div>hostconfig.json 수정·소켓 정지·서비스와 소켓의 차이: docker.html 8장</div></li></ul>
 
     <h3>notebook 설치</h3>
     <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
@@ -1915,9 +1982,9 @@ pyspark
     </tbody></table></div>
     <div class="dg-bar warn">주피터 접속 3요소 — ① 8888 포트가 <code>docker ps</code>에 게시되어 있을 것 ② <code>?token=</code> 값으로 로그인 ③ 주피터 터미널에서 <code>Ctrl+C</code> 금지. 토큰은 재기동마다 바뀌고, 랩은 컨테이너 전체 디렉터리가 보이므로 작업 위치를 정해 둠</div>
 
-    <ul class="facts"><li><strong>포트 추가</strong><div>hostconfig.json·소켓 정지·서비스와 소켓: docker.html 10장</div></li><li><strong>API 포트</strong><div>같은 방법으로 11111 을 여는 실습: 이 파일 19장</div></li><li><strong>다른 설치 방식</strong><div>서버 2대에 직접 설치한 환경의 <code>PYSPARK_*</code>·JupyterLab(옵션 <code>lab</code>): pyspark.html 4장</div></li><li><strong>화면·커널</strong><div>노트북 저장·<code>.ipynb</code>→<code>.py</code>·커널 정리: pyspark.html 5장</div></li><li><strong>셸 모드 전환</strong><div>주피터를 내리지 않고 셸로 돌아가기: pyspark.html 9장</div></li></ul>
+    <ul class="facts"><li><strong>포트 추가</strong><div>hostconfig.json·소켓 정지·서비스와 소켓: docker.html 8장</div></li><li><strong>API 포트</strong><div>같은 방법으로 11111 을 여는 실습: 이 파일 15장</div></li><li><strong>다른 설치 방식</strong><div>서버 2대에 직접 설치한 환경의 <code>PYSPARK_*</code>·JupyterLab(옵션 <code>lab</code>): pyspark.html 4장</div></li><li><strong>화면·커널</strong><div>노트북 저장·<code>.ipynb</code>→<code>.py</code>·커널 정리: pyspark.html 5장</div></li><li><strong>셸 모드 전환</strong><div>주피터를 내리지 않고 셸로 돌아가기: pyspark.html 12장</div></li></ul>
   </section>
-  <!-- 17 -->
+  <!-- 18 -->
   <section class="sec" id="spark-ghost">
     <h2>고스트 세션 — Running Application이 남는 현상</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — 끝났는데 살아 있는 앱이 코어를 잡고 있다</p><div class="dg-flow"><div class="dg-node"><h4>① globals 제거</h4><p class="sub">주석 처리</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② Running 유지</h4><p class="sub">코어 점유</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ 무응답</h4><p class="sub">출력만 됨</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ kill 후 복구</h4><p class="sub">정상 생성</p></div></div><p class="dg-foot">종료되지 않은 세션이 워커의 코어·CPU·메모리를 계속 잡고 있는 상태 = 고스트 세션. kill(강제 정지)로만 정리되고, <code>spark.stop()</code>을 위·아래 모두 걸어야 생기지 않음</p></div>
@@ -1982,13 +2049,13 @@ if 'spark' in globals():      <span class="c"># 커널이 spark를 계속 잡고
     <tr><td class="nowrap">Completed Applications</td><td>앱 이름, 실행 사용자(<code>root</code>), 사용 메모리, 시작 시각</td><td>항목을 클릭해 상세 확인</td></tr>
     <tr><td class="nowrap">Executors 탭</td><td>로그, 사용 코어 수, 메모리 사용</td><td>워커별 할당 확인</td></tr>
     <tr><td class="nowrap">Running Applications</td><td>남아 있는 앱 = 고스트 후보</td><td>오른쪽 <code>(kill)</code> 링크로 정지</td></tr>
-    <tr><td class="nowrap">시각</td><td>처리 시각이 무조건 안 맞아 보임</td><td>컨테이너 시간대 문제 — 이 파일 18장</td></tr>
+    <tr><td class="nowrap">시각</td><td>처리 시각이 무조건 안 맞아 보임</td><td>컨테이너 시간대 문제 — 이 파일 19장</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">고스트 세션 — globals 체크를 빼면 출력은 그대로인데 Running Application이 남아 코어·메모리를 계속 점유. kill로만 정리되고, stop은 위(시작 전)·아래(작업 끝) 둘 다 걸어야 함. "코어가 없다" 에러의 흔한 원인</div>
 
-    <ul class="facts"><li><strong>템플릿</strong><div>globals 체크·builder 전체 코드: pyspark.html 14장</div></li><li><strong>커널 정리</strong><div>Restart Kernel·Shut Down Kernel·<code>(kill)</code>: pyspark.html 5장</div></li><li><strong>자원 한계 실험</strong><div>코어를 점유해 <code>WAITING</code>이 되는 사례: pyspark.html 6장</div></li></ul>
+    <ul class="facts"><li><strong>템플릿</strong><div>globals 체크·builder 전체 코드: pyspark.html 16장</div></li><li><strong>커널 정리</strong><div>Restart Kernel·Shut Down Kernel·<code>(kill)</code>: pyspark.html 5장</div></li><li><strong>자원 한계 실험</strong><div>코어를 점유해 <code>WAITING</code>이 되는 사례: pyspark.html 8장</div></li></ul>
   </section>
-  <!-- 18 -->
+  <!-- 19 -->
   <section class="sec" id="spark-time-sync">
     <h2>컨테이너 시간대·시계 동기화</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — UTC로 뜬 시계를 서울로 맞추는 순서</p><div class="dg-flow"><div class="dg-node"><h4>① date</h4><p class="sub">UTC 확인</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② hwclock 실패</h4><p class="sub">클럭 접근 불가</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ chrony</h4><p class="sub">NTP 서버 지정</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>④ systemctl 불가</h4><p class="sub">PID 1·권한</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ localtime 링크</h4><p class="sub">KST 전환</p></div></div><p class="dg-foot">Spark 웹의 처리 시각이 안 맞아 시작된 실습 — 컨테이너는 호스트 시계를 공유하고 시간대만 이미지 기본값(UTC)으로 보이는 상태. chrony로는 권한이 없어 실패하고, 마지막에 <code>/etc/localtime</code> 링크로 해결</p></div>
@@ -2114,74 +2181,7 @@ ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime</code></pre><button class="
     </tbody></table></div>
     <div class="dg-bar warn">컨테이너 시간 — 생성 후 <code>date</code> 확인이 먼저. 시계는 호스트 것을 쓰고 시간대만 UTC로 보이는 상태라 systemd·<code>CAP_SYS_TIME</code>이 없으면 chrony로 못 바꾸고, <code>/etc/localtime</code> 심볼릭 링크로 서울로 바꾼 뒤 주피터를 재시작. 마스터·워커 둘 다 적용</div>
 
-    <ul class="facts"><li><strong>이미지·Dockerfile</strong><div>Spark 이미지와 <code>CMD</code>·systemd: 이 파일 13장</div></li><li><strong>컨테이너 운영</strong><div>systemd와 PID 1, 서비스·소켓: docker.html 3장·10장</div></li><li><strong>시간대 설정 이론</strong><div>컨테이너 시계와 타임존: docker.html 5장</div></li></ul>
-  </section>
-  <!-- 19 -->
-  <section class="sec" id="spark-api-port">
-    <h2>실행 중인 컨테이너에 API 포트 추가</h2>
-    <div class="dg"><p class="dg-title">한눈에 보기 — 만든 뒤에는 못 바꾸는 포트를 설정 파일로 추가</p><div class="dg-flow"><div class="dg-node"><h4>① 전부 정지</h4><p class="sub">컨테이너 3개 · docker</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② ID 폴더</h4><p class="sub">/var/lib/docker/containers</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ PortBindings</h4><p class="sub">11111/tcp 추가</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 재기동</h4><p class="sub">마스터 먼저</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 5개 포트</h4><p class="sub">0.0.0.0:11111-&gt;11111/tcp</p></div></div><p class="dg-foot">컨테이너를 다시 만들지 않고 <code>hostconfig.json</code> 을 직접 고쳐 포트를 하나 더 여는 절차 — Docker 데몬이 멈춰 있을 때만 수정이 반영됨</p></div>
-
-    <h3>필요한 포트와 위치</h3>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">이미 연 포트</td><td>마스터 생성 시 <code>7077</code>(마스터 통신)·<code>8080</code>(마스터 UI)·<code>8888</code>(주피터) 등</td><td>API 를 올릴 포트는 없음 — 그래서 추가가 필요(14장)</td></tr>
-    <tr><td class="nowrap">API 포트</td><td><code>11111</code></td><td>이 번호로 <code>hostconfig.json</code> 에 블록을 하나 더 넣음</td></tr>
-    <tr><td class="nowrap">API 위치</td><td>마스터 컨테이너에만 올림</td><td>워커에는 올리지 않음 — DB 연결·API 응답은 마스터의 파이썬이 담당</td></tr>
-    <tr><td class="nowrap">다른 환경</td><td>Kubernetes 는 포트를 여는 방식이 달라 이 방법을 쓰지 않음</td><td>컨테이너 정의를 파일로 직접 고치는 방식은 Docker 단독 환경의 수단</td></tr>
-    <tr><td class="nowrap">원리</td><td>컨테이너 정의는 <code>/var/lib/docker/containers/&lt;컨테이너ID&gt;/hostconfig.json</code> 에 저장</td><td>서비스·소켓의 관계와 백업 절차: docker.html 10장, 8888 때의 같은 절차: 이 파일 16장</td></tr>
-    </tbody></table></div>
-
-    <h3>컨테이너 정지와 설정 폴더 진입</h3>
-    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-docker stop mariadb11                <span class="c"># DB → 워커 → 마스터 순서로 정지</span>
-docker stop spark-worker1
-docker stop spark-master
-systemctl stop docker                <span class="c"># Docker 서비스 정지 — 데몬이 멈춰야 파일 수정이 반영</span>
-docker ps -a                         <span class="c"># 마스터 컨테이너 ID 확인 (이 명령을 치면 Docker 가 다시 켜짐)</span>
-cd /var/lib/docker/containers        <span class="c"># 컨테이너별 설정 폴더</span>
-ls -a                                <span class="c"># 컨테이너 ID 이름의 폴더 목록</span>
-cd f0f24                             <span class="c"># 마스터 ID 앞자리 + Tab 자동완성 (이 환경 ID 는 f0f24…)</span>
-ls -a                                <span class="c"># hostconfig.json 확인</span>
-vi hostconfig.json                   <span class="c"># 내용 확인용 — 수정은 메모장에서</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <ul class="facts"><li><strong>소켓 재활성화</strong><div><code>docker.service</code>는 <code>docker.socket</code>에 의해 다시 활성화될 수 있음 → <code>docker ps</code>를 치는 순간 Docker가 다시 작동하며 수정이 원복 → 다시 정지해 <b>완전히 정지된 상태</b>에서 수정 (서비스·소켓 관계표: docker.html 10장)</div></li><li><strong>ID 확인</strong><div>정지 상태라 <code>docker ps -a</code>로 마스터 ID를 먼저 확인 — 폴더 이름이 컨테이너 ID. ID 전체를 외우지 않고 앞자리 몇 글자 + <code>Tab</code> (환경마다 달라 화면의 <code>f0f24…</code>는 예시)</div></li></ul>
-
-    <h3>PortBindings 에 11111 블록 추가</h3>
-    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · /var/lib/docker/containers/&lt;마스터 ID&gt;/hostconfig.json 파일 안 · root]</span>
-<span class="c"># 파일 전체가 이름:값 쌍을 중괄호로 감싼 JSON 객체 — PortBindings 안에 포트마다 "포트/tcp" 블록이 들어 있음</span>
-<span class="c"># 7077 블록을 쉼표까지 복사해 앞에 하나 더 넣고 포트 값만 11111 로 변경</span>
-<span class="c"># 쉼표·따옴표·중괄호 하나만 틀려도 컨테이너가 아예 뜨지 않음</span>
-"PortBindings":{"11111/tcp":[{"HostIp":"","HostPort":"11111"}],"7077/tcp":[{"HostIp":"","HostPort":"7077"}],"8080/tcp":[{"HostIp":"","HostPort":"8080"}],"8888/tcp":[{"HostIp":"","HostPort":"8888"}]}</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <ul class="facts"><li><strong>편집 절차</strong><div>[호스트 리눅스 · vi] 내용 전체 복사 후 <code>:q!</code>로 저장 없이 나옴 → [윈도우 · 메모장] <code>PortBindings</code> 맨 앞에 11111 블록 추가(원본은 다른 이름으로 백업) → [호스트 리눅스 · vi] 기존 내용 전부 삭제 → <code>i</code> → <code>Shift+Insert</code> → <code>Esc</code> → <code>:wq</code>. 남은 글자가 있으면 JSON 문법 오류로 컨테이너 미기동, vi에서 마우스 오른쪽 클릭 붙여넣기는 원치 않는 위치에 붙어 파일이 깨질 수 있음</div></li><li><strong>원리·백업</strong><div>hostconfig.json 구조(<code>Binds</code>·<code>PortBindings</code>)·한 글자 오타 위험: docker.html 10장</div></li></ul>
-
-    <h3>재기동과 포트 확인</h3>
-    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-docker ps                      <span class="c"># Docker 소켓을 다시 열어 서비스 기동</span>
-docker start spark-master      <span class="c"># 마스터 먼저 — 바꾼 포트부터 확인</span>
-docker ps                      <span class="c"># PORTS 에 0.0.0.0:11111-&gt;11111/tcp 확인</span>
-docker start spark-worker1
-docker start mariadb11
-docker ps                      <span class="c"># 3개 컨테이너가 모두 Up 인지 확인</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">정상 결과</td><td>마스터 PORTS 에 <code>7077</code>·<code>8080</code>·<code>8888</code>·<code>11111</code> 등 5개 포트 표시</td><td><code>0.0.0.0:11111-&gt;11111/tcp</code> 한 줄이 보이면 성공</td></tr>
-    <tr><td class="nowrap">11111 이 안 보이면</td><td>Docker 전체 정지 → <code>hostconfig.json</code> 에 다시 추가 → 같은 순서로 재기동</td><td>파일이 원복됐거나 블록 위치가 틀린 경우</td></tr>
-    <tr><td class="nowrap">확인 순서</td><td>마스터를 먼저 올려 포트를 확인한 뒤 워커·DB</td><td>전체를 올린 뒤 찾으면 어느 단계에서 틀렸는지 알 수 없음</td></tr>
-    <tr><td class="nowrap">UI 확인</td><td>8080 마스터 UI 새로고침 → 워커까지 모두 Alive</td><td>포트를 고친 뒤에도 클러스터가 정상인지 함께 확인</td></tr>
-    </tbody></table></div>
-    <div class="dg-bar warn">포트 추가 — 컨테이너 정지 → <code>docker</code>·<code>docker.socket</code> 까지 정지 → <code>PortBindings</code> 에 새 블록 → <code>docker ps</code> 로 소켓 재연결 → <code>start</code>. 소켓을 살려 두면 수정이 원복되고, JSON 한 글자 오타는 컨테이너 미기동으로 이어짐</div>
-
-    <h3>터미널·주피터 준비</h3>
-    <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
-docker exec -it spark-master bash   <span class="c"># 마스터 컨테이너 진입 — API 코드를 올릴 곳</span>
-<span class="c"># [spark-master 컨테이너 · root]</span>
-pyspark                             <span class="c"># 주피터 기동 — 이 창은 이후 입력 불가, PuTTY 를 하나 더 열어 사용</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">PuTTY 2개</td><td>하나는 주피터·PySpark 전용, 다른 하나는 파일·API 실행용</td><td>주피터를 띄운 창은 다른 명령을 받지 않음(16장)</td></tr>
-    <tr><td class="nowrap">확인</td><td>마스터 UI(8080) 새로고침 → 워커까지 모두 Alive, 주피터(8888)도 새로고침해 정상 동작</td><td>포트를 고친 뒤 클러스터 전체 상태를 한 번에 확인</td></tr>
-    </tbody></table></div>
-
-    <ul class="facts"><li><strong>포트 추가 원리</strong><div>hostconfig.json·서비스와 소켓·백업: docker.html 10장</div></li><li><strong>8888 때의 절차</strong><div>같은 방법으로 주피터 포트를 연 기록: 이 파일 16장</div></li><li><strong>클러스터 포트</strong><div>7077·8080·8888 의 역할: 이 파일 2장</div></li><li><strong>다음 단계</strong><div>연 포트로 API 실행(<code>--port 11111</code>): fastapi.html 15장</div></li></ul>
+    <ul class="facts"><li><strong>이미지·Dockerfile</strong><div>Spark 이미지와 <code>CMD</code>·systemd: 이 파일 13장</div></li><li><strong>컨테이너 운영</strong><div>systemd와 PID 1, 서비스·소켓: docker.html 3장·8장</div></li><li><strong>시간대 설정 이론</strong><div>컨테이너 시계와 타임존: docker.html 5장</div></li></ul>
   </section>
   <!-- 20 -->
   <section class="sec" id="spark-pg-env">
@@ -2207,11 +2207,11 @@ docker pull postgres:15.19</code></pre><button class="copy" type="button" aria-l
     <ul class="facts"><li><strong>공통 환경</strong><div>공식 이미지 선택·<code>docker run</code>·이름 있는 볼륨·데이터 경로·<code>psql</code> 메타 명령: postgresql.html 11장</div></li></ul>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">사용 형태</td><td>PostgreSQL 을 RDS 형태로 사용 — MariaDB 11 을 RDS 형태로 쓴 것과 같은 방식</td><td>DB 서버 한 대를 컨테이너로 두고 앱이 원격에서 접속하는 구조(RDS형 구성: mysql.html 9장)</td></tr>
+    <tr><td class="nowrap">사용 형태</td><td>PostgreSQL 을 RDS 형태로 사용 — MariaDB 11 을 RDS 형태로 쓴 것과 같은 방식</td><td>DB 서버 한 대를 컨테이너로 두고 앱이 원격에서 접속하는 구조(RDS형 구성: mysql.html 11장)</td></tr>
     <tr><td class="nowrap">포트</td><td><b>5432</b> 고정 — PostgreSQL 공식 포트</td><td>MySQL 3306 과 다른 번호라 두 DB 를 함께 띄워도 충돌 없음</td></tr>
     <tr><td class="nowrap">실행 컨테이너</td><td><code>spark-master</code>·<code>spark-worker1</code>·<code>rds_psql</code> 세 개</td><td>스파크 연산·API·DB 가 모두 필요 — 하나라도 내려가면 연동 실습 중단(<a href="https://hub.docker.com/_/postgres">Docker Hub postgres</a>)</td></tr>
     <tr><td class="nowrap">터미널</td><td>PuTTY 3개를 열어 두고 진행</td><td>마스터·워커·psql 컨테이너 창을 동시에 두고 오가며 작업</td></tr>
-    <tr><td class="nowrap">주소</td><td>호스트 <code>192.168.222.5</code>, Spark Master UI 8080, JupyterLab 8888</td><td>DBeaver·주피터 모두 이 IP 로 접속(14·16장)</td></tr>
+    <tr><td class="nowrap">주소</td><td>호스트 <code>192.168.222.5</code>, Spark Master UI 8080, JupyterLab 8888</td><td>DBeaver·주피터 모두 이 IP 로 접속(14·17장)</td></tr>
     </tbody></table></div>
 
     <h3>방화벽·SELinux·포트 충돌</h3>
@@ -2240,7 +2240,7 @@ psql -U postgres                <span class="c"># 최고 권한 role postgres �
     <tr><td class="nowrap">컨테이너가 없을 때</td><td><code>rds_psql</code> 이 없으면 <code>docker run</code> 으로 새로 생성</td><td>이미지·마스터 jar 작업을 마친 뒤에 진행 — 순서가 바뀌면 접속 정보를 다시 맞춰야 함</td></tr>
     <tr><td class="nowrap">엔진</td><td>컨테이너 기본 엔진은 Debian 계열</td><td>패키지 관리자가 <code>apt</code> 인 이유(아래 항목)</td></tr>
     <tr><td class="nowrap">정상 결과</td><td><code>psql (14.24 (Debian ...))</code> 배너 뒤 <code>postgres=#</code> 프롬프트</td><td>버전·계열을 배너로 확인한 뒤 작업 시작</td></tr>
-    <tr><td class="nowrap">메타 명령</td><td><code>\l</code> DB 목록, <code>\du</code> role 목록</td><td>둘 다 이후 권한 확인의 기준(postgresql.html 14장·19장)</td></tr>
+    <tr><td class="nowrap">메타 명령</td><td><code>\l</code> DB 목록, <code>\du</code> role 목록</td><td>둘 다 이후 권한 확인의 기준(postgresql.html 14장·15장)</td></tr>
     <tr><td class="nowrap">접속 실패</td><td>패스워드 오타 → <code>password authentication failed</code></td><td><code>\q</code> 로 나온 뒤 다시 접속</td></tr>
     </tbody></table></div>
 
@@ -2270,7 +2270,7 @@ ls /var/lib/postgresql/data/    <span class="c"># pg_hba.conf · postgresql.conf
     <h3>스파크에서 DB를 쓰는 방식 2가지</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>방식</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">커넥션(드라이버) 방식</td><td>파이썬 드라이버로 커넥션을 열어 SELECT 결과를 pandas 거쳐 데이터 프레임으로 만드는 방식</td><td>MariaDB 때 <code>pymysql</code> 로 한 방식과 같고 이번 실습도 이 방식(pyspark.html 18~19장·23장)</td></tr>
+    <tr><td class="nowrap">커넥션(드라이버) 방식</td><td>파이썬 드라이버로 커넥션을 열어 SELECT 결과를 pandas 거쳐 데이터 프레임으로 만드는 방식</td><td>MariaDB 때 <code>pymysql</code> 로 한 방식과 같고 이번 실습도 이 방식(pyspark.html 20~21장·25장)</td></tr>
     <tr><td class="nowrap">스파크 DB 커넥션(JDBC) 방식</td><td>JVM 위 JDBC 드라이버로 DB 테이블을 직접 읽는 실무형 방식</td><td>이번 강의는 <b>jar 준비까지</b> — 실제 읽기 실습은 다음 단계(11장)</td></tr>
     <tr><td class="nowrap">차이</td><td>JDBC 는 마스터·워커 <b>모두</b> jar 필요, 커넥션 방식은 파이썬 패키지만 필요</td><td>jar 를 빠뜨리면 워커에서 클래스 없음 오류</td></tr>
     </tbody></table></div>
@@ -2308,7 +2308,7 @@ exit</code></pre><button class="copy" type="button" aria-label="코드 복사">�
     </tbody></table></div>
     <div class="dg-bar warn">JDBC 는 마스터와 워커 모두 jar 필요 — 한쪽만 넣으면 워커 태스크에서 드라이버 클래스 없음 오류. 워커가 많으면 이미지로 굽고 push 해서 배포</div>
 
-    <ul class="facts"><li><strong>JDBC 읽기</strong><div>드라이버 클래스·6옵션·<code>show(5)</code>: 이 파일 11장</div></li><li><strong>MariaDB jar 선례</strong><div>워커 jars 폴더에 넣은 드라이버: pyspark.html 18장</div></li><li><strong>커넥션 방식</strong><div><code>pymysql</code> 접속 → pandas → Spark: pyspark.html 19장, PostgreSQL 판: pyspark.html 21장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code> 와 마스터·워커 구분: 이 파일 14장</div></li></ul>
+    <ul class="facts"><li><strong>JDBC 읽기</strong><div>드라이버 클래스·6옵션·<code>show(5)</code>: 이 파일 11장</div></li><li><strong>MariaDB jar 선례</strong><div>워커 jars 폴더에 넣은 드라이버: pyspark.html 20장</div></li><li><strong>커넥션 방식</strong><div><code>pymysql</code> 접속 → pandas → Spark: pyspark.html 21장, PostgreSQL 판: pyspark.html 23장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code> 와 마스터·워커 구분: 이 파일 14장</div></li></ul>
   </section>
   <!-- 22 -->
   <section class="sec" id="spark-pg-psycopg2">
@@ -2322,11 +2322,11 @@ pip3 install psycopg2-binary    <span class="c"># PostgreSQL 드라이버 2.x �
 pip3 install psycopg2-binary    <span class="c"># 워커도 같은 드라이버 필요</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">역할</td><td>MySQL 의 <code>pymysql</code> 에 해당하는 PostgreSQL 드라이버</td><td>없으면 파이썬에서 PostgreSQL 연결 불가(pyspark.html 19장)</td></tr>
+    <tr><td class="nowrap">역할</td><td>MySQL 의 <code>pymysql</code> 에 해당하는 PostgreSQL 드라이버</td><td>없으면 파이썬에서 PostgreSQL 연결 불가(pyspark.html 21장)</td></tr>
     <tr><td class="nowrap">설치 형태</td><td>2.x 를 <b>binary</b> 형태로 설치 — 컴파일 없이 한 번에 끝남</td><td>컴파일러·<code>pg_config</code> 준비가 필요 없는 대신 개발·테스트용으로 분류(<a href="https://www.psycopg.org/docs/install.html">psycopg2 설치</a>)</td></tr>
     <tr><td class="nowrap">없는 패키지</td><td><code>pip3 install pypostgres</code> → <code>ERROR: Could not find a version that satisfies the requirement pypostgres</code> / <code>No matching distribution found</code></td><td>이름을 만들어 넣으면 이 에러 — 패키지 이름은 <code>psycopg2-binary</code></td></tr>
     <tr><td class="nowrap">계열</td><td>psycopg2 2.x 는 지금도 쓰이는 정식 계열, 새 계열은 별도 패키지 <code>psycopg</code> 3</td><td>예전 버전에서만 쓰던 것이 아님(<a href="https://www.psycopg.org/psycopg3/docs/basic/install.html">psycopg 3 설치</a>)</td></tr>
-    <tr><td class="nowrap">pandas 조합</td><td><code>pd.read_sql</code> 과 함께 쓰면 DataFrame 으로 바로 연결</td><td>커서를 직접 돌리지 않아도 표로 받을 수 있음(pyspark.html 21장)</td></tr>
+    <tr><td class="nowrap">pandas 조합</td><td><code>pd.read_sql</code> 과 함께 쓰면 DataFrame 으로 바로 연결</td><td>커서를 직접 돌리지 않아도 표로 받을 수 있음(pyspark.html 23장)</td></tr>
     </tbody></table></div>
 
     <h3>다른 설치 방식</h3>
@@ -2350,7 +2350,7 @@ pip3 install "psycopg[binary]"   <span class="c"># psycopg 3.x — 괄호 때문
     </tbody></table></div>
     <div class="dg-bar warn">드라이버는 마스터·워커 모두 설치 — 한쪽만 있으면 워커에서 <code>ModuleNotFoundError</code>. <code>pypostgres</code> 같은 없는 이름은 <code>No matching distribution found</code></div>
 
-    <ul class="facts"><li><strong>pymysql 선례</strong><div>드라이버 설치·접속 코드: pyspark.html 19장</div></li><li><strong>접속 정보</strong><div>DB·계정·포트: postgresql.html 14장·이 파일 20장</div></li><li><strong>연동 실습</strong><div>연결 → pandas → Spark: pyspark.html 21장</div></li><li><strong>드라이버 jar</strong><div>JDBC 방식의 jar 준비: 이 파일 21장</div></li></ul>
+    <ul class="facts"><li><strong>pymysql 선례</strong><div>드라이버 설치·접속 코드: pyspark.html 21장</div></li><li><strong>접속 정보</strong><div>DB·계정·포트: postgresql.html 14장·이 파일 20장</div></li><li><strong>연동 실습</strong><div>연결 → pandas → Spark: pyspark.html 23장</div></li><li><strong>드라이버 jar</strong><div>JDBC 방식의 jar 준비: 이 파일 21장</div></li></ul>
   </section>
   <!-- 23 -->
   <section class="sec" id="spark-torch">
@@ -2363,7 +2363,7 @@ pip3 install "psycopg[binary]"   <span class="c"># psycopg 3.x — 괄호 때문
     <tr><td class="nowrap">대상 컨테이너</td><td><code>spark-master</code>·<code>spark-worker1</code> — 프롬프트 <code>[root@spark-master spark]#</code>(<code>/opt/spark</code>)</td><td>실제 연산은 워커에서 실행되므로 두 곳 모두 설치</td></tr>
     <tr><td class="nowrap">기존 라이브러리</td><td><code>numpy</code>·<code>pandas</code>는 이미 설치된 상태</td><td>그 위에 <code>pip</code>(파이썬 모듈)로 추가 설치</td></tr>
     <tr><td class="nowrap">진입 준비</td><td>기존 접속에서 <code>exit</code>로 컨테이너를 완전히 빠져나온 뒤 호스트에서 PuTTY 창을 하나 더 띄움</td><td>마스터·워커를 동시에 보려면 창이 두 개 필요</td></tr>
-    <tr><td class="nowrap">이 장의 범위</td><td>AI 모델과 임베딩 라이브러리 설치까지</td><td>벡터 테이블·유사도 검색은 vectordb.html 8~10장</td></tr>
+    <tr><td class="nowrap">이 장의 범위</td><td>AI 모델과 임베딩 라이브러리 설치까지</td><td>벡터 테이블·유사도 검색은 vectordb.html 3~4·11장</td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># 마스터 컨테이너 진입 — 프롬프트 [root@spark-master spark]#</span>
@@ -2436,7 +2436,7 @@ pip install --no-cache-dir sentence-transformers scikit-learn psycopg2-binary</c
     </tbody></table></div>
     <div class="dg-bar warn">마스터에만 설치하면 워커에서 도는 태스크가 임베딩 모델을 찾지 못함 — PyTorch·sentence-transformers·scikit-learn·psycopg2-binary를 마스터와 워커 양쪽에 같은 명령으로 설치</div>
 
-    <ul class="facts"><li><strong>벡터 테이블·검색</strong><div>vector(2) 테이블·정렬 연산자(<code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>·<code>&lt;#&gt;</code>)·거리 지표: vectordb.html 8~10장</div></li><li><strong>벡터 검색·임베딩 입력</strong><div>연산자별 결과·<code>movie_data vector(384)</code>·<code>SentenceTransformer</code>·모델 교체: vectordb.html 11~13장</div></li><li><strong>벡터 SELECT 읽기</strong><div>노트북 vb1에서 <code>read_sql</code>·<code>createDataFrame</code>: pyspark.html 24장</div></li><li><strong>임베딩 개념</strong><div>벡터·임베딩·모델 차원(1536·512~768): vectordb.html 9장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code>와 마스터·워커 구분: 이 파일 14장</div></li><li><strong>PostgreSQL 드라이버</strong><div><code>psycopg2-binary</code>·<code>psycopg[binary]</code> 설치 이력: 이 파일 22장</div></li></ul>
+    <ul class="facts"><li><strong>벡터 테이블·검색</strong><div>vector(2) 테이블·정렬 연산자(<code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>·<code>&lt;#&gt;</code>)·거리 지표: vectordb.html 3~4·11장</div></li><li><strong>벡터 검색·임베딩 입력</strong><div>연산자별 결과·<code>movie_data vector(384)</code>·<code>SentenceTransformer</code>·모델 교체: vectordb.html 12~14장</div></li><li><strong>벡터 SELECT 읽기</strong><div>노트북 vb1에서 <code>read_sql</code>·<code>createDataFrame</code>: pyspark.html 26장</div></li><li><strong>임베딩 개념</strong><div>벡터·임베딩·모델 차원(1536·512~768): vectordb.html 3장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code>와 마스터·워커 구분: 이 파일 14장</div></li><li><strong>PostgreSQL 드라이버</strong><div><code>psycopg2-binary</code>·<code>psycopg[binary]</code> 설치 이력: 이 파일 22장</div></li></ul>
   </section>
   <!-- 24 -->
   <section class="sec" id="cheatsheet">
@@ -2502,7 +2502,7 @@ pip install --no-cache-dir sentence-transformers scikit-learn psycopg2-binary</c
           <tr><td><code>spark.sql.shuffle.partitions</code> <code>8</code></td><td>셔플(조인·group by·window·distinct) 조각 수 — 실습 클러스터 자원 기준, 자원 많으면 크게</td></tr>
           <tr><td><code>numPartitions</code>·<code>partitionColumn</code>·<code>lowerBound</code>·<code>upperBound</code></td><td>4개를 함께 써야 병렬 읽기 성립 — 기준 컬럼(예: <code>id</code>)이 테이블에 없으면 4개 모두 삭제</td></tr>
           <tr><td><code>spark.jars</code> / <code>spark.jars.packages</code></td><td>JAR 절대 경로 / Maven 자동 다운로드 — 이미 <code>/opt/spark/jars</code>에 있으면 설정 불필요</td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">네트워크 (자세히: docker.html 9장)</th></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">네트워크 (자세히: docker.html 7장)</th></tr>
           <tr><td><code>docker network ls</code> / <code>docker network create spark-net</code></td><td>네트워크 목록 확인 / Spark 이름 DNS용 사용자 정의 네트워크 생성</td></tr>
           <tr><td><code>docker network inspect spark-net</code> / <code>docker network rm spark-net</code></td><td>서브넷·게이트웨이·컨테이너 IP 확인 / 미사용 네트워크 삭제</td></tr>
           <tr class="group"><th colspan="2" scope="colgroup">이미지 (13장)</th></tr>
@@ -2521,20 +2521,20 @@ pip install --no-cache-dir sentence-transformers scikit-learn psycopg2-binary</c
           <tr><td><code>docker exec -it spark-master /bin/bash</code> → <code>cd /opt/spark/data</code> → <code>vi test.txt</code> → 호스트 <code>ls -a /home/spark-data</code></td><td>마운트 검증 — 컨테이너에서 만든 파일이 호스트에, 호스트에서 지운 파일이 컨테이너에 반영</td></tr>
           <tr><td><code>docker start spark-master</code> → <code>docker start spark-worker1 spark-worker2</code></td><td>재생성 후 기동 순서 — 마스터가 먼저, 워커 환경 <code>SPARK_WORKER_CORES=1</code>·<code>SPARK_WORKER_MEMORY=2G</code></td></tr>
           <tr><td><code>df -m</code> / <code>df -h</code></td><td>디스크 여유 확인 — 파티션 구조·LVM·<code>/home</code> 낭비: linux.html 12장</td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">Spark 셸·앱 상태 (15장)</th></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">Spark 셸·앱 상태 (16장)</th></tr>
           <tr><td><code>pyspark --master spark://spark-master:7077</code></td><td>마스터 컨테이너에서 셸 실행. 셸이 떠 있는 동안 8080 UI에 앱 표시(대기), <code>exit</code>하면 사라짐</td></tr>
           <tr><td><code>jps</code></td><td>자바 프로세스 확인 — 마스터 컨테이너는 Master만. <code>pjs</code>·<code>psj</code>는 command not found</td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">컨테이너 주피터 (16장)</th></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">컨테이너 주피터 (17장)</th></tr>
           <tr><td><code>pip3 install notebook</code> / <code>jupyter --version</code></td><td>root로 설치. client·core·server·lab·notebook 확인, ipywidgets·qtconsole은 없어도 무방</td></tr>
           <tr><td><code>PYSPARK_PYTHON</code>=<code>python3</code> / <code>PYSPARK_DRIVER_PYTHON</code>=<code>jupyter</code> / <code>PYSPARK_DRIVER_PYTHON_OPTS</code>=<code>"notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root"</code></td><td><code>~/.bashrc</code> 3줄 — 등호 양옆 공백 금지, 옵션은 한 줄. Spark 3.5.x는 Python 3.8~3.11</td></tr>
           <tr><td><code>source ~/.bashrc</code> → <code>pyspark</code></td><td>셸 대신 주피터 서버 기동 → <code>http://서버IP:8888</code>에 <code>?token=</code> 값으로 로그인</td></tr>
           <tr><td>주피터 터미널 <code>Ctrl+C</code></td><td>서버가 꺼지고 재기동하면 토큰 새로 발급. 작업은 <code>/opt/spark</code>에서 <code>data</code>로 이동해 진행</td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">고스트 세션 (17장)</th></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">고스트 세션 (18장)</th></tr>
           <tr><td><code>if 'spark' in globals():</code> → <code>try: spark.stop() except: pass</code></td><td>시작 전 살아 있는 세션 정리 — 주석 처리하면 Running Application이 남아 코어 점유</td></tr>
           <tr><td>8080 UI Running Applications <code>(kill)</code></td><td>고스트는 강제 정지로만 종료, 죽이면 빨간 표시. 모두 컷한 뒤 globals 체크 살려 재실행</td></tr>
           <tr><td>Completed Applications / Executors</td><td>앱 이름·실행 사용자 <code>root</code>·메모리·시작 시각 / 로그·코어 수·메모리</td></tr>
           <tr><td>코어가 없다 에러</td><td>이미 점유한 앱이 있어 남는 코어 없음 — stop을 안 건 것이 원인</td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">컨테이너 시간대 (18장)</th></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">컨테이너 시간대 (19장)</th></tr>
           <tr><td><code>date</code></td><td>컨테이너 생성 후 무조건 확인 — <code>Tue Nov 10 01:25:19 UTC 2026</code>처럼 UTC로 표시</td></tr>
           <tr><td><code>hwclock --systohc</code></td><td><code>Cannot access the Hardware clock via any known method.</code> — 컨테이너에는 하드웨어 클럭 없음. 반대 방향은 <code>--hctosys</code></td></tr>
           <tr><td><code>dnf install chrony</code> / <code>vi /etc/chrony.conf</code></td><td>설치 오래 걸림. <code>pool</code> 줄 주석 → <code>server time.bora.net iburst</code> 추가 (하나만)</td></tr>
@@ -2545,7 +2545,7 @@ pip install --no-cache-dir sentence-transformers scikit-learn psycopg2-binary</c
           <tr><td><code>systemctl restart chronyd</code> / <code>chronyc makestep</code> / <code>timedatectl set-timezone Asia/Seoul</code></td><td>로컬에서 실행 — bora·kornet 모두 동기화 실패, 타임존 강제 후 <code>date</code>가 <code>KST</code></td></tr>
           <tr><td><code>ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime</code></td><td>마스터·워커 각각 실행 — 이미 물린 세션이 있으면 주피터를 껐다 켜야 반영</td></tr>
           <tr><td><code>CMD ["/sbin/init"]</code></td><td>systemd를 PID 1로 — 워커 <code>worker.dl</code>에 이 줄이 빠져 있음. 이미지에도 <code>RUN ln -sf …</code> 가능</td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">API 포트 (19장)</th></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">API 포트 (15장)</th></tr>
           <tr><td><code>docker stop mariadb11</code> → <code>spark-worker1</code> → <code>spark-master</code> → <code>systemctl stop docker</code></td><td>포트 추가 전 정지 — <code>docker ps</code> 를 치면 소켓이 Docker 를 다시 깨움</td></tr>
           <tr><td><code>cd /var/lib/docker/containers</code> → <code>cd f0f24&lt;Tab&gt;</code> → <code>vi hostconfig.json</code></td><td>컨테이너 ID 폴더의 설정 파일 — ID 는 환경마다 다름</td></tr>
           <tr><td><code>"11111/tcp":[{"HostIp":"","HostPort":"11111"}]</code></td><td><code>PortBindings</code> 에 7077 블록을 복사해 포트만 변경 — JSON 오타는 컨테이너 미기동</td></tr>
@@ -2566,7 +2566,7 @@ pip install --no-cache-dir sentence-transformers scikit-learn psycopg2-binary</c
           <tr><td><code>pip3 install "psycopg[binary]"</code></td><td>3.x(설치 3.2.13) — 더 빠른 편, 한 계열로 표준화. 대괄호 때문에 큰따옴표</td></tr>
           <tr><td><code>pip3 install pypostgres</code></td><td><code>ERROR: Could not find a version that satisfies the requirement pypostgres</code> / <code>No matching distribution found</code> — 없는 패키지</td></tr>
           <tr><td>운영 설치</td><td>공식 문서는 운영에 소스 빌드 권장(컴파일러·<code>pg_config</code> 필요), binary 를 쓰면 psycopg 3 의 <code>psycopg[binary]</code></td></tr>
-          <tr class="group"><th colspan="2" scope="colgroup">받은 이미지 계정 점검 (자세히: mysql.html 16장)</th></tr>
+          <tr class="group"><th colspan="2" scope="colgroup">받은 이미지 계정 점검 (자세히: mysql.html 18장)</th></tr>
           <tr><td><code>select host,user from user</code> / <code>select host,user,db from db where user='mg'</code></td><td><code>use mysql</code> 후 조회 — <code>%</code>는 모든 외부 IP 허용. root 는 <code>localhost</code> 만 남겨야 함</td></tr>
           <tr><td><code>delete from db where user='mg' and host='%'</code> / <code>delete from user where host='%' and user='root'</code></td><td>권한 테이블 삭제 — WHERE·AND 누락이 대형 사고. 권장은 <code>DROP USER 'mg'@'%'</code></td></tr>
           <tr><td><code>create user 'mg'@'%' identified by '…'</code> / <code>grant all privileges on mg.* to 'mg'@'%'</code> / <code>flush privileges</code></td><td>재등록 — <code>identified</code> 철자, GRANT 는 사용자 → DB 순서. 실무는 <code>select</code> 만</td></tr>
