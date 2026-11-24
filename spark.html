@@ -917,6 +917,7 @@ pwd                           <span class="c"># 두 서버의 경로가 같은�
     </tbody></table></div>
 
     <h3>SSH 키 생성</h3>
+    <ul class="facts"><li><strong>키 인증 원리</strong><div>공개 키·개인 키·<code>authorized_keys</code>·<code>known_hosts</code>의 동작과 <code>ssh-keygen</code>·<code>ssh-copy-id</code> 일반 절차: linux.html 14장 — 이 장은 클러스터에서 달라지는 점만</div></li></ul>
     <div class="code"><pre><code><span class="c"># [마스터·워커 공통 · sparkuser · 각 서버에서 자기 키]</span>
 ssh-keygen -t rsa -b 3072   <span class="c"># RSA 방식(-t), 3072비트(-b) 키 생성</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
@@ -1650,6 +1651,7 @@ exit                                                 <span class="c"># 점검 �
 
 <span class="c"># [호스트 리눅스 · /root/docker/Dockerfile 파일 안]</span>
 <span class="c"># 기반 OS 이미지 (각자 만든 Rocky 9 이미지) — 이미지명은 복사해 붙여넣어 오타 방지</span>
+<span class="c"># FROM·RUN·ENV·WORKDIR·CMD 지시어의 일반 의미·문법: docker.html 3장 — 아래 주석은 Spark 구성에 필요한 값·이유만</span>
 FROM mzleejh/apink_rocky:9
 <span class="c"># -y 자동 승인 / --allowerasing: 의존성 충돌 시 기존 패키지 제거·교체 허용 (Rocky 9의 curl-minimal ↔ curl 충돌 사례)</span>
 <span class="c"># java-17-openjdk-devel: Java 17 + 개발 도구 javac / curl·tar: 다운로드·압축 해제 / python3·python3-pip: PySpark·Jupyter용</span>
@@ -1882,18 +1884,14 @@ export PYSPARK_DRIVER_PYTHON=jupyter
 export PYSPARK_DRIVER_PYTHON_OPTS="notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root"</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
 source ~/.bashrc                                       <span class="c"># 저장한 값은 현재 셸에 자동 적용되지 않음 → 즉시 반영</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table>
-    <thead><tr><th>변수</th><th>값</th><th>의미</th></tr></thead><tbody>
-    <tr><td class="nowrap"><code>PYSPARK_PYTHON</code></td><td><code>python3</code></td><td>연산에 쓸 기본 파이썬</td></tr>
-    <tr><td class="nowrap"><code>PYSPARK_DRIVER_PYTHON</code></td><td><code>jupyter</code></td><td>pyspark 드라이버를 주피터로 바꿈</td></tr>
-    <tr><td class="nowrap"><code>PYSPARK_DRIVER_PYTHON_OPTS</code></td><td><code>"notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root"</code></td><td>주피터 실행 옵션 — 따옴표 전체가 한 값</td></tr>
-    </tbody></table></div>
-    <div class="table-wrap"><table>
-    <thead><tr><th>주의</th><th>내용</th><th>결과</th></tr></thead><tbody>
-    <tr><td class="nowrap">등호 공백</td><td><code>export VAR = 값</code>처럼 띄우면 셸이 변수 지정으로 읽지 않음</td><td>값이 적용되지 않아 셸이 그대로 뜸</td></tr>
-    <tr><td class="nowrap">옵션 오타</td><td><code>--ip</code> 뒤 콜론, <code>--no-browser</code> 철자 오류</td><td>주피터가 뜨지 않고 에러 — 메시지를 보고 그 줄만 수정</td></tr>
-    <tr><td class="nowrap">워커 쪽</td><td>워커 컨테이너에는 따로 설정할 것이 없음</td><td><code>PYSPARK_PYTHON</code>만 맞으면 됨</td></tr>
-    </tbody></table></div>
+    <ul class="facts">
+      <li><strong>세 변수의 의미</strong><div><code>PYSPARK_PYTHON</code>(연산용 파이썬)·<code>PYSPARK_DRIVER_PYTHON</code>(드라이버 대신 띄울 프로그램)·<code>PYSPARK_DRIVER_PYTHON_OPTS</code>(그 프로그램 옵션, 따옴표 전체가 한 값)의 정의와 <code>export</code>·<code>source</code> 원리: pyspark.html 4장</div></li>
+      <li><strong>이 컨테이너의 값</strong><div><code>python3</code>(경로가 아닌 이름 — 컨테이너 PATH)·<code>jupyter</code>·<code>"notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root"</code> — 서버 2대 환경의 <code>/usr/bin/python3</code>·<code>lab</code>과 다른 점</div></li>
+    </ul>
+    <ul class="facts">
+      <li><strong>주의</strong><div><code>export VAR = 값</code>처럼 등호를 띄우면 변수 지정으로 읽지 않고, <code>--ip</code>·<code>--no-browser</code> 오타면 주피터가 뜨지 않음 — 오타·줄 나눔 점검은 pyspark.html 4장</div></li>
+      <li><strong>워커 쪽</strong><div>워커 컨테이너에는 따로 설정할 것이 없음 — <code>PYSPARK_PYTHON</code>만 맞으면 됨</div></li>
+    </ul>
 
     <h3>주피터 접속</h3>
     <div class="code"><pre><code><span class="c"># [spark-master 컨테이너 · root]</span>
@@ -2206,6 +2204,7 @@ docker pull postgres:15.19</code></pre><button class="copy" type="button" aria-l
     <div class="dg-bar warn">이미지 계열 — Debian(trixie·glibc)과 알파인(musl)은 구조가 달라 명령·패키지 관리자가 다름. 실습·운영은 Debian 계열 공식 원본 이미지로 통일</div>
 
     <h3>실습 구성</h3>
+    <ul class="facts"><li><strong>공통 환경</strong><div>공식 이미지 선택·<code>docker run</code>·이름 있는 볼륨·데이터 경로·<code>psql</code> 메타 명령: postgresql.html 11장</div></li></ul>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
     <tr><td class="nowrap">사용 형태</td><td>PostgreSQL 을 RDS 형태로 사용 — MariaDB 11 을 RDS 형태로 쓴 것과 같은 방식</td><td>DB 서버 한 대를 컨테이너로 두고 앱이 원격에서 접속하는 구조(RDS형 구성: mysql.html 9장)</td></tr>
@@ -2257,7 +2256,7 @@ ls /var/lib/postgresql/data/    <span class="c"># pg_hba.conf · postgresql.conf
     <tr><td class="nowrap">패키지 관리자</td><td>Debian 계열 컨테이너는 <code>apt</code>(<code>apt-get</code>) 사용</td><td><code>apk</code> 는 알파인 전용이라 이 컨테이너에서는 통하지 않음 — 받은 이미지 계열에 맞춰 판단</td></tr>
     <tr><td class="nowrap">설치 실패</td><td><code>E: Unable to locate package</code></td><td>패키지 목록을 받지 않은 상태 — <code>apt-get update</code> 후 재시도해야 하는 구조</td></tr>
     <tr><td class="nowrap">vi 없음</td><td><code>bash: vi: command not found</code></td><td>이미지에 편집기를 넣지 않은 경량 구성</td></tr>
-    <tr><td class="nowrap">설정 파일 위치</td><td><code>/var/lib/postgresql/data/</code> 의 <code>pg_hba.conf</code>·<code>postgresql.conf</code></td><td>편집기가 없어 파일 편집은 못 함 — 인증·설정은 psql SQL 과 DBeaver 로 처리(<a href="https://hub.docker.com/_/postgres">Docker Hub postgres</a>)</td></tr>
+    <tr><td class="nowrap">설정 파일 위치</td><td><code>/var/lib/postgresql/data/</code> 의 <code>pg_hba.conf</code>·<code>postgresql.conf</code></td><td>데이터 경로·파일 구성은 postgresql.html 11장 — 편집기가 없어 파일 편집은 못 함 → 인증·설정은 psql SQL 과 DBeaver 로 처리(<a href="https://hub.docker.com/_/postgres">Docker Hub postgres</a>)</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn">Debian 컨테이너의 패키지 관리자는 <code>apt</code> — <code>apk</code> 는 알파인 전용. 패키지 목록 갱신 전에는 <code>E: Unable to locate package</code></div>
 

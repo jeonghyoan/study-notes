@@ -1642,10 +1642,9 @@ volumes:
     <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
     <tr><td><strong>접속 경로</strong></td><td><ul><li><code>docker exec -it rds_psql /bin/bash</code>로 컨테이너 셸 → <code>psql -U postgres</code></li><li>컨테이너 셸은 처음부터 root → 프롬프트 <code>root@컨테이너ID:/#</code>, psql 프롬프트는 <code>postgres=#</code></li><li>한 줄 접속: <code>docker exec ... env PGPASSWORD=... psql</code> → 비밀번호를 명령행 환경변수에 넣는 건 실습용 (셸 기록·프로세스 환경 노출 주의)</li><li>비밀번호를 넣는 방식은 여러 가지 — 로컬 소켓으로 바로 접속하는 방법도 있음</li><li>SQL 프롬프트 종료 <code>\q</code> 또는 <code>exit</code></li></ul></td></tr>
     <tr><td><strong>trust의 범위</strong></td><td><ul><li><code>psql -U postgres -W</code>가 비밀번호를 물어도, 컨테이너 안 Unix 소켓 접속이 기본 <code>pg_hba.conf</code>의 <code>trust</code> 규칙에 걸리면 비밀번호를 검증하지 않을 수 있음</li><li>모든 외부 TCP 연결이 무인증이라는 뜻은 아님 → 실습 화면의 <code>host all all all scram-sha-256</code> 규칙은 TCP 연결에 비밀번호 인증 요구</li></ul></td></tr>
-    <tr><td><strong>규칙 순서</strong></td><td>위에서부터 먼저 일치하는 항목 적용</td></tr>
-    <tr><td><strong>규칙 열 의미</strong></td><td><code>local</code> = Unix socket / <code>host</code> = TCP / 주소 = 허용할 클라이언트 범위</td></tr>
+    <tr><td><strong>규칙 읽는 법</strong></td><td>위에서부터 먼저 일치하는 항목 적용 — <code>local</code> = Unix socket / <code>host</code> = TCP / 주소 = 허용할 클라이언트 범위. 5항목(TYPE DATABASE USER ADDRESS METHOD) 의미는 3장</td></tr>
     <tr><td><strong>주소 범위</strong></td><td><ul><li><code>0.0.0.0/0</code> = 모든 IPv4 → 외부 노출 범위가 넓으므로 실습 외에는 접속 원본 제한</li><li>IPv6 loopback <code>::1/128</code>도 별도 규칙 → 외부 IPv6로 들어오는 공격이 있어 IPv6 허용 여부도 따로 검토</li></ul></td></tr>
-    <tr><td><strong>md5와 실제 확인</strong></td><td><ul><li>실습에서 로컬·TCP 규칙의 <code>trust</code> → <code>md5</code>로 바꿔 비밀번호 인증 확인</li><li>SHA-256 등 더 강한 방식도 있지만 이번 실습은 MD5까지 (운영에서는 scram-sha-256 이상 권장)</li><li>trust를 남긴 채 그대로 배포하면 안 됨 — 접속 규칙을 좁힐 때까지는 배포 금지</li><li>저장된 비밀번호 형식·서버 설정에 따라 SCRAM 인증이 협상될 수 있음 → 실제 동작은 결과로 확인: 틀린 비밀번호 → <code>FATAL: password authentication failed for user "postgres"</code>, 맞는 비밀번호 → 접속</li></ul></td></tr>
+    <tr><td><strong>md5로 바꿔 확인</strong></td><td><ul><li>실습에서 로컬·TCP 규칙의 <code>trust</code> → <code>md5</code>로 바꿔 비밀번호 인증이 실제로 걸리는지 확인 (md5·SHA-256 기반 <code>scram-sha-256</code>·trust의 뜻과 권장 수준: 3장)</li><li>trust를 남긴 채 그대로 배포하면 안 됨 — 접속 규칙을 좁힐 때까지는 배포 금지</li><li>결과로 확인: 틀린 비밀번호 → <code>FATAL: password authentication failed for user "postgres"</code>, 맞는 비밀번호 → 접속</li></ul></td></tr>
     </tbody></table></div>
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># 컨테이너 셸 진입</span>
@@ -1682,7 +1681,7 @@ host    all   all   all            scram-sha-256</code></pre><button class="copy
     <tr><td><strong>편집 위치</strong></td><td><ul><li>실습의 최소 Debian 기반 이미지에는 <code>vi</code>가 없을 수 있음, 패키지 관리자도 <code>dnf</code>가 아니라 <code>apt</code>/<code>apt-get</code> 계열</li><li>설정 파일은 컨테이너 <code>/var/lib/postgresql/data/</code> 아래 → 호스트 <code>/root/rds</code>로 꺼내 수정한 뒤 되돌림</li><li>이 폴더에 <code>postgresql.conf</code>, <code>pg_hba.conf</code>, <code>pg_ident.conf</code>와 <code>base/</code>·<code>global/</code> 같은 데이터 폴더가 함께 있음 → 꺼내고 넣을 경로를 메모해 두고 엉뚱한 곳에 넣지 않음</li><li>고칠 파일은 두 개(<code>postgresql.conf</code>·<code>pg_hba.conf</code>) — 설정용과 인증용</li></ul></td></tr>
     <tr><td><strong>vi로 찾는 순서</strong></td><td><code>:set number</code>로 줄 번호 표시 → <code>/max_connections</code>처럼 단어로 검색 → <code>:439</code>처럼 줄 번호로 바로 이동 → <code>Esc</code> → <code>:wq</code> 저장·종료 (키 표: linux.html vi 편집기 장)</td></tr>
     <tr><td><strong>compose와의 경계</strong></td><td>인증·성능·로그 설정은 compose 속성으로 해결되지 않음 → 컨테이너 안 설정 파일을 직접 고쳐야 함</td></tr>
-    <tr><td><strong>반영 조건</strong></td><td>설정 변경은 컨테이너에 복사한 뒤 재시작해야 반영</td></tr>
+    <tr><td><strong>반영 조건</strong></td><td>설정 변경은 컨테이너에 복사한 뒤 재시작해야 반영 — 온프레미는 파일을 직접 고치고 <code>systemctl restart</code>(3장)</td></tr>
     <tr><td><strong>실패 시</strong></td><td>오타·잘못된 값 → 재시작 실패나 컨테이너 종료 가능 → <code>docker ps -a</code>와 로그 확인 → 수정본 다시 복사</td></tr>
     <tr><td><strong>정리</strong></td><td>비밀번호 실패·성공 결과를 각각 확인한 뒤 실습 컨테이너는 삭제 대신 <code>docker stop</code>으로 보존</td></tr>
     </tbody></table></div>
@@ -1746,10 +1745,10 @@ create database mg owner mg;
 grant all privileges on database mg to mg;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">소유자 결정</td><td>DB 소유자는 <code>owner</code> 절로 정해짐 — DB 이름을 소유자 이름과 같게 만들 필요 없음</td><td>이름이 달라도 <code>owner mg</code> 면 mg 가 소유자(<a href="https://www.postgresql.org/docs/current/sql-createdatabase.html">CREATE DATABASE</a>)</td></tr>
+    <tr><td class="nowrap">소유자 결정</td><td>DB 소유자는 <code>owner</code> 절로 정해짐 — DB 이름을 소유자 이름과 같게 만들 필요 없음</td><td>이름이 달라도 <code>owner mg</code> 면 mg 가 소유자 — 문법·alter로 바꾸는 방식은 7장(<a href="https://www.postgresql.org/docs/current/sql-createdatabase.html">CREATE DATABASE</a>)</td></tr>
     <tr><td class="nowrap">생성 확인</td><td><code>\du</code> 로 role 생성, <code>\l</code> 로 DB 목록·소유자·권한 확인</td><td><code>\l</code> 의 Owner 칸이 mg 인지가 핵심</td></tr>
     <tr><td class="nowrap">패스워드</td><td><code>a1234</code> 는 실습값</td><td>실무·AWS 같은 외부 노출 환경에서는 절대 쓰지 않는 값 — 비밀번호 관리 도구로 분리</td></tr>
-    <tr><td class="nowrap">grant 의 뜻</td><td>DB 에 붙을 수 있는 권한을 mg 에게 부여</td><td><code>all privileges</code> 는 DB 범위 — 안쪽 스키마·테이블 권한은 따로(19장)</td></tr>
+    <tr><td class="nowrap">grant 의 뜻</td><td>DB 에 붙을 수 있는 권한을 mg 에게 부여</td><td><code>all privileges</code> 는 DB 범위 — 안쪽 스키마·테이블 권한은 따로(19장). 사용자·DB·권한 전체 순서는 7장</td></tr>
     </tbody></table></div>
 
     <h3>role 속성 — 주지 않는 것이 기본</h3>
@@ -1826,7 +1825,7 @@ create schema mg_schema;
 \dn</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">public 의 성격</td><td>기본 스키마 <code>public</code> 은 열려 있는 상태</td><td>보안상 업무 테이블은 별도 스키마에 두고 권한을 따로 관리(19장)</td></tr>
+    <tr><td class="nowrap">public 의 성격</td><td>기본 스키마 <code>public</code> 은 열려 있는 상태</td><td>보안상 업무 테이블은 별도 스키마에 두고 권한을 따로 관리(8·19장)</td></tr>
     <tr><td class="nowrap">정상 결과</td><td><code>\dn</code> 에 <code>mg_schema</code>(owner mg)와 <code>public</code>(owner postgres)</td><td>소유자가 생성한 role 인지 함께 확인</td></tr>
     <tr><td class="nowrap">MySQL 비교</td><td>MySQL 은 DB 안에 스키마 계층이 없음</td><td>PostgreSQL 은 DB → 스키마 → 테이블 3단계라 이름 해석 규칙이 하나 더 있음</td></tr>
     </tbody></table></div>
@@ -1841,9 +1840,9 @@ alter user mg set search_path to mg_schema, public;
 \dn</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">기본 경로</td><td>기본 <code>search_path</code> 는 <code>"$user", public</code></td><td>새로 만든 mg_schema 는 경로에 아예 없음 — 우선순위가 낮은 것이 아니라 <b>없는</b> 상태(<a href="https://www.postgresql.org/docs/current/ddl-schemas.html">Schemas</a>)</td></tr>
-    <tr><td class="nowrap">경로에 추가</td><td>조회할 스키마를 경로에 넣어야 스키마명 없이 테이블 이름 사용</td><td><code>"$user"</code> 는 사용자 이름과 같은 스키마를 찾는 자리 — mg 로 접속하면 mg 스키마를 먼저 봄</td></tr>
-    <tr><td class="nowrap">set 과 alter</td><td><code>set</code> 은 세션용, <code>alter user ... set search_path</code> 는 롤에 저장</td><td><code>alter user</code> 설정은 컨테이너를 껐다 켜도 유지(<a href="https://www.postgresql.org/docs/current/sql-set.html">SET</a>)</td></tr>
+    <tr><td class="nowrap">기본 경로</td><td>기본 <code>search_path</code> 는 <code>"$user", public</code></td><td>새로 만든 mg_schema 는 경로에 아예 없음 — 우선순위가 낮은 것이 아니라 <b>없는</b> 상태(8장)</td></tr>
+    <tr><td class="nowrap">경로에 추가</td><td>조회할 스키마를 경로에 넣어야 스키마명 없이 테이블 이름 사용</td><td><code>"$user"</code> 는 사용자 이름과 같은 스키마를 찾는 자리 — 원리·우선순위 미설정 사고는 8장</td></tr>
+    <tr><td class="nowrap">set 과 alter</td><td><code>set</code> 은 세션용, <code>alter user ... set search_path</code> 는 롤에 저장</td><td><code>alter user</code> 설정은 컨테이너를 껐다 켜도 유지 — 문법은 8장(<a href="https://www.postgresql.org/docs/current/sql-set.html">SET</a>)</td></tr>
     <tr><td class="nowrap">초기화 원인</td><td><code>set</code> 의 효과는 세션이 끝나면 사라짐</td><td>컨테이너 재시작 때문이 아니라 <code>\q</code>·재접속으로 세션이 끊긴 결과</td></tr>
     <tr><td class="nowrap">적용 범위</td><td>도커 컨테이너인지와 무관하게 세션·롤 설정 규칙을 따름</td><td>온프레미스와 결과가 갈리는 것은 이 규칙이 아니라 접속 계정·세션 상태 차이</td></tr>
     </tbody></table></div>
@@ -1856,14 +1855,12 @@ alter user mg set search_path to mg_schema, public;
     <h2>DBeaver 연결과 테이블 적재</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — 연결 → CSV 적재 → 컬럼명 정리</p><div class="dg-flow"><div class="dg-node"><h4>① 새 연결</h4><p class="sub">PostgreSQL</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② 접속 정보</h4><p class="sub">5432 · mg</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ Test Connection</h4><p class="sub">성공 확인</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 데이터 가져오기</h4><p class="sub">CSV · utf-8</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 컬럼명 정리</h4><p class="sub">11개 · money int4</p></div></div><p class="dg-foot">MariaDB 때와 같은 DBeaver 절차 — 다른 점은 포트 5432 와 우선 스키마(mg_schema) 확인</p></div>
 
-    <h3>연결 설정</h3>
-    <div class="table-wrap"><table>
-    <thead><tr><th>단계</th><th>설정</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">1</td><td>새 연결 → PostgreSQL → Next</td><td>DB 종류를 먼저 고르면 포트 기본값(5432)이 자동 입력</td></tr>
-    <tr><td class="nowrap">2</td><td>Host <code>192.168.222.5</code>, Port <code>5432</code>, Database <code>mg</code>, 사용자 <code>mg</code> / 비밀번호 <code>a1234</code></td><td>5432 는 공식 포트라 변경 불필요 — 호스트에서 다른 프로세스가 쓰는지만 확인(spark.html 20장)</td></tr>
-    <tr><td class="nowrap">3</td><td><b>Test Connection</b> 성공 확인 → 완료</td><td>연결 항목(RDS·GCP 같은 클라우드에서 쓰는 값)은 이 화면 구조를 알아 두면 그대로 대응</td></tr>
-    <tr><td class="nowrap">4</td><td>연결 후 열린 창은 닫고 DB(mg) 더블클릭 → <b>우선 스키마</b> 확인</td><td>public 으로 잡히면 안 됨 — mg_schema 가 우선이어야 테이블이 바로 보임(16장)</td></tr>
-    </tbody></table></div>
+    <h3>연결 설정 (절차는 10장)</h3>
+    <ul class="facts">
+    <li><strong>공통 절차</strong><div>[윈도우 · DBeaver] 새 연결 → PostgreSQL(코끼리) → Next → Host·Port·Database·Authentication·Username 입력 → Test Connection → 완료: 10장</div></li>
+    <li><strong>이번 값</strong><div>Host <code>192.168.222.5</code> · Port <code>5432</code>(공식 포트, 호스트에서 다른 프로세스가 쓰는지만 확인: spark.html 20장) · Database <code>mg</code> · 사용자 <code>mg</code> / 비밀번호 <code>a1234</code></div></li>
+    <li><strong>연결 뒤</strong><div>열린 창은 닫고 DB(mg) 더블클릭 → <b>우선 스키마</b>가 <code>mg_schema</code> 인지 확인 — public 으로 잡히면 테이블이 바로 안 보임(16장)</div></li>
+    </ul>
 
     <h3>CSV 가져오기 — travel_payment</h3>
     <div class="table-wrap"><table>

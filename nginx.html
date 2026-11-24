@@ -1012,22 +1012,23 @@ server {
     <div class="dg"><p class="dg-title">한눈에 보기 — 스트림 1.26 → 설치 → 기동 → 방화벽 80 → 외부 접속</p><div class="dg-flow"><div class="dg-node"><h4>① module list</h4><p class="sub">1.22 · 1.24 · <b>1.26</b></p></div><div class="dg-arrow"></div><div class="dg-node"><h4>② install</h4><p class="sub"><code>nginx</code> 1.26.3</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>③ 기동</h4><p class="sub"><code>netstat -lnptu</code> · 80 LISTEN</p></div><div class="dg-arrow"></div><div class="dg-node"><h4>④ 방화벽</h4><p class="sub">GCP 규칙 <code>nginx</code> TCP 80</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>⑤ 확인</h4><p class="sub">휴대폰 다른 네트워크에서 접속</p></div></div><p class="dg-foot">목표는 클라우드에서 웹 서비스가 동작하는지 확인 — nginx와 아파치 둘 중 하나만 설치</p></div>
 
     <h3>설치</h3>
+    <ul class="facts"><li><strong>공통 절차</strong><div>스트림 확인 → 활성화 → 설치 → <code>systemctl start</code> 순서와 <code>nginx*</code>(44개) vs <code>nginx</code> 비교: 1장</div></li></ul>
     <div class="code"><pre><code><span class="c"># [GCP VM 호스트 리눅스 · root]</span>
 <span class="c"># nginx 모듈 스트림 확인 — 1.22·1.24는 기본 [d], 1.26이 최고 버전</span>
 dnf module list nginx
 <span class="c"># 1.26 스트림 활성화 — 확인 질문에는 y</span>
 dnf module enable nginx:1.26
-<span class="c"># nginx 설치 — 확인 질문에는 y</span>
+<span class="c"># nginx 설치 — 확인 질문에는 y (별표 없이 최소 패키지만, 1.26.3)</span>
 dnf install nginx
-<span class="c"># 부팅 시 자동 시작 — nginx 체크 후 탭키로 이동해 엔터</span>
+<span class="c"># 부팅 시 자동 시작 — nginx 체크 후 탭키로 이동해 엔터 (1장은 서버 2대라 설정 안 함)</span>
 ntsysv
 <span class="c"># 기동 — 재부팅하지 않아도 바로 서비스 시작</span>
 systemctl start nginx
 <span class="c"># LISTEN 포트 확인 — 80이 떠 있는지</span>
 netstat -lnptu</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table><thead><tr><th>항목</th><th>결과</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap"><code>dnf module list nginx</code></td><td>스트림 1.22 <code>[d]</code>, 1.24 <code>[d]</code>, <b>1.26</b>(최고 버전)</td><td>높은 버전이 나아서 1.26 선택 — 낮은 버전도 무방</td></tr>
-      <tr><td class="nowrap"><code>dnf install nginx</code></td><td><code>nginx</code> 1.26.3, <code>nginx-core</code> 등 설치</td><td>클라우드 VM도 dnf 절차는 로컬과 같음</td></tr>
+      <tr><td class="nowrap">스트림 선택</td><td>1.22 <code>[d]</code>, 1.24 <code>[d]</code>, <b>1.26</b>(최고 버전)</td><td>높은 버전이 나아서 1.26 선택 — 낮은 버전도 무방. 목록 읽는 법은 1장</td></tr>
+      <tr><td class="nowrap"><code>dnf install nginx</code></td><td><code>nginx</code> 1.26.3, <code>nginx-core</code> 등 설치</td><td>별표 없이 설치해 최소 패키지만 — 클라우드 VM도 dnf 절차는 로컬과 같음</td></tr>
       <tr><td class="nowrap"><code>netstat -lnptu</code></td><td><b>80번이 LISTEN</b>이지만 <b>외부 IP로는 접속 안 됨</b></td><td>원인은 GCP 방화벽에 80 규칙이 없음 — 서비스가 아니라 네트워크에서 막힘</td></tr>
     </tbody></table></div>
 
@@ -1035,15 +1036,7 @@ netstat -lnptu</code></pre><button class="copy" type="button" aria-label="코드
     <div class="code"><pre><code><span class="c"># [GCP VM 호스트 리눅스 · root]</span>
 <span class="c"># :set number 후 37번 줄 server { 로 이동</span>
 vi /etc/nginx/nginx.conf</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table><thead><tr><th>줄</th><th>내용</th><th>의미</th></tr></thead><tbody>
-      <tr><td class="nowrap">37</td><td><code>server {</code></td><td>가상 서버 블록 시작</td></tr>
-      <tr><td class="nowrap">38</td><td><code>listen 80;</code></td><td>IPv4 80번 포트 대기</td></tr>
-      <tr><td class="nowrap">39</td><td><code>listen [::]:80;</code></td><td>IPv6 80번 포트 대기</td></tr>
-      <tr><td class="nowrap">40</td><td><code>server_name</code></td><td>도메인 자리 — 이번엔 IP로 접속</td></tr>
-      <tr><td class="nowrap">41</td><td><code>root /usr/share/nginx/html;</code></td><td>기본 데모 화면 경로</td></tr>
-      <tr><td class="nowrap">그 아래</td><td><code>include</code> 등</td><td>앞에서 배운 형태와 거의 같음</td></tr>
-    </tbody></table></div>
-    <ul class="facts"><li><strong>이 단계</strong><div>확인용이라 수정할 것 없음 — 같은 버전이면 같은 줄 번호</div></li></ul>
+    <ul class="facts"><li><strong>같은 구조 확인</strong><div>37번 <code>server {</code> · 38번 <code>listen 80;</code> · 39번 <code>listen [::]:80;</code> · 40번 <code>server_name</code>(도메인 자리, 이번엔 IP 접속) · 41번 <code>root /usr/share/nginx/html;</code> — 같은 버전이면 줄 번호까지 같음, 줄별 의미는 2장</div></li><li><strong>이 단계</strong><div>확인용이라 수정할 것 없음</div></li></ul>
 
     <h3>GCP 방화벽 80 열기</h3>
     <ul class="facts"><li><strong>경로</strong><div>[GCP 콘솔 · VM 인스턴스] 인스턴스 이름 클릭 → 네트워크 → 방화벽 규칙 목록에서 <b>80이 있는지</b> 확인 → 없으면 접속 불가</div></li></ul>
@@ -1066,6 +1059,7 @@ vi /etc/nginx/nginx.conf</code></pre><button class="copy" type="button" aria-lab
 
     <h3>root 경로 변경</h3>
     <p>앞서 만든 사용자 <code>megazone</code>의 홈(<code>/home/megazone</code>) 아래 <b><code>public</code></b>(VS Code에서 만든 폴더)을 웹 루트로 사용.</p>
+    <ul class="facts"><li><strong>바꾸는 방법</strong><div>41번 줄 <code>root</code> 수정 → 재시작 — 원본 줄 <code>#</code> 보존·새 줄에 <code>#</code>이 붙으면 적용 안 됨 같은 원리는 4장</div></li></ul>
     <div class="code"><pre><code><span class="c"># [GCP VM 호스트 리눅스 · root]</span>
 <span class="c"># :set number 후 41번 줄 root 수정</span>
 vi /etc/nginx/nginx.conf

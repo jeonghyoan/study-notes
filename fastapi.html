@@ -930,6 +930,7 @@ def login(id: str):
     <h2>POST·GET 라우트 — 두 통로를 가진 API 파일</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — 한 파일에 POST 창구와 GET 창구를 따로</p><div class="dg-flow"><div class="dg-node"><h4>① file_api.py</h4><p class="sub">fastapi.py 이름 회피</p><ul><li>앱 객체 하나</li></ul></div><div class="dg-arrow"></div><div class="dg-node key"><h4>② POST 라우트</h4><p class="sub">/notice</p><ul><li>값을 받아 등록</li></ul></div><div class="dg-arrow"></div><div class="dg-node"><h4>③ GET 라우트</h4><p class="sub">/user</p><ul><li>값을 받아 조회</li></ul></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>④ uvicorn 가동</h4><p class="sub">file_api:app</p><ul><li>포트 9999</li></ul></div></div><p class="dg-foot">통신 방식은 데코레이터가 정함 — 같은 값을 받아도 <code>@app.post</code>는 POST 요청만, <code>@app.get</code>은 GET 요청만 처리</p></div>
 
+    <ul class="facts"><li><strong>기본형</strong><div><code>app = FastAPI()</code>·<code>@app.get("/경로")</code>·dict→JSON 변환의 기본 코드와 실행: 6·7·8장 — 이 장은 POST/GET 두 통로와 405·404 판별만</div></li></ul>
     <h3>실습 순서 — 설치부터 DB 삭제까지</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>순서</th><th>할 일</th><th>남는 결과</th><th>위치</th></tr></thead><tbody>
@@ -1275,14 +1276,10 @@ def del_movie(id: str):
     <div class="dg-bar warn">삭제의 메서드 — 실습은 <code>@app.get("/del/{id}")</code>로 만들었지만, 데이터를 바꾸는 작업은 <code>DELETE</code>(또는 POST) 메서드로 만들어야 함. GET은 조회용 안전한 메서드라 링크 클릭·크롤러 호출만으로 삭제될 위험 — RFC 9110(HTTP Semantics) 9.2.1</div>
     <div class="dg-bar warn">처리 짝 — <code>SELECT</code>는 <code>execute</code> → <code>fetchall()</code>, <code>INSERT</code>·<code>UPDATE</code>·<code>DELETE</code>는 <code>execute</code> → <code>commit()</code>. 결과 1은 성공, 0은 대상 없음. 값은 <code>%s</code> 파라미터 바인딩으로 넘겨 SQL 인젝션 차단</div>
 
-    <h3>쿼리문 종류 — 용도별 처리</h3>
-    <div class="table-wrap"><table>
-    <thead><tr><th>용도</th><th>쿼리</th><th>파이썬 처리</th></tr></thead><tbody>
-    <tr><td class="nowrap">조회</td><td><code>SELECT</code></td><td><code>execute</code> → <code>fetchall()</code></td></tr>
-    <tr><td class="nowrap">입력</td><td><code>INSERT</code></td><td><code>execute</code> → <code>commit()</code></td></tr>
-    <tr><td class="nowrap">수정</td><td><code>UPDATE</code></td><td><code>execute</code> → <code>commit()</code></td></tr>
-    <tr><td class="nowrap">삭제</td><td><code>DELETE</code></td><td><code>execute</code> → <code>commit()</code> (결과 1/0)</td></tr>
-    </tbody></table></div>
+    <h3>쿼리문 종류 — 용도별 처리 (15장)</h3>
+    <ul class="facts">
+      <li><strong>처리 짝</strong><div><code>SELECT</code> → <code>execute</code> + <code>fetchall()</code>, <code>INSERT</code>·<code>UPDATE</code>·<code>DELETE</code> → <code>execute</code> + <code>commit()</code>(결과 1/0), <code>fetchall</code>·<code>fetchone</code> 차이: 15장</div></li>
+    </ul>
     <ul class="facts">
       <li><strong>쿼리 학습법</strong><div>AI에게 <code>MySQL Select Insert Update Delete 기초 쿼리문을 가르쳐줘</code> → 이어서 <code>해당 쿼리문을 작동시키기 위한 테이블을 작성해줘</code>로 테이블부터 만들고 → INSERT → SELECT → UPDATE → DELETE 순서로 실습</div></li>
       <li><strong>범위</strong><div>JOIN·PK·LEFT/RIGHT JOIN 같은 중급은 개발 쪽 영역이라 지금은 불필요 — API가 로우 데이터를 서비스 형태로 만드는 정도까지만</div></li>

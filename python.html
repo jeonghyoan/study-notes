@@ -736,17 +736,12 @@ print(aa['total'])</code></pre><button class="copy" type="button" aria-label="�
       <li><strong>실수 사례 2</strong><div><code>users.sort(...)</code>로 써서 변수명 <code>user</code>와 달라 에러 → 변수명을 통일</div></li>
     </ul>
 
-    <h3>변수에 lambda 넣기</h3>
-    <div class="code"><pre><code><span class="c"># [VS Code · Lambda 프로젝트 mz-apink · lambda_function.py · lambda_handler 안]</span>
-    get_hd = lambda : 100          <span class="c"># 매개변수 없이 100 반환</span>
-    print(get_hd())</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <p>실행 결과 <code>100</code> — lambda를 변수에 대입하면 <b>변수가 함수처럼</b> 동작(익명 함수를 담은 변수 = 변수 함수).</p>
-
-    <h3>람다로 합 구하기</h3>
-    <div class="code"><pre><code><span class="c"># [VS Code · Lambda 프로젝트 mz-apink · lambda_function.py · lambda_handler 안]</span>
-    sum = lambda aa, bb: aa + bb   <span class="c"># aa + bb 결과를 바로 반환</span>
-    print(sum(30, 50))</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <p>실행 결과 <code>80</code> — 인자를 받는 lambda는 <code>lambda 매개변수: 식</code> 형태로 쓰고, 호출할 때 값을 넘김.</p>
+    <h3>변수에 담기·인자 받기 (3장)</h3>
+    <ul class="facts">
+      <li><strong>변수에 대입</strong><div><code>get_hd = lambda : 100</code> → <code>get_hd()</code>가 100 — 변수가 함수처럼 동작(익명 함수를 담은 변수)</div></li>
+      <li><strong>인자 받기</strong><div><code>sum = lambda aa, bb: aa + bb</code> → <code>sum(30, 50)</code>이 80 — <code>lambda 매개변수: 식</code> 형태로 쓰고 호출 때 값을 넘김</div></li>
+      <li><strong>정의·문법</strong><div>lambda의 정의·형식·반환 규칙·AWS 서비스 Lambda와의 구분: 3장</div></li>
+    </ul>
 
     <div class="dg-bar warn">sort(key=lambda ...) — <code>key</code>는 <b>고정 키워드</b>라 다른 이름으로 바꾸면 <code>TypeError: sort() got an unexpected keyword argument</code>. <code>lambda b: b[1]</code>은 튜플의 1번 값을 정렬 기준으로 뽑아 주는 것이라 결과는 <b>오름차순</b>(21 → 30 → 55)이고 셔플이 아님. 리스트 변수명과 <code>sort</code>를 부르는 변수명도 일치</div>
   </section>
