@@ -634,7 +634,7 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
       </div>
       <div>
         <div class="core-metric">7077 · 8080 · 8888</div>
-        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI(Running 앱 확인), 8888 Jupyter(토큰 로그인, 재기동마다 토큰 변경 — 컨테이너에서는 hostconfig.json으로 추가), 11111 FastAPI(같은 방법으로 추가 — 19장), 8081 워커 UI, 3306 MySQL(2장·4장·11장·16장), 5432 PostgreSQL(충돌 확인 20장·연결 실습 pyspark.html 23장)</p>
+        <p class="core-desc">7077 마스터 통신(막히면 워커 연결 실패), 8080 마스터 Web UI(Running 앱 확인), 8888 Jupyter(토큰 로그인, 재기동마다 토큰 변경 — 컨테이너에서는 hostconfig.json으로 추가), 11111 FastAPI(같은 방법으로 추가 — 19장), 8081 워커 UI, 3306 MySQL(2장·4장·11장·16장), 5432 PostgreSQL(충돌 확인 20장·연결 실습 pyspark.html 21장)</p>
       </div>
       <div>
         <div class="core-metric">spark-net + --host</div>
@@ -1563,7 +1563,7 @@ cd ~                         <span class="c"># 홈 디렉터리로 이동 — te
 spark-submit test_table.py   <span class="c"># JDBC 읽기 실행 — show(5) 결과가 터미널에 출력</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="dg-bar warn">JDBC 읽기 6옵션 — <code>format("jdbc")</code>에 <code>url</code>(<code>jdbc:mysql://IP:3306/DB명</code>)·<code>dbtable</code>·<code>user</code>·<code>password</code>·<code>driver</code>. url에 테이블명을 넣으면 실패하고, JAR가 없으면 드라이버 클래스에서 실패</div>
 
-    <ul class="facts"><li><strong>테이블·적재</strong><div>읽을 테이블을 만든 과정: 이 파일 10장</div></li><li><strong>세션 설정</strong><div><code>executor.memory</code>·<code>driver.memory</code>·<code>cores.max</code>: pyspark.html 7장</div></li><li><strong>DBeaver 연결</strong><div>호스트·포트·DB명 확인: mysql.html 4장</div></li><li><strong>pymysql 방식</strong><div>JDBC 대신 커넥터로 읽고 데이터 프레임으로 변환: pyspark.html 20~21장</div></li></ul>
+    <ul class="facts"><li><strong>테이블·적재</strong><div>읽을 테이블을 만든 과정: 이 파일 10장</div></li><li><strong>세션 설정</strong><div><code>executor.memory</code>·<code>driver.memory</code>·<code>cores.max</code>: pyspark.html 7장</div></li><li><strong>DBeaver 연결</strong><div>호스트·포트·DB명 확인: mysql.html 4장</div></li><li><strong>pymysql 방식</strong><div>JDBC 대신 커넥터로 읽고 데이터 프레임으로 변환: pyspark.html 18~19장</div></li></ul>
   </section>
   <!-- 12 -->
   <section class="sec" id="spark-movie-agg">
@@ -1996,7 +1996,7 @@ if 'spark' in globals():      <span class="c"># 커널이 spark를 계속 잡고
     </tbody></table></div>
     <div class="dg-bar warn">고스트 세션 — globals 체크를 빼면 출력은 그대로인데 Running Application이 남아 코어·메모리를 계속 점유. kill로만 정리되고, stop은 위(시작 전)·아래(작업 끝) 둘 다 걸어야 함. "코어가 없다" 에러의 흔한 원인</div>
 
-    <ul class="facts"><li><strong>템플릿</strong><div>globals 체크·builder 전체 코드: pyspark.html 16장</div></li><li><strong>커널 정리</strong><div>Restart Kernel·Shut Down Kernel·<code>(kill)</code>: pyspark.html 5장</div></li><li><strong>자원 한계 실험</strong><div>코어를 점유해 <code>WAITING</code>이 되는 사례: pyspark.html 6장</div></li></ul>
+    <ul class="facts"><li><strong>템플릿</strong><div>globals 체크·builder 전체 코드: pyspark.html 14장</div></li><li><strong>커널 정리</strong><div>Restart Kernel·Shut Down Kernel·<code>(kill)</code>: pyspark.html 5장</div></li><li><strong>자원 한계 실험</strong><div>코어를 점유해 <code>WAITING</code>이 되는 사례: pyspark.html 6장</div></li></ul>
   </section>
   <!-- 18 -->
   <section class="sec" id="spark-time-sync">
@@ -2291,7 +2291,7 @@ ls /var/lib/postgresql/data/    <span class="c"># pg_hba.conf · postgresql.conf
     <h3>스파크에서 DB를 쓰는 방식 2가지</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>방식</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">커넥션(드라이버) 방식</td><td>파이썬 드라이버로 커넥션을 열어 SELECT 결과를 pandas 거쳐 데이터 프레임으로 만드는 방식</td><td>MariaDB 때 <code>pymysql</code> 로 한 방식과 같고 이번 실습도 이 방식(pyspark.html 20~21장·23장)</td></tr>
+    <tr><td class="nowrap">커넥션(드라이버) 방식</td><td>파이썬 드라이버로 커넥션을 열어 SELECT 결과를 pandas 거쳐 데이터 프레임으로 만드는 방식</td><td>MariaDB 때 <code>pymysql</code> 로 한 방식과 같고 이번 실습도 이 방식(pyspark.html 18~19장·23장)</td></tr>
     <tr><td class="nowrap">스파크 DB 커넥션(JDBC) 방식</td><td>JVM 위 JDBC 드라이버로 DB 테이블을 직접 읽는 실무형 방식</td><td>이번 강의는 <b>jar 준비까지</b> — 실제 읽기 실습은 다음 단계(11장)</td></tr>
     <tr><td class="nowrap">차이</td><td>JDBC 는 마스터·워커 <b>모두</b> jar 필요, 커넥션 방식은 파이썬 패키지만 필요</td><td>jar 를 빠뜨리면 워커에서 클래스 없음 오류</td></tr>
     </tbody></table></div>
@@ -2329,7 +2329,7 @@ exit</code></pre><button class="copy" type="button" aria-label="코드 복사">�
     </tbody></table></div>
     <div class="dg-bar warn">JDBC 는 마스터와 워커 모두 jar 필요 — 한쪽만 넣으면 워커 태스크에서 드라이버 클래스 없음 오류. 워커가 많으면 이미지로 굽고 push 해서 배포</div>
 
-    <ul class="facts"><li><strong>JDBC 읽기</strong><div>드라이버 클래스·6옵션·<code>show(5)</code>: 이 파일 11장</div></li><li><strong>MariaDB jar 선례</strong><div>워커 jars 폴더에 넣은 드라이버: pyspark.html 20장</div></li><li><strong>커넥션 방식</strong><div><code>pymysql</code> 접속 → pandas → Spark: pyspark.html 21장, PostgreSQL 판: pyspark.html 23장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code> 와 마스터·워커 구분: 이 파일 14장</div></li></ul>
+    <ul class="facts"><li><strong>JDBC 읽기</strong><div>드라이버 클래스·6옵션·<code>show(5)</code>: 이 파일 11장</div></li><li><strong>MariaDB jar 선례</strong><div>워커 jars 폴더에 넣은 드라이버: pyspark.html 18장</div></li><li><strong>커넥션 방식</strong><div><code>pymysql</code> 접속 → pandas → Spark: pyspark.html 19장, PostgreSQL 판: pyspark.html 21장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code> 와 마스터·워커 구분: 이 파일 14장</div></li></ul>
   </section>
   <!-- 22 -->
   <section class="sec" id="spark-pg-psycopg2">
@@ -2343,11 +2343,11 @@ pip3 install psycopg2-binary    <span class="c"># PostgreSQL 드라이버 2.x �
 pip3 install psycopg2-binary    <span class="c"># 워커도 같은 드라이버 필요</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">역할</td><td>MySQL 의 <code>pymysql</code> 에 해당하는 PostgreSQL 드라이버</td><td>없으면 파이썬에서 PostgreSQL 연결 불가(pyspark.html 21장)</td></tr>
+    <tr><td class="nowrap">역할</td><td>MySQL 의 <code>pymysql</code> 에 해당하는 PostgreSQL 드라이버</td><td>없으면 파이썬에서 PostgreSQL 연결 불가(pyspark.html 19장)</td></tr>
     <tr><td class="nowrap">설치 형태</td><td>2.x 를 <b>binary</b> 형태로 설치 — 컴파일 없이 한 번에 끝남</td><td>컴파일러·<code>pg_config</code> 준비가 필요 없는 대신 개발·테스트용으로 분류(<a href="https://www.psycopg.org/docs/install.html">psycopg2 설치</a>)</td></tr>
     <tr><td class="nowrap">없는 패키지</td><td><code>pip3 install pypostgres</code> → <code>ERROR: Could not find a version that satisfies the requirement pypostgres</code> / <code>No matching distribution found</code></td><td>이름을 만들어 넣으면 이 에러 — 패키지 이름은 <code>psycopg2-binary</code></td></tr>
     <tr><td class="nowrap">계열</td><td>psycopg2 2.x 는 지금도 쓰이는 정식 계열, 새 계열은 별도 패키지 <code>psycopg</code> 3</td><td>예전 버전에서만 쓰던 것이 아님(<a href="https://www.psycopg.org/psycopg3/docs/basic/install.html">psycopg 3 설치</a>)</td></tr>
-    <tr><td class="nowrap">pandas 조합</td><td><code>pd.read_sql</code> 과 함께 쓰면 DataFrame 으로 바로 연결</td><td>커서를 직접 돌리지 않아도 표로 받을 수 있음(pyspark.html 23장)</td></tr>
+    <tr><td class="nowrap">pandas 조합</td><td><code>pd.read_sql</code> 과 함께 쓰면 DataFrame 으로 바로 연결</td><td>커서를 직접 돌리지 않아도 표로 받을 수 있음(pyspark.html 21장)</td></tr>
     </tbody></table></div>
 
     <h3>다른 설치 방식</h3>
@@ -2371,7 +2371,7 @@ pip3 install "psycopg[binary]"   <span class="c"># psycopg 3.x — 괄호 때문
     </tbody></table></div>
     <div class="dg-bar warn">드라이버는 마스터·워커 모두 설치 — 한쪽만 있으면 워커에서 <code>ModuleNotFoundError</code>. <code>pypostgres</code> 같은 없는 이름은 <code>No matching distribution found</code></div>
 
-    <ul class="facts"><li><strong>pymysql 선례</strong><div>드라이버 설치·접속 코드: pyspark.html 21장</div></li><li><strong>접속 정보</strong><div>DB·계정·포트: postgresql.html 14장·이 파일 20장</div></li><li><strong>연동 실습</strong><div>연결 → pandas → Spark: pyspark.html 23장</div></li><li><strong>드라이버 jar</strong><div>JDBC 방식의 jar 준비: 이 파일 21장</div></li></ul>
+    <ul class="facts"><li><strong>pymysql 선례</strong><div>드라이버 설치·접속 코드: pyspark.html 19장</div></li><li><strong>접속 정보</strong><div>DB·계정·포트: postgresql.html 14장·이 파일 20장</div></li><li><strong>연동 실습</strong><div>연결 → pandas → Spark: pyspark.html 21장</div></li><li><strong>드라이버 jar</strong><div>JDBC 방식의 jar 준비: 이 파일 21장</div></li></ul>
   </section>
   <!-- 23 -->
   <section class="sec" id="spark-torch">
@@ -2457,7 +2457,7 @@ pip install --no-cache-dir sentence-transformers scikit-learn psycopg2-binary</c
     </tbody></table></div>
     <div class="dg-bar warn">마스터에만 설치하면 워커에서 도는 태스크가 임베딩 모델을 찾지 못함 — PyTorch·sentence-transformers·scikit-learn·psycopg2-binary를 마스터와 워커 양쪽에 같은 명령으로 설치</div>
 
-    <ul class="facts"><li><strong>벡터 테이블·검색</strong><div>vector(2) 테이블·정렬 연산자(<code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>·<code>&lt;#&gt;</code>)·거리 지표: vectordb.html 8~10장</div></li><li><strong>벡터 검색·임베딩 입력</strong><div>연산자별 결과·<code>movie_data vector(384)</code>·<code>SentenceTransformer</code>·모델 교체: vectordb.html 11~13장</div></li><li><strong>벡터 SELECT 읽기</strong><div>노트북 vb1에서 <code>read_sql</code>·<code>createDataFrame</code>: pyspark.html 26장</div></li><li><strong>임베딩 개념</strong><div>벡터·임베딩·모델 차원(1536·512~768): vectordb.html 9장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code>와 마스터·워커 구분: 이 파일 14장</div></li><li><strong>PostgreSQL 드라이버</strong><div><code>psycopg2-binary</code>·<code>psycopg[binary]</code> 설치 이력: 이 파일 22장</div></li></ul>
+    <ul class="facts"><li><strong>벡터 테이블·검색</strong><div>vector(2) 테이블·정렬 연산자(<code>&lt;-&gt;</code>·<code>&lt;=&gt;</code>·<code>&lt;#&gt;</code>)·거리 지표: vectordb.html 8~10장</div></li><li><strong>벡터 검색·임베딩 입력</strong><div>연산자별 결과·<code>movie_data vector(384)</code>·<code>SentenceTransformer</code>·모델 교체: vectordb.html 11~13장</div></li><li><strong>벡터 SELECT 읽기</strong><div>노트북 vb1에서 <code>read_sql</code>·<code>createDataFrame</code>: pyspark.html 24장</div></li><li><strong>임베딩 개념</strong><div>벡터·임베딩·모델 차원(1536·512~768): vectordb.html 9장</div></li><li><strong>컨테이너 진입</strong><div><code>docker exec -it</code>와 마스터·워커 구분: 이 파일 14장</div></li><li><strong>PostgreSQL 드라이버</strong><div><code>psycopg2-binary</code>·<code>psycopg[binary]</code> 설치 이력: 이 파일 22장</div></li></ul>
   </section>
   <!-- 24 -->
   <section class="sec" id="cheatsheet">

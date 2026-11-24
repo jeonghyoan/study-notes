@@ -3368,7 +3368,7 @@ select host,user from user where user='mg';</code></pre><button class="copy" typ
     <div class="dg-bar warn">pull 받은 이미지 — root 가 <code>%</code> 로 열려 있는지 <code>select host,user from user</code> 로 먼저 확인. root 는 <code>localhost</code> 만 남기고, 외부 접속은 특정 IP 로 제한</div>
     <div class="dg-bar warn">권한 테이블 삭제 — WHERE·AND 조건을 빠뜨리면 다른 계정까지 지워져 외부 접속이 전부 끊김. 계정 삭제는 <code>DROP USER</code> 가 권장이고, 지운 뒤에는 재등록·재접속까지 확인</div>
 
-    <ul class="facts"><li><strong>계정·권한 원리</strong><div>host별 별도 계정·GRANT·최소 권한: 이 파일 4·5장</div></li><li><strong>MariaDB 컨테이너</strong><div>설정 파일·포트 3309 연결: 이 파일 12장</div></li><li><strong>DBeaver 연결</strong><div>Host·Port·User 확인과 접속 실패 점검 순서: 이 파일 13장</div></li><li><strong>연결이 막힌 뒤</strong><div>Spark·pymysql 에서 <code>Host … is not allowed</code> 가 나올 때: pyspark.html 21장</div></li><li><strong>분석용 테이블·조인</strong><div>4개 테이블·ERD·JOIN·VIEW: 이 파일 17~19장</div></li></ul>
+    <ul class="facts"><li><strong>계정·권한 원리</strong><div>host별 별도 계정·GRANT·최소 권한: 이 파일 4·5장</div></li><li><strong>MariaDB 컨테이너</strong><div>설정 파일·포트 3309 연결: 이 파일 12장</div></li><li><strong>DBeaver 연결</strong><div>Host·Port·User 확인과 접속 실패 점검 순서: 이 파일 13장</div></li><li><strong>연결이 막힌 뒤</strong><div>Spark·pymysql 에서 <code>Host … is not allowed</code> 가 나올 때: pyspark.html 19장</div></li><li><strong>분석용 테이블·조인</strong><div>4개 테이블·ERD·JOIN·VIEW: 이 파일 17~19장</div></li></ul>
   </section>
   <!-- 17 -->
   <section class="sec" id="analysis-tables">
@@ -3554,7 +3554,7 @@ where a.mall_id = b.mall_id;</code></pre><button class="copy" type="button" aria
     <h3>응용문제</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>번호</th><th>문제</th><th>출력 항목</th><th>조인</th></tr></thead><tbody>
-    <tr><td class="nowrap">응용 1</td><td>하와이 여행 신청 결제완료 중 숙박 제외 개수</td><td><code>count</code></td><td>아님 (PostgreSQL — pyspark.html 25장)</td></tr>
+    <tr><td class="nowrap">응용 1</td><td>하와이 여행 신청 결제완료 중 숙박 제외 개수</td><td><code>count</code></td><td>아님 (PostgreSQL — pyspark.html 23장)</td></tr>
     <tr><td class="nowrap">응용 2</td><td>사용자가 결제한 내역의 리스트를 출력하는 결과 테이블(뷰) 만들기</td><td>아이디, 이름, 연락처, 상품코드, 결제금액, 결제일자</td><td>조인</td></tr>
     <tr><td class="nowrap">응용 3</td><td>고객 데이터 중 SMS와 이메일 수신 동의를 모두 동의한 사용자만 출력</td><td>아이디, 이름(고객명), 연락처, SMS 수신 동의, 이메일 수신 동의</td><td><b>조인 아님</b> — 테이블 하나. 조인 아닌 문제는 "조인 아님"이라고 표시</td></tr>
     <tr><td class="nowrap">응용 4</td><td>상품과 결제를 연결해 결제금액 많은 순으로 출력</td><td>상품명, 상품코드, 상품가격, ID, 결제금액, 결제일자 (결제금액 내림차순)</td><td>조인</td></tr>
@@ -3586,7 +3586,7 @@ order by b.pay_money desc;              <span class="c">-- 결제금액 큰 순<
     <div class="dg-bar warn">뷰 — 조회 정의만 저장하는 가상 테이블. 조인 쿼리가 정상인지 먼저 확인하고 <code>create view</code>로 감싸며, 스파크에는 뷰 하나만 넘겨 분석</div>
     <div class="dg-bar warn">조인 컬럼 — <code>select *</code> 대신 별칭.컬럼명으로 필요한 컬럼만. 부모 테이블을 기준으로 같은 키(<code>mall_id</code>·<code>pcode</code>)를 <code>on</code>·<code>where</code>에 명시하고, 별칭 이름이 조인·뷰의 가독성을 결정</div>
 
-    <ul class="facts"><li><strong>테이블·ERD</strong><div>4개 테이블 구조와 조인 키: 이 파일 17장</div></li><li><strong>데이터 입력</strong><div>시트 미러링으로 채운 기준 데이터: 이 파일 18장</div></li><li><strong>조건·집계</strong><div><code>where</code>·<code>order by</code>·<code>count</code> 기본: 이 파일 2·3장</div></li><li><strong>스파크 분석</strong><div>뷰 결과를 pandas 경유 Spark로: pyspark.html 24·25장</div></li><li><strong>조인 결과 노출</strong><div>DB 조회를 FastAPI로: fastapi.html 14장</div></li></ul>
+    <ul class="facts"><li><strong>테이블·ERD</strong><div>4개 테이블 구조와 조인 키: 이 파일 17장</div></li><li><strong>데이터 입력</strong><div>시트 미러링으로 채운 기준 데이터: 이 파일 18장</div></li><li><strong>조건·집계</strong><div><code>where</code>·<code>order by</code>·<code>count</code> 기본: 이 파일 2·3장</div></li><li><strong>스파크 분석</strong><div>뷰 결과를 pandas 경유 Spark로: pyspark.html 22·23장</div></li><li><strong>조인 결과 노출</strong><div>DB 조회를 FastAPI로: fastapi.html 14장</div></li></ul>
   </section>
   <!-- 20 -->
   <section class="sec" id="gcp-cloudsql">
@@ -3959,7 +3959,7 @@ select count(*) as cnt from sales where orderdate &gt;= '2026-10-20';</code></pr
 <span class="c"># LIMIT 절 = WHERE 절과 결합해 특정 구간의 데이터를 가져올 때 사용</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="dg-bar warn">LIMIT — 시작은 0부터, 맨 마지막 절, 숫자에 따옴표 금지. 집계 함수와 함께 쓰면 문법 오류가 아니라 최종 1행에 적용돼 시작 번호 1 이상이면 빈 결과 — 개수·합계는 LIMIT 없이 따로 실행. select 문법은 전체 조회·where·order by·limit·집계까지이고 서브쿼리(더블 셀렉트)는 출제 범위 아님</div>
 
-    <ul class="facts"><li><strong>집계 함정</strong><div>수치 함수·집계 결과의 정렬 오류: pyspark.html 12장</div></li><li><strong>쿼리 실행 위치</strong><div>임시 뷰와 <code>spark.sql</code>: pyspark.html 11장</div></li><li><strong>결과 받기</strong><div><code>read_sql</code> 과 <code>show</code> 옵션: pyspark.html 21장</div></li><li><strong>기본 조회</strong><div><code>select</code>·<code>where</code>·<code>order by</code> 기본기: 이 파일 2장</div></li></ul>
+    <ul class="facts"><li><strong>집계 함정</strong><div>수치 함수·집계 결과의 정렬 오류: pyspark.html 12장</div></li><li><strong>쿼리 실행 위치</strong><div>임시 뷰와 <code>spark.sql</code>: pyspark.html 11장</div></li><li><strong>결과 받기</strong><div><code>read_sql</code> 과 <code>show</code> 옵션: pyspark.html 19장</div></li><li><strong>기본 조회</strong><div><code>select</code>·<code>where</code>·<code>order by</code> 기본기: 이 파일 2장</div></li></ul>
   </section>
   <!-- 24 -->
   <section class="sec" id="sql-like">
@@ -4011,7 +4011,7 @@ alldata = pd.read_sql(
 
     <div class="dg-bar warn">LIKE 의 % 위치 — 앞뒤에 붙이면 포함, 뒤에만 붙이면 그 글자로 시작, 앞에만 붙이면 그 글자로 끝. 결과가 이상하면 데이터가 아니라 쿼리를 먼저 의심</div>
 
-    <ul class="facts"><li><strong>결과 받기</strong><div><code>read_sql</code> · <code>show</code> · close 순서: pyspark.html 21장</div></li><li><strong>개수·합계</strong><div>COUNT·SUM 과 LIMIT 주의: 이 파일 23장</div></li><li><strong>SQL 기본기</strong><div><code>select</code>·<code>where</code> 문법: 이 파일 2장</div></li></ul>
+    <ul class="facts"><li><strong>결과 받기</strong><div><code>read_sql</code> · <code>show</code> · close 순서: pyspark.html 19장</div></li><li><strong>개수·합계</strong><div>COUNT·SUM 과 LIMIT 주의: 이 파일 23장</div></li><li><strong>SQL 기본기</strong><div><code>select</code>·<code>where</code> 문법: 이 파일 2장</div></li></ul>
   </section>
   <!-- 25 -->
   <section class="sec" id="sql-travel-payment">
@@ -4085,7 +4085,7 @@ print("DB Connection!!")        <span class="c"># 연결 확인</span></code></p
     <h3>문제 풀이 공통</h3>
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">풀이 방식</td><td>pyspark.html 21장의 <code>read_sql</code> 쿼리만 교체해 실행</td><td>접속·변환 코드는 그대로 재사용</td></tr>
+    <tr><td class="nowrap">풀이 방식</td><td>pyspark.html 19장의 <code>read_sql</code> 쿼리만 교체해 실행</td><td>접속·변환 코드는 그대로 재사용</td></tr>
     <tr><td class="nowrap">전체 출력</td><td><code>data.show(truncate=False)</code></td><td>긴 값이 잘리지 않게 확인</td></tr>
     <tr><td class="nowrap">세션 코드</td><td><code>spark4.ipynb</code> 에서 그대로 가져옴</td><td>템플릿을 새로 쓰지 않고 이어서 사용</td></tr>
     <tr><td class="nowrap">기존 쿼리</td><td>기존 select 문법은 지우고 문제를 풀이</td><td>남겨 두면 결과가 섞여 원인 파악이 어려움</td></tr>
@@ -4142,7 +4142,7 @@ select count(*) from travel_payment where spot like '%오사카%';</code></pre><
 
     <div class="dg-bar warn">문제 문구의 '결제한'·'선택한' — 결제 상태 조건의 유무가 답을 가름(195 vs 129 / 47). 찾는 컬럼도 답을 가름 — 카테고리 '패키지 여행'은 상품명이 아니라 상품유형 <code>ptype</code></div>
 
-    <ul class="facts"><li><strong>다음 단계</strong><div>같은 표로 조건 조합·집계를 복습하고 DBeaver 쿼리를 Spark로 이식: 이 파일 26장</div></li><li><strong>접속·읽기</strong><div><code>pymysql.connect</code>·<code>read_sql</code>: pyspark.html 21장</div></li><li><strong>조건 조회</strong><div>LIMIT·WHERE·ORDER BY: 이 파일 23장, LIKE: 이 파일 24장</div></li><li><strong>테이블 적재</strong><div>CSV를 테이블로 만드는 절차: 이 파일 3장</div></li><li><strong>계정 보안</strong><div>접속이 막혔을 때 <code>%</code>·root 확인: 이 파일 16장</div></li></ul>
+    <ul class="facts"><li><strong>다음 단계</strong><div>같은 표로 조건 조합·집계를 복습하고 DBeaver 쿼리를 Spark로 이식: 이 파일 26장</div></li><li><strong>접속·읽기</strong><div><code>pymysql.connect</code>·<code>read_sql</code>: pyspark.html 19장</div></li><li><strong>조건 조회</strong><div>LIMIT·WHERE·ORDER BY: 이 파일 23장, LIKE: 이 파일 24장</div></li><li><strong>테이블 적재</strong><div>CSV를 테이블로 만드는 절차: 이 파일 3장</div></li><li><strong>계정 보안</strong><div>접속이 막혔을 때 <code>%</code>·root 확인: 이 파일 16장</div></li></ul>
   </section>
   <!-- 26 -->
   <section class="sec" id="sql-review">
@@ -4156,7 +4156,7 @@ select count(*) from travel_payment where spot like '%오사카%';</code></pre><
     <tr><td class="nowrap">DB·테이블</td><td>DB <code>mg</code>, 테이블 <code>travel_payment</code>(여행 결제 데이터)</td><td>문제 풀이에서 만든 표를 계속 사용(이 파일 25장)</td></tr>
     <tr><td class="nowrap">컬럼 11개</td><td><code>payno</code>(결제번호)·<code>date</code>·<code>customer</code>·<code>mid</code>(이메일)·<code>product</code>·<code>ptype</code>(상품 유형)·<code>spot</code>(지역)·<code>money</code>(금액)·<code>paytype</code>(결제수단)·<code>cardcorp</code>(카드사)·<code>paystate</code>(결제상태)</td><td>조건은 이 컬럼 이름으로만 씀 — 한글 컬럼명은 쓰지 않음</td></tr>
     <tr><td class="nowrap">결제상태 값</td><td>결제완료 · 결제취소 · 결제대기 · 환불진행중</td><td>한글 값 그대로 비교 — 값이 하나라도 빠지면 집계가 어긋남</td></tr>
-    <tr><td class="nowrap">전체 흐름</td><td>SQL 복습(DBeaver) → 같은 쿼리를 Spark로 → 컨테이너 포트 추가(spark.html 19장) → FastAPI로 API 작성(fastapi.html 15장) → Spark에서 API 호출해 SQL 실행(pyspark.html 22장)</td><td>오늘의 목표는 DB를 API로 감싸 Spark가 그 API를 읽는 경로를 만드는 것</td></tr>
+    <tr><td class="nowrap">전체 흐름</td><td>SQL 복습(DBeaver) → 같은 쿼리를 Spark로 → 컨테이너 포트 추가(spark.html 19장) → FastAPI로 API 작성(fastapi.html 15장) → Spark에서 API 호출해 SQL 실행(pyspark.html 20장)</td><td>오늘의 목표는 DB를 API로 감싸 Spark가 그 API를 읽는 경로를 만드는 것</td></tr>
     <tr><td class="nowrap">소스 파일</td><td><code>spark6.ipynb</code>(복습), <code>spark7.ipynb</code>(API 연동), <code>travel_api.py</code></td><td>노트북 두 개와 API 파일 하나로 실습이 나뉨</td></tr>
     </tbody></table></div>
 

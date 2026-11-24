@@ -1422,8 +1422,8 @@ drop schema 스키마명 cascade;
     <div class="dg-bar warn">스키마 — DB 아래 한 단계 더. <code>public</code>은 기본 제공이지만 서비스 데이터는 전용 스키마에 넣고 public은 지우지 않음. <code>drop schema</code>는 기본이 객체가 있으면 거부(RESTRICT), 삭제하려면 CASCADE</div>
     <ul class="facts">
     <li><strong>검색 경로</strong><div><code>set search_path</code>·<code>alter user … set search_path</code> 차이: 이 파일 16장</div></li>
-    <li><strong>연결 시 스키마 지정</strong><div>psycopg2 <code>options</code> 의 <code>-c search_path=</code>: pyspark.html 23장</div></li>
-    <li><strong>SQLAlchemy 엔진</strong><div><code>create_engine</code>·<code>dispose</code>·<code>with connect</code> 로 조회: pyspark.html 24장</div></li>
+    <li><strong>연결 시 스키마 지정</strong><div>psycopg2 <code>options</code> 의 <code>-c search_path=</code>: pyspark.html 21장</div></li>
+    <li><strong>SQLAlchemy 엔진</strong><div><code>create_engine</code>·<code>dispose</code>·<code>with connect</code> 로 조회: pyspark.html 22장</div></li>
     </ul>
   </section>
   <!-- 9 -->
@@ -1850,7 +1850,7 @@ alter user mg set search_path to mg_schema, public;
     </tbody></table></div>
     <div class="dg-bar warn">새 스키마는 기본 경로(<code>"$user", public</code>)에 없음 — <code>set</code> 은 세션용, <code>alter user ... set search_path</code> 는 롤에 저장. 초기화 원인은 컨테이너 재시작이 아니라 세션 종료</div>
 
-    <ul class="facts"><li><strong>스키마와 public</strong><div>스키마 구조·public 권한의 원리: 이 파일 8장</div></li><li><strong>스키마 권한</strong><div>스키마 단위 grant·revoke: 이 파일 19장</div></li><li><strong>DBeaver 우선 스키마</strong><div>접속 후 스키마가 public 으로 잡히는지 확인: 이 파일 17장</div></li><li><strong>연결 시 경로 지정</strong><div>psycopg2 <code>options</code> 의 <code>-c search_path</code>: pyspark.html 23장</div></li></ul>
+    <ul class="facts"><li><strong>스키마와 public</strong><div>스키마 구조·public 권한의 원리: 이 파일 8장</div></li><li><strong>스키마 권한</strong><div>스키마 단위 grant·revoke: 이 파일 19장</div></li><li><strong>DBeaver 우선 스키마</strong><div>접속 후 스키마가 public 으로 잡히는지 확인: 이 파일 17장</div></li><li><strong>연결 시 경로 지정</strong><div>psycopg2 <code>options</code> 의 <code>-c search_path</code>: pyspark.html 21장</div></li></ul>
   </section>
   <!-- 17 -->
   <section class="sec" id="pg-dbeaver-load">
@@ -1951,7 +1951,7 @@ select * from travel_payment limit 20 offset 10;   <span class="c">-- 11번째�
     <div class="table-wrap"><table>
     <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
     <tr><td class="nowrap">문법</td><td><code>limit 개수 offset 건너뛸 행 수</code> — 쉼표 없음</td><td>MySQL 식 <code>limit 0,10</code>(시작,개수)은 PostgreSQL 에서 <b>쉼표 문법 오류</b></td></tr>
-    <tr><td class="nowrap">Spark 쪽</td><td>Spark SQL 도 콤마형 limit 을 인식하지 못함</td><td>같은 실수를 Spark 에서 반복하기 쉬움(mysql.html 23장·pyspark.html 22장)</td></tr>
+    <tr><td class="nowrap">Spark 쪽</td><td>Spark SQL 도 콤마형 limit 을 인식하지 못함</td><td>같은 실수를 Spark 에서 반복하기 쉬움(mysql.html 23장·pyspark.html 20장)</td></tr>
     <tr><td class="nowrap">용도</td><td>페이지 나누기·상위 N개 확인</td><td>정렬이 없으면 행 순서가 보장되지 않음 — 상위 N개는 <code>order by</code> 와 함께</td></tr>
     </tbody></table></div>
     <div class="dg-bar warn"><code>limit 개수 offset 건너뛸 행 수</code> — PostgreSQL·Spark SQL 모두 콤마형 <code>limit 0,10</code> 은 문법 오류. 개수 제한은 콤마 없이</div>
