@@ -622,7 +622,6 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
   <main class="main">
   <header>
     <h1>MySQL 통합 학습노트</h1>
-    <p class="deck">MySQL 통합 학습노트 · 범위: DB 분류·DBeaver·CentOS 패키지(dnf) 설치와 3306 포트 개방 → 로컬 서버 직접 설치본(MySQL 8.0.46)의 my.cnf·문자셋·기본 조회 → DB·테이블·데이터 생성·삭제 → root 패스워드·사용자·호스트·GRANT·DBeaver 원격 접속 → 접속 위치별 최소 권한·권한 테이블·사용자 삭제 사고 대응 → root로 mysqldump 백업과 mysql 복구 → 데몬 재시작·고스트 프로세스 정리·포트 변경(10000)과 포트포워딩 → 마스터·워커 포트 통일(3306) → 마스터·워커 복제(Replica) 설정과 동기화 점검 → Docker Hardened Image 기반 MySQL 컨테이너로 관리형 DB(RDS형)의 접속·문자셋 설정·장애 대응·백업과 복구 흐름 → MariaDB 11.4 연결 수·timeout·메모리 설정 → MariaDB 분석용 4개 테이블(mall_member·points·mall_product·pays) 구성과 ERD 조인 키 확인 → 시트 미러링으로 INSERT 문을 만들어 4개 테이블 적재 → JOIN·VIEW로 부모·자식 테이블 결합과 뷰 하나로 스파크 분석. 화면 값은 실습 관찰값. 컨테이너·Compose 기본: docker.html 4·5장 → GCP VM에 Cloud SQL(관리형) 사용자·DB·승인된 네트워크·DBeaver 접속 → 같은 VM에 MariaDB 직접 구축(스트림 10.11·방화벽 3306·문자셋 3구역·root 암호·호스트별 계정) → 서버·포트 없는 SQLite와 JDBC 연결 → DBeaver에서 SQL LIMIT·LIKE·travel_payment 응용 문제 풀이·조건 조합 집계 복습(23~26장).</p>
     <div class="core-strip">
       <div><div class="core-metric">컨테이너 ≠ RDS</div><p class="core-desc">Docker MySQL 실습 = 관리형 DB의 접속·운영 흐름을 연습하는 모형. 운영 방식·관리 책임은 다름 (9장)</p></div>
       <div><div class="core-metric">로그 → 설정 수정</div><p class="core-desc"><code>docker logs</code>로 원인·오류값 확인 → 호스트에서 설정 수정 → <code>docker cp</code> → <code>docker restart</code> → 접속·상태 검증 (11장)</p></div>

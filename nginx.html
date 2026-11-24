@@ -611,7 +611,6 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>nginx 통합 학습노트</h1>
-    <p class="deck">범위: nginx 설치(dnf 모듈 스트림 1.24 · <code>nginx*</code> 44개 패키지) → <code>nginx.conf</code> 줄별 의미(worker_processes · worker_connections · server · listen · root) → 워커 설정 → 웹 루트 변경(<code>/home/apink/www</code>) → 사용자 정의 에러 페이지(<code>/var/www</code> · <code>error_page</code> · <code>internal</code>) → 프록시(<code>proxy_pass</code> 80 → 8080 · X-Real-IP · X-Forwarded-For · Host). 환경: VirtualBox NAT 리눅스 VM(<code>192.168.222.2</code>, 접속 <code>10.2.2.101</code>), 일반 사용자 <code>apink</code>. 아파치 설정은 httpd.html, Tomcat(WAS)은 was.html 1~6장, HTTP 상태 코드는 httpd.html 10장. → 클라우드 VM(GCP)에 nginx 1.26 설치·GCP 방화벽 80 개방 → 웹 루트를 사용자 홈으로 바꿀 때의 403과 홈 권한 → 도메인 등록·<code>nslookup</code>·<code>ping</code> 확인.</p>
 
     <div class="core-strip">
       <div>

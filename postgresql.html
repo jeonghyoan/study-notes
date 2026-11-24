@@ -621,7 +621,6 @@ td li { font-size: 14.5px; line-height: 1.65; margin-bottom: 4px; }
 
   <header>
     <h1>PostgreSQL 통합 학습노트</h1>
-    <p class="deck">PostgreSQL 통합 학습노트 · 범위: 로컬 서버의 설치 방식(소스·RPM)·버전 선택(dnf module)·초기화·pg_hba 접속 허용·postgresql.conf 수신 주소와 psql 로컬·원격 접속(peer 인증) → 운영: 인증 전환(trust→md5)·psql 메타 명령·사용자·DB·소유자·권한·스키마 우선순위(search_path)·백업과 복구(pg_dump·psql -f)·DBeaver 접속 → Docker: 공식 이미지 <code class="n">postgres:14.24</code>·이름 있는 볼륨 <code class="n">pgdata</code>·컨테이너 실행·psql 접속·pg_hba.conf 인증·postgresql.conf 메모리·로그 설정과 재시작 검증 → 컨테이너 실습: 사용자·DB·권한(<code class="n">create user</code>·<code class="n">owner</code>·<code class="n">grant</code>) → 인코딩 확인(UTF8·<code class="n">pg_encoding_to_char</code>) → 스키마·<code class="n">search_path</code>(<code class="n">set</code>·<code class="n">alter user</code>) → DBeaver 적재·컬럼명 11개 → SELECT 문법 차이(<code class="n">ilike</code>·<code class="n">limit offset</code>·<code class="n">concat</code>·<code class="n">concat_ws</code>·<code class="n">replace</code>) → <code class="n">REVOKE</code>·<code class="n">\c</code> 전환(14~19장). 서버 10.2.2.101 · PostgreSQL 16.8 · 컨테이너 PostgreSQL 14.24 · 서비스 postgresql.service · 20장 통합 명령어 치트시트. Docker·Compose 기본 명령은 docker.html 4·5장. VectorDB·임베딩·pgvector·CLIP 이미지 검색은 <strong>vectordb.html</strong>로 분리</p>
 
     <div class="core-strip">
       <div>
