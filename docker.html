@@ -1679,19 +1679,19 @@ vi /etc/vsftpd/vsftpd.conf     <span class="c"># :set number</span>
 
 <span class="c"># [megaweb 컨테이너 · /etc/vsftpd/vsftpd.conf 파일 안]</span>
 <span class="c"># 설정 파일은 줄 끝 주석을 쓰지 않고 위 줄에 주석을 씀 (줄 끝 주석은 값의 일부로 읽혀 에러)</span>
-<span class="c"># chroot 보안 설정: 기존 항목은 # 주석만 풀고, 보안 점검 대비 아래 항목 추가</span>
+<span class="c"># chroot 보안 설정: 기존 항목은 # 주석만 풀고 아래 항목 추가 (지시어 의미·500 OOPS 재현: vsftpd.html 5장)</span>
 <span class="c"># 로컬 사용자를 자기 홈 디렉터리에 가둠 (기본은 주석)</span>
 chroot_local_user=YES
-<span class="c"># chroot 예외 사용자 목록 사용 여부. 처음 YES → 최종 NO (상위 경로 노출 차단). NO이면 아래 chroot_list_file은 사용되지 않음</span>
+<span class="c"># 예외 목록 사용 여부 — 이 컨테이너는 처음 YES → 최종 NO (예외 없이 모두 가둠). NO면 아래 파일은 실제로 안 쓰임</span>
 chroot_list_enable=NO
-<span class="c"># 쓰기 가능한 홈 디렉터리에서도 chroot 허용 (표준 동작: 없으면 홈에 쓰기 권한이 있을 때 refusing to run with writable root inside chroot() 오류)</span>
+<span class="c"># 쓰기 가능한 홈에서도 chroot 허용 — 없으면 refusing to run with writable root inside chroot() 오류</span>
 allow_writeable_chroot=YES
 <span class="c"># 예외 사용자 목록 파일. 기본값은 /etc/vsftpd/chroot_list, 이름은 자유 → ftp_user</span>
 chroot_list_file=/etc/vsftpd/ftp_user
 
 <span class="c"># Passive 모드 설정 (파일 맨 아래)</span>
-<span class="c"># 패시브는 목록 조회·전송 때 서버가 알려준 데이터 포트로 클라이언트가 다시 접속하는 방식 → 그 포트를 docker run -p로 안 열면 연결이 안 돼 FileZilla 디렉터리 조회가 한참 멈춤</span>
-<span class="c"># 이 컨테이너는 22·80·21만 열려 있어 능동형(Active)으로 접속 → 아래 pasv_* 설정은 실제로 쓰이지 않음. 패시브로 쓰려면 5000~5100도 docker run -p로 열어야 함 (아래 표준 예시)</span>
+<span class="c"># 패시브는 서버가 알려준 데이터 포트로 클라이언트가 다시 접속 → 그 포트를 -p로 안 열면 FileZilla 디렉터리 조회가 한참 멈춤</span>
+<span class="c"># 이 컨테이너는 22·80·21만 열려 있어 능동형(Active)으로 접속 → 아래 pasv_*는 실제로 안 쓰임. 패시브로 쓰려면 5000~5100도 -p로 개방 (아래 표준 예시)</span>
 pasv_enable=YES
 <span class="c"># 데이터 포트 범위를 5000~5100으로 고정 (범위가 고정돼야 -p로 열 수 있음)</span>
 pasv_min_port=5000
@@ -1711,13 +1711,13 @@ systemctl restart vsftpd</code></pre><button class="copy" type="button" aria-lab
 <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># 표준 예시: 패시브 데이터 포트 범위(5000~5100)까지 열어서 컨테이너 생성 (포트는 생성 후 변경 불가이므로 처음부터 지정)</span>
 docker run -it -d --privileged -p 9022:22 -p 80:80 -p 9021:21 -p 5000-5100:5000-5100 --name megaweb rocky:9 /sbin/init</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="dg-bar warn">패시브 모드의 인과 — 패시브는 서버가 알려준 데이터 포트로 클라이언트가 다시 접속하는 방식 → 그 포트를 <code class="n">docker run -p</code>로 안 열면 연결이 안 돼 FileZilla 디렉터리 조회가 멈춤. 그래서 <code class="n">pasv_min_port~pasv_max_port</code>(5000~5100)를 고정하고 <code class="n">-p</code>로 열어야 함. 열지 않았다면 능동형(Active)으로 접속</div>
+    <div class="dg-bar warn">패시브 모드의 인과 — 서버가 알려준 데이터 포트를 <code class="n">docker run -p</code>로 열지 않으면 FileZilla 디렉터리 조회가 멈춤. <code class="n">pasv_min_port~pasv_max_port</code>(5000~5100)를 고정해 <code class="n">-p</code>로 열거나, 열지 않았다면 능동형(Active)으로 접속</div>
 
     <p><strong>httpd 사용자별 웹 (<code class="n">userdir.conf</code>)</strong></p>
     <ul class="facts"><li><strong>자세한 설정</strong><div>httpd 설치·기동·httpd.conf 줄별 의미·DocumentRoot·DirectoryIndex: httpd.html 3~7장 / userdir.conf 전체 블록·<code class="n">Require method</code> 의미·403 해결: httpd.html 9장</div></li></ul>
 <div class="code"><pre><code><span class="c"># [megaweb 컨테이너 · root]</span>
 dnf install httpd
-<span class="c"># 사용자마다 웹을 다르게 하려면 httpd.conf(하나만 뜸)가 아니라 conf.d의 userdir.conf를 수정</span>
+<span class="c"># 사용자별 웹은 httpd.conf(하나만 뜸)가 아니라 conf.d의 userdir.conf를 수정 (블록 전체·Require method 의미: httpd.html 9장)</span>
 cd /etc/httpd/conf.d/
 <span class="c"># 목록: README, autoindex.conf, userdir.conf, welcome.conf</span>
 ls
@@ -1725,7 +1725,7 @@ ls
 vi /etc/httpd/conf.d/userdir.conf
 
 <span class="c"># [megaweb 컨테이너 · /etc/httpd/conf.d/userdir.conf 파일 안]</span>
-<span class="c"># 17번 라인: 기본값 UserDir disabled를 바꿈. www = 사용자 홈 아래 웹 디렉터리 이름</span>
+<span class="c"># 17번 라인: 기본값 UserDir disabled를 바꿈. www = 홈 아래 웹 디렉터리 이름</span>
 UserDir www
 <span class="c"># 31번 라인: 위 디렉터리 이름과 맞추기 위해 public_html → www (31~35번이 &lt;Directory&gt; 블록, 나머지 줄은 그대로)</span>
 &lt;Directory "/home/*/www"&gt;
@@ -1755,7 +1755,7 @@ dnf install mysql-server
 systemctl start mysqld     <span class="c"># 최초 기동은 느림. 컨테이너를 껐다 켜면 다시 기동</span>
 netstat -lntpu             <span class="c"># 3306, 33060(mysqld), 22(sshd) 확인</span>
 mysql -u root -p           <span class="c"># 초기 root 비밀번호 없음(엔터)</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <p><strong>사용자·DB 생성</strong> — <strong>표준 예시</strong>(강의 화면에서 SQL이 안 보여 표준 방식으로 채움) / 비밀번호는 강사 <strong>연습값</strong></p>
+    <p><strong>사용자·DB 생성</strong> — <strong>표준 예시</strong>(강의 화면에서 SQL이 안 보여 표준 방식으로 채움) / 비밀번호는 강사 <strong>연습값</strong>. GRANT 문법·<code>%</code>와 <code>localhost</code> 차이·최소권한: mysql.html 4·5장</p>
 <div class="code"><pre><code><span class="c">-- [megadb 컨테이너 · MySQL 프롬프트 · root]</span>
 <span class="c">-- 표준 예시 (root로 접속한 mysql 안에서 실행)</span>
 <span class="c">-- DB 생성</span>

@@ -3788,11 +3788,8 @@ default-character-set = utf8mb4
 [mysql]
 <span class="c"># mysql 클라이언트 전용 기본 문자셋</span>
 default-character-set = utf8mb4</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table><thead><tr><th>단계</th><th>수정</th><th>결과</th></tr></thead><tbody>
-      <tr><td class="nowrap">1차</td><td><code>[client]</code>·<code>[mysql]</code>에 <code>default-character-set = utf8mb4</code> (하이픈 연결, 띄어쓰기 금지)</td><td>재시작 후 <code>\s</code> — 클라이언트·커넥션 쪽만 <code>utf8mb4</code>, <b>서버·DB 쪽은 그대로</b></td></tr>
-      <tr><td class="nowrap">2차</td><td><code>[mysqld]</code>에 <code>character-set-server = utf8mb4</code> 추가 (철자 주의: <code>character-set-server</code>)</td><td>재시작 후 <code>\s</code>에서 전부 <code>utf8mb4</code> → 완료</td></tr>
-    </tbody></table></div>
-    <div class="dg-bar warn">문자셋 4파트 — <code>\s</code>의 Server·Db는 <code>[mysqld]</code>의 <code>character-set-server</code>, Client·Conn은 <code>[client]</code>·<code>[mysql]</code>의 <code>default-character-set</code>. 한쪽만 바꾸면 나머지는 <code>latin1</code>로 남아 한글이 깨짐</div>
+    <p>1차로 <code>[client]</code>·<code>[mysql]</code>만 바꾸면 <code>\s</code>에서 클라이언트·커넥션 쪽만 <code>utf8mb4</code>가 되고 <b>서버·DB는 <code>latin1</code> 그대로</b> → <code>[mysqld]</code>의 <code>character-set-server</code>까지 넣어야 4파트가 모두 바뀜. 옵션 이름은 하이픈 연결(<code>default-character-set</code>)이고 띄어쓰기 금지, 철자·섹션 대응·오타 시 기동 실패는 이 파일 2장</p>
+    <div class="dg-bar warn">문자셋 4파트 — Server·Db는 <code>[mysqld]</code>의 <code>character-set-server</code>, Client·Conn은 <code>[client]</code>·<code>[mysql]</code>의 <code>default-character-set</code>. 한쪽만 바꾸면 나머지는 <code>latin1</code>로 남아 한글이 깨짐 (설정 원리·오타 대응: 이 파일 2장)</div>
 
     <h3>DB·사용자·권한</h3>
     <div class="code"><pre><code><span class="c">-- [GCP VM 호스트 리눅스 · MariaDB 프롬프트 · root]</span>
@@ -3815,7 +3812,7 @@ select * from db;
 <span class="c">-- 마지막에 반영</span>
 flush privileges;</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
     <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">호스트별 계정</td><td>사용자는 호스트별(<code>localhost</code>, <code>%</code>)로 각각 만들고 <code>grant</code>도 각각 실행</td><td>계정은 (사용자, 호스트) 한 쌍 — 같은 이름도 다른 계정</td></tr>
+      <tr><td class="nowrap">호스트별 계정</td><td><code>localhost</code>·<code>%</code>를 각각 만들고 <code>grant</code>도 각각 실행</td><td>계정은 (사용자, 호스트) 한 쌍 — 같은 이름도 다른 계정. GRANT 문법·<code>%</code> 의미: 이 파일 4장</td></tr>
       <tr><td class="nowrap"><code>show master status</code></td><td><code>Empty set</code>이면 바이너리 로그가 꺼져 있다는 뜻</td><td>레플리카 사용 여부와는 별개 값 — 복제 판단은 이 명령만으로 하지 않음 (<a href="https://mariadb.com/kb/en/show-binlog-status/">SHOW BINLOG STATUS</a>)</td></tr>
       <tr><td class="nowrap">실수 사례</td><td><code>grant ... to 'megazone'</code>처럼 호스트를 생략하면 <b>무조건 <code>%</code></b>가 들어감</td><td><code>%</code>만 매칭되고 <code>localhost</code>가 빠짐 → <code>localhost</code>를 넣어 다시 실행하면 <code>db</code>에 두 줄(<code>%</code>, <code>localhost</code>)이 들어감</td></tr>
       <tr><td class="nowrap">복제 설정</td><td>바이너리 로그·복제 계정·연결 위치 순서</td><td>이 파일 8장</td></tr>

@@ -885,35 +885,22 @@ netstat -ln | grep 8005</code></pre><button class="copy" type="button" aria-labe
   <section class="sec" id="was-procedure">
     <h2>WAS 세팅 절차 정리 (서비스 3단계 · 포트 3개)</h2>
     <div class="dg"><p class="dg-title">한눈에 보기 — Service 3단계 + Java 1단계</p><div class="dg-flow"><div class="dg-node"><h4>[WAS Service]</h4><p class="sub">일반 사용자</p></div><div class="dg-arrow"></div><div class="dg-node key"><h4>wget → mv → conf</h4><p class="sub">server.xml · web.xml</p></div><div class="dg-arrow"></div><div class="dg-node accent"><h4>[WAS Java]</h4><p class="sub">root만</p></div></div><p class="dg-foot">포트 8005 · 8080 · 8443을 함께 확인</p></div>
-    <p>Java 다운로드를 기다리며 Tomcat·Java 설치 내용을 메모장으로 정리한 구성: <code>[WAS Service]</code>(Tomcat 설치·설정)와 <code>[WAS Java]</code>(root가 하는 Java 설치) 두 덩어리</p>
+    <p>Java 다운로드를 기다리며 Tomcat·Java 설치 내용을 메모장으로 정리한 구성: <code>[WAS Service]</code>(Tomcat 설치·설정)와 <code>[WAS Java]</code>(root가 하는 Java 설치) 두 덩어리. 아래는 그 순서를 항목별로 확인하는 체크리스트 — 상세 설명·명령은 오른쪽 장</p>
 
-    <h3>WAS Service 3단계</h3>
-    <div class="table-wrap"><table><thead><tr><th>순서</th><th>할 일</th><th>명령·위치</th></tr></thead><tbody>
-      <tr><td class="nowrap">1</td><td>Apache Tomcat 다운로드</td><td><code>wget</code> (<strong>개발자가 요청한 버전</strong>으로, 아무 버전이나 받지 않음)</td></tr>
-      <tr><td class="nowrap">2</td><td>압축 해제 후 디렉토리 이름을 간편하게 변경</td><td><code>mv</code></td></tr>
-      <tr><td class="nowrap">3</td><td>해당 경로(tomcat)로 입장 → <code>conf</code> 디렉토리</td><td><code>server.xml</code>, <code>web.xml</code> 두 파일의 환경설정 확인</td></tr>
-    </tbody></table></div>
-    <p>환경설정은 일반 사용자도 할 수 있지만 서버 담당자가 먼저 세팅해 주고, 그때 중요한 포트들을 함께 확인 — 무엇을 누가 만질지 미리 정해 두는 순서</p>
-
-    <h3>확인할 포트 3개 (<code>server.xml</code>)</h3>
-    <div class="table-wrap"><table><thead><tr><th>포트</th><th>용도</th><th>설명</th></tr></thead><tbody>
-      <tr><td class="nowrap">8005</td><td><strong>셧다운(정지) 포트</strong></td><td>WAS를 정지시키는 포트</td></tr>
-      <tr><td class="nowrap">8080</td><td><strong>WAS 접근 포트</strong></td><td>웹브라우저에서 <code>IP:8080</code>을 치면 WAS 웹페이지가 뜸</td></tr>
-      <tr><td class="nowrap">8443</td><td><strong>WAS HTTPS 포트</strong></td><td>HTTPS = 다른 말로 SSL 포트 (강사는 "843번"이라고 말함, 8443의 말실수)</td></tr>
+    <h3>세팅 체크리스트 (항목 → 장)</h3>
+    <div class="table-wrap"><table><thead><tr><th>순서</th><th>항목</th><th>확인할 것</th><th>자세한 곳</th></tr></thead><tbody>
+      <tr><td class="nowrap">1</td><td>Apache Tomcat 다운로드</td><td><code>wget</code> — <strong>개발자가 요청한 버전</strong>으로, 아무 버전이나 받지 않음</td><td>1장</td></tr>
+      <tr><td class="nowrap">2</td><td>압축 해제 후 디렉토리 이름을 간편하게 변경</td><td><code>mv</code>로 <code>tomcat</code>으로 변경</td><td>1장</td></tr>
+      <tr><td class="nowrap">3</td><td>해당 경로(tomcat)로 입장 → <code>conf</code> 디렉토리</td><td><code>server.xml</code>, <code>web.xml</code> 두 파일의 환경설정 확인 — 서버 담당자가 먼저 세팅해 주고, 무엇을 누가 만질지 미리 정해 두는 순서</td><td>2·3장</td></tr>
+      <tr><td class="nowrap">설치 주체</td><td>일반 사용자</td><td>root가 관리하면 모든 WAS 포트를 root가 관리해야 해서 힘듦 — Tomcat 다운로드·설정은 일반 사용자</td><td>1장</td></tr>
+      <tr><td class="nowrap">포트 3개</td><td><code>server.xml</code></td><td>8005 셧다운(정지) · 8080 WAS 접근(<code>IP:8080</code>에서 웹페이지) · 8443 HTTPS(SSL) — 강사는 "843번"이라고 말함, 8443의 말실수</td><td>2장</td></tr>
+      <tr><td class="nowrap">Java</td><td><code>[WAS Java]</code> — root 담당</td><td><strong>개발자가 요청한 버전</strong>으로 <code>dnf install java-&lt;버전&gt;*</code>(예 <code>java-17*</code>, 버전 뒤 마이너스·별표로 해당 버전 패키지 전체 설치, <code>java*</code>는 목록 확인용) → <code>java -version</code>으로 버전 숫자까지 확인. WAS를 가동하려면 Java(데몬)가 설치돼 있어야 함</td><td>4장</td></tr>
+      <tr><td class="nowrap">가동·확인</td><td><code>startup.sh</code> · 포트 확인</td><td>Tomcat 10번대 → Java 17. 가동 후 <code>IP:8080</code> 화면과 8080·8005 LISTEN 확인</td><td>4·5장</td></tr>
     </tbody></table></div>
     <p>지금은 사용자 1명(WAS 1개)이라 8005 · 8080 · 8443 세 개만 확인하면 됨 — 다른 사용자도 WAS를 쓰면 세 포트를 모두 확인해 서로 겹치지 않게 바꿔야 정상적으로 돌아감 (포트 배정 예시는 2장 참고)</p>
-
-    <h3>WAS Java (root 담당)</h3>
-    <div class="table-wrap"><table><thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-      <tr><td class="nowrap">필요 조건</td><td>WAS를 가동하려면 <strong>Java(데몬)가 설치돼 있어야 함</strong></td><td>없으면 JAVA_HOME 오류 → 4장</td></tr>
-      <tr><td class="nowrap">설치 주체</td><td>Java 설치는 <strong>root가 함</strong> (유일하게 root가 하는 부분)</td><td>Tomcat 다운로드·설정은 일반 사용자</td></tr>
-      <tr><td class="nowrap">버전</td><td><strong>개발자가 요청한 버전</strong>으로 설치, 아무거나 깔면 안 됨</td><td>Tomcat 10번대 → Java 17</td></tr>
-      <tr><td class="nowrap">명령</td><td><code>dnf install java-&lt;버전&gt;*</code> (예: <code>java-17*</code>, 버전 뒤에 마이너스·별표를 붙여 해당 버전 패키지 전체 설치)</td><td><code>java*</code>는 설치 가능한 버전 목록 확인용</td></tr>
-      <tr><td class="nowrap">확인</td><td>설치가 끝나면 <code>java -version</code> → Java 버전이 뜨면 설치 성공, 이제 가동 가능</td><td>버전 숫자까지 확인</td></tr>
-    </tbody></table></div>
     <div class="dg-bar warn">WAS 세팅 — Service 3단계(<code>wget</code> → <code>mv</code> → <code>conf</code>의 <code>server.xml</code>·<code>web.xml</code> 확인)는 일반 사용자, Java만 root. 포트는 8005 셧다운 · 8080 접근 · 8443 HTTPS(SSL) 세 개를 사용자마다 겹치지 않게</div>
 
-    <ul class="facts"><li><strong>자세한 실습</strong><div><code>server.xml</code> 포트 배정: 2장 / <code>web.xml</code> 첫 화면: 3장 / Java 설치: 4장 / nginx 프록시로 80 연결: nginx.html 6장</div></li></ul>
+    <ul class="facts"><li><strong>자세한 실습</strong><div><code>server.xml</code> 포트 배정: 2장 / <code>web.xml</code> 첫 화면: 3장 / Java 설치와 <code>JAVA_HOME</code> 오류: 4장 / 가동·정지·포트 확인: 5장 / nginx 프록시로 80 연결: nginx.html 6장</div></li></ul>
   </section>
 
   <!-- 7 -->

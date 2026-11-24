@@ -1733,14 +1733,7 @@ docker start spark-master                            <span class="c"># 시작 �
     <div class="dg-bar warn">마스터 기동 — <code>docker run</code> 옵션 → 이미지 → 실행 명령 순서. <code>--ip</code>는 deprecated라 <code>--host spark-master</code>, 주소는 <code>spark://spark-master:7077</code>. 정상 = UI에서 Status ALIVE, 버전 3.5.3</div>
 
     <h3>볼륨 연결(-v)을 넣어 클러스터 다시 만들기</h3>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th></tr></thead><tbody>
-    <tr><td><strong>상황</strong></td><td>csv를 마스터에서 처리해야 하는데 호스트에는 <code>/opt/spark</code>가 없음 — <code>/opt/spark</code>는 마스터 컨테이너 안에만 존재</td></tr>
-    <tr><td><strong>하려는 것</strong></td><td><ul><li>마스터에서 처리할 파일을 로컬에 올리면 마스터에 자동 전달</li><li>마스터 작업물을 로컬에서 바로 가져오기</li></ul></td></tr>
-    <tr><td><strong>연결 방식</strong></td><td>Docker 바인드 마운트(<code>-v</code>) — 호스트 폴더와 컨테이너 폴더를 이어 두는 Docker 기능. Spark 기능이 아니고 온프레미스·클라우드 구분 없이 쓰는 방식 (원리·판단: docker.html 10장)</td></tr>
-    <tr><td><strong>제약</strong></td><td>볼륨 없이 만든 컨테이너에는 나중에 볼륨을 붙일 수 없음 → 마스터·워커1·워커2를 정지·삭제하고 다시 생성</td></tr>
-    <tr><td><strong>삭제 전 준비</strong></td><td><code>docker run</code> 명령을 적어 둔 메모장은 지우지 않음 — 재생성 때 그대로 붙여 넣어 사용</td></tr>
-    </tbody></table></div>
+    <ul class="facts"><li><strong>상황</strong><div>csv를 마스터에서 처리해야 하는데 호스트에는 <code>/opt/spark</code>가 없음 — 마스터 컨테이너 안에만 존재. 로컬에 올린 파일이 마스터로 자동 전달되고 마스터 작업물을 로컬에서 바로 가져오게 하려면 호스트 폴더와 컨테이너 폴더를 <code>-v</code>로 연결(bind mount)</div></li><li><strong>제약</strong><div>볼륨은 생성 시점에만 붙음 → 마스터·워커1·워커2 정지·삭제 후 재생성. <code>docker run</code> 명령을 적어 둔 메모장은 재생성 때 그대로 붙여 넣는 원본이라 지우지 않음</div></li><li><strong>원리·규칙</strong><div>bind mount의 정체, 바인드·이름 볼륨·<code>:ro</code> 구분, <code>-v</code> 위치 규칙(이미지 이름 앞): docker.html 10장</div></li></ul>
     <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>
 <span class="c"># 호스트 볼륨 폴더 생성 — root 기준 절대 경로 (일반 사용자 홈 안이 아님)</span>
 mkdir /home/spark-data
@@ -2153,13 +2146,7 @@ ls -a                                <span class="c"># 컨테이너 ID 이름의
 cd f0f24                             <span class="c"># 마스터 ID 앞자리 + Tab 자동완성 (이 환경 ID 는 f0f24…)</span>
 ls -a                                <span class="c"># hostconfig.json 확인</span>
 vi hostconfig.json                   <span class="c"># 내용 확인용 — 수정은 메모장에서</span></code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table>
-    <thead><tr><th>항목</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-    <tr><td class="nowrap">소켓 재활성화</td><td><code>docker.service</code> 는 <code>docker.socket</code> 에 의해 다시 활성화될 수 있음 → <code>docker ps</code> 를 치는 순간 Docker 가 다시 작동</td><td>수정한 파일이 원래대로 돌아가는 원인</td></tr>
-    <tr><td class="nowrap">대응</td><td>다시 작동했으면 다시 정지 → <b>완전히 정지된 상태</b>에서 파일 수정</td><td>서비스만 멈추고 소켓이 살아 있으면 실패</td></tr>
-    <tr><td class="nowrap">ID 확인</td><td><code>docker ps -a</code> 로 마스터 ID 를 먼저 확인 — 폴더 이름이 컨테이너 ID</td><td>정지 상태라 <code>ps</code> 가 아니라 <code>ps -a</code></td></tr>
-    <tr><td class="nowrap">폴더 이동</td><td>ID 전체를 외우지 않고 앞자리 몇 글자 + <code>Tab</code></td><td>환경마다 ID 가 달라 화면의 <code>f0f24…</code> 는 예시</td></tr>
-    </tbody></table></div>
+    <ul class="facts"><li><strong>소켓 재활성화</strong><div><code>docker.service</code>는 <code>docker.socket</code>에 의해 다시 활성화될 수 있음 → <code>docker ps</code>를 치는 순간 Docker가 다시 작동하며 수정이 원복 → 다시 정지해 <b>완전히 정지된 상태</b>에서 수정 (서비스·소켓 관계표: docker.html 10장)</div></li><li><strong>ID 확인</strong><div>정지 상태라 <code>docker ps -a</code>로 마스터 ID를 먼저 확인 — 폴더 이름이 컨테이너 ID. ID 전체를 외우지 않고 앞자리 몇 글자 + <code>Tab</code> (환경마다 달라 화면의 <code>f0f24…</code>는 예시)</div></li></ul>
 
     <h3>PortBindings 에 11111 블록 추가</h3>
     <div class="code"><pre><code><span class="c"># [호스트 리눅스 · /var/lib/docker/containers/&lt;마스터 ID&gt;/hostconfig.json 파일 안 · root]</span>
@@ -2167,13 +2154,7 @@ vi hostconfig.json                   <span class="c"># 내용 확인용 — 수�
 <span class="c"># 7077 블록을 쉼표까지 복사해 앞에 하나 더 넣고 포트 값만 11111 로 변경</span>
 <span class="c"># 쉼표·따옴표·중괄호 하나만 틀려도 컨테이너가 아예 뜨지 않음</span>
 "PortBindings":{"11111/tcp":[{"HostIp":"","HostPort":"11111"}],"7077/tcp":[{"HostIp":"","HostPort":"7077"}],"8080/tcp":[{"HostIp":"","HostPort":"8080"}],"8888/tcp":[{"HostIp":"","HostPort":"8888"}]}</code></pre><button class="copy" type="button" aria-label="코드 복사">복사</button></div>
-    <div class="table-wrap"><table>
-    <thead><tr><th>단계</th><th>동작</th><th>메모</th></tr></thead><tbody>
-    <tr><td class="nowrap">1</td><td>[호스트 리눅스 · vi] <code>hostconfig.json</code> 내용을 전체 복사한 뒤 <code>:q!</code> 로 저장 없이 나옴</td><td>vi 에서 직접 고치면 실수 한 글자로 컨테이너가 안 돌아감</td></tr>
-    <tr><td class="nowrap">2</td><td>[윈도우 · 메모장] 붙여넣고 <code>PortBindings</code> 맨 앞에 11111 블록 추가</td><td>원본은 다른 이름으로 백업해 두고 편집</td></tr>
-    <tr><td class="nowrap">3</td><td>[호스트 리눅스 · vi] 기존 내용 전부 삭제 → <code>i</code> 입력 모드 → <code>Shift+Insert</code> 붙여넣기 → <code>Esc</code> → <code>:wq</code></td><td>남은 글자가 있으면 JSON 문법 오류로 컨테이너 미기동</td></tr>
-    <tr><td class="nowrap">주의</td><td>vi 화면에서 마우스 오른쪽 클릭이 붙여넣기</td><td>원치 않는 위치에 붙어 파일이 깨질 수 있음</td></tr>
-    </tbody></table></div>
+    <ul class="facts"><li><strong>편집 절차</strong><div>[호스트 리눅스 · vi] 내용 전체 복사 후 <code>:q!</code>로 저장 없이 나옴 → [윈도우 · 메모장] <code>PortBindings</code> 맨 앞에 11111 블록 추가(원본은 다른 이름으로 백업) → [호스트 리눅스 · vi] 기존 내용 전부 삭제 → <code>i</code> → <code>Shift+Insert</code> → <code>Esc</code> → <code>:wq</code>. 남은 글자가 있으면 JSON 문법 오류로 컨테이너 미기동, vi에서 마우스 오른쪽 클릭 붙여넣기는 원치 않는 위치에 붙어 파일이 깨질 수 있음</div></li><li><strong>원리·백업</strong><div>hostconfig.json 구조(<code>Binds</code>·<code>PortBindings</code>)·한 글자 오타 위험: docker.html 10장</div></li></ul>
 
     <h3>재기동과 포트 확인</h3>
     <div class="code"><pre><code><span class="c"># [호스트 리눅스 · root]</span>

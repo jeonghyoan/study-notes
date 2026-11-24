@@ -695,7 +695,7 @@ grep -n chroot /etc/vsftpd/vsftpd.conf   <span class="c"># 이 서버의 chroot 
 <div class="note-verify">
 <div class="tag">🔍 직접 확인 · 11강 60:03</div>
 
-<p>FTP 허용 목록 파일 이름이 전사에 "chrjunderbordlist"로만 나오고 화면이 확인되지 않음 — <code>/etc/vsftpd/</code> 안 <code>chroot_list</code>·<code>user_list</code> 등 실제 파일명을 <code>ls /etc/vsftpd</code>로 확인 필요. <code>korea</code>가 FTP 접속이 안 되는 이유도 목록 미등록으로만 설명되어 파일 내용 확인은 하지 않음</p>
+<p>FTP 허용 목록 파일 이름이 전사에 "chrjunderbordlist"로만 나오고 화면이 확인되지 않음 — <code>/etc/vsftpd/</code> 안 <code>chroot_list</code>·<code>user_list</code> 등 실제 파일명을 <code>ls /etc/vsftpd</code>로 확인 필요 — <code>korea</code>가 FTP 접속이 안 되는 이유도 목록 미등록으로만 설명되어 파일 내용 확인은 하지 않음</p>
 </div>
 
 <div class="dg-bar warn">FTP 허용 — 리눅스 계정 생성과 FTP 접속 허용은 별개. <code>vsftpd</code> 목록에 없는 계정은 접속 거부 → 파일명을 <code>ls /etc/vsftpd</code>로 확인하고 목록 등록 후 재시작</div>
@@ -777,7 +777,7 @@ journalctl -u vsftpd.service -n 50 --no-pager   <span class="c"># 몇 번째 라
 <div class="note-verify">
 <div class="tag">🔍 직접 확인 · 10강 00:17~00:30</div>
 
-<p>"Enable 할 거냐" 질문의 정확한 대상(어떤 알림인지)이 화면에서 불명확 — 영상 00:15~00:35 화면으로 확인 필요. 폴더를 열 때 VS Code가 띄우는 작업 영역 신뢰(Trust) 알림과 같은 종류로 보이나 확정하지 않음</p>
+<p>"Enable 할 거냐" 질문의 정확한 대상(어떤 알림인지)이 화면에서 불명확 — 영상 00:15~00:35 화면으로 확인 필요 — 폴더를 열 때 VS Code가 띄우는 작업 영역 신뢰(Trust) 알림과 같은 종류로 보이나 확정하지 않음</p>
 </div>
 
 <h3>ftp-kr.json — 생성과 값</h3>
@@ -827,10 +827,15 @@ journalctl -u vsftpd.service -n 50 --no-pager   <span class="c"># 몇 번째 라
 <p><code>autoUpload</code>·<code>autoDelete</code>·<code>autoDownload</code>의 정확한 동작은 공식 문서를 확인하지 못함 (화면에 보인 값과 강사 설명만 반영) → VS Code Marketplace의 ftp-kr 확장 소개 페이지에서 확인</p>
 </div>
 
+<h3>클라우드 VM 변형 (9장)</h3>
+<p>같은 <code>ftp-kr.json</code>에서 클라우드 VM만 값이 달라지는 4개 항목 — 나머지 키(계정 <code>megazone</code>·<code>protocol</code>·<code>autoUpload</code>·<code>autoDelete</code>·<code>autoDownload</code>)는 같음</p>
+<div class="table-wrap"><table><thead><tr><th>키</th><th>기본(호스트 VM)</th><th>클라우드 VM</th></tr></thead><tbody><tr><td class="nowrap"><code>host</code></td><td><code>192.168.222.2</code> (내부망)</td><td>VM 외부 IP — 내부 IP를 넣으면 접속 안 됨</td></tr><tr><td class="nowrap"><code>remotePath</code></td><td><code>/html</code> (웹 루트 <code>/home/megazone/html</code>)</td><td><code>/</code> — 슬래시만</td></tr><tr><td class="nowrap"><code>port</code></td><td><code>9021</code> (6장 <code>listen_port</code>)</td><td><code>7722</code> — 서버에서 바꿔 열어 둔 포트, 9021과 다른 환경</td></tr><tr><td class="nowrap"><code>passive</code></td><td>없음</td><td><b><code>true</code></b> — <code>autoDownload</code> 아래에 직접 추가, 없으면 파일 목록이 안 뜸</td></tr></tbody></table></div>
+<p>클라우드 접속·AI 사이트 업로드·FileZilla 우회: 9장</p>
+
 <h3>처음 연결이 안 될 때</h3>
 
 <div class="table-wrap">
-<table><thead><tr><th>항목</th><th>내용</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">증상</td><td>설정 직후에는 바로 연결되지 않음</td><td>확장이 설치만 되고 아직 인식되지 않은 상태</td></tr><tr><td class="nowrap">해결</td><td>[윈도우 · VS Code] VS Code를 <b>완전히 종료</b>했다가 다시 실행</td><td>Welcome 화면은 닫아도 됨</td></tr><tr><td class="nowrap">정상 출력</td><td>출력 창에 <code>Connected</code>, <code>list /home/.../html</code>, <code>Loaded successfully</code></td><td>세 줄이 보이면 접속까지 끝난 상태</td></tr><tr><td class="nowrap">FTP 탭</td><td>왼쪽 Explorer에 <b>FTP 탭</b>이 생김 → <b>Refresh</b> 클릭</td><td>접속해 파일 목록(list)을 가져옴. HTML 파일이 잡히면 성공</td></tr></tbody></table>
+<table><thead><tr><th>항목</th><th>내용</th><th>결과·이유</th></tr></thead><tbody><tr><td class="nowrap">증상</td><td>설정 직후에는 바로 연결되지 않음</td><td>확장이 설치만 되고 아직 인식되지 않은 상태</td></tr><tr><td class="nowrap">해결</td><td>[윈도우 · VS Code] VS Code를 <b>완전히 종료</b>했다가 다시 실행</td><td>Welcome 화면은 닫아도 됨</td></tr><tr><td class="nowrap">정상 출력</td><td>출력 창에 <code>Connected</code>, <code>list /home/.../html</code>, <code>Loaded successfully</code></td><td>세 줄이 보이면 접속까지 끝난 상태</td></tr><tr><td class="nowrap">FTP 탭</td><td>왼쪽 Explorer에 <b>FTP 탭</b>이 생김 → <b>Refresh</b> 클릭</td><td>접속해 파일 목록(list)을 가져옴. HTML 파일이 잡히면 성공</td></tr><tr><td class="nowrap">명령이 안 보일 때</td><td>[윈도우 · VS Code] 왼쪽 <b>Extensions</b>에서 <code>ftp-kr</code>가 disable이면 enable</td><td>톱니바퀴가 아니라 <b>Install</b> 버튼이 보이면 검색해서 설치 (미설치 시 FTP 불가)</td></tr></tbody></table>
 </div>
 
 <div class="note-verify">
@@ -919,23 +924,13 @@ journalctl -u vsftpd.service -n 50 --no-pager   <span class="c"># 몇 번째 라
 <p class="dg-foot">서버에 FTP로 올린 파일이 nginx 웹 루트(<code>/home/megazone/public</code>)에 그대로 보이는 흐름</p>
 </div>
 
-<h3>ftp-kr 확장</h3>
-<div class="table-wrap"><table><thead><tr><th>단계</th><th>내용</th><th>주의·이유</th></tr></thead><tbody>
-<tr><td class="nowrap">폴더 열기</td><td>[윈도우 · VS Code] 새 폴더(<code>public</code> 디렉터리 하나 생성 → <b>Select Folder</b>)로 열면 VS Code가 재시작되며 그 폴더로 열림</td><td>FTP 동기화는 연 폴더를 기준으로 동작</td></tr>
-<tr><td class="nowrap">연결 방식</td><td>앞서 한 FTP-GCP 연결과 같은 방식</td><td><b>패시브 모드도 ftp-kr 설정에 넣어야</b> 함 — 없으면 목록이 안 뜸</td></tr>
-<tr><td class="nowrap">Init</td><td><code>Ctrl+Shift+P</code> → <code>ftp-kr: Init</code></td><td><code>.vscode/ftp-kr.json</code> 생성</td></tr>
-<tr><td class="nowrap">명령이 안 보일 때</td><td>왼쪽 <b>Extensions</b>에서 <code>ftp-kr</code>가 disable이면 enable</td><td>톱니바퀴가 아니라 <b>Install</b> 버튼이 보이면 검색해서 설치 (미설치 시 FTP 불가)</td></tr>
-</tbody></table></div>
-
-<h3>ftp-kr.json 입력값</h3>
-<div class="table-wrap"><table><thead><tr><th>키</th><th>값</th><th>주의·이유</th></tr></thead><tbody>
+<h3>ftp-kr 설정 — 클라우드에서 달라지는 값</h3>
+<ul class="facts"><li><strong>공통 절차</strong><div>확장 설치·Trust·<code>Ctrl+Shift+P</code> → <code>ftp-kr: Init</code>(<code>.vscode/ftp-kr.json</code>)·<code>Ctrl+S</code> 후 <code>Loaded successfully</code>·왼쪽 FTP 탭 <b>Refresh</b>: 이 파일 8장</div></li><li><strong>폴더 열기</strong><div>[윈도우 · VS Code] <code>public</code> 디렉터리를 하나 만들어 그 폴더로 열기(<b>Select Folder</b>) — 연 폴더가 동기화 기준</div></li><li><strong>같은 값</strong><div><code>username</code> <code>megazone</code>(MySQL 사용자와 혼동 주의) · <code>password</code>는 리눅스 비밀번호(모르면 서버에서 <code>passwd megazone</code>) · <code>protocol</code> <code>ftp</code>(SFTP·FTPS 아님) · <code>autoUpload</code> <code>true</code>·<code>autoDelete</code> <code>false</code>·<code>autoDownload</code> <code>false</code></div></li></ul>
+<div class="table-wrap"><table><thead><tr><th>키</th><th>클라우드 VM 값</th><th>주의·이유</th></tr></thead><tbody>
 <tr><td class="nowrap"><code>host</code></td><td>VM 외부 IP</td><td>내부 IP를 넣으면 접속 안 됨</td></tr>
-<tr><td class="nowrap"><code>username</code></td><td><code>megazone</code></td><td>접속용 계정 — MySQL 사용자와 혼동 주의</td></tr>
-<tr><td class="nowrap"><code>password</code></td><td>FTP 계정(<code>megazone</code>)의 리눅스 비밀번호</td><td>모르면 <code>passwd megazone</code>으로 변경</td></tr>
-<tr><td class="nowrap"><code>remotePath</code></td><td><code>/</code></td><td>슬래시만. 홈 경로를 적어도 되지만 일단 <code>/</code></td></tr>
-<tr><td class="nowrap"><code>protocol</code></td><td><code>ftp</code></td><td>SFTP·FTPS가 아님</td></tr>
+<tr><td class="nowrap"><code>remotePath</code></td><td><code>/</code></td><td>슬래시만. 홈 경로를 적어도 되지만 일단 <code>/</code> — chroot라 홈이 <code>/</code></td></tr>
 <tr><td class="nowrap"><code>port</code></td><td><code>7722</code></td><td>서버에서 바꿔 열어 둔 FTP 포트 — 이 파일 6장의 9021과 다른 환경</td></tr>
-<tr><td class="nowrap"><code>passive</code></td><td><b><code>true</code></b></td><td><code>autoDownload</code> 아래에 직접 추가. <code>pa</code> 입력 후 Tab 하면 오른쪽 AI(Copilot)가 자동완성</td></tr>
+<tr><td class="nowrap"><code>passive</code></td><td><b><code>true</code></b></td><td><code>autoDownload</code> 아래에 직접 추가. <code>pa</code> 입력 후 Tab 하면 오른쪽 AI(Copilot)가 자동완성 — 없으면 파일 목록이 안 뜸</td></tr>
 </tbody></table></div>
 <ul class="facts"><li><strong>확인</strong><div>저장 → 아래 <b>Output</b>에 <code>Connected</code>, <code>list</code>가 뜨면 성공</div></li><li><strong>오류</strong><div><code>username field must be string</code>는 값 수정 중에 뜨는 것 — 값이 문자열로 들어가면 사라짐</div></li></ul>
 <div class="code">
